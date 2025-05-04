@@ -1,0 +1,55 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [
+    react({
+      // Skip type checking during build for faster builds
+      babel: {
+        plugins: []
+      }
+    })
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  // Configure base path for production build to work with Spring Boot
+  base: '/',
+  server: {
+    port: 5173, // Vite's default port
+    proxy: {
+      // Proxy API requests to Spring Boot backend during development
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    // Skip TS type checking during build
+    typescript: {
+      ignoreBuildErrors: true
+    },
+    // Generate source maps for production builds
+    sourcemap: true,
+    // Optimize chunks
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split vendor code into chunks
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'mui-vendor': ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+          'chart-vendor': ['recharts'],
+        },
+      },
+    },
+  },
+});

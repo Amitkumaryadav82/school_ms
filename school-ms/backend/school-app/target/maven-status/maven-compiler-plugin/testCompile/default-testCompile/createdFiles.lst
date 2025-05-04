@@ -1,0 +1,6 @@
+com\school\exam\service\ExamServiceTest.class
+com\school\attendance\controller\AttendanceControllerTest.class
+com\school\exam\controller\ExamControllerTest.class
+com\school\attendance\AttendanceIntegrationTest.class
+com\school\attendance\integration\AttendanceIntegrationTest.class
+com\school\attendance\service\AttendanceServiceTest.class

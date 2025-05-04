@@ -1,0 +1,214 @@
+Duplicate File Analysis
+=======================
+
+Files with multiple versions:
+
+App:
+  KEEP: App.tsx (.tsx)
+  DELETE: App.js (.js)
+
+components\DataTable:
+  KEEP: DataTable.tsx (.tsx)
+  DELETE: DataTable.jsx (.jsx)
+  DELETE: DataTable.js (.js)
+
+components\dialogs\AdmissionDialog:
+  KEEP: AdmissionDialog.tsx (.tsx)
+  DELETE: AdmissionDialog.js (.js)
+
+components\dialogs\BaseDialog:
+  KEEP: BaseDialog.tsx (.tsx)
+  DELETE: BaseDialog.js (.js)
+
+components\dialogs\CourseDialog:
+  KEEP: CourseDialog.tsx (.tsx)
+  DELETE: CourseDialog.jsx (.jsx)
+  DELETE: CourseDialog.js (.js)
+
+components\dialogs\EnrollmentDialog:
+  KEEP: EnrollmentDialog.tsx (.tsx)
+  DELETE: EnrollmentDialog.jsx (.jsx)
+  DELETE: EnrollmentDialog.js (.js)
+
+components\dialogs\StudentDialog:
+  KEEP: StudentDialog.tsx (.tsx)
+  DELETE: StudentDialog.jsx (.jsx)
+  DELETE: StudentDialog.js (.js)
+
+components\dialogs\TeacherDialog:
+  KEEP: TeacherDialog.tsx (.tsx)
+  DELETE: TeacherDialog.jsx (.jsx)
+  DELETE: TeacherDialog.js (.js)
+
+components\ErrorMessage:
+  KEEP: ErrorMessage.tsx (.tsx)
+  DELETE: ErrorMessage.jsx (.jsx)
+  DELETE: ErrorMessage.js (.js)
+
+components\Layout:
+  KEEP: Layout.tsx (.tsx)
+  DELETE: Layout.jsx (.jsx)
+  DELETE: Layout.js (.js)
+
+components\Loading:
+  KEEP: Loading.tsx (.tsx)
+  DELETE: Loading.jsx (.jsx)
+  DELETE: Loading.js (.js)
+
+components\Permission:
+  KEEP: Permission.tsx (.tsx)
+  DELETE: Permission.js (.js)
+
+components\RoleBasedRoute:
+  KEEP: RoleBasedRoute.tsx (.tsx)
+  DELETE: RoleBasedRoute.js (.js)
+
+components\ServerStatusIndicator:
+  KEEP: ServerStatusIndicator.tsx (.tsx)
+  DELETE: ServerStatusIndicator.js (.js)
+
+config\environment:
+  KEEP: environment.ts (.ts)
+  DELETE: environment.jsx (.jsx)
+  DELETE: environment.js (.js)
+
+context\AuthContext:
+  KEEP: AuthContext.tsx (.tsx)
+  DELETE: AuthContext.jsx (.jsx)
+  DELETE: AuthContext.js (.js)
+
+context\NotificationContext:
+  KEEP: NotificationContext.tsx (.tsx)
+  DELETE: NotificationContext.js (.js)
+
+hooks\useApi:
+  KEEP: useApi.ts (.ts)
+  DELETE: useApi.js (.js)
+
+main:
+  KEEP: main.tsx (.tsx)
+  DELETE: main.js (.js)
+
+pages\Admissions:
+  KEEP: Admissions.tsx (.tsx)
+  DELETE: Admissions.js (.js)
+
+pages\Courses:
+  KEEP: Courses.tsx (.tsx)
+  DELETE: Courses.jsx (.jsx)
+  DELETE: Courses.js (.js)
+
+pages\Dashboard:
+  KEEP: Dashboard.tsx (.tsx)
+  DELETE: Dashboard.jsx (.jsx)
+  DELETE: Dashboard.js (.js)
+
+pages\Landing:
+  KEEP: Landing.tsx (.tsx)
+  DELETE: Landing.js (.js)
+
+pages\Login:
+  KEEP: Login.tsx (.tsx)
+  DELETE: Login.js (.js)
+
+pages\Register:
+  KEEP: Register.tsx (.tsx)
+  DELETE: Register.js (.js)
+
+pages\Reports:
+  KEEP: Reports.tsx (.tsx)
+  DELETE: Reports.jsx (.jsx)
+  DELETE: Reports.js (.js)
+
+pages\Students:
+  KEEP: Students.tsx (.tsx)
+  DELETE: Students.jsx (.jsx)
+  DELETE: Students.js (.js)
+
+pages\Teachers:
+  KEEP: Teachers.tsx (.tsx)
+  DELETE: Teachers.jsx (.jsx)
+  DELETE: Teachers.js (.js)
+
+services\admissionService:
+  KEEP: admissionService.ts (.ts)
+  DELETE: admissionService.js (.js)
+
+services\api:
+  KEEP: api.ts (.ts)
+  DELETE: api.jsx (.jsx)
+  DELETE: api.js (.js)
+
+services\attendanceService:
+  KEEP: attendanceService.ts (.ts)
+  DELETE: attendanceService.js (.js)
+
+services\authService:
+  KEEP: authService.ts (.ts)
+  DELETE: authService.js (.js)
+
+services\courseService:
+  KEEP: courseService.ts (.ts)
+  DELETE: courseService.jsx (.jsx)
+  DELETE: courseService.js (.js)
+
+services\employeeService:
+  KEEP: employeeService.ts (.ts)
+  DELETE: employeeService.js (.js)
+
+services\examService:
+  KEEP: examService.ts (.ts)
+  DELETE: examService.js (.js)
+
+services\feeService:
+  KEEP: feeService.ts (.ts)
+  DELETE: feeService.js (.js)
+
+services\leaveService:
+  KEEP: leaveService.ts (.ts)
+  DELETE: leaveService.js (.js)
+
+services\messageService:
+  KEEP: messageService.ts (.ts)
+  DELETE: messageService.js (.js)
+
+services\studentService:
+  KEEP: studentService.ts (.ts)
+  DELETE: studentService.jsx (.jsx)
+  DELETE: studentService.js (.js)
+
+services\teacherService:
+  KEEP: teacherService.ts (.ts)
+  DELETE: teacherService.jsx (.jsx)
+  DELETE: teacherService.js (.js)
+
+theme:
+  KEEP: theme.ts (.ts)
+  DELETE: theme.jsx (.jsx)
+  DELETE: theme.js (.js)
+
+utils\errorHandler:
+  KEEP: errorHandler.ts (.ts)
+  DELETE: errorHandler.js (.js)
+
+utils\permissions:
+  KEEP: permissions.ts (.ts)
+  DELETE: permissions.js (.js)
+
+utils\tableFormatters:
+  KEEP: tableFormatters.tsx (.tsx)
+  DELETE: tableFormatters.js (.js)
+
+utils\validation:
+  KEEP: validation.ts (.ts)
+  DELETE: validation.js (.js)
+
+
+
+Components missing TypeScript versions:
+
+services\apiClient.js
+utils\admissionValidation.js
+utils\courseValidation.js
+
+Total: 3 files still need TypeScript conversion

@@ -1,0 +1,43 @@
+{
+  "name": "school-management-system",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --skipLibCheck && vite build",
+    "build:prod": "tsc --skipLibCheck && vite build --mode production",
+    "build:backend": "vite build --emptyOutDir && node scripts/copy-to-backend.js",
+    "build:monolith": "tsc --skipLibCheck && vite build --mode production --emptyOutDir && node scripts/copy-to-backend.js",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "cleanup:analyze": "node scripts/cleanup-duplicates.js",
+    "cleanup:execute": "node scripts/cleanup-duplicates.js --delete"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/icons-material": "^5.12.0",
+    "@mui/material": "^5.12.0",
+    "axios": "^1.3.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.10.0",
+    "recharts": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.2",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@types/recharts": "^1.8.24",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "@vitejs/plugin-react": "^4.0.0",
+    "eslint": "^8.38.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "fs-extra": "^11.2.0",
+    "typescript": "^5.8.3",
+    "vite": "^4.3.2"
+  }
+}

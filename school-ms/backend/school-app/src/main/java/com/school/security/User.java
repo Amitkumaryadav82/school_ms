@@ -1,0 +1,80 @@
+package com.school.security;
+
+import com.school.common.model.Auditable;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Collection;
+import java.util.Collections;
+
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class User extends Auditable implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank
+    @Column(unique = true)
+    private String username;
+
+    @NotBlank
+    private String fullName;
+
+    @NotBlank
+    @Email
+    @Column(unique = true)
+    private String email;
+
+    @NotBlank
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
+    @Builder.Default
+    private boolean enabled = true;
+
+    @Builder.Default
+    private boolean accountNonExpired = true;
+
+    @Builder.Default
+    private boolean accountNonLocked = true;
+
+    @Builder.Default
+    private boolean credentialsNonExpired = true;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return accountNonExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return credentialsNonExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+}

@@ -1,0 +1,61 @@
+export const ROLES = {
+  ADMIN: 'ADMIN',
+  TEACHER: 'TEACHER',
+  STAFF: 'STAFF',
+  PARENT: 'PARENT',
+  STUDENT: 'STUDENT',
+} as const;
+
+export type Role = keyof typeof ROLES;
+
+export const PERMISSIONS = {
+  CREATE_STUDENT: [ROLES.ADMIN, ROLES.STAFF],
+  EDIT_STUDENT: [ROLES.ADMIN, ROLES.STAFF],
+  DELETE_STUDENT: [ROLES.ADMIN],
+  VIEW_STUDENT: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.PARENT, ROLES.STUDENT],
+  
+  CREATE_TEACHER: [ROLES.ADMIN],
+  EDIT_TEACHER: [ROLES.ADMIN],
+  DELETE_TEACHER: [ROLES.ADMIN],
+  VIEW_TEACHER: [ROLES.ADMIN, ROLES.STAFF, ROLES.STUDENT],
+  
+  CREATE_COURSE: [ROLES.ADMIN, ROLES.STAFF],
+  EDIT_COURSE: [ROLES.ADMIN, ROLES.STAFF],
+  DELETE_COURSE: [ROLES.ADMIN],
+  VIEW_COURSE: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.STUDENT],
+  
+  MANAGE_ATTENDANCE: [ROLES.ADMIN, ROLES.TEACHER],
+  VIEW_ATTENDANCE: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.PARENT, ROLES.STUDENT],
+  
+  MANAGE_EXAMS: [ROLES.ADMIN, ROLES.TEACHER],
+  VIEW_EXAM_RESULTS: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.PARENT, ROLES.STUDENT],
+  
+  MANAGE_FEES: [ROLES.ADMIN, ROLES.STAFF],
+  VIEW_FEES: [ROLES.ADMIN, ROLES.STAFF, ROLES.PARENT, ROLES.STUDENT],
+  
+  MANAGE_ADMISSIONS: [ROLES.ADMIN, ROLES.STAFF],
+  VIEW_ADMISSIONS: [ROLES.ADMIN, ROLES.STAFF],
+  
+  SEND_MESSAGE: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF],
+  VIEW_MESSAGE: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.PARENT, ROLES.STUDENT],
+  
+  VIEW_ADMIN_DASHBOARD: [ROLES.ADMIN, ROLES.STAFF],
+  VIEW_TEACHER_DASHBOARD: [ROLES.TEACHER],
+  VIEW_STUDENT_DASHBOARD: [ROLES.STUDENT],
+  VIEW_PARENT_DASHBOARD: [ROLES.PARENT],
+} as const;
+
+export type Permission = keyof typeof PERMISSIONS;
+
+export const hasPermission = (userRole: Role | string, permission: Permission): boolean => {
+  if (!userRole || !permission) return false;
+  return PERMISSIONS[permission].includes(userRole as Role);
+};
+
+export const hasAnyPermission = (userRole: Role | string, permissions: Permission[]): boolean => {
+  return permissions.some(permission => hasPermission(userRole, permission));
+};
+
+export const hasAllPermissions = (userRole: Role | string, permissions: Permission[]): boolean => {
+  return permissions.every(permission => hasPermission(userRole, permission));
+};
