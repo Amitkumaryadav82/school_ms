@@ -87,47 +87,47 @@ async function callWithElevatedPermissions(method: string, endpoint: string, dat
 // Simplified student service with consistent API usage
 export const studentService = {
   // Get all students
-  getAllStudents: () => api.get<Student[]>('/students'),
+  getAll: () => api.get<Student[]>('/students'),
+  getAllStudents: () => api.get<Student[]>('/students'), // Alias for compatibility
   
   // Get a specific student by ID
-  getStudentById: (id: number) => api.get<Student>(`/students/${id}`),
+  getById: (id: number) => api.get<Student>(`/students/${id}`),
   
   // Create a new student record
-  createStudent: (student: Student) => api.post<Student>('/students', student),
+  create: (student: Student) => api.post<Student>('/students', student),
   
-  // Create a student with elevated permissions
+  // Update an existing student record
+  update: (id: number, student: Student) => api.put<Student>(`/students/${id}`, student),
+  
+  // Delete a student record
+  delete: (id: number) => api.delete(`/students/${id}`),
+  
+  // Get students by grade
+  getByGrade: (grade: string) => api.get<Student[]>(`/students/grade/${grade}`),
+  
+  // Get students by status
+  getByStatus: (status: string) => api.get<Student[]>(`/students/status/${status}`),
+  
+  // Search students
+  search: (query: string) => api.get<Student[]>(`/students/search?q=${query}`),
+  
+  // Elevated permission methods
   createWithElevatedPermissions: async (student: Student) => {
     const response = await callWithElevatedPermissions('post', '/api/students', student);
     return response?.data;
   },
   
-  // Update an existing student record
-  updateStudent: (id: number, student: Student) => api.put<Student>(`/students/${id}`, student),
-  
-  // Update student with elevated permissions
   updateWithElevatedPermissions: async (id: number, student: Student) => {
     const response = await callWithElevatedPermissions('put', `/api/students/${id}`, student);
     return response?.data;
-  },
-  
-  // Delete a student record
-  deleteStudent: (id: number) => api.delete(`/students/${id}`),
-  
-  // Get students by grade
-  getStudentsByGrade: (grade: string) => api.get<Student[]>(`/students/grade/${grade}`),
-  
-  // Get students by status
-  getStudentsByStatus: (status: string) => api.get<Student[]>(`/students/status/${status}`),
-  
-  // Search students
-  searchStudents: (query: string) => api.get<Student[]>(`/students/search?q=${query}`)
+  }
 };
 
 // Also export the old function names for backward compatibility
 export const getAll = studentService.getAllStudents;
-export const getById = studentService.getStudentById;
-export const create = studentService.createStudent;
-export const update = studentService.updateStudent;
-export const remove = studentService.deleteStudent;
+export const getById = studentService.getById;
+export const create = studentService.create;
+export const update = studentService.update;
+export const remove = studentService.delete;
 export const createWithElevatedPermissions = studentService.createWithElevatedPermissions;
 export const updateWithElevatedPermissions = studentService.updateWithElevatedPermissions;

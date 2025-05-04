@@ -83,9 +83,20 @@ public class SecurityConfig {
                 // Disable CSRF for REST APIs and static resources
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // Apply CORS configuration
-                .cors(corsCustomizer -> {
-                })
+                // Apply CORS configuration - properly enable CORS
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfiguration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:5173",
+                            "http://localhost:8080", "http://localhost:3000"));
+                    corsConfiguration.setAllowedMethods(
+                            java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+                    corsConfiguration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type",
+                            "Accept", "Origin", "X-Requested-With", "Access-Control-Request-Method",
+                            "Access-Control-Request-Headers"));
+                    corsConfiguration.setAllowCredentials(true);
+                    corsConfiguration.setMaxAge(3600L);
+                    return corsConfiguration;
+                }))
 
                 // Use stateless sessions for API calls
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -157,8 +168,19 @@ public class SecurityConfig {
         http
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(corsCustomizer -> {
-                })
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfiguration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:5173",
+                            "http://localhost:8080", "http://localhost:3000"));
+                    corsConfiguration.setAllowedMethods(
+                            java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+                    corsConfiguration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type",
+                            "Accept", "Origin", "X-Requested-With", "Access-Control-Request-Method",
+                            "Access-Control-Request-Headers"));
+                    corsConfiguration.setAllowCredentials(true);
+                    corsConfiguration.setMaxAge(3600L);
+                    return corsConfiguration;
+                }))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> {
                     // All static resources

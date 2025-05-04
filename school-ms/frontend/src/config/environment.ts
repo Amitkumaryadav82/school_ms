@@ -7,8 +7,8 @@ interface Config {
 }
 
 const development: Config = {
-  // During development, we'll still use the full URL for easier local development
-  apiUrl: 'http://localhost:8080',
+  // Use relative path to leverage Vite's built-in proxy for CORS avoidance
+  apiUrl: '',  // Empty string means use relative path
   fallbackApiUrl: 'http://localhost:3000', // Fallback URL in case primary fails
   swaggerUrl: 'http://localhost:8080/swagger-ui/index.html',
   apiTimeout: 10000, // 10 second timeout for API calls

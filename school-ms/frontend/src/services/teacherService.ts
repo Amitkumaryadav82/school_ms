@@ -10,9 +10,10 @@ export interface Teacher {
 }
 
 export const teacherService = {
-  getAll: () => api.get<Teacher[]>('/teachers'),
-  getById: (id: number) => api.get<Teacher>(`/teachers/${id}`),
-  create: (teacher: Teacher) => api.post<Teacher>('/teachers', teacher),
-  update: (id: number, teacher: Teacher) => api.put<Teacher>(`/teachers/${id}`, teacher),
-  delete: (id: number) => api.delete(`/teachers/${id}`),
+  // Updated to use the correct staff endpoint that has permission
+  getAll: () => api.get<Teacher[]>('/staff/teachers'),
+  getById: (id: number) => api.get<Teacher>(`/staff/${id}`),
+  create: (teacher: Teacher) => api.post<Teacher>('/staff', teacher),
+  update: (id: number, teacher: Teacher) => api.put<Teacher>(`/staff/${id}`, teacher),
+  delete: (id: number) => api.delete(`/staff/${id}`),
 };

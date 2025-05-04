@@ -204,3 +204,90 @@ CREATE TABLE IF NOT EXISTS transport_fees (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Staff Management Tables
+
+-- Staff Role Types
+CREATE TABLE IF NOT EXISTS staff_roles (
+    id SERIAL PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Staff Table (Base table for all staff members)
+CREATE TABLE IF NOT EXISTS staff (
+    id SERIAL PRIMARY KEY,
+    staff_id VARCHAR(20) NOT NULL UNIQUE,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    phone_number VARCHAR(20),
+    address TEXT,
+    date_of_birth DATE,
+    gender VARCHAR(10),
+    join_date DATE NOT NULL,
+    role_id INT NOT NULL REFERENCES staff_roles(id),
+    user_id INT REFERENCES users(id),
+    is_active BOOLEAN DEFAULT TRUE,
+    qualifications TEXT,
+    emergency_contact VARCHAR(100),
+    blood_group VARCHAR(5),
+    profile_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Teacher-specific information
+CREATE TABLE IF NOT EXISTS teachers (
+    id SERIAL PRIMARY KEY,
+    staff_id INT NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
+    department VARCHAR(100),
+    specialization VARCHAR(100),
+    subjects TEXT,
+    teaching_experience INT,
+    is_class_teacher BOOLEAN DEFAULT FALSE,
+    class_assigned_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Special Designations for Staff
+CREATE TABLE IF NOT EXISTS staff_designations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Many-to-Many relationship between Staff and Designations
+CREATE TABLE IF NOT EXISTS staff_designation_mappings (
+    id SERIAL PRIMARY KEY,
+    staff_id INT NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
+    designation_id INT NOT NULL REFERENCES staff_designations(id) ON DELETE CASCADE,
+    assigned_date DATE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(staff_id, designation_id)
+);
+
+-- Insert default staff roles
+INSERT INTO staff_roles (role_name, description)
+VALUES 
+    ('Principal', 'School head responsible for overall management'),
+    ('Admin Officer', 'Handles administrative tasks'),
+    ('Management', 'Responsible for school operations and management'),
+    ('Account Officer', 'Manages school finances and accounts'),
+    ('Librarian', 'Manages library resources'),
+    ('Teacher', 'Responsible for teaching and student development')
+ON CONFLICT (role_name) DO NOTHING;
+
+-- Insert default staff designations
+INSERT INTO staff_designations (name, description)
+VALUES 
+    ('Timetable Incharge', 'Teacher responsible for creating and managing school timetables'),
+    ('Exam Cell Member', 'Teacher who is part of examination management team')
+ON CONFLICT (name) DO NOTHING;
