@@ -133,7 +133,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       setUser(userData as AuthResponse);
       setIsAuthenticated(true);
-      navigate('/');
+      
+      // Navigate to dashboard instead of root path
+      navigate('/dashboard');
       
       // After successful login, reset the inactivity timer
       resetInactivityTimer();
