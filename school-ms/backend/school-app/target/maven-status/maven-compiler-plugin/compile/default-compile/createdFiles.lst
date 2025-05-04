@@ -20,6 +20,7 @@ com\school\admission\model\Admission$AdmissionBuilder.class
 com\school\hrm\dto\StaffRoleDTO$StaffRoleDTOBuilder.class
 com\school\communication\dto\MessageDTO.class
 com\schoolms\controller\CourseController.class
+com\school\course\service\CourseServiceImpl.class
 com\school\student\model\StudentStatus.class
 com\school\attendance\dto\StudentAttendanceSummary.class
 com\school\config\OpenApiConfig.class
@@ -72,6 +73,7 @@ com\school\attendance\dto\BulkAttendanceRequest.class
 com\school\fee\repository\PaymentRepository.class
 com\school\attendance\dto\MonthlyAttendanceReport$MonthlyAttendanceReportBuilder.class
 com\school\admission\dto\AdmissionResponse.class
+com\school\course\repository\CourseRepositoryImpl.class
 com\school\hrm\entity\StaffDesignation.class
 com\school\hrm\model\Leave.class
 com\school\hrm\repository\StaffDesignationMappingRepository.class
@@ -82,6 +84,7 @@ com\school\attendance\dto\MonthlyAttendanceStats$MonthlyAttendanceStatsBuilder.c
 com\school\student\model\Gender.class
 com\school\exam\model\Exam$ExamBuilder.class
 com\school\communication\service\NotificationServiceImpl.class
+com\school\course\service\CourseService.class
 com\school\common\model\Auditable.class
 com\school\exam\dto\ExamResultRequest.class
 com\school\security\exception\DuplicateEmailException.class
@@ -141,6 +144,7 @@ com\school\timetable\model\Timetable.class
 com\schoolms\repository\CourseRepositoryImpl.class
 com\school\hrm\controller\LeaveController.class
 com\school\fee\model\Payment.class
+com\school\course\controller\CourseController.class
 com\school\security\AuthService.class
 com\school\communication\model\InAppNotification.class
 com\school\hrm\dto\StaffDesignationDTO$StaffDesignationDTOBuilder.class
@@ -167,6 +171,7 @@ com\school\admission\service\AdmissionService$1.class
 com\school\communication\model\Message.class
 com\school\monitoring\DatabaseHealthIndicator.class
 com\school\admission\dto\AdmissionResponse$AdmissionResponseBuilder.class
+com\school\course\repository\CourseRepository.class
 com\school\fee\model\Fee.class
 com\school\communication\repository\NotificationRepository.class
 com\school\config\WebServerCustomizer.class
@@ -177,6 +182,7 @@ com\school\security\AuthenticationException.class
 com\school\exam\dto\ExamSummary$ExamSummaryBuilder.class
 com\school\hrm\dto\TeacherDetailsDTO.class
 com\school\attendance\dto\StudentAttendanceSummary$StudentAttendanceSummaryBuilder.class
+com\school\course\model\Course.class
 com\school\hrm\exception\EmployeeNotFoundException.class
 com\school\monitoring\MetricsConfig.class
 com\school\communication\service\MessageService$1.class

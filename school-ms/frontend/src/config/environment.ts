@@ -7,8 +7,8 @@ interface Config {
 }
 
 const development: Config = {
-  // Use relative path to leverage Vite's built-in proxy for CORS avoidance
-  apiUrl: '',  // Empty string means use relative path
+  // Point directly to the backend server
+  apiUrl: 'http://localhost:8080',  // Using port 8080 which is typical for Spring Boot apps
   fallbackApiUrl: 'http://localhost:3000', // Fallback URL in case primary fails
   swaggerUrl: 'http://localhost:8080/swagger-ui/index.html',
   apiTimeout: 10000, // 10 second timeout for API calls
