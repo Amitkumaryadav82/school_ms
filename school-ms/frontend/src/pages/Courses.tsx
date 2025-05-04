@@ -37,12 +37,12 @@ const Courses: React.FC = () => {
     loading,
     error,
     refresh,
-  } = useApi(() => courseService.getAllCourses(), {
+  } = useApi(() => courseService.getAll(), {
     cacheKey: 'courses',
   });
 
   const { mutate: createCourse, loading: createLoading } = useApiMutation(
-    (data: Course) => courseService.createCourse(data),
+    (data: Course) => courseService.create(data),
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Course created successfully' });
@@ -53,7 +53,7 @@ const Courses: React.FC = () => {
   );
 
   const { mutate: updateCourse, loading: updateLoading } = useApiMutation(
-    (data: Course) => courseService.updateCourse(data.id!, data),
+    (data: Course) => courseService.update(data.id!, data),
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Course updated successfully' });
@@ -65,7 +65,7 @@ const Courses: React.FC = () => {
   );
 
   const { mutate: deleteCourse } = useApiMutation(
-    (id: number) => courseService.deleteCourse(id),
+    (id: number) => courseService.delete(id),
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Course deleted successfully' });
@@ -99,42 +99,20 @@ const Courses: React.FC = () => {
   };
 
   const columns: Column<Course>[] = [
-    { id: 'courseCode', label: 'Code', sortable: true },
+    { id: 'id', label: 'ID', sortable: true },
     { id: 'name', label: 'Name', sortable: true },
-    { 
-      id: 'grade',
-      label: 'Grade',
-      sortable: true,
-      format: (value) => `Grade ${value}`,
-    },
-    {
-      id: 'term',
-      label: 'Term',
-      sortable: true,
-      format: (value) => value.charAt(0) + value.slice(1).toLowerCase(),
-    },
+    { id: 'department', label: 'Department', sortable: true },
+    { id: 'teacherId', label: 'Teacher ID', sortable: true },
     { id: 'credits', label: 'Credits', sortable: true },
     {
-      id: 'assignedTeachers',
-      label: 'Teachers',
-      format: (teachers) => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-          {teachers?.map((teacher: any) => (
-            <Chip
-              key={teacher.id}
-              label={teacher.name}
-              size="small"
-              variant="outlined"
-            />
-          ))}
-        </Box>
-      ),
+      id: 'capacity',
+      label: 'Capacity',
+      sortable: true,
     },
     {
-      id: 'status',
-      label: 'Status',
+      id: 'enrolled',
+      label: 'Enrolled',
       sortable: true,
-      format: formatStatus,
     },
     createActionColumn<Course>(
       (row) => hasPermission(user?.role || '', 'EDIT_COURSE') && handleEdit(row),

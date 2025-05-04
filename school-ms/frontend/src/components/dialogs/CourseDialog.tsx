@@ -6,11 +6,8 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Chip,
-  Box,
 } from '@mui/material';
 import { Course } from '../../services/courseService';
-import { Teacher } from '../../services/teacherService';
 import { validateCourse } from '../../utils/validation';
 import BaseDialog from './BaseDialog';
 import { useApi } from '../../hooks/useApi';
@@ -20,12 +17,9 @@ interface CourseDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: Course) => Promise<void>;
-  initialData?: Partial<Course>;
+  initialData?: Course | null;
   loading?: boolean;
 }
-
-const grades = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
-const terms = ['FIRST', 'SECOND', 'THIRD', 'FOURTH'];
 
 const CourseDialog: React.FC<CourseDialogProps> = ({
   open,
@@ -34,33 +28,51 @@ const CourseDialog: React.FC<CourseDialogProps> = ({
   initialData,
   loading,
 }) => {
-  const [formData, setFormData] = useState<Partial<Course>>(
-    initialData || {
-      name: '',
-      courseCode: '',
-      description: '',
-      grade: '',
-      term: 'FIRST',
-      credits: 0,
-      capacity: 30,
-      assignedTeachers: [],
-      status: 'ACTIVE',
+  const [formData, setFormData] = useState<Course>({
+    name: '',
+    department: '',
+    teacherId: 0,
+    credits: 0,
+    capacity: 30,
+    enrolled: 0
+  });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        ...initialData
+      });
+    } else {
+      // Reset to defaults when dialog is opened for new course
+      setFormData({
+        name: '',
+        department: '',
+        teacherId: 0,
+        credits: 0,
+        capacity: 30,
+        enrolled: 0
+      });
     }
-  );
+  }, [initialData, open]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { data: teachers } = useApi(() => teacherService.getAllTeachers(), {
+  const { data: teachers } = useApi(() => teacherService.getAll(), {
     cacheKey: 'teachers',
   });
 
   const handleChange = (field: keyof Course) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const value = field === 'teacherId' || field === 'credits' || field === 'capacity' || field === 'enrolled' 
+      ? Number(e.target.value)
+      : e.target.value;
+    
     setFormData((prev) => ({
       ...prev,
-      [field]: e.target.value,
+      [field]: value,
     }));
+    
     if (errors[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -69,25 +81,14 @@ const CourseDialog: React.FC<CourseDialogProps> = ({
     }
   };
 
-  const handleTeacherChange = (event: any) => {
-    const selectedTeacherIds = event.target.value as number[];
-    const selectedTeachers = teachers?.filter((teacher) =>
-      selectedTeacherIds.includes(teacher.id!)
-    );
-    setFormData((prev) => ({
-      ...prev,
-      assignedTeachers: selectedTeachers || [],
-    }));
-  };
-
   const handleSubmit = () => {
-    const validationErrors = validateCourse(formData as Course);
+    const validationErrors = validateCourse(formData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    onSubmit(formData as Course);
+    onSubmit(formData);
   };
 
   return (
@@ -114,57 +115,26 @@ const CourseDialog: React.FC<CourseDialogProps> = ({
         <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
-            label="Course Code"
-            value={formData.courseCode}
-            onChange={handleChange('courseCode')}
-            error={!!errors.courseCode}
-            helperText={errors.courseCode}
-            required
-            disabled={!!initialData}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Description"
-            multiline
-            rows={3}
-            value={formData.description}
-            onChange={handleChange('description')}
-            error={!!errors.description}
-            helperText={errors.description}
+            label="Department"
+            value={formData.department}
+            onChange={handleChange('department')}
+            error={!!errors.department}
+            helperText={errors.department}
             required
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth error={!!errors.grade}>
-            <InputLabel>Grade</InputLabel>
-            <Select
-              value={formData.grade}
-              onChange={handleChange('grade') as any}
-              label="Grade"
-              required
-            >
-              {grades.map((grade) => (
-                <MenuItem key={grade} value={grade}>
-                  Grade {grade}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
         </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl fullWidth>
-            <InputLabel>Term</InputLabel>
+            <InputLabel>Teacher</InputLabel>
             <Select
-              value={formData.term}
-              onChange={handleChange('term') as any}
-              label="Term"
+              value={formData.teacherId}
+              onChange={handleChange('teacherId') as any}
+              label="Teacher"
               required
             >
-              {terms.map((term) => (
-                <MenuItem key={term} value={term}>
-                  {term.charAt(0) + term.slice(1).toLowerCase()} Term
+              {teachers?.map((teacher) => (
+                <MenuItem key={teacher.id} value={teacher.id}>
+                  {teacher.name}
                 </MenuItem>
               ))}
             </Select>
@@ -196,38 +166,20 @@ const CourseDialog: React.FC<CourseDialogProps> = ({
             inputProps={{ min: 1 }}
           />
         </Grid>
-        <Grid item xs={12}>
-          <FormControl fullWidth>
-            <InputLabel>Assigned Teachers</InputLabel>
-            <Select
-              multiple
-              value={formData.assignedTeachers?.map((t) => t.id!) || []}
-              onChange={handleTeacherChange}
-              label="Assigned Teachers"
-              renderValue={(selected: number[]) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {selected.map((teacherId) => {
-                    const teacher = teachers?.find((t) => t.id === teacherId);
-                    return (
-                      teacher && (
-                        <Chip
-                          key={teacherId}
-                          label={`${teacher.name} (${teacher.department})`}
-                        />
-                      )
-                    );
-                  })}
-                </Box>
-              )}
-            >
-              {teachers?.map((teacher) => (
-                <MenuItem key={teacher.id} value={teacher.id}>
-                  {teacher.name} - {teacher.department}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
+        {initialData && (
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Currently Enrolled"
+              type="number"
+              value={formData.enrolled}
+              onChange={handleChange('enrolled')}
+              error={!!errors.enrolled}
+              helperText={errors.enrolled}
+              inputProps={{ min: 0, max: formData.capacity }}
+            />
+          </Grid>
+        )}
       </Grid>
     </BaseDialog>
   );
