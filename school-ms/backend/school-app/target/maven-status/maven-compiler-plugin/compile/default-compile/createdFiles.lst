@@ -13,11 +13,13 @@ com\school\hrm\dto\EmployeeDTO$EmployeeDTOBuilder.class
 com\school\exam\model\Exam$ExamType.class
 com\school\communication\service\NotificationServiceImpl$1.class
 com\school\communication\model\NotificationStatus.class
+com\schoolms\service\CourseService.class
 com\school\attendance\service\AttendanceServiceImpl.class
 com\school\hrm\entity\Staff.class
 com\school\admission\model\Admission$AdmissionBuilder.class
 com\school\hrm\dto\StaffRoleDTO$StaffRoleDTOBuilder.class
 com\school\communication\dto\MessageDTO.class
+com\schoolms\controller\CourseController.class
 com\school\student\model\StudentStatus.class
 com\school\attendance\dto\StudentAttendanceSummary.class
 com\school\config\OpenApiConfig.class
@@ -34,6 +36,7 @@ com\school\exam\repository\ExamRepository.class
 com\school\communication\config\EmailConfig.class
 com\school\hrm\entity\Teacher.class
 com\school\hrm\model\Employee$EmployeeBuilder.class
+com\schoolms\model\Course.class
 com\school\monitoring\ControllerMonitoringAspect.class
 com\school\fee\dto\PaymentRequest.class
 com\school\hrm\entity\StaffDesignationMapping.class
@@ -43,6 +46,7 @@ com\school\communication\model\MessagePriority.class
 com\school\admission\controller\AdmissionController.class
 com\school\hrm\exception\LeaveNotFoundException.class
 com\school\hrm\model\EmployeeRole.class
+com\schoolms\repository\CourseRepository.class
 com\school\security\UserRepository.class
 com\school\attendance\dto\AttendanceDTO.class
 com\school\admission\model\Admission.class
@@ -110,6 +114,7 @@ com\school\security\JwtAuthenticationFilter.class
 com\school\communication\exception\MessageNotFoundException.class
 com\school\hrm\entity\StaffRole.class
 com\school\hrm\repository\LeaveRepository.class
+com\schoolms\service\CourseServiceImpl.class
 com\school\hrm\controller\StaffController.class
 com\school\exam\model\Exam.class
 com\school\exception\DuplicateAttendanceException.class
@@ -133,6 +138,7 @@ com\school\hrm\dto\LeaveDTO$LeaveDTOBuilder.class
 com\school\hrm\service\LeaveService.class
 com\school\security\exception\DuplicateUsernameException.class
 com\school\timetable\model\Timetable.class
+com\schoolms\repository\CourseRepositoryImpl.class
 com\school\hrm\controller\LeaveController.class
 com\school\fee\model\Payment.class
 com\school\security\AuthService.class

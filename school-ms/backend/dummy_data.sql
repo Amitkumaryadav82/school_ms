@@ -55,5 +55,17 @@ INSERT INTO timetable (
     'Grade 10', 'A', '2024-2025', '2024-08-01', '2025-05-31', true
 );
 
+-- Sample data for courses
+INSERT INTO courses (name, department, teacher_id, credits, capacity, enrolled)
+VALUES 
+('Mathematics 101', 'Mathematics', 1, 4, 30, 0),
+('English Literature', 'English', 2, 3, 25, 0),
+('Physics Fundamentals', 'Science', 3, 4, 20, 0),
+('World History', 'Social Studies', 4, 3, 35, 0),
+('Computer Programming', 'Computer Science', 5, 4, 25, 0),
+('Chemistry Basics', 'Science', 3, 4, 20, 0),
+('Environmental Science', 'Science', 6, 3, 30, 0),
+('Algebra II', 'Mathematics', 1, 4, 25, 0);
+
 -- Note: Run these statements in order since they have dependencies.
 -- Make sure the user "Student1" exists in the users table before running these statements.

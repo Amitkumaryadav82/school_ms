@@ -38,6 +38,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { ROLES } from '../utils/permissions';
+import api from '../services/api';
 
 // Type declarations
 type IconType = typeof PeopleIcon;
@@ -153,76 +154,33 @@ const StudentDashboard = () => {
       setLoading(true);
       setError(null);
 
-      // Instead of making API calls that result in 403 errors, use mock data for now
-      // In a real app, you would have student-specific endpoints that return only data the student can access
-      
-      // Mock enrolled courses data
-      const mockCourses = [
-        {
-          id: 1,
-          name: "Mathematics",
-          teacher: "Prof. Johnson",
-          schedule: "Mon/Wed/Fri 10:00 AM",
-          grade: "A-"
-        },
-        {
-          id: 2,
-          name: "English Literature",
-          teacher: "Prof. Smith",
-          schedule: "Tue/Thu 1:00 PM",
-          grade: "B+"
-        },
-        {
-          id: 3,
-          name: "Computer Science",
-          teacher: "Prof. Williams",
-          schedule: "Mon/Fri 2:00 PM",
-          grade: "A"
-        }
-      ];
+      // Get student data from API using student ID from authenticated user
+      // In a real implementation, these endpoints would need to exist in backend
+      const userId = user?.id;
+      if (!userId) {
+        throw new Error('User ID not found');
+      }
 
-      // Mock assignments data
-      const mockAssignments = [
-        {
-          id: 1,
-          title: "Math Homework - Chapter 5",
-          dueDate: new Date(Date.now() + 86400000).toLocaleDateString(),
-          course: "Mathematics"
-        },
-        {
-          id: 2,
-          title: "Essay on Literature",
-          dueDate: new Date(Date.now() + 172800000).toLocaleDateString(),
-          course: "English Literature"
-        },
-        {
-          id: 3,
-          title: "Programming Project",
-          dueDate: new Date(Date.now() + 432000000).toLocaleDateString(),
-          course: "Computer Science"
-        }
-      ];
-
-      // Mock attendance data
-      const mockAttendance = {
-        present: 42,
-        absent: 2,
-        late: 1,
-        percentage: 93.3
-      };
+      // These API calls should return data from the database only, no mock data
+      const [studentInfo, enrolledCourses, assignments, attendance] = await Promise.all([
+        api.get<Student>(`/students/${userId}`),
+        api.get<StudentCourse[]>(`/students/${userId}/courses`),
+        api.get<any[]>(`/students/${userId}/assignments`),
+        api.get<any>(`/students/${userId}/attendance`),
+      ]);
 
       setStudentData({
-        studentInfo: null, // In a real app, fetch student info from API
-        enrolledCourses: mockCourses,
-        upcomingAssignments: mockAssignments,
-        attendance: mockAttendance
+        studentInfo: studentInfo || null,
+        enrolledCourses: Array.isArray(enrolledCourses) ? enrolledCourses : [],
+        upcomingAssignments: Array.isArray(assignments) ? assignments : [],
+        attendance: attendance || { present: 0, absent: 0, late: 0, percentage: 0 }
       });
     } catch (error) {
       console.error('Error loading student dashboard data:', error);
-      setError('Failed to load student dashboard data');
+      setError('Failed to load student data from database. Please ensure the backend server is running.');
       showNotification({
         type: 'error',
-        message: 'Failed to load dashboard data. Please try again.',
+        message: 'Failed to load your dashboard data from database. Please try again later.',
       });
     } finally {
       setLoading(false);
@@ -231,10 +189,9 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     loadStudentData();
-    // In a real app, you might still want to refresh data periodically
-    // but we'll comment it out for now since we're using mock data
-    // const interval = setInterval(loadStudentData, 5 * 60 * 1000);
-    // return () => clearInterval(interval);
+    // Refresh data every 5 minutes
+    const interval = setInterval(loadStudentData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -417,54 +374,18 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
       
-      // Try to load data from API with proper error handling
-      let studentsData = [];
-      let teachersData = [];
-      let coursesData = [];
-      
-      try {
-        studentsData = await studentService.getAll();
-        console.log('✅ Successfully loaded students data');
-      } catch (err) {
-        console.warn('⚠️ Failed to load students. Using fallback data.', err);
-        // Fallback data for students
-        studentsData = Array(15).fill(0).map((_, i) => ({
-          id: i + 1,
-          name: `Student ${i + 1}`,
-          grade: Math.floor(Math.random() * 12) + 1
-        }));
-      }
-      
-      try {
-        teachersData = await teacherService.getAll();
-        console.log('✅ Successfully loaded teachers data');
-      } catch (err) {
-        console.warn('⚠️ Failed to load teachers. Using fallback data.', err);
-        // Fallback data for teachers
-        teachersData = Array(8).fill(0).map((_, i) => ({
-          id: i + 1,
-          name: `Teacher ${i + 1}`,
-          subject: ['Mathematics', 'Science', 'Literature', 'History'][i % 4],
-          department: ['Science', 'Humanities', 'Languages'][i % 3]
-        }));
-      }
-      
-      try {
-        coursesData = await courseService.getAll();
-        console.log('✅ Successfully loaded courses data');
-      } catch (err) {
-        console.warn('⚠️ Failed to load courses. Using fallback data.', err);
-        // Fallback data for courses
-        coursesData = Array(10).fill(0).map((_, i) => ({
-          id: i + 1,
-          name: `Course ${i + 1}`,
-          department: ['Science', 'Mathematics', 'Literature', 'History'][i % 4],
-          teacher: `Teacher ${(i % 8) + 1}`,
-          credits: Math.floor(Math.random() * 3) + 1,
-          capacity: 30,
-          enrolled: Math.floor(Math.random() * 30)
-        }));
-      }
+      // Using consistent method names across all service files
+      // All data comes directly from the database through the API, no mock data
+      const [students, teachers, courses] = await Promise.all([
+        studentService.getAll(),
+        teacherService.getAll(),
+        courseService.getAll(),
+      ]);
+
+      // Process the actual response data
+      const studentsData = Array.isArray(students) ? students : [];
+      const teachersData = Array.isArray(teachers) ? teachers : [];
+      const coursesData = Array.isArray(courses) ? courses : [];
 
       const totalEnrollments = coursesData.reduce(
         (sum: number, course: Course) => sum + (course.enrolled || 0),
@@ -479,6 +400,7 @@ const AdminDashboard = () => {
         (course: Course) => (course.enrolled || 0) >= (course.capacity || 30)
       ).length;
 
+      // Generate the recent activity from actual data
       const recentActivity = [
         ...coursesData.slice(0, 3).map((course: Course) => ({
           id: course.id!,
@@ -505,10 +427,10 @@ const AdminDashboard = () => {
       });
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
-      setError('Failed to load dashboard statistics. Please ensure the backend server is running.');
+      setError('Failed to load dashboard statistics. Please ensure the backend server is running and the database is properly configured.');
       showNotification({
         type: 'error',
-        message: 'Failed to load dashboard statistics. Please try again.',
+        message: 'Failed to load dashboard statistics from database. Please check your server connection.',
       });
     } finally {
       setLoading(false);

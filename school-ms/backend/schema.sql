@@ -291,3 +291,28 @@ VALUES
     ('Timetable Incharge', 'Teacher responsible for creating and managing school timetables'),
     ('Exam Cell Member', 'Teacher who is part of examination management team')
 ON CONFLICT (name) DO NOTHING;
+
+-- Course Management Tables
+CREATE TABLE IF NOT EXISTS courses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    department VARCHAR(50) NOT NULL,
+    teacher_id INT,
+    credits INT NOT NULL DEFAULT 3,
+    capacity INT NOT NULL DEFAULT 30,
+    enrolled INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_id) REFERENCES staff(id) ON DELETE SET NULL
+);
+
+-- Student-Course Enrollment table for many-to-many relationship
+CREATE TABLE IF NOT EXISTS enrollments (
+    student_id INT NOT NULL,
+    course_id INT NOT NULL,
+    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    grade VARCHAR(2),
+    PRIMARY KEY (student_id, course_id),
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
+);
