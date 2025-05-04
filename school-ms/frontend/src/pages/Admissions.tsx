@@ -7,14 +7,14 @@ import {
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { AdmissionApplication, admissionService } from '../services/admissionService';
-import api from '../services/api.jsx';
-import DataTable from '../components/DataTable.jsx';
-import Loading from '../components/Loading.jsx';
-import ErrorMessage from '../components/ErrorMessage.jsx';
+import api from '../services/api';
+import DataTable from '../components/DataTable';
+import Loading from '../components/Loading';
+import ErrorMessage from '../components/ErrorMessage';
 import Permission from '../components/Permission';
-import { useApi } from '../hooks/useApi.ts';
-import { formatDate } from '../utils/tableFormatters.tsx';
-import environment from '../config/environment.jsx';
+import { useApi } from '../hooks/useApi';
+import { formatDate } from '../utils/tableFormatters';
+import environment from '../config/environment';
 
 // Helper function to format status with appropriate styling
 const formatStatus = (status: string) => {
@@ -177,11 +177,10 @@ const Admissions = () => {
     setDebugResults([]);
     
     const endpoints = [
-      { name: 'Get all admissions (singular)', fn: () => api => api.get('/admission') },
-      { name: 'Get all admissions (plural)', fn: () => api => api.get('/admissions') },
-      { name: 'Get all admissions (with API prefix)', fn: () => api => api.get('/api/admission') },
-      { name: 'Get all admissions (with API prefix, plural)', fn: () => api => api.get('/api/admissions') },
-      { name: 'Get all admissions (with v1 prefix)', fn: () => api => api.get('/api/v1/admission') },
+      { name: 'Get all admissions (singular)', fn: () => api.get('/admission') },
+      { name: 'Get all admissions (plural)', fn: () => api.get('/admissions') },
+      { name: 'Get health check', fn: () => api.get('/health') },
+      { name: 'Get auth status', fn: () => api.get('/auth/status') },
     ];
     
     const results = [];
@@ -189,18 +188,18 @@ const Admissions = () => {
     for (const endpoint of endpoints) {
       try {
         console.log(`🧪 Testing endpoint: ${endpoint.name}`);
-        const response = await endpoint.fn()(api);
+        const response = await endpoint.fn();
         results.push({
           name: endpoint.name,
           success: true,
-          status: response.status,
-          data: response.data
+          status: 'OK',
+          data: response
         });
       } catch (e) {
         results.push({
           name: endpoint.name,
           success: false,
-          status: e.status || e.response?.status || 'Error',
+          status: e.status || 'Error',
           error: e.message || JSON.stringify(e)
         });
       }
@@ -309,7 +308,7 @@ const Admissions = () => {
                           {result.success 
                             ? JSON.stringify(result.data, null, 2) 
                             : result.error
-                              ? `Error: ${result.error}`
+                              ? `Error: ${result.error}` 
                               : 'No response data'
                           }
                         </Box>

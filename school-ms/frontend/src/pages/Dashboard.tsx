@@ -30,11 +30,11 @@ import {
   EventNote as EventNoteIcon,
   Payment as PaymentIcon,
 } from '@mui/icons-material';
-import { Student, studentService } from '../services/studentService.jsx';
-import { teacherService } from '../services/teacherService.jsx';
-import { Course, courseService } from '../services/courseService.jsx';
-import Loading from '../components/Loading.jsx';
-import ErrorMessage from '../components/ErrorMessage.jsx';
+import { Student, studentService } from '../services/studentService';
+import { teacherService } from '../services/teacherService';
+import { Course, courseService } from '../services/courseService';
+import Loading from '../components/Loading';
+import ErrorMessage from '../components/ErrorMessage';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { ROLES } from '../utils/permissions';

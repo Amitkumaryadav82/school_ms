@@ -23,11 +23,9 @@ export const apiDiagnostics = {
    */
   getCommonEndpoints(entityType: string): ApiTestEndpoint[] {
     return [
-      { name: `Get all ${entityType} (api prefix)`, fn: () => api.get(`/api/${entityType}`) },
-      { name: `Get all ${entityType} (no prefix)`, fn: () => api.get(`/${entityType}`) },
-      { name: `Get all ${entityType} (v1 prefix)`, fn: () => api.get(`/api/v1/${entityType}`) },
-      { name: `Get all ${entityType} (singular)`, fn: () => api.get(`/api/${entityType.slice(0, -1)}`) },
-      { name: 'Check auth status', fn: () => api.get('/api/auth/status') },
+      { name: `Get all ${entityType} (api prefix)`, fn: () => api.get(`/${entityType}`) },
+      { name: `Get all ${entityType} (singular)`, fn: () => api.get(`/${entityType.slice(0, -1)}`) },
+      { name: 'Check auth status', fn: () => api.get('/auth/status') },
     ];
   },
 
@@ -44,14 +42,14 @@ export const apiDiagnostics = {
         results.push({
           name: endpoint.name,
           success: true,
-          status: response.status,
-          data: response.data
+          status: 'OK',
+          data: response
         });
       } catch (e: any) {
         results.push({
           name: endpoint.name,
           success: false,
-          status: e.status || e.response?.status || 'Error',
+          status: e.status || 'Error',
           error: e.message || JSON.stringify(e)
         });
       }

@@ -70,21 +70,18 @@ const testimonials = [
   {
     name: "Sarah Johnson",
     position: "Principal, Westfield Academy",
-    image: "/testimonial1.jpg",
     comment: "Implementing this School Management System has transformed our administrative processes. We've reduced paperwork by 80% and our staff can focus more on what matters - the students.",
     rating: 5
   },
   {
     name: "Michael Chen",
     position: "IT Director, Riverdale High School",
-    image: "/testimonial2.jpg",
     comment: "After evaluating several systems, this platform stood out for its intuitive interface and comprehensive feature set. The support team has been exceptional throughout our onboarding.",
     rating: 5
   },
   {
     name: "Dr. Amelia Patel",
     position: "Superintendent, Springfield District",
-    image: "/testimonial3.jpg",
     comment: "The analytics and reporting capabilities have given us unprecedented insights into student performance trends. It's helping us make data-driven decisions to improve educational outcomes.",
     rating: 4.5
   }
@@ -340,11 +337,6 @@ const Landing: React.FC = () => {
                     </Typography>
                     
                     <Box sx={{ mt: 'auto' }}>
-                      <Avatar
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        sx={{ width: 60, height: 60, mx: 'auto', mb: 1 }}
-                      />
                       <Typography variant="h6" component="div" fontWeight="bold">
                         {testimonial.name}
                       </Typography>

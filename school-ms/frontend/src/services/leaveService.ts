@@ -1,4 +1,4 @@
-import { api } from './apiClient.js';
+import api from './api';
 
 export interface LeaveRequest {
   id?: number;
@@ -13,20 +13,20 @@ export interface LeaveRequest {
 
 export const leaveService = {
   applyForLeave: (leaveRequest: LeaveRequest) =>
-    api.post<LeaveRequest>('/api/leaves', leaveRequest),
+    api.post<LeaveRequest>('/leaves', leaveRequest),
 
   processLeaveRequest: (id: number, status: 'APPROVED' | 'REJECTED', comments?: string) =>
-    api.put<LeaveRequest>(`/api/leaves/${id}/process`, { status, comments }),
+    api.put<LeaveRequest>(`/leaves/${id}/process`, { status, comments }),
 
   getLeaveRequest: (id: number) =>
-    api.get<LeaveRequest>(`/api/leaves/${id}`),
+    api.get<LeaveRequest>(`/leaves/${id}`),
 
   getEmployeeLeaves: (employeeId: number) =>
-    api.get<LeaveRequest[]>(`/api/leaves/employee/${employeeId}`),
+    api.get<LeaveRequest[]>(`/leaves/employee/${employeeId}`),
 
   getPendingLeaves: () =>
-    api.get<LeaveRequest[]>('/api/leaves/pending'),
+    api.get<LeaveRequest[]>('/leaves/pending'),
 
   getByDateRange: (startDate: string, endDate: string) =>
-    api.get<LeaveRequest[]>(`/api/leaves/date-range?startDate=${startDate}&endDate=${endDate}`),
+    api.get<LeaveRequest[]>(`/leaves/date-range?startDate=${startDate}&endDate=${endDate}`),
 };

@@ -1,4 +1,4 @@
-import api from './api.jsx';
+import api from './api';
 
 export interface AdmissionApplication {
   id?: number;
@@ -13,70 +13,35 @@ export interface AdmissionApplication {
   submissionDate?: string;
 }
 
-// Function to try multiple endpoints and return the first successful response
-async function tryMultipleEndpoints(endpointFunctions: (() => Promise<any>)[]): Promise<any> {
-  let lastError = null;
-  
-  for (const fn of endpointFunctions) {
-    try {
-      console.log('🔍 Trying endpoint:', fn.name || 'anonymous');
-      const response = await fn();
-      console.log('✅ Endpoint succeeded:', fn.name || 'anonymous');
-      return response;
-    } catch (error) {
-      console.warn('⚠️ Endpoint failed:', fn.name || 'anonymous', error);
-      lastError = error;
-    }
-  }
-  
-  // If we get here, all endpoints failed
-  throw lastError;
-}
-
 export const admissionService = {
-  // Modified to try different endpoints until one works
-  getAllApplications: async () => {
-    console.log('⚙️ Calling admissionService.getAllApplications() with multiple fallbacks');
-    
-    return tryMultipleEndpoints([
-      // Try singular first (most common REST convention)
-      () => api.get('/admission'),
-      // Try with API prefix (common in many frameworks)
-      () => api.get('/api/admission'),
-      // Try plural (RESTful convention)
-      () => api.get('/admissions'),
-      // Try with API prefix and plural
-      () => api.get('/api/admissions'),
-      // Try with v1 prefix (versioned API)
-      () => api.get('/api/v1/admission'),
-      // Try with admin prefix
-      () => api.get('/admin/admission'),
-    ]);
-  },
+  // Simplified to use the consistent API endpoint pattern
+  getAllApplications: () => api.get<AdmissionApplication[]>('/admissions'),
+  
+  getApplicationById: (id: number) => api.get<AdmissionApplication>(`/admissions/${id}`),
   
   createApplication: (application: AdmissionApplication) => 
-    api.post('/admission', application),
+    api.post<AdmissionApplication>('/admissions', application),
     
   updateApplication: (id: number, application: AdmissionApplication) =>
-    api.put(`/admission/${id}`, application),
+    api.put<AdmissionApplication>(`/admissions/${id}`, application),
   
   submitApplication: (application: AdmissionApplication) => 
-    api.post('/admission/submit', application),
+    api.post<AdmissionApplication>('/admissions/submit', application),
   
   updateStatus: (id: number, status: string) =>
-    api.put(`/admission/${id}/status`, { status }),
+    api.put<AdmissionApplication>(`/admissions/${id}/status`, { status }),
   
   getByStatus: (status: string) =>
-    api.get(`/admission/status/${status}`),
+    api.get<AdmissionApplication[]>(`/admissions/status/${status}`),
   
   searchApplications: (query: string) =>
-    api.get(`/admission/search?query=${query}`),
+    api.get<AdmissionApplication[]>(`/admissions/search?query=${query}`),
   
   getByDateRange: (startDate: string, endDate: string) =>
-    api.get(`/admission/date-range?startDate=${startDate}&endDate=${endDate}`),
+    api.get<AdmissionApplication[]>(`/admissions/date-range?startDate=${startDate}&endDate=${endDate}`),
   
   getByGrade: (grade: string) =>
-    api.get(`/admission/grade/${grade}`),
+    api.get<AdmissionApplication[]>(`/admissions/grade/${grade}`),
 
   // Debug methods
   getDebugInfo: async () => {
@@ -107,9 +72,9 @@ export const admissionService = {
       token: token ? `${token.substring(0, 20)}...` : null,
       tokenInfo,
       endpoints: {
-        getAllApplications: '/admission (with fallbacks)',
-        createApplication: '/admission',
-        updateApplication: '/admission/:id'
+        getAllApplications: '/admissions',
+        createApplication: '/admissions',
+        updateApplication: '/admissions/:id'
       }
     };
   }

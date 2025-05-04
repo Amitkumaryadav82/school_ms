@@ -19,7 +19,7 @@ interface UseApiOptions {
 }
 
 export function useApi<T>(
-  apiCall: () => Promise<{ data: T }>,
+  apiCall: () => Promise<T>,
   options: UseApiOptions = {}
 ) {
   const [data, setData] = useState<T | null>(null);
@@ -49,16 +49,16 @@ export function useApi<T>(
       setLoading(true);
       setError(null);
       const response = await apiCall();
-      setData(response.data);
+      setData(response);
 
       if (cacheKey) {
         cache.set(cacheKey, {
-          data: response.data,
+          data: response,
           timestamp: Date.now(),
         });
       }
 
-      onSuccess?.(response.data);
+      onSuccess?.(response);
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);
@@ -92,7 +92,7 @@ export function useApi<T>(
 }
 
 export function useApiMutation<T, P>(
-  apiCall: (params: P) => Promise<{ data: T }>,
+  apiCall: (params: P) => Promise<T>,
   options: UseApiOptions = {}
 ) {
   const [loading, setLoading] = useState(false);
@@ -110,8 +110,8 @@ export function useApiMutation<T, P>(
       setLoading(true);
       setError(null);
       const response = await apiCall(params);
-      onSuccess?.(response.data);
-      return response.data;
+      onSuccess?.(response);
+      return response;
     } catch (err) {
       const errorMessage = handleApiError(err);
       setError(errorMessage);

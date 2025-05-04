@@ -1,4 +1,4 @@
-import { api } from './apiClient.js';
+import api from './api';
 
 export interface Exam {
   id?: number;
@@ -35,32 +35,32 @@ export interface ExamSummary {
 
 export const examService = {
   createExam: (exam: Exam) =>
-    api.post<Exam>('/api/exams', exam),
+    api.post<Exam>('/exams', exam),
 
   updateExam: (id: number, exam: Exam) =>
-    api.put<Exam>(`/api/exams/${id}`, exam),
+    api.put<Exam>(`/exams/${id}`, exam),
 
   getExamById: (id: number) =>
-    api.get<Exam>(`/api/exams/${id}`),
+    api.get<Exam>(`/exams/${id}`),
 
   getByGrade: (grade: string) =>
-    api.get<Exam[]>(`/api/exams/grade/${grade}`),
+    api.get<Exam[]>(`/exams/grade/${grade}`),
 
   getBySubject: (subject: string) =>
-    api.get<Exam[]>(`/api/exams/subject/${subject}`),
+    api.get<Exam[]>(`/exams/subject/${subject}`),
 
   getByDateRange: (startDate: string, endDate: string) =>
-    api.get<Exam[]>(`/api/exams/date-range?startDate=${startDate}&endDate=${endDate}`),
+    api.get<Exam[]>(`/exams/date-range?startDate=${startDate}&endDate=${endDate}`),
 
   recordResult: (result: ExamResult) =>
-    api.post<ExamResult>('/api/exams/results', result),
+    api.post<ExamResult>('/exams/results', result),
 
   updateResult: (examId: number, studentId: string, result: Partial<ExamResult>) =>
-    api.put<ExamResult>(`/api/exams/results/${examId}/student/${studentId}`, result),
+    api.put<ExamResult>(`/exams/results/${examId}/student/${studentId}`, result),
 
   getStudentResults: (studentId: string) =>
-    api.get<ExamResult[]>(`/api/exams/results/student/${studentId}`),
+    api.get<ExamResult[]>(`/exams/results/student/${studentId}`),
 
   getExamSummary: (examId: number) =>
-    api.get<ExamSummary>(`/api/exams/${examId}/summary`),
+    api.get<ExamSummary>(`/exams/${examId}/summary`),
 };

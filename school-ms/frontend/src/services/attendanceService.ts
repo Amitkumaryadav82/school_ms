@@ -1,4 +1,4 @@
-import { api } from './apiClient.js';
+import api from './api';
 
 export interface Attendance {
   id?: number;
@@ -41,55 +41,55 @@ export interface MonthlyStats {
 
 export const attendanceService = {
   markBulkAttendance: (attendance: BulkAttendance) =>
-    api.post<void>('/api/attendance/bulk', attendance),
+    api.post<void>('/attendance/bulk', attendance),
 
   markIndividualAttendance: (studentId: string, attendance: Omit<Attendance, 'id' | 'studentId'>) =>
-    api.post<Attendance>(`/api/attendance/${studentId}`, attendance),
+    api.post<Attendance>(`/attendance/${studentId}`, attendance),
 
   updateAttendance: (id: number, attendance: Partial<Attendance>) =>
-    api.put<Attendance>(`/api/attendance/${id}`, attendance),
+    api.put<Attendance>(`/attendance/${id}`, attendance),
 
   markCheckout: (id: number, checkOutTime: string) =>
-    api.put<Attendance>(`/api/attendance/${id}/checkout`, { checkOutTime }),
+    api.put<Attendance>(`/attendance/${id}/checkout`, { checkOutTime }),
 
   getById: (id: number) =>
-    api.get<Attendance>(`/api/attendance/${id}`),
+    api.get<Attendance>(`/attendance/${id}`),
 
   getStudentAttendance: (studentId: string) =>
-    api.get<Attendance[]>(`/api/attendance/student/${studentId}`),
+    api.get<Attendance[]>(`/attendance/student/${studentId}`),
 
   getByDate: (date: string) =>
-    api.get<Attendance[]>(`/api/attendance/date/${date}`),
+    api.get<Attendance[]>(`/attendance/date/${date}`),
 
   getByDateRange: (startDate: string, endDate: string) =>
-    api.get<Attendance[]>(`/api/attendance/date-range?startDate=${startDate}&endDate=${endDate}`),
+    api.get<Attendance[]>(`/attendance/date-range?startDate=${startDate}&endDate=${endDate}`),
 
   getStudentAttendanceByDateRange: (studentId: string, startDate: string, endDate: string) =>
-    api.get<Attendance[]>(`/api/attendance/student/${studentId}/date-range?startDate=${startDate}&endDate=${endDate}`),
+    api.get<Attendance[]>(`/attendance/student/${studentId}/date-range?startDate=${startDate}&endDate=${endDate}`),
 
   getStudentAttendanceCount: (studentId: string) =>
-    api.get<{ total: number; present: number }>(`/api/attendance/student/${studentId}/count`),
+    api.get<{ total: number; present: number }>(`/attendance/student/${studentId}/count`),
 
   getGradeAttendance: (grade: string, date: string) =>
-    api.get<Attendance[]>(`/api/attendance/grade/${grade}/date/${date}`),
+    api.get<Attendance[]>(`/attendance/grade/${grade}/date/${date}`),
 
   getSectionAttendance: (grade: string, section: string, date: string) =>
-    api.get<Attendance[]>(`/api/attendance/grade/${grade}/section/${section}/date/${date}`),
+    api.get<Attendance[]>(`/attendance/grade/${grade}/section/${section}/date/${date}`),
 
   getStudentAttendanceSummary: (studentId: string) =>
-    api.get<AttendanceSummary>(`/api/attendance/student/${studentId}/summary`),
+    api.get<AttendanceSummary>(`/attendance/student/${studentId}/summary`),
 
   markClassAttendance: (grade: string, section: string, attendance: BulkAttendance) =>
-    api.post<void>('/api/attendance/class', { grade, section, ...attendance }),
+    api.post<void>('/attendance/class', { grade, section, ...attendance }),
 
   generateMonthlyReport: (month: number, year: number) =>
-    api.get<Blob>(`/api/attendance/report/monthly?month=${month}&year=${year}`, {
+    api.get<Blob>(`/attendance/report/monthly?month=${month}&year=${year}`, {
       responseType: 'blob'
     }),
 
   getMonthlyStats: (month: number, year: number) =>
-    api.get<MonthlyStats>(`/api/attendance/stats/monthly?month=${month}&year=${year}`),
+    api.get<MonthlyStats>(`/attendance/stats/monthly?month=${month}&year=${year}`),
 
   deleteAttendance: (id: number) =>
-    api.delete(`/api/attendance/${id}`),
+    api.delete(`/attendance/${id}`),
 };

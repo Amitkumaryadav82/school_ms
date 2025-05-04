@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService, AuthResponse } from '../services/authService';
-import { useNotification } from './NotificationContext.js';
+import { useNotification } from './NotificationContext';
 
 // Set inactivity timeout to 10 minutes (in milliseconds)
 const INACTIVITY_TIMEOUT = 10 * 60 * 1000;
@@ -14,7 +14,8 @@ interface AuthContextType {
   resetInactivityTimer: () => void; // New method to reset the inactivity timer
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Add export here so it can be imported in other files
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthResponse | null>(null);

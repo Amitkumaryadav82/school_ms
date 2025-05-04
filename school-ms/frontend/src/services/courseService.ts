@@ -1,4 +1,4 @@
-import { api } from './apiClient.js';
+import api from './api';
 
 export interface Course {
   id?: number;
@@ -16,6 +16,6 @@ export const courseService = {
   create: (course: Course) => api.post<Course>('/courses', course),
   update: (id: number, course: Course) => api.put<Course>(`/courses/${id}`, course),
   delete: (id: number) => api.delete(`/courses/${id}`),
-  enrollStudent: (courseId: number, studentId: number) => api.post(`/courses/${courseId}/enroll/${studentId}`),
-  unenrollStudent: (courseId: number, studentId: number) => api.post(`/courses/${courseId}/unenroll/${studentId}`),
+  enrollStudent: (courseId: number, studentId: number) => api.post<void>(`/courses/${courseId}/enroll/${studentId}`),
+  unenrollStudent: (courseId: number, studentId: number) => api.post<void>(`/courses/${courseId}/unenroll/${studentId}`),
 };

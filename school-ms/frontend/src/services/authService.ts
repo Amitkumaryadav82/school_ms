@@ -1,4 +1,4 @@
-import apiService from './api.jsx';
+import api from './api';
 
 export interface LoginRequest {
   username: string;
@@ -62,7 +62,6 @@ const storageWithTTL = {
 export const authService = {
   /**
    * Attempt to login with provided credentials
-   * Uses the correct endpoint /api/auth/login
    */
   login: async (credentials: LoginRequest) => {
     console.log('🔐 AuthService: Attempting login with credentials:', {
@@ -71,10 +70,9 @@ export const authService = {
     });
 
     try {
-      console.log('🔑 AuthService: Using login endpoint: /api/auth/login');
-      
       // Check if we have a locally cached recent session for offline mode
-      if (apiService.isOffline()) {
+      const isOffline = !navigator.onLine;
+      if (isOffline) {
         console.log('📵 AuthService: Device is offline, checking for cached credentials');
         const cachedAuth = storageWithTTL.getWithExpiry('offlineAuth');
         
@@ -97,66 +95,38 @@ export const authService = {
       }
       
       // Online mode - try regular login
-      const response = await apiService.post<AuthResponse>('/api/auth/login', credentials);
+      const response = await api.post<AuthResponse>('/auth/login', credentials);
       console.log('✅ AuthService: Login successful');
       
       // Enhanced debugging - Log auth response details
       console.log('🔍 DEBUG - Auth Response Details:', {
-        responseData: response.data,
-        token: response.data.token || response.data.access_token,
-        username: response.data.username,
-        role: response.data.role || response.data.userRole,
-        allFields: Object.keys(response.data)
+        responseData: response,
+        token: response.token || response.access_token,
+        username: response.username,
+        role: response.role || response.userRole,
+        allFields: Object.keys(response)
       });
       
       // Cache credentials for potential offline use (expires in 24 hours)
       storageWithTTL.setWithExpiry('offlineAuth', {
         username: credentials.username,
         passwordHash: hashCredentials(credentials.password),
-        authData: response.data,
+        authData: response,
         timestamp: new Date().toISOString()
       }, 86400000); // 24 hours in milliseconds
       
       return response;
     } catch (error: any) {
       console.error('❌ AuthService: Login failed:', error);
-      
-      // Check if this is a network error but not an offline error
-      if (error.status === 'network_error' && !error.isOffline) {
-        console.log('🔄 AuthService: Network error - trying to use fallback server');
-        try {
-          // Force the API service to use the fallback server
-          await apiService.getApiInstance(false);
-          
-          // Try login again with the (hopefully) fallback server
-          const fallbackResponse = await apiService.post<AuthResponse>('/api/auth/login', credentials);
-          console.log('✅ AuthService: Login successful using fallback server');
-          return fallbackResponse;
-        } catch (fallbackError) {
-          console.error('❌ AuthService: Login failed on fallback server too:', fallbackError);
-          throw fallbackError;
-        }
-      }
-      
       throw error;
     }
   },
 
   register: async (userData: RegisterRequest) => {
     try {
-      return await apiService.post<AuthResponse>('/auth/register', userData);
+      return await api.post<AuthResponse>('/auth/register', userData);
     } catch (error: any) {
-      // Similar network error handling for register
-      if (error.status === 'network_error' && !error.isOffline) {
-        console.log('🔄 AuthService: Network error during registration - trying fallback server');
-        try {
-          await apiService.getApiInstance(false);
-          return await apiService.post<AuthResponse>('/auth/register', userData);
-        } catch (fallbackError) {
-          console.error('❌ AuthService: Registration failed on fallback server too');
-          throw fallbackError;
-        }
-      }
+      console.error('❌ AuthService: Registration failed:', error);
       throw error;
     }
   },
@@ -169,15 +139,15 @@ export const authService = {
     
     // Try to call logout endpoint, but don't wait for it or handle errors
     // as we want the client-side logout to be reliable even if server is down
-    apiService.post('/api/auth/logout', {})
+    api.post('/auth/logout', {})
       .then(() => console.log('✅ AuthService: Server logout successful'))
       .catch(e => console.log('ℹ️ AuthService: Server logout failed, but client logout completed'));
   },
   
   validateToken: async (token: string) => {
     try {
-      const response = await apiService.post('/api/auth/validate-token', { token });
-      return response.data.valid === true;
+      const response = await api.post<{valid: boolean}>('/auth/validate-token', { token });
+      return response.valid === true;
     } catch (error) {
       console.error('❌ AuthService: Token validation failed:', error);
       // Consider tokens invalid if we can't validate them with server

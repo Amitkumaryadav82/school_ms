@@ -1,4 +1,4 @@
-import { api } from './apiClient.js';
+import api from './api';
 
 export interface Message {
   id?: number;
@@ -19,20 +19,20 @@ export interface MessageSearchParams {
 
 export const messageService = {
   sendMessage: (message: Message) =>
-    api.post<Message>('/api/messages', message),
+    api.post<Message>('/messages', message),
 
   markAsRead: (id: number) =>
-    api.put<Message>(`/api/messages/${id}/read`),
+    api.put<Message>(`/messages/${id}/read`),
 
   getMessagesBySender: (senderId: string) =>
-    api.get<Message[]>(`/api/messages/sent/${senderId}`),
+    api.get<Message[]>(`/messages/sent/${senderId}`),
 
   getMessagesByRecipient: (recipient: string) =>
-    api.get<Message[]>(`/api/messages/received/${recipient}`),
+    api.get<Message[]>(`/messages/received/${recipient}`),
 
   getUnreadMessages: (recipient: string) =>
-    api.get<Message[]>(`/api/messages/unread/${recipient}`),
+    api.get<Message[]>(`/messages/unread/${recipient}`),
 
   searchMessages: (params: MessageSearchParams) =>
-    api.get<Message[]>(`/api/messages/search`, { params }),
+    api.get<Message[]>(`/messages/search`, { params }),
 };

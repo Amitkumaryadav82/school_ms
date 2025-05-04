@@ -352,7 +352,7 @@ const Students: React.FC = () => {
         customEndpoints={[
           { 
             name: 'Get student entities', 
-            fn: () => studentService.apiService.get('/api/student-entities') 
+            fn: () => studentService.getAllStudents() 
           }
         ]}
       />

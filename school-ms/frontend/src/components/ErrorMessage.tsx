@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import apiService from '../services/api';
+import axios from 'axios';
+import config from '../config/environment';
 
 interface ErrorMessageProps {
   error: any;
@@ -62,11 +63,11 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ error, resetError, classNam
   
   // Check if backup server is available when there's a network error
   useEffect(() => {
-    if (isServerUnreachable) {
+    if (isServerUnreachable && config.fallbackApiUrl) {
       const checkBackupServer = async () => {
         try {
           // Attempt to connect to backup server
-          await apiService.getApiInstance(true);
+          await axios.get(`${config.fallbackApiUrl}/api/health`);
           setBackupServerStatus('available');
         } catch (error) {
           setBackupServerStatus('unavailable');

@@ -1,4 +1,4 @@
-import { api } from './apiClient.js';
+import api from './api';
 
 export interface Fee {
   id?: number;
@@ -31,28 +31,28 @@ export interface StudentFeeSummary {
 
 export const feeService = {
   createFee: (fee: Fee) =>
-    api.post<Fee>('/api/fees', fee),
+    api.post<Fee>('/fees', fee),
 
   updateFee: (id: number, fee: Fee) =>
-    api.put<Fee>(`/api/fees/${id}`, fee),
+    api.put<Fee>(`/fees/${id}`, fee),
 
   getByGrade: (grade: string) =>
-    api.get<Fee[]>(`/api/fees/grade/${grade}`),
+    api.get<Fee[]>(`/fees/grade/${grade}`),
 
   getByDueDateRange: (startDate: string, endDate: string) =>
-    api.get<Fee[]>(`/api/fees/due-date-range?startDate=${startDate}&endDate=${endDate}`),
+    api.get<Fee[]>(`/fees/due-date-range?startDate=${startDate}&endDate=${endDate}`),
 
   processPayment: (payment: Payment) =>
-    api.post<Payment>('/api/fees/payments', payment),
+    api.post<Payment>('/fees/payments', payment),
 
   getStudentPayments: (studentId: string) =>
-    api.get<Payment[]>(`/api/fees/payments/student/${studentId}`),
+    api.get<Payment[]>(`/fees/payments/student/${studentId}`),
 
   getStudentFeeSummary: (studentId: string) =>
-    api.get<StudentFeeSummary>(`/api/fees/summary/student/${studentId}`),
+    api.get<StudentFeeSummary>(`/fees/summary/student/${studentId}`),
 
   generateSemesterReport: (semester: string, year: number) =>
-    api.get<Blob>(`/api/fees/report/semester?semester=${semester}&year=${year}`, {
+    api.get<Blob>(`/fees/report/semester?semester=${semester}&year=${year}`, {
       responseType: 'blob'
     }),
 };
