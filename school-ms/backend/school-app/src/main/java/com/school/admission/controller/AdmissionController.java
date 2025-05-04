@@ -86,4 +86,12 @@ public class AdmissionController {
     public ResponseEntity<List<Admission>> getApplicationsByGrade(@PathVariable Integer grade) {
         return ResponseEntity.ok(admissionService.getAdmissionsByGrade(grade));
     }
+
+    @Operation(summary = "Get all admission applications", description = "Retrieve all admission applications")
+    @ApiResponse(responseCode = "200", description = "Applications retrieved successfully")
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Admission>> getAllApplications() {
+        return ResponseEntity.ok(admissionService.getAllAdmissions());
+    }
 }

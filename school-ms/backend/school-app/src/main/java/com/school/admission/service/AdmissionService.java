@@ -105,6 +105,10 @@ public class AdmissionService {
         return admissionRepository.findByGradeApplying(grade);
     }
 
+    public List<Admission> getAllAdmissions() {
+        return admissionRepository.findAll();
+    }
+
     private void validateStatusTransition(AdmissionStatus currentStatus, AdmissionStatus newStatus) {
         if (currentStatus == AdmissionStatus.ENROLLED || currentStatus == AdmissionStatus.CANCELLED) {
             throw new InvalidAdmissionStateException("Cannot change status of " + currentStatus + " application");

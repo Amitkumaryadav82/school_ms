@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 
 /**
- * Service for monitoring and displaying the backend server status.
- * Used by the ServerStatusIndicator component to show connection status.
+ * Service for monitoring the backend server status.
+ * Logs issues to console instead of displaying them in UI.
  */
 export class ServerStatusService {
     private static instance: ServerStatusService;
@@ -86,33 +86,64 @@ export class ServerStatusService {
             const response = await fetch(this.statusUrl);
             
             if (response.ok) {
-                const data = await response.json();
-                
-                if (data.status === 'UP') {
+                // Check content type to avoid parsing HTML as JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    console.warn('Server returned non-JSON response:', contentType);
                     this.updateStatus({
-                        status: 'ONLINE',
-                        message: 'Server is online',
-                        details: data
+                        status: 'ONLINE', // Still consider server online, just log the issue
+                        message: 'Server is online but returned non-JSON response',
+                        details: { contentType }
                     });
-                } else {
+                    return;
+                }
+
+                try {
+                    const data = await response.json();
+                    
+                    if (data.status === 'UP') {
+                        this.updateStatus({
+                            status: 'ONLINE',
+                            message: 'Server is online',
+                            details: data
+                        });
+                    } else {
+                        // Log degraded status to console
+                        console.warn(`Server status degraded: ${data.status}`, data);
+                        this.updateStatus({
+                            status: 'DEGRADED',
+                            message: `Server is experiencing issues: ${data.status}`,
+                            details: data
+                        });
+                    }
+                } catch (parseError) {
+                    console.warn('Error parsing JSON response:', parseError);
                     this.updateStatus({
-                        status: 'DEGRADED',
-                        message: `Server is experiencing issues: ${data.status}`,
-                        details: data
+                        status: 'ONLINE', // Still consider server online
+                        message: 'Server is online but returned invalid JSON',
+                        error: parseError
                     });
                 }
             } else {
+                // Log error status to console
+                console.error(`Server error: ${response.status} ${response.statusText}`);
                 this.updateStatus({
                     status: 'ERROR',
-                    message: `Server error: ${response.status} ${response.statusText}`,
+                    message: `Server error: ${response.status} ${response.statusText}`
                 });
             }
         } catch (error) {
+            // Log connection error to console
+            console.error('Cannot connect to server:', error);
             this.updateStatus({
                 status: 'OFFLINE',
                 message: 'Cannot connect to server',
                 error
             });
+            
+            // Add timestamp to log
+            const now = new Date();
+            console.log(`Connectivity issue logged at: ${now.toLocaleString()}`);
         }
     }
 
@@ -120,6 +151,12 @@ export class ServerStatusService {
      * Update the current status and notify all listeners.
      */
     private updateStatus(newStatus: ServerStatus): void {
+        // Track status transition for logging purposes
+        const previousStatus = this.currentStatus.status;
+        if (previousStatus !== newStatus.status) {
+            console.log(`Server status changed from ${previousStatus} to ${newStatus.status}`);
+        }
+        
         this.currentStatus = newStatus;
         this.notifyListeners();
     }
