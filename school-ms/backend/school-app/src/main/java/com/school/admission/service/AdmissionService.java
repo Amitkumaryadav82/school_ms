@@ -62,9 +62,9 @@ public class AdmissionService {
 
         // DEBUG: Log entity before save
         System.out.println("DEBUG - Admission entity before save - address: " + admission.getAddress());
-        
+
         admission = admissionRepository.save(admission);
-        
+
         // DEBUG: Log entity after save
         System.out.println("DEBUG - Admission entity after save - address: " + admission.getAddress());
         System.out.println("DEBUG - Admission entity ID: " + admission.getId());
@@ -150,19 +150,19 @@ public class AdmissionService {
         admission.setPreviousSchool(request.getPreviousSchool());
         admission.setPreviousGrade(request.getPreviousGrade());
         admission.setPreviousPercentage(request.getPreviousPercentage());
-        
+
         // DEBUG: Log entity before save
         System.out.println("DEBUG - Address after setting but before save: " + admission.getAddress());
-        
+
         // Don't update status, documents or application date through this endpoint
         // those have specific endpoints
-        
+
         admission = admissionRepository.save(admission);
-        
+
         // DEBUG: Log entity after save
         System.out.println("DEBUG - Address after save: " + admission.getAddress());
         System.out.println("DEBUG - Full entity after save: " + admission);
-        
+
         return createAdmissionResponse(admission, "Application updated successfully");
     }
 

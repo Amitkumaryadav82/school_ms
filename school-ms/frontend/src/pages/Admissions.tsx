@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Box, Typography, Button, Paper, Alert, AlertTitle, Dialog, 
   DialogTitle, DialogContent, DialogActions, CircularProgress, 
-  List, ListItem, ListItemText, Divider 
+  List, ListItem, ListItemText, Divider, Checkbox, FormControl,
+  InputLabel, Select, MenuItem, SelectChangeEvent, IconButton,
+  Tooltip, TextField, Grid, Chip, OutlinedInput, Autocomplete
 } from '@mui/material';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -17,6 +19,11 @@ import AuthErrorDialog from '../components/debug/AuthErrorDialog';
 import { useApi } from '../hooks/useApi';
 import { formatDate } from '../utils/tableFormatters';
 import environment from '../config/environment';
+import EditIcon from '@mui/icons-material/Edit';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import ClearIcon from '@mui/icons-material/Clear';
 
 // Helper function to format status with appropriate styling
 const formatStatus = (status: string) => {
@@ -27,6 +34,12 @@ const formatStatus = (status: string) => {
       break;
     case 'REJECTED':
       color = 'error.main';
+      break;
+    case 'UNDER_REVIEW':
+      color = 'info.main';
+      break;
+    case 'WAITLISTED':
+      color = 'warning.dark';
       break;
     default:
       color = 'warning.main';
@@ -53,37 +66,55 @@ const createActionColumn = <T extends object>(
       }
       
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          {/* Standard actions */}
           {onEdit && (
-            <Button
-              size="small"
-              onClick={() => {
-                // Only call onEdit if row exists
-                if (row) onEdit(row);
-              }}
-              sx={{ mr: 1 }}
-            >
-              Edit
-            </Button>
+            <Tooltip title="Edit">
+              <IconButton
+                size="small"
+                onClick={() => {
+                  if (row) onEdit(row);
+                }}
+                sx={{ mr: 0.5 }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           )}
           {onDelete && row && (
             <Button
               size="small"
               color="error"
               onClick={() => {
-                // Only call onDelete if row exists
                 if (row) onDelete(row);
               }}
             >
               Delete
             </Button>
           )}
+          
+          {/* Custom actions */}
           {extraActions && row && extraActions(row)}
         </Box>
       );
     },
   };
 };
+
+// Status options for dropdown
+const statusOptions = [
+  { value: 'PENDING', label: 'Submitted' },
+  { value: 'UNDER_REVIEW', label: 'Under Review' },
+  { value: 'APPROVED', label: 'Approved' },
+  { value: 'REJECTED', label: 'Rejected' },
+  { value: 'WAITLISTED', label: 'Waitlisted' }
+];
+
+// Grade options for filtering
+const gradeOptions = Array.from({ length: 12 }, (_, i) => ({
+  value: (i + 1).toString(),
+  label: `Grade ${i + 1}`
+}));
 
 const Admissions = () => {
   const { user } = useAuth();
@@ -96,6 +127,38 @@ const Admissions = () => {
   const [errorDetails, setErrorDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState<any>(null);
+  
+  // New state for multi-selection and bulk actions
+  const [selectedApplications, setSelectedApplications] = useState<AdmissionApplication[]>([]);
+  const [bulkStatus, setBulkStatus] = useState<string>('PENDING');
+  
+  // Confirmation dialog for bulk actions
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+  const [confirmDialogAction, setConfirmDialogAction] = useState<() => Promise<void>>(() => Promise.resolve());
+
+  // New state for filtering
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [filters, setFilters] = useState<{
+    name: string;
+    grade: string[];
+    status: string[];
+    dateRange: {
+      start: string;
+      end: string;
+    };
+  }>({
+    name: '',
+    grade: [],
+    status: [],
+    dateRange: {
+      start: '',
+      end: ''
+    }
+  });
+  
+  // Flag to indicate if filters are active
+  const [filtersActive, setFiltersActive] = useState(false);
 
   // Debug logging on component mount
   useEffect(() => {
@@ -144,6 +207,47 @@ const Admissions = () => {
     setErrorDetails(err);
     return [];
   });
+
+  // Filter the admissions data based on applied filters
+  const filteredAdmissions = useMemo(() => {
+    if (!admissions) return [];
+    if (!filtersActive) return admissions;
+
+    return admissions.filter(app => {
+      // Filter by name/email (case-insensitive search)
+      const nameMatches = !filters.name || 
+        (app.studentName?.toLowerCase().includes(filters.name.toLowerCase())) ||
+        (app.email?.toLowerCase().includes(filters.name.toLowerCase())) ||
+        (app.parentName?.toLowerCase().includes(filters.name.toLowerCase()));
+      
+      // Filter by grade
+      const gradeMatches = filters.grade.length === 0 || 
+        filters.grade.includes(app.gradeApplying?.toString());
+      
+      // Filter by status
+      const statusMatches = filters.status.length === 0 ||
+        filters.status.includes(app.status);
+      
+      // Filter by date range
+      let dateMatches = true;
+      if (filters.dateRange.start || filters.dateRange.end) {
+        const appDate = app.submissionDate ? new Date(app.submissionDate) : null;
+        if (appDate) {
+          if (filters.dateRange.start) {
+            const startDate = new Date(filters.dateRange.start);
+            if (appDate < startDate) dateMatches = false;
+          }
+          if (filters.dateRange.end && dateMatches) {
+            const endDate = new Date(filters.dateRange.end);
+            endDate.setHours(23, 59, 59); // End of the day
+            if (appDate > endDate) dateMatches = false;
+          }
+        }
+      }
+      
+      return nameMatches && gradeMatches && statusMatches && dateMatches;
+    });
+  }, [admissions, filters, filtersActive]);
 
   const handleCreate = () => {
     setSelectedApplication({
@@ -316,27 +420,30 @@ const Admissions = () => {
   };
 
   // Add processing actions for approving, rejecting, and creating students
-  const handleProcessAdmission = async (application: AdmissionApplication, action: 'APPROVE' | 'REJECT') => {
+  const handleProcessAdmission = async (application: AdmissionApplication, status: string) => {
     try {
       setLoading(true);
       
       let reason = '';
-      if (action === 'REJECT') {
+      if (status === 'REJECTED') {
         reason = prompt('Please provide a reason for rejection:') || '';
       }
       
-      console.log(`Processing admission ${application.id} with action: ${action}, reason: ${reason}`);
+      console.log(`Processing admission ${application.id} with status: ${status}, reason: ${reason}`);
+      
+      // Convert action to backend status enum value
+      const action = status === 'APPROVED' ? 'APPROVE' : 'REJECT';
       await admissionService.processAdmission(application.id, action, reason);
       
       showNotification({
         type: 'success',
-        message: `Application ${action === 'APPROVE' ? 'approved' : 'rejected'} successfully`
+        message: `Application status changed to ${status.toLowerCase()} successfully`
       });
       
       // Refresh the list to show updated status
       refresh();
     } catch (err: any) {
-      console.error(`Error ${action.toLowerCase()}ing application:`, err);
+      console.error(`Error updating application status to ${status}:`, err);
       
       // Handle auth errors with detailed dialog
       if (err.status === 403) {
@@ -344,7 +451,7 @@ const Admissions = () => {
       } else {
         showNotification({
           type: 'error',
-          message: `Failed to ${action.toLowerCase()} application: ${err.message}`
+          message: `Failed to update application status: ${err.message}`
         });
       }
     } finally {
@@ -383,6 +490,217 @@ const Admissions = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // New handlers for multi-selection features
+  const handleSelectApplication = (application: AdmissionApplication, checked: boolean) => {
+    if (checked) {
+      setSelectedApplications(prev => [...prev, application]);
+    } else {
+      setSelectedApplications(prev => prev.filter(app => app.id !== application.id));
+    }
+  };
+  
+  const handleSelectAll = (checked: boolean) => {
+    if (checked && admissions) {
+      setSelectedApplications([...admissions]);
+    } else {
+      setSelectedApplications([]);
+    }
+  };
+  
+  const handleBulkStatusChange = (e: SelectChangeEvent) => {
+    setBulkStatus(e.target.value);
+  };
+  
+  const handleBulkActionSubmit = async () => {
+    try {
+      setLoading(true);
+      
+      // Confirm before proceeding with bulk action
+      setConfirmDialogMessage(
+        `Are you sure you want to change the status of ${selectedApplications.length} application(s) to ${
+          statusOptions.find(opt => opt.value === bulkStatus)?.label || bulkStatus
+        }?`
+      );
+      
+      // Set the action to execute when confirmed
+      setConfirmDialogAction(() => async () => {
+        const results = await Promise.allSettled(
+          selectedApplications.map(application => {
+            // Don't update applications that already have this status
+            if (application.status === bulkStatus) return Promise.resolve();
+            
+            // For rejected, we need to prompt for a reason, which doesn't work well in bulk
+            // So we'll use a generic reason
+            const reason = bulkStatus === 'REJECTED' ? 'Rejected in bulk update' : undefined;
+            
+            // Convert status to action for the API
+            const action = bulkStatus === 'APPROVED' ? 'APPROVE' : 'REJECT';
+            return admissionService.processAdmission(application.id, action, reason);
+          })
+        );
+        
+        // Count successes and failures
+        const successful = results.filter(r => r.status === 'fulfilled').length;
+        const failed = results.filter(r => r.status === 'rejected').length;
+        
+        showNotification({
+          type: failed > 0 ? 'warning' : 'success',
+          message: `Status update complete: ${successful} successful, ${failed} failed`
+        });
+        
+        // Clear selections and refresh the data
+        setSelectedApplications([]);
+        refresh();
+      });
+      
+      setConfirmDialogOpen(true);
+    } catch (error) {
+      showNotification({
+        type: 'error',
+        message: `Failed to process bulk action: ${error.message}`
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Status update handler for single application
+  const handleStatusChange = (application: AdmissionApplication, status: string) => {
+    // Convert status to action for the API
+    if (status === 'APPROVED') {
+      handleProcessAdmission(application, 'APPROVED');
+    } else if (status === 'REJECTED') {
+      handleProcessAdmission(application, 'REJECTED');
+    } else {
+      // For other statuses, use the updateStatus method directly
+      (async () => {
+        try {
+          setLoading(true);
+          await admissionService.updateStatus(application.id, status);
+          showNotification({
+            type: 'success',
+            message: `Status updated to ${status.toLowerCase()}`
+          });
+          refresh();
+        } catch (error) {
+          showNotification({
+            type: 'error',
+            message: `Failed to update status: ${error.message}`
+          });
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  };
+
+  // New handlers for filtering
+  const handleFilterChange = (field: string, value: any) => {
+    setFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleApplyFilters = () => {
+    setFiltersActive(true);
+    setFilterDialogOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      name: '',
+      grade: [],
+      status: [],
+      dateRange: {
+        start: '',
+        end: ''
+      }
+    });
+    setFiltersActive(false);
+  };
+  
+  // CSV Export functionality
+  const handleExportCSV = () => {
+    try {
+      // Use filtered data if filters are active, otherwise use all data
+      const dataToExport = filtersActive ? filteredAdmissions : admissions || [];
+      
+      if (dataToExport.length === 0) {
+        showNotification({
+          type: 'warning',
+          message: 'No data to export'
+        });
+        return;
+      }
+      
+      // Define CSV headers
+      const headers = [
+        'ID',
+        'Student Name',
+        'Date of Birth',
+        'Email',
+        'Contact Number',
+        'Parent/Guardian Name',
+        'Parent/Guardian Contact',
+        'Address',
+        'Grade Applying',
+        'Previous School',
+        'Previous Grade',
+        'Previous Percentage',
+        'Submission Date',
+        'Status'
+      ];
+      
+      // Convert data to CSV rows
+      const csvRows = [
+        headers.join(','),
+        ...dataToExport.map(app => {
+          return [
+            app.id || '',
+            `"${app.studentName || ''}"`,
+            app.dateOfBirth || '',
+            `"${app.email || ''}"`,
+            app.contactNumber || '',
+            `"${app.parentName || ''}"`,
+            app.guardianContact || app.contactNumber || '',
+            `"${app.address || ''}"`,
+            app.gradeApplying || '',
+            `"${app.previousSchool || ''}"`,
+            app.previousGrade || '',
+            app.previousPercentage || '',
+            app.submissionDate ? new Date(app.submissionDate).toISOString().split('T')[0] : '',
+            app.status || 'PENDING'
+          ].join(',');
+        })
+      ];
+      
+      // Create CSV content
+      const csvContent = csvRows.join('\n');
+      
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `admissions_export_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showNotification({
+        type: 'success',
+        message: `Exported ${dataToExport.length} records to CSV`
+      });
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      showNotification({
+        type: 'error',
+        message: 'Failed to export CSV: ' + (error.message || 'Unknown error')
+      });
     }
   };
 
@@ -427,6 +745,26 @@ const Admissions = () => {
   // Define columns for DataTable
   const columns = [
     {
+      id: 'selector',
+      label: (
+        <Checkbox 
+          checked={admissions?.length > 0 && selectedApplications.length === admissions?.length}
+          indeterminate={selectedApplications.length > 0 && selectedApplications.length < (admissions?.length || 0)}
+          onChange={(e) => handleSelectAll(e.target.checked)}
+          size="small"
+        />
+      ),
+      sortable: false,
+      width: 50,
+      format: (value: any, row: AdmissionApplication) => (
+        <Checkbox 
+          checked={selectedApplications.some(app => app.id === row.id)}
+          onChange={(e) => handleSelectApplication(row, e.target.checked)}
+          size="small"
+        />
+      )
+    },
+    {
       id: 'id',
       label: 'ID',
       sortable: true,
@@ -456,43 +794,211 @@ const Admissions = () => {
       id: 'status',
       label: 'Status',
       sortable: true,
-      format: formatStatus,
+      format: (value: string, row: AdmissionApplication) => (
+        <Permission permission="MANAGE_ADMISSIONS">
+          <FormControl size="small" fullWidth>
+            <Select
+              value={value || 'PENDING'}
+              onChange={(e) => handleStatusChange(row, e.target.value)}
+              displayEmpty
+              variant="standard"
+              sx={{ 
+                '& .MuiSelect-select': { 
+                  py: 0, 
+                  color: () => {
+                    switch (value?.toUpperCase()) {
+                      case 'APPROVED': return 'success.main';
+                      case 'REJECTED': return 'error.main';
+                      case 'UNDER_REVIEW': return 'info.main';
+                      case 'WAITLISTED': return 'warning.dark';
+                      default: return 'warning.main';
+                    }
+                  }
+                }
+              }}
+            >
+              {statusOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Permission>
+      ),
     },
     createActionColumn<AdmissionApplication>(
       (row) => handleEdit(row),
       undefined, // No delete action
       (row) => (
         <Permission permission="MANAGE_ADMISSIONS">
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
+          <Tooltip title="Create Student">
+            <IconButton
               size="small"
-              variant="outlined"
-              color="success"
-              onClick={() => handleProcessAdmission(row, 'APPROVE')}
-            >
-              Approve
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              color="error"
-              onClick={() => handleProcessAdmission(row, 'REJECT')}
-            >
-              Reject
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              color="secondary"
               onClick={() => handleCreateStudent(row)}
+              color="secondary"
             >
-              Create Student
-            </Button>
-          </Box>
+              <PersonAddIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Permission>
       )
     ),
   ];
+
+  // Filter dialog component
+  const renderFilterDialog = () => {
+    return (
+      <Dialog
+        open={filterDialogOpen}
+        onClose={() => setFilterDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Filter Admissions</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={3} sx={{ mt: 0.5 }}>
+            <Grid item xs={12}>
+              <TextField
+                label="Search by Name or Email"
+                fullWidth
+                value={filters.name}
+                onChange={(e) => handleFilterChange('name', e.target.value)}
+                placeholder="Enter student name, email, or parent name"
+                variant="outlined"
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="grade-filter-label">Filter by Grade</InputLabel>
+                <Select
+                  labelId="grade-filter-label"
+                  multiple
+                  value={filters.grade}
+                  onChange={(e) => handleFilterChange('grade', e.target.value)}
+                  input={<OutlinedInput label="Filter by Grade" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip 
+                          key={value} 
+                          label={`Grade ${value}`} 
+                          size="small"
+                        />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  {gradeOptions.map((grade) => (
+                    <MenuItem key={grade.value} value={grade.value}>
+                      {grade.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="status-filter-label">Filter by Status</InputLabel>
+                <Select
+                  labelId="status-filter-label"
+                  multiple
+                  value={filters.status}
+                  onChange={(e) => handleFilterChange('status', e.target.value)}
+                  input={<OutlinedInput label="Filter by Status" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip 
+                          key={value} 
+                          label={statusOptions.find(s => s.value === value)?.label || value} 
+                          size="small"
+                        />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  {statusOptions.map((status) => (
+                    <MenuItem key={status.value} value={status.value}>
+                      {status.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Date Range From"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={filters.dateRange.start}
+                onChange={(e) => 
+                  handleFilterChange('dateRange', { ...filters.dateRange, start: e.target.value })
+                }
+              />
+            </Grid>
+            
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Date Range To"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={filters.dateRange.end}
+                onChange={(e) => 
+                  handleFilterChange('dateRange', { ...filters.dateRange, end: e.target.value })
+                }
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClearFilters} color="secondary">
+            Clear All Filters
+          </Button>
+          <Button onClick={() => setFilterDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleApplyFilters} variant="contained" color="primary">
+            Apply Filters
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
+  // Confirmation dialog component
+  const renderConfirmDialog = () => {
+    return (
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+      >
+        <DialogTitle>Confirm Action</DialogTitle>
+        <DialogContent>
+          <Typography>{confirmDialogMessage}</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDialogOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={async () => {
+              setConfirmDialogOpen(false);
+              await confirmDialogAction();
+            }} 
+            color="primary" 
+            variant="contained" 
+            autoFocus
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
 
   // Debug dialog component
   const renderDebugDialog = () => {
@@ -643,15 +1149,49 @@ const Admissions = () => {
         <Typography variant="h4" component="h1">
           Admission Applications
         </Typography>
-        <Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          {/* Export Button */}
+          <Tooltip title="Export to CSV">
+            <IconButton 
+              color="primary" 
+              onClick={handleExportCSV}
+              disabled={(!filteredAdmissions || filteredAdmissions.length === 0) && (!admissions || admissions.length === 0)}
+            >
+              <FileDownloadIcon />
+            </IconButton>
+          </Tooltip>
+          
+          {/* Filter Button */}
+          <Tooltip title={filtersActive ? "Edit Filters" : "Filter Applications"}>
+            <IconButton 
+              color={filtersActive ? "secondary" : "default"} 
+              onClick={() => setFilterDialogOpen(true)}
+            >
+              <FilterAltIcon />
+            </IconButton>
+          </Tooltip>
+          
+          {/* Clear Filters Button - only show when filters are active */}
+          {filtersActive && (
+            <Tooltip title="Clear All Filters">
+              <IconButton 
+                color="error" 
+                onClick={handleClearFilters}
+              >
+                <ClearIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+          
           <Button
             variant="text"
             color="secondary"
             onClick={() => setDebugDialogOpen(true)}
-            sx={{ mr: 2 }}
+            sx={{ ml: 1 }}
           >
             Debug
           </Button>
+          
           <Permission permission="MANAGE_ADMISSIONS">
             <Button
               variant="contained"
@@ -663,13 +1203,112 @@ const Admissions = () => {
         </Box>
       </Box>
       
+      {/* Filter Status Bar - show when filters are active */}
+      {filtersActive && (
+        <Paper sx={{ p: 1.5, mb: 2, bgcolor: 'background.default', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 'medium', mr: 1 }}>
+              Filters:
+            </Typography>
+            
+            {filters.name && (
+              <Chip 
+                label={`Search: "${filters.name}"`} 
+                size="small" 
+                onDelete={() => handleFilterChange('name', '')} 
+                color="primary"
+                variant="outlined"
+              />
+            )}
+            
+            {filters.status.length > 0 && (
+              <Chip 
+                label={`Status: ${filters.status.length} selected`} 
+                size="small" 
+                onDelete={() => handleFilterChange('status', [])}
+                color="primary"
+                variant="outlined" 
+              />
+            )}
+            
+            {filters.grade.length > 0 && (
+              <Chip 
+                label={`Grade: ${filters.grade.length} selected`} 
+                size="small"
+                onDelete={() => handleFilterChange('grade', [])}
+                color="primary"
+                variant="outlined"
+              />
+            )}
+            
+            {(filters.dateRange.start || filters.dateRange.end) && (
+              <Chip 
+                label={`Date Range: ${filters.dateRange.start || 'Any'} to ${filters.dateRange.end || 'Any'}`} 
+                size="small"
+                onDelete={() => handleFilterChange('dateRange', { start: '', end: '' })}
+                color="primary"
+                variant="outlined"
+              />
+            )}
+          </Box>
+          
+          <Typography variant="body2" sx={{ ml: 2, color: 'text.secondary' }}>
+            {filteredAdmissions.length} record{filteredAdmissions.length !== 1 ? 's' : ''} found
+          </Typography>
+        </Paper>
+      )}
+      
+      {/* Bulk Actions Section */}
+      {selectedApplications.length > 0 && (
+        <Paper sx={{ p: 2, mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body1" sx={{ mr: 2 }}>
+              {selectedApplications.length} application(s) selected
+            </Typography>
+            <FormControl size="small" sx={{ minWidth: 200, mr: 2 }}>
+              <InputLabel id="bulk-status-select-label">Change Status To</InputLabel>
+              <Select
+                labelId="bulk-status-select-label"
+                id="bulk-status-select"
+                value={bulkStatus}
+                label="Change Status To"
+                onChange={handleBulkStatusChange}
+              >
+                {statusOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button 
+              variant="contained" 
+              onClick={handleBulkActionSubmit}
+              disabled={loading || selectedApplications.length === 0}
+            >
+              Apply Status Change
+            </Button>
+          </Box>
+          <Button 
+            variant="outlined" 
+            onClick={() => setSelectedApplications([])}
+            color="secondary"
+          >
+            Clear Selection
+          </Button>
+        </Paper>
+      )}
+      
       <DataTable
         columns={columns}
-        data={admissions || []}
+        data={filteredAdmissions || []}
         pagination
+        emptyMessage={filtersActive ? "No applications match your filter criteria" : "No applications found"}
       />
       
       {renderDebugDialog()}
+      {renderConfirmDialog()}
+      {renderFilterDialog()}
       
       <AdmissionDialog
         open={isDialogOpen}
