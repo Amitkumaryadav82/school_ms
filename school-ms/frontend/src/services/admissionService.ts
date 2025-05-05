@@ -1,26 +1,52 @@
 import api from './api';
+import { studentService, Student } from './studentService';
 
 // Frontend interface for displaying admission applications
 export interface AdmissionApplication {
   id?: number;
   studentName: string;
+  firstName?: string;
+  lastName?: string;
   dateOfBirth: string;
   gradeApplying: string;
+  section?: string;
+  gender?: string;
   parentName: string;
   contactNumber: string;
   email: string;
-  address: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  address: string; // Now required field
+  bloodGroup?: string;
+  medicalConditions?: string;
+  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'WAITLISTED' | 'CANCELLED' | 'ENROLLED';
   submissionDate?: string;
+  rejectionReason?: string;
+  previousSchool?: string;
+  previousGrade?: string;
+  previousPercentage?: number;
+  documents?: any;
+  documentsFormat?: string;
 }
 
-// This interface matches what the backend returns based on AdmissionResponse.java
+// Backend response interface - matches Admission.java
 interface BackendAdmissionResponse {
   id?: number;
   applicantName: string;
-  applicationDate: string; // ISO date string format
+  dateOfBirth: string;
+  applicationDate: string;
   gradeApplying: number;
+  guardianName: string; 
+  contactNumber: string;
+  guardianContact: string;
+  email: string;
+  guardianEmail?: string;
+  address?: string;  // Added address field
   status: string;
+  rejectionReason?: string;
+  previousSchool?: string;
+  previousGrade?: string;
+  previousPercentage?: number;
+  documents?: any;
+  documentsFormat?: string;
   message?: string;
   studentId?: number;
 }
@@ -28,32 +54,67 @@ interface BackendAdmissionResponse {
 // This interface exactly matches what the backend expects based on AdmissionRequest.java
 export interface AdmissionRequest {
   applicantName: string;
-  dateOfBirth: string; // Will be converted to LocalDate in the request
+  dateOfBirth: string; // Format: YYYY-MM-DD
   email: string;
   contactNumber: string;
   guardianName: string;
   guardianContact: string;
   guardianEmail?: string;
+  address: string; // Making sure address is included as required
   gradeApplying: number; // Must be Integer, not string
   previousSchool?: string;
   previousGrade?: string;
-  previousPercentage: number; // Required, must be between 0-100
+  previousPercentage: number; // Between 0-100
   documents?: any;
   documentsFormat?: string;
 }
 
 export const admissionService = {
-  // Transform backend response to frontend format
+  // Get all admission applications
   getAllApplications: async () => {
-    const response = await api.get<BackendAdmissionResponse[]>('/admissions');
+    const response = await api.get<BackendAdmissionResponse[]>('/api/admissions');
+    console.log('API Response for getAllApplications:', response);
     return response.map(transformResponseToApplication);
   },
   
+  // Get application by ID
   getApplicationById: async (id: number) => {
-    const response = await api.get<BackendAdmissionResponse>(`/admissions/${id}`);
-    return transformResponseToApplication(response);
+    try {
+      console.log(`Fetching admission details for ID: ${id}`);
+      const response = await api.get<BackendAdmissionResponse>(`/api/admissions/${id}`);
+      console.log("Admission details from backend:", response);
+      
+      // Transform admission data
+      const admissionData = transformResponseToApplication(response);
+      
+      // Check if this admission has a student record
+      if (response.studentId) {
+        try {
+          console.log(`Admission has associated student ID: ${response.studentId}, fetching student details`);
+          // Fetch the student record to get additional details
+          const studentData = await studentService.getById(response.studentId);
+          console.log("Student data retrieved:", studentData);
+          
+          // If student record has address, use it (address is not part of admission schema)
+          if (studentData && studentData.address) {
+            console.log("Found address in student record:", studentData.address);
+            admissionData.address = studentData.address;
+          }
+        } catch (studentError) {
+          console.warn("Could not fetch student data:", studentError);
+        }
+      } else {
+        console.log("No associated student ID found for this admission");
+      }
+      
+      return admissionData;
+    } catch (error) {
+      console.error(`Failed to get admission details for ID ${id}:`, error);
+      throw error;
+    }
   },
   
+  // Create new application
   createApplication: (application: AdmissionApplication) => {
     // Convert date to ISO format (YYYY-MM-DD) if it's not already
     let formattedDate = application.dateOfBirth;
@@ -67,7 +128,7 @@ export const admissionService = {
     }
     
     // Format data exactly as the backend expects according to validation requirements
-    const requestData = {
+    const requestData: AdmissionRequest = {
       applicantName: application.studentName,
       dateOfBirth: formattedDate,
       email: application.email,
@@ -75,55 +136,196 @@ export const admissionService = {
       guardianName: application.parentName,
       guardianContact: application.contactNumber, // Using same contact for guardian
       guardianEmail: application.email, // Using same email for guardian
+      address: application.address, // Explicitly include address field
       gradeApplying: parseInt(application.gradeApplying, 10) || 1, // Default to grade 1 if parsing fails
-      previousSchool: "Not Available",
-      previousGrade: "Not Available", 
-      previousPercentage: 75.0, // Default value between 0-100
+      previousSchool: application.previousSchool || "Not Available",
+      previousGrade: application.previousGrade || "Not Available", 
+      previousPercentage: application.previousPercentage || 75.0, // Default value between 0-100
+      documents: application.documents,
+      documentsFormat: application.documentsFormat
     };
     
     // Debug log
     console.log('Sending admission request with structured data:', requestData);
     console.log('Date format checking - original:', application.dateOfBirth, 'formatted:', formattedDate);
+    console.log('Address value being sent:', application.address); // Log address value
     
-    return api.post<any>('/admissions', requestData);
+    return api.post<BackendAdmissionResponse>('/api/admissions', requestData);
   },
     
-  updateApplication: (id: number, application: AdmissionApplication) => {
-    // Same format as create
-    const requestData = {
-      applicantName: application.studentName,
-      dateOfBirth: application.dateOfBirth, 
-      email: application.email,
-      contactNumber: application.contactNumber,
-      guardianName: application.parentName,
-      guardianContact: application.contactNumber,
-      guardianEmail: application.email,
-      gradeApplying: parseInt(application.gradeApplying, 10),
-      previousSchool: "N/A",
-      previousGrade: "N/A", 
-      previousPercentage: 70.0,
+  // Update application details
+  updateApplication: async (id: number, application: AdmissionApplication) => {
+    console.log(`Updating admission application with ID: ${id}`, application);
+    
+    // Verify user token and permissions first
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('You must be logged in to update applications');
+    }
+    
+    try {
+      // Format data exactly as the backend expects according to validation requirements
+      const requestData: AdmissionRequest = {
+        applicantName: application.studentName,
+        dateOfBirth: application.dateOfBirth,
+        email: application.email,
+        contactNumber: application.contactNumber,
+        guardianName: application.parentName,
+        guardianContact: application.contactNumber,
+        guardianEmail: application.email,
+        address: application.address, // Explicitly include address field
+        gradeApplying: parseInt(application.gradeApplying, 10),
+        previousSchool: application.previousSchool || "Not Available",
+        previousGrade: application.previousGrade || "Not Available", 
+        previousPercentage: application.previousPercentage || 75.0,
+        documents: application.documents,
+        documentsFormat: application.documentsFormat
+      };
+      
+      console.log('Sending general update request with data:', requestData);
+      
+      // Call the general update endpoint
+      const response = await api.put<BackendAdmissionResponse>(
+        `/api/admissions/${id}`,
+        requestData
+      );
+      
+      console.log('Update response:', response);
+      return response;
+    } catch (error) {
+      console.error('Update attempt failed:', error);
+      throw error;
+    }
+  },
+  
+  // Update application status only
+  updateStatus: async (id: number, status: string, remarks?: string) => {
+    console.log(`Updating admission status ${id} to ${status}`);
+    
+    // Create query parameters
+    const queryParams = new URLSearchParams();
+    queryParams.append('status', status);
+    
+    if (remarks) {
+      queryParams.append('remarks', remarks);
+    }
+    
+    // Call the status update endpoint
+    return api.put<BackendAdmissionResponse>(
+      `/api/admissions/${id}/status?${queryParams.toString()}`
+    );
+  },
+  
+  // Get applications by status
+  getByStatus: (status: string) =>
+    api.get<BackendAdmissionResponse[]>(`/api/admissions/status/${status}`),
+  
+  // Search applications
+  searchApplications: (query: string) =>
+    api.get<BackendAdmissionResponse[]>(`/api/admissions/search?query=${query}`),
+  
+  // Get applications by date range
+  getByDateRange: (startDate: string, endDate: string) =>
+    api.get<BackendAdmissionResponse[]>(`/api/admissions/date-range?startDate=${startDate}&endDate=${endDate}`),
+  
+  // Get applications by grade
+  getByGrade: (grade: string) =>
+    api.get<BackendAdmissionResponse[]>(`/api/admissions/grade/${grade}`),
+
+  // Delete application
+  deleteApplication: (id: number) =>
+    api.delete(`/api/admissions/${id}`),
+
+  /**
+   * Process an admission application by changing its status
+   * @param id The ID of the admission to process
+   * @param action The action to take (approve or reject)
+   * @param reason Optional rejection reason
+   */
+  processAdmission: async (id: number, action: 'APPROVE' | 'REJECT', reason?: string) => {
+    console.log(`Processing admission ${id} with action: ${action}`);
+    
+    try {
+      // Convert action to proper status value expected by the backend
+      const status = action === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+      
+      // Backend expects query parameters, not a JSON body
+      const queryParams = new URLSearchParams();
+      queryParams.append('status', status);
+      
+      if (action === 'REJECT' && reason) {
+        queryParams.append('remarks', reason);
+      }
+      
+      // Call the API with query parameters
+      const response = await api.put<BackendAdmissionResponse>(
+        `/api/admissions/${id}/status?${queryParams.toString()}`
+      );
+      
+      console.log(`Admission ${id} processed with response:`, response);
+      return response;
+    } catch (error) {
+      console.error(`Error processing admission ${id}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Create a student record from an approved admission application
+   * @param admissionId The ID of the approved admission
+   * @param additionalData Any additional student data not included in the admission
+   */
+  createStudentFromAdmission: async (admissionId: number, additionalData: Partial<Student> = {}) => {
+    console.log(`Creating student from admission ${admissionId}`);
+    
+    // First get the admission details
+    const admission = await admissionService.getApplicationById(admissionId);
+    
+    if (!admission) {
+      throw new Error(`Admission record ${admissionId} not found`);
+    }
+    
+    if (admission.status !== 'APPROVED') {
+      throw new Error(`Cannot create student from admission with status ${admission.status}`);
+    }
+    
+    // Prepare student data from admission
+    const studentData: Partial<Student> = {
+      firstName: admission.studentName.split(' ')[0],
+      lastName: admission.studentName.includes(' ') 
+        ? admission.studentName.split(' ').slice(1).join(' ') 
+        : '',
+      email: admission.email,
+      dateOfBirth: admission.dateOfBirth,
+      grade: parseInt(admission.gradeApplying, 10),
+      section: additionalData.section || 'A', // Default section
+      contactNumber: admission.contactNumber,
+      address: admission.address || '',
+      guardianName: admission.parentName,
+      guardianContact: admission.contactNumber,
+      guardianEmail: admission.email,
+      status: 'ACTIVE',
+      admissionDate: new Date().toISOString().split('T')[0],
+      gender: additionalData.gender || 'MALE', // Default gender can be updated later
+      ...additionalData,
     };
     
-    return api.put<any>(`/admissions/${id}`, requestData);
+    return studentData;
   },
-  
-  submitApplication: (application: AdmissionApplication) => 
-    api.post<AdmissionApplication>('/admissions/submit', application),
-  
-  updateStatus: (id: number, status: string) =>
-    api.put<AdmissionApplication>(`/admissions/${id}/status`, { status }),
-  
-  getByStatus: (status: string) =>
-    api.get<AdmissionApplication[]>(`/admissions/status/${status}`),
-  
-  searchApplications: (query: string) =>
-    api.get<AdmissionApplication[]>(`/admissions/search?query=${query}`),
-  
-  getByDateRange: (startDate: string, endDate: string) =>
-    api.get<AdmissionApplication[]>(`/admissions/date-range?startDate=${startDate}&endDate=${endDate}`),
-  
-  getByGrade: (grade: string) =>
-    api.get<AdmissionApplication[]>(`/admissions/grade/${grade}`),
+
+  /**
+   * Check if an admission has already been converted to a student
+   * @param id The admission ID to check
+   */
+  hasStudentRecord: async (id: number) => {
+    try {
+      const response = await api.get<{hasStudent: boolean}>(`/api/admissions/${id}/student-status`);
+      return response && response.hasStudent;
+    } catch (error) {
+      console.warn(`Error checking if admission ${id} has student record:`, error);
+      return false;
+    }
+  },
 
   // Debug methods
   getDebugInfo: async () => {
@@ -154,26 +356,54 @@ export const admissionService = {
       token: token ? `${token.substring(0, 20)}...` : null,
       tokenInfo,
       endpoints: {
-        getAllApplications: '/admissions',
-        createApplication: '/admissions',
-        updateApplication: '/admissions/:id'
+        getAllApplications: '/api/admissions',
+        getApplicationById: '/api/admissions/:id',
+        createApplication: '/api/admissions',
+        updateApplication: '/api/admissions/:id',
+        updateStatus: '/api/admissions/:id/status',
+        deleteApplication: '/api/admissions/:id',
+        getByStatus: '/api/admissions/status/:status',
+        searchApplications: '/api/admissions/search?query=:query',
+        getByDateRange: '/api/admissions/date-range',
+        getByGrade: '/api/admissions/grade/:grade',
+        checkStudentStatus: '/api/admissions/:id/student-status'
       }
     };
   }
 };
 
-// Helper function to transform backend response to frontend format
+// Transformer function that maps backend response to frontend model
 function transformResponseToApplication(response: BackendAdmissionResponse): AdmissionApplication {
+  // For debugging
+  console.log("Transforming response to application:", response);
+  
+  // Map status type ensuring it's one of the allowed values
+  const allowedStatuses = [
+    'PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 
+    'WAITLISTED', 'CANCELLED', 'ENROLLED'
+  ];
+  
+  const status = response.status && allowedStatuses.includes(response.status) 
+    ? response.status as AdmissionApplication['status'] 
+    : 'PENDING';
+  
+  // Comprehensively map fields from backend to frontend
   return {
     id: response.id,
-    studentName: response.applicantName || 'Unknown',
-    dateOfBirth: '', // Backend doesn't return this in the list view
+    studentName: response.applicantName,
+    dateOfBirth: response.dateOfBirth,
     gradeApplying: response.gradeApplying?.toString() || '',
-    parentName: 'Not available', // Backend doesn't return guardian info in list view
-    contactNumber: '', // Not available in response
-    email: '', // Not available in response
-    address: '', // Not available in response
-    status: response.status as any,
-    submissionDate: response.applicationDate
+    parentName: response.guardianName,
+    contactNumber: response.contactNumber || response.guardianContact || '',
+    email: response.email || response.guardianEmail || '',
+    address: response.address || '', // Add address field handling
+    status: status,
+    submissionDate: response.applicationDate,
+    rejectionReason: response.rejectionReason,
+    previousSchool: response.previousSchool || '',
+    previousGrade: response.previousGrade || '',
+    previousPercentage: response.previousPercentage,
+    documents: response.documents,
+    documentsFormat: response.documentsFormat || ''
   };
 }

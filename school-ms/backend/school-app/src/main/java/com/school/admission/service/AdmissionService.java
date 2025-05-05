@@ -37,6 +37,10 @@ public class AdmissionService {
             throw new InvalidAdmissionStateException("Applicant already has a pending application");
         }
 
+        // DEBUG: Log incoming address
+        System.out.println("DEBUG - Admission request address: " + request.getAddress());
+        System.out.println("DEBUG - Full admission request: " + request);
+
         Admission admission = Admission.builder()
                 .applicationDate(LocalDate.now())
                 .applicantName(request.getApplicantName())
@@ -46,6 +50,7 @@ public class AdmissionService {
                 .guardianName(request.getGuardianName())
                 .guardianContact(request.getGuardianContact())
                 .guardianEmail(request.getGuardianEmail())
+                .address(request.getAddress())
                 .gradeApplying(request.getGradeApplying())
                 .previousSchool(request.getPreviousSchool())
                 .previousGrade(request.getPreviousGrade())
@@ -55,7 +60,15 @@ public class AdmissionService {
                 .status(AdmissionStatus.PENDING)
                 .build();
 
+        // DEBUG: Log entity before save
+        System.out.println("DEBUG - Admission entity before save - address: " + admission.getAddress());
+        
         admission = admissionRepository.save(admission);
+        
+        // DEBUG: Log entity after save
+        System.out.println("DEBUG - Admission entity after save - address: " + admission.getAddress());
+        System.out.println("DEBUG - Admission entity ID: " + admission.getId());
+
         return createAdmissionResponse(admission, "Application submitted successfully");
     }
 
@@ -94,7 +107,7 @@ public class AdmissionService {
     }
 
     public List<Admission> searchAdmissions(String query) {
-        return admissionRepository.findByApplicantNameContainingIgnoreCase(query);
+        return admissionRepository.searchByNameOrEmail(query);
     }
 
     public List<Admission> getAdmissionsByDateRange(LocalDate startDate, LocalDate endDate) {
@@ -107,6 +120,71 @@ public class AdmissionService {
 
     public List<Admission> getAllAdmissions() {
         return admissionRepository.findAll();
+    }
+
+    public Admission getAdmissionById(Long id) {
+        return admissionRepository.findById(id)
+                .orElseThrow(() -> new AdmissionNotFoundException("Admission not found with id: " + id));
+    }
+
+    public AdmissionResponse updateApplication(Long id, AdmissionRequest request) {
+        Admission admission = admissionRepository.findById(id)
+                .orElseThrow(() -> new AdmissionNotFoundException("Admission not found with id: " + id));
+
+        // DEBUG: Log incoming data for update
+        System.out.println("DEBUG - Updating admission ID: " + id);
+        System.out.println("DEBUG - Update request address: " + request.getAddress());
+        System.out.println("DEBUG - Full update request: " + request);
+        System.out.println("DEBUG - Current address in database: " + admission.getAddress());
+
+        // Update the admission details
+        admission.setApplicantName(request.getApplicantName());
+        admission.setDateOfBirth(request.getDateOfBirth());
+        admission.setEmail(request.getEmail());
+        admission.setContactNumber(request.getContactNumber());
+        admission.setGuardianName(request.getGuardianName());
+        admission.setGuardianContact(request.getGuardianContact());
+        admission.setGuardianEmail(request.getGuardianEmail());
+        admission.setAddress(request.getAddress());
+        admission.setGradeApplying(request.getGradeApplying());
+        admission.setPreviousSchool(request.getPreviousSchool());
+        admission.setPreviousGrade(request.getPreviousGrade());
+        admission.setPreviousPercentage(request.getPreviousPercentage());
+        
+        // DEBUG: Log entity before save
+        System.out.println("DEBUG - Address after setting but before save: " + admission.getAddress());
+        
+        // Don't update status, documents or application date through this endpoint
+        // those have specific endpoints
+        
+        admission = admissionRepository.save(admission);
+        
+        // DEBUG: Log entity after save
+        System.out.println("DEBUG - Address after save: " + admission.getAddress());
+        System.out.println("DEBUG - Full entity after save: " + admission);
+        
+        return createAdmissionResponse(admission, "Application updated successfully");
+    }
+
+    public void deleteAdmission(Long id) {
+        Admission admission = admissionRepository.findById(id)
+                .orElseThrow(() -> new AdmissionNotFoundException("Admission not found with id: " + id));
+
+        // Check if admission can be deleted
+        if (admission.getStatus() == AdmissionStatus.ENROLLED) {
+            throw new InvalidAdmissionStateException("Cannot delete an enrolled admission");
+        }
+
+        // Delete the admission
+        admissionRepository.delete(admission);
+    }
+
+    public boolean hasStudentRecord(Long id) {
+        Admission admission = admissionRepository.findById(id)
+                .orElseThrow(() -> new AdmissionNotFoundException("Admission not found with id: " + id));
+
+        // Check if this admission has already been converted to a student
+        return admission.getStudent() != null;
     }
 
     private void validateStatusTransition(AdmissionStatus currentStatus, AdmissionStatus newStatus) {
@@ -154,6 +232,7 @@ public class AdmissionService {
                 .gradeApplying(admission.getGradeApplying())
                 .status(admission.getStatus())
                 .message(message)
+                .address(admission.getAddress())
                 .studentId(admission.getStudent() != null ? admission.getStudent().getId() : null)
                 .build();
     }

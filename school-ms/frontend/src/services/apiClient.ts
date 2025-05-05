@@ -11,6 +11,7 @@ interface CustomError {
   message: string;
   status: number | string;
   originalError?: any;
+  tokenInfo?: any;
 }
 
 const api: AxiosInstance = axios.create({
@@ -35,11 +36,24 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor with retry logic
+// Response interceptor with retry logic and detailed error logging
 api.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => response,
   async (error: AxiosError): Promise<any> => {
     const originalRequest = error.config as CustomRequestConfig;
+    
+    // Enhanced error logging
+    console.error('API Error Details:', {
+      url: originalRequest?.url,
+      method: originalRequest?.method?.toUpperCase(),
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      headers: originalRequest?.headers,
+      data: originalRequest?.data,
+      responseData: error.response?.data,
+      isAuthError: error.response?.status === 401 || error.response?.status === 403,
+      token: originalRequest?.headers?.Authorization ? 'Bearer [Redacted]' : 'No token'
+    });
     
     // Implement retry logic
     if (!originalRequest._retry && originalRequest.url !== '/api/auth/login') {
@@ -81,17 +95,45 @@ api.interceptors.response.use(
       originalError: error
     };
     
-    switch (error.response.status) {
-      case 401:
-        customError.message = 'Unauthorized. Please log in again.';
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-        break;
-      case 403:
-        customError.message = 'Access denied.';
-        break;
-      default:
-        customError.message = (error.response.data as any)?.message || 'An unexpected error occurred.';
+    // Enhanced error information for auth-related errors
+    if (error.response.status === 403) {
+      const token = localStorage.getItem('token');
+      let tokenInfo = null;
+      
+      // Try to decode the token to provide more information
+      try {
+        if (token) {
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const payload = JSON.parse(atob(parts[1]));
+            tokenInfo = {
+              exp: new Date(payload.exp * 1000).toISOString(),
+              roles: payload.roles || payload.authorities || payload.role || 'Not found in token',
+              username: payload.sub || payload.username || 'Not found in token'
+            };
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing token:', e);
+      }
+      
+      customError.message = 'Access denied. You don\'t have permission to perform this action.';
+      customError.tokenInfo = tokenInfo;
+      
+      // Log detailed permissions error info
+      console.error('Permission Error:', {
+        endpoint: originalRequest?.url,
+        method: originalRequest?.method?.toUpperCase(),
+        tokenPresent: !!token,
+        tokenInfo,
+        responseData: error.response?.data
+      });
+    } else if (error.response.status === 401) {
+      customError.message = 'Unauthorized. Please log in again.';
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    } else {
+      customError.message = (error.response.data as any)?.message || 'An unexpected error occurred.';
     }
     
     return Promise.reject(customError);

@@ -18,6 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/admissions")
@@ -93,5 +95,53 @@ public class AdmissionController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Admission>> getAllApplications() {
         return ResponseEntity.ok(admissionService.getAllAdmissions());
+    }
+
+    @Operation(summary = "Update admission application details", description = "Update the details of an existing admission application")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Application updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Application not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid application data")
+    })
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdmissionResponse> updateApplication(
+            @PathVariable Long id,
+            @Valid @RequestBody AdmissionRequest request) {
+        return ResponseEntity.ok(admissionService.updateApplication(id, request));
+    }
+
+    @Operation(summary = "Get application by ID", description = "Retrieve a specific application by its ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Application found"),
+            @ApiResponse(responseCode = "404", description = "Application not found")
+    })
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Admission> getApplicationById(@PathVariable Long id) {
+        return ResponseEntity.ok(admissionService.getAdmissionById(id));
+    }
+
+    @Operation(summary = "Delete admission application", description = "Delete an admission application")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Application deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Application not found")
+    })
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteApplication(@PathVariable Long id) {
+        admissionService.deleteAdmission(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Check if admission has student record", description = "Check if an admission application has been converted to a student record")
+    @ApiResponse(responseCode = "200", description = "Status retrieved successfully")
+    @GetMapping("/{id}/student-status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> checkStudentStatus(@PathVariable Long id) {
+        boolean hasStudent = admissionService.hasStudentRecord(id);
+        Map<String, Object> response = new HashMap<>();
+        response.put("hasStudent", hasStudent);
+        return ResponseEntity.ok(response);
     }
 }

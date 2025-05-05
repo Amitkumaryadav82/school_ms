@@ -28,6 +28,8 @@ public class AdmissionRequest {
 
     private String guardianEmail;
 
+    private String address;
+
     @NotNull(message = "Grade applying for is required")
     private Integer gradeApplying;
 

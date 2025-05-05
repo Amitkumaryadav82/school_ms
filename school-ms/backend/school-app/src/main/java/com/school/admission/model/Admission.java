@@ -45,6 +45,8 @@ public class Admission extends Auditable {
 
     private String guardianEmail;
 
+    private String address;
+
     @NotNull
     private Integer gradeApplying;
 

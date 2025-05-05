@@ -15,4 +15,5 @@ public class AdmissionResponse {
     private AdmissionStatus status;
     private String message;
     private Long studentId; // If admission is approved and student record is created
+    private String address;
 }

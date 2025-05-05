@@ -13,6 +13,7 @@ import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import Permission from '../components/Permission';
 import AdmissionDialog from '../components/dialogs/AdmissionDialog';
+import AuthErrorDialog from '../components/debug/AuthErrorDialog';
 import { useApi } from '../hooks/useApi';
 import { formatDate } from '../utils/tableFormatters';
 import environment from '../config/environment';
@@ -44,29 +45,43 @@ const createActionColumn = <T extends object>(
     label: 'Actions',
     sortable: false,
     align: 'right',
-    format: (row: T) => (
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        {onEdit && (
-          <Button
-            size="small"
-            onClick={() => onEdit(row)}
-            sx={{ mr: 1 }}
-          >
-            Edit
-          </Button>
-        )}
-        {onDelete && (
-          <Button
-            size="small"
-            color="error"
-            onClick={() => onDelete(row)}
-          >
-            Delete
-          </Button>
-        )}
-        {extraActions && extraActions(row)}
-      </Box>
-    ),
+    format: (value: any, row: T) => {
+      // Check if row exists before rendering actions
+      if (!row) {
+        console.warn('Action column received undefined row data');
+        return null;
+      }
+      
+      return (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {onEdit && (
+            <Button
+              size="small"
+              onClick={() => {
+                // Only call onEdit if row exists
+                if (row) onEdit(row);
+              }}
+              sx={{ mr: 1 }}
+            >
+              Edit
+            </Button>
+          )}
+          {onDelete && row && (
+            <Button
+              size="small"
+              color="error"
+              onClick={() => {
+                // Only call onDelete if row exists
+                if (row) onDelete(row);
+              }}
+            >
+              Delete
+            </Button>
+          )}
+          {extraActions && row && extraActions(row)}
+        </Box>
+      );
+    },
   };
 };
 
@@ -79,6 +94,8 @@ const Admissions = () => {
   const [debugLoading, setDebugLoading] = useState(false);
   const [debugResults, setDebugResults] = useState<any[]>([]);
   const [errorDetails, setErrorDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<any>(null);
 
   // Debug logging on component mount
   useEffect(() => {
@@ -112,7 +129,7 @@ const Admissions = () => {
   // Modified useApi call with detailed error logging
   const {
     data: admissions,
-    loading,
+    loading: apiLoading,
     error,
     refresh,
   } = useApi<AdmissionApplication[]>(() => {
@@ -142,14 +159,66 @@ const Admissions = () => {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (application: AdmissionApplication) => {
-    setSelectedApplication(application);
-    setIsDialogOpen(true);
+  const handleEdit = async (application: AdmissionApplication) => {
+    console.log('Edit clicked for application:', application);
+    
+    if (!application) {
+      console.error('Error: Attempted to edit undefined application');
+      return;
+    }
+
+    // Set loading state while fetching complete details
+    setLoading(true);
+    
+    try {
+      // Create an enhanced application object with sensible defaults for editing
+      const enhancedApplication = {
+        ...application,
+        id: application.id, // Ensure ID is preserved
+        studentName: application.studentName || '',
+        dateOfBirth: application.dateOfBirth || '2005-01-01', // Default DOB if not available
+        gradeApplying: application.gradeApplying || '1',
+        parentName: application.parentName !== 'Not available' ? application.parentName : '', 
+        contactNumber: application.contactNumber || '',
+        email: application.email || '',
+        address: application.address || '',
+        status: application.status || 'PENDING',
+      };
+      
+      console.log('Enhanced application object for editing:', enhancedApplication);
+      setSelectedApplication(enhancedApplication);
+      
+      // If we have an ID, try to get additional details from backend, but don't block UI
+      if (application.id) {
+        try {
+          const detailedData = await admissionService.getApplicationById(application.id);
+          console.log('Retrieved detailed application data:', detailedData);
+          
+          // Only update if we got meaningful data back
+          if (detailedData && detailedData.studentName) {
+            setSelectedApplication(detailedData);
+          }
+        } catch (detailError) {
+          console.warn('Could not fetch complete details, using basic data:', detailError);
+          // We already set the enhanced application above, so we can continue
+        }
+      }
+    } catch (error) {
+      console.error('Error preparing application for edit:', error);
+      showNotification({
+        type: 'warning',
+        message: 'Could not load complete application details. Some fields may be missing.'
+      });
+    } finally {
+      setLoading(false);
+      setIsDialogOpen(true);
+    }
   };
 
   const handleSave = async (application: AdmissionApplication) => {
     try {
       if (application.id) {
+        console.log('Attempting to update application:', application);
         await admissionService.updateApplication(application.id, application);
         showNotification({
           type: 'success',
@@ -188,60 +257,132 @@ const Admissions = () => {
       }
       setIsDialogOpen(false);
       refresh();
-    } catch (err) {
-      console.error('Error saving application:', err);
+    } catch (error: any) {
+      console.error('Error saving application:', error);
       
-      // Enhanced error message based on the error details
-      let errorMessage = 'Failed to save application';
-      
-      if (err.message) {
-        errorMessage += `: ${err.message}`;
-      }
-      
-      if (err.originalError?.response?.data) {
-        console.log('Backend validation errors:', err.originalError.response.data);
+      // Handle auth errors with detailed dialog
+      if (error.status === 403) {
+        setAuthError(error);
+      } else {
+        // General error handling
+        let errorMessage = error.message || 'An error occurred while saving the application';
         
-        // Display specific backend validation errors if available
-        if (err.originalError.response.data.message) {
-          errorMessage = `Validation error: ${err.originalError.response.data.message}`;
-        }
-        
-        // Handle Spring Boot validation error format - safely check if errors is an array
-        if (err.originalError.response.data.errors) {
-          try {
-            // Check if errors is an array we can map over
-            if (Array.isArray(err.originalError.response.data.errors)) {
-              const validationErrors = err.originalError.response.data.errors
-                .map(e => e.defaultMessage || e.field)
-                .join(', ');
-              errorMessage = `Validation errors: ${validationErrors}`;
-            } 
-            // Check if errors is an object with field names as keys
-            else if (typeof err.originalError.response.data.errors === 'object') {
-              const errorObj = err.originalError.response.data.errors;
-              const errorMessages = [];
-              
-              for (const field in errorObj) {
-                if (errorObj.hasOwnProperty(field)) {
-                  errorMessages.push(`${field}: ${errorObj[field]}`);
+        if (error.originalError?.response?.data) {
+          console.log('Backend validation errors:', error.originalError.response.data);
+          
+          // Display specific backend validation errors if available
+          if (error.originalError.response.data.message) {
+            errorMessage = `Validation error: ${error.originalError.response.data.message}`;
+          }
+          
+          // Handle Spring Boot validation error format - safely check if errors is an array
+          if (error.originalError.response.data.errors) {
+            try {
+              // Check if errors is an array we can map over
+              if (Array.isArray(error.originalError.response.data.errors)) {
+                const validationErrors = error.originalError.response.data.errors
+                  .map(e => e.defaultMessage || e.field)
+                  .join(', ');
+                errorMessage = `Validation errors: ${validationErrors}`;
+              } 
+              // Check if errors is an object with field names as keys
+              else if (typeof error.originalError.response.data.errors === 'object') {
+                const errorObj = error.originalError.response.data.errors;
+                const errorMessages = [];
+                
+                for (const field in errorObj) {
+                  if (errorObj.hasOwnProperty(field)) {
+                    errorMessages.push(`${field}: ${errorObj[field]}`);
+                  }
+                }
+                
+                if (errorMessages.length > 0) {
+                  errorMessage = `Validation errors: ${errorMessages.join(', ')}`;
                 }
               }
-              
-              if (errorMessages.length > 0) {
-                errorMessage = `Validation errors: ${errorMessages.join(', ')}`;
-              }
+            } catch (parseError) {
+              console.error('Error parsing validation errors:', parseError);
+              // Fall back to using the general message
             }
-          } catch (parseError) {
-            console.error('Error parsing validation errors:', parseError);
-            // Fall back to using the general message
           }
         }
+        
+        showNotification({
+          type: 'error',
+          message: errorMessage,
+        });
+      }
+    }
+  };
+
+  // Add processing actions for approving, rejecting, and creating students
+  const handleProcessAdmission = async (application: AdmissionApplication, action: 'APPROVE' | 'REJECT') => {
+    try {
+      setLoading(true);
+      
+      let reason = '';
+      if (action === 'REJECT') {
+        reason = prompt('Please provide a reason for rejection:') || '';
       }
       
+      console.log(`Processing admission ${application.id} with action: ${action}, reason: ${reason}`);
+      await admissionService.processAdmission(application.id, action, reason);
+      
+      showNotification({
+        type: 'success',
+        message: `Application ${action === 'APPROVE' ? 'approved' : 'rejected'} successfully`
+      });
+      
+      // Refresh the list to show updated status
+      refresh();
+    } catch (err: any) {
+      console.error(`Error ${action.toLowerCase()}ing application:`, err);
+      
+      // Handle auth errors with detailed dialog
+      if (err.status === 403) {
+        setAuthError(err);
+      } else {
+        showNotification({
+          type: 'error',
+          message: `Failed to ${action.toLowerCase()} application: ${err.message}`
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleCreateStudent = async (application: AdmissionApplication) => {
+    try {
+      setLoading(true);
+      
+      // Check if application status is approved
+      if (application.status !== 'APPROVED') {
+        // If not approved, approve it first
+        await admissionService.processAdmission(application.id, 'APPROVE');
+      }
+      
+      // Create student from the application
+      const student = await admissionService.createStudentFromAdmission(application.id);
+      
+      showNotification({
+        type: 'success',
+        message: `Student created successfully from application`
+      });
+      
+      // Navigate to the student detail page or refresh the list
+      // Optionally: navigate to student page
+      // history.push(`/students/${student.id}`);
+      
+      refresh();
+    } catch (err) {
+      console.error('Error creating student from application:', err);
       showNotification({
         type: 'error',
-        message: errorMessage,
+        message: `Failed to create student: ${err.message}`
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -322,16 +463,32 @@ const Admissions = () => {
       undefined, // No delete action
       (row) => (
         <Permission permission="MANAGE_ADMISSIONS">
-          <Button
-            size="small"
-            variant="outlined"
-            color="secondary"
-            onClick={() => {
-              // Additional actions like approve/reject can be added here
-            }}
-          >
-            Process
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              size="small"
+              variant="outlined"
+              color="success"
+              onClick={() => handleProcessAdmission(row, 'APPROVE')}
+            >
+              Approve
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              onClick={() => handleProcessAdmission(row, 'REJECT')}
+            >
+              Reject
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={() => handleCreateStudent(row)}
+            >
+              Create Student
+            </Button>
+          </Box>
         </Permission>
       )
     ),
@@ -421,7 +578,7 @@ const Admissions = () => {
     );
   };
 
-  if (loading) {
+  if (apiLoading) {
     return <Loading />;
   }
 
@@ -521,6 +678,13 @@ const Admissions = () => {
         initialData={selectedApplication}
         loading={loading}
       />
+
+      {authError && (
+        <AuthErrorDialog 
+          error={authError}
+          onClose={() => setAuthError(null)}
+        />
+      )}
     </Box>
   );
 };
