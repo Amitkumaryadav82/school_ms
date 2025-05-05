@@ -1,8 +1,45 @@
-school-ms/backend/school-app/target/school-app-1.0.0.jar
+# Compiled class files
+*.class
+
+# Log files
+*.log
+log.txt
+*/log.txt
+*/*/log.txt
+*/*/*/log.txt
+*/*/*/*/log.txt
+*.log.*
+logs/
+
+# Compressed log files
+*.gz
+
+# JAR files
+*.jar
+*.jar.original
+**/target/
+
+# Build directories
+target/
+out/
+build/
+
+# IDE-specific files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Specific files to ignore
 school-ms/backend/school-app/target/school-app-1.0.0.jar
 school-ms/backend/school-app/target/school-app-1.0.0.jar.original
-log.txt
 school-ms/backend/school-app/log.txt
-school-ms/backend/school-app/log.txt
-school-ms/backend/school-app/log.txt
-*.class
