@@ -10,6 +10,9 @@ import {
   FormHelperText,
   Tooltip,
   IconButton,
+  Paper,
+  Typography,
+  Box,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import { Student } from '../../services/studentService';
@@ -52,9 +55,9 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
       bloodGroup: '',
       address: '',
       email: '',
-      phoneNumber: '',
       parentName: '',
       parentContact: '+91', // Prefill with India's country code
+      additionalContact: '', // Added additional contact field
       admissionDate: new Date().toISOString().split('T')[0],
       status: 'ACTIVE',
     }
@@ -95,208 +98,233 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
     }
   };
 
-  const handleSubmit = () => {
+  const validateForm = (): boolean => {
     const validationErrors = validateStudent(formData as Student);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      return;
+      return false;
     }
+    return true;
+  }
 
-    onSubmit(formData as Student);
+  const handleSubmit = () => {
+    if (validateForm()) {
+      onSubmit(formData as Student);
+    }
   };
 
   return (
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={initialData ? 'Edit Student' : 'New Student'}
+      title={initialData ? 'Edit Student' : 'Add New Student'}
+      submitLabel={initialData ? 'Update' : 'Submit'}
       onSubmit={handleSubmit}
-      submitLabel={initialData ? 'Update' : 'Create'}
+      maxWidth="md"
       loading={loading}
+      disableSubmitButton={false}
     >
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Name"
-            value={formData.name}
-            onChange={handleChange('name')}
-            error={!!errors.name}
-            helperText={errors.name}
-            required
-          />
+      <Box sx={{ width: '100%' }}>
+        <Grid container spacing={2}>
+          {/* Student Information Section */}
+          <Grid item xs={12}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={formData.name}
+                  onChange={handleChange('name')}
+                  error={!!errors.name}
+                  helperText={errors.name}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Student ID"
+                  value={formData.studentId}
+                  onChange={handleChange('studentId')}
+                  error={!!errors.studentId}
+                  helperText={errors.studentId}
+                  required
+                  disabled={!!initialData}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth error={!!errors.grade}>
+                  <InputLabel>Grade</InputLabel>
+                  <Select
+                    value={formData.grade}
+                    onChange={handleChange('grade') as any}
+                    label="Grade"
+                    required
+                  >
+                    {grades.map((grade) => (
+                      <MenuItem key={grade} value={grade}>
+                        Grade {grade}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.grade && <FormHelperText>{errors.grade}</FormHelperText>}
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Section</InputLabel>
+                  <Select
+                    value={formData.section}
+                    onChange={handleChange('section') as any}
+                    label="Section"
+                  >
+                    {sections.map((section) => (
+                      <MenuItem key={section} value={section}>
+                        Section {section}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Date of Birth"
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange('dateOfBirth')}
+                  error={!!errors.dateOfBirth}
+                  helperText={errors.dateOfBirth}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Tooltip title="Date of Birth field is required">
+                          <IconButton size="small" edge="end">
+                            <InfoIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </InputAdornment>
+                    )
+                  }}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Gender</InputLabel>
+                  <Select
+                    value={formData.gender}
+                    onChange={handleChange('gender') as any}
+                    label="Gender"
+                    required
+                  >
+                    <MenuItem value="MALE">Male</MenuItem>
+                    <MenuItem value="FEMALE">Female</MenuItem>
+                    <MenuItem value="OTHER">Other</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Blood Group</InputLabel>
+                  <Select
+                    value={formData.bloodGroup}
+                    onChange={handleChange('bloodGroup') as any}
+                    label="Blood Group"
+                  >
+                    {bloodGroups.map((group) => (
+                      <MenuItem key={group} value={group}>
+                        {group}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Grid>
+            
+          {/* Parent/Guardian Information Section */}
+          <Grid item xs={12} sx={{ mt: 2 }}>
+            <Paper elevation={1} sx={{ p: 2 }}>
+              <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                Parent/Guardian Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Parent/Guardian Name"
+                    value={formData.parentName}
+                    onChange={handleChange('parentName')}
+                    error={!!errors.parentName}
+                    helperText={errors.parentName}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Parent Contact"
+                    value={formData.parentContact}
+                    onChange={handleChange('parentContact')}
+                    error={!!errors.parentContact}
+                    helperText={errors.parentContact || "Must start with +91 followed by 10 digits"}
+                    required
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Tooltip title="Indian mobile number format: +91 followed by 10 digits">
+                            <IconButton size="small">
+                              <InfoIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                {/* Ensure Additional Contact and Email are in same row with equal width */}
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Additional Contact Number"
+                    value={formData.additionalContact}
+                    onChange={handleChange('additionalContact')}
+                    error={!!errors.additionalContact}
+                    helperText={errors.additionalContact}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange('email')}
+                    error={!!errors.email}
+                    helperText={errors.email}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Address"
+                    multiline
+                    rows={3}
+                    value={formData.address}
+                    onChange={handleChange('address')}
+                    error={!!errors.address}
+                    helperText={errors.address}
+                    required
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Student ID"
-            value={formData.studentId}
-            onChange={handleChange('studentId')}
-            error={!!errors.studentId}
-            helperText={errors.studentId}
-            required
-            disabled={!!initialData}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth error={!!errors.grade}>
-            <InputLabel>Grade</InputLabel>
-            <Select
-              value={formData.grade}
-              onChange={handleChange('grade') as any}
-              label="Grade"
-              required
-            >
-              {grades.map((grade) => (
-                <MenuItem key={grade} value={grade}>
-                  Grade {grade}
-                </MenuItem>
-              ))}
-            </Select>
-            {errors.grade && <FormHelperText>{errors.grade}</FormHelperText>}
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
-            <InputLabel>Section</InputLabel>
-            <Select
-              value={formData.section}
-              onChange={handleChange('section') as any}
-              label="Section"
-            >
-              {sections.map((section) => (
-                <MenuItem key={section} value={section}>
-                  Section {section}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Date of Birth"
-            type="date"
-            value={formData.dateOfBirth}
-            onChange={handleChange('dateOfBirth')}
-            error={!!errors.dateOfBirth}
-            helperText={errors.dateOfBirth || "Required - Must use current date"}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Tooltip title="Date of Birth field is required and must be set to the current date">
-                    <IconButton size="small" edge="end">
-                      <InfoIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </InputAdornment>
-              )
-            }}
-            required
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
-            <InputLabel>Gender</InputLabel>
-            <Select
-              value={formData.gender}
-              onChange={handleChange('gender') as any}
-              label="Gender"
-              required
-            >
-              <MenuItem value="MALE">Male</MenuItem>
-              <MenuItem value="FEMALE">Female</MenuItem>
-              <MenuItem value="OTHER">Other</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <FormControl fullWidth>
-            <InputLabel>Blood Group</InputLabel>
-            <Select
-              value={formData.bloodGroup}
-              onChange={handleChange('bloodGroup') as any}
-              label="Blood Group"
-            >
-              {bloodGroups.map((group) => (
-                <MenuItem key={group} value={group}>
-                  {group}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange('email')}
-            error={!!errors.email}
-            helperText={errors.email}
-            required
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Phone Number"
-            value={formData.phoneNumber}
-            onChange={handleChange('phoneNumber')}
-            error={!!errors.phoneNumber}
-            helperText={errors.phoneNumber}
-            required
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Parent/Guardian Name"
-            value={formData.parentName}
-            onChange={handleChange('parentName')}
-            error={!!errors.parentName}
-            helperText={errors.parentName || "Required field"}
-            required
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            label="Parent Contact"
-            value={formData.parentContact}
-            onChange={handleChange('parentContact')}
-            error={!!errors.parentContact}
-            helperText={errors.parentContact || "Must start with +91 followed by 10 digits"}
-            required
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Tooltip title="Indian mobile number format: +91 followed by 10 digits">
-                    <IconButton size="small">
-                      <InfoIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Address"
-            multiline
-            rows={3}
-            value={formData.address}
-            onChange={handleChange('address')}
-            error={!!errors.address}
-            helperText={errors.address || "Required field"}
-            required
-          />
-        </Grid>
-      </Grid>
+      </Box>
     </BaseDialog>
   );
 };

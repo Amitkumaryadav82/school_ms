@@ -11,6 +11,7 @@ import { Attendance } from '../services/attendanceService';
 // Common validation patterns
 const patterns = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  studentEmail: /^[^\s@]+@(edu\.com|school\.org)$/,  // New pattern for student emails
   phone: /^\+?[\d\s-]{10,}$/,
   name: /^[a-zA-Z\s-']{2,}$/,
   studentId: /^[A-Z0-9]{8,}$/,
@@ -20,6 +21,7 @@ const patterns = {
 
 // Common validation functions
 export const isValidEmail = (email: string): boolean => patterns.email.test(email);
+export const isValidStudentEmail = (email: string): boolean => patterns.studentEmail.test(email);
 export const isValidPhone = (phone: string): boolean => patterns.phone.test(phone);
 export const isValidName = (name: string): boolean => patterns.name.test(name);
 export const isValidStudentId = (id: string): boolean => patterns.studentId.test(id);
@@ -37,8 +39,10 @@ export const validateStudent = (student: Student) => {
   if (!student.grade) {
     errors.grade = 'Grade is required';
   }
-  if (!student.email || !isValidEmail(student.email)) {
-    errors.email = 'Please enter a valid email address';
+  if (!student.email) {
+    errors.email = 'Email address is required';
+  } else if (!isValidStudentEmail(student.email)) {
+    errors.email = 'Student email must use either edu.com or school.org domain';
   }
   if (!student.phoneNumber || !isValidPhone(student.phoneNumber)) {
     errors.phoneNumber = 'Please enter a valid phone number';
@@ -64,10 +68,10 @@ export const validateStudent = (student: Student) => {
   }
   
   // Guardian Contact validation - must be present, start with +91, and be exactly 10 digits after +91
-  if (!student.parentContact) {
-    errors.parentContact = 'Guardian contact is required';
-  } else if (!patterns.indianMobile.test(student.parentContact)) {
-    errors.parentContact = 'Guardian contact must start with +91 followed by 10 digits';
+  if (!student.guardianContact) {
+    errors.guardianContact = 'Guardian contact is required';
+  } else if (!patterns.indianMobile.test(student.guardianContact)) {
+    errors.guardianContact = 'Guardian contact must start with +91 followed by 10 digits';
   }
 
   return errors;
@@ -106,8 +110,8 @@ export const validateCourse = (course: Course) => {
   if (!course.department) {
     errors.department = 'Department is required';
   }
-  if (!course.teacher) {
-    errors.teacher = 'Teacher is required';
+  if (!course.teacherId) {
+    errors.teacherId = 'Teacher is required';
   }
   if (!isPositiveNumber(course.credits)) {
     errors.credits = 'Credits must be a positive number';

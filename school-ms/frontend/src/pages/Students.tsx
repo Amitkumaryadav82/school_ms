@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -34,17 +34,7 @@ const Students: React.FC = () => {
   const { user } = useAuth();
   const [debugDialogOpen, setDebugDialogOpen] = useState(false);
   const [errorDetails, setErrorDetails] = useState<any>(null);
-  const [isMockMode, setIsMockMode] = useState(studentService.isMockModeEnabled());
   
-  useEffect(() => {
-    // Check if we're in mock mode
-    setIsMockMode(studentService.isMockModeEnabled());
-    
-    return () => {
-      // Cleanup logic if needed
-    };
-  }, [user]);
-
   const {
     data: students,
     loading,
@@ -59,7 +49,7 @@ const Students: React.FC = () => {
   });
 
   const { mutate: createStudent, loading: createLoading } = useApiMutation(
-    (data: Student) => studentService.createStudent(data),
+    (data: Student) => studentService.create(data),
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Student created successfully' });
@@ -77,7 +67,7 @@ const Students: React.FC = () => {
   );
 
   const { mutate: updateStudent, loading: updateLoading } = useApiMutation(
-    (data: Student) => studentService.updateStudent(data.id!, data),
+    (data: Student) => studentService.update(data.id!, data),
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Student updated successfully' });
@@ -89,7 +79,7 @@ const Students: React.FC = () => {
   );
 
   const { mutate: deleteStudent } = useApiMutation(
-    (id: number) => studentService.deleteStudent(id),
+    (id: number) => studentService.delete(id),
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Student deleted successfully' });
@@ -142,17 +132,6 @@ const Students: React.FC = () => {
         message: `Error: ${error.message || 'Unknown error occurred'}`
       });
     }
-  };
-
-  const handleMockModeToggle = () => {
-    const newMockModeState = !isMockMode;
-    studentService.toggleMockMode(newMockModeState);
-    setIsMockMode(newMockModeState);
-    showNotification({
-      type: 'info',
-      message: `Mock data mode ${newMockModeState ? 'enabled' : 'disabled'}`
-    });
-    refresh();
   };
 
   const columns: Column<Student>[] = [
@@ -291,14 +270,6 @@ const Students: React.FC = () => {
           >
             Debug
           </Button>
-          <Button
-            variant={isMockMode ? "contained" : "outlined"}
-            color={isMockMode ? "success" : "primary"}
-            onClick={handleMockModeToggle}
-            sx={{ mr: 2 }}
-          >
-            {isMockMode ? "Using Mock Data" : "Use Mock Data"}
-          </Button>
           <Permission permission="CREATE_STUDENT">
             <Button
               variant="contained"
@@ -311,20 +282,6 @@ const Students: React.FC = () => {
           </Permission>
         </Box>
       </Box>
-
-      {isMockMode && (
-        <Alert 
-          severity="info" 
-          sx={{ mb: 2 }}
-          action={
-            <Button color="inherit" size="small" onClick={handleMockModeToggle}>
-              Disable
-            </Button>
-          }
-        >
-          Using mock data due to API connectivity issues. CORS errors with X-Admin-Override header have been detected.
-        </Alert>
-      )}
 
       <Paper>
         <DataTable
