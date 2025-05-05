@@ -1,5 +1,6 @@
 import api from './api';
 
+// Frontend interface for displaying admission applications
 export interface AdmissionApplication {
   id?: number;
   studentName: string;
@@ -13,17 +14,98 @@ export interface AdmissionApplication {
   submissionDate?: string;
 }
 
+// This interface matches what the backend returns based on AdmissionResponse.java
+interface BackendAdmissionResponse {
+  id?: number;
+  applicantName: string;
+  applicationDate: string; // ISO date string format
+  gradeApplying: number;
+  status: string;
+  message?: string;
+  studentId?: number;
+}
+
+// This interface exactly matches what the backend expects based on AdmissionRequest.java
+export interface AdmissionRequest {
+  applicantName: string;
+  dateOfBirth: string; // Will be converted to LocalDate in the request
+  email: string;
+  contactNumber: string;
+  guardianName: string;
+  guardianContact: string;
+  guardianEmail?: string;
+  gradeApplying: number; // Must be Integer, not string
+  previousSchool?: string;
+  previousGrade?: string;
+  previousPercentage: number; // Required, must be between 0-100
+  documents?: any;
+  documentsFormat?: string;
+}
+
 export const admissionService = {
-  // Simplified to use the consistent API endpoint pattern
-  getAllApplications: () => api.get<AdmissionApplication[]>('/admissions'),
+  // Transform backend response to frontend format
+  getAllApplications: async () => {
+    const response = await api.get<BackendAdmissionResponse[]>('/admissions');
+    return response.map(transformResponseToApplication);
+  },
   
-  getApplicationById: (id: number) => api.get<AdmissionApplication>(`/admissions/${id}`),
+  getApplicationById: async (id: number) => {
+    const response = await api.get<BackendAdmissionResponse>(`/admissions/${id}`);
+    return transformResponseToApplication(response);
+  },
   
-  createApplication: (application: AdmissionApplication) => 
-    api.post<AdmissionApplication>('/admissions', application),
+  createApplication: (application: AdmissionApplication) => {
+    // Convert date to ISO format (YYYY-MM-DD) if it's not already
+    let formattedDate = application.dateOfBirth;
     
-  updateApplication: (id: number, application: AdmissionApplication) =>
-    api.put<AdmissionApplication>(`/admissions/${id}`, application),
+    // Try to ensure the date is in the right format
+    if (formattedDate && !formattedDate.includes('-')) {
+      const dateObj = new Date(formattedDate);
+      if (!isNaN(dateObj.getTime())) {
+        formattedDate = dateObj.toISOString().split('T')[0];
+      }
+    }
+    
+    // Format data exactly as the backend expects according to validation requirements
+    const requestData = {
+      applicantName: application.studentName,
+      dateOfBirth: formattedDate,
+      email: application.email,
+      contactNumber: application.contactNumber,
+      guardianName: application.parentName,
+      guardianContact: application.contactNumber, // Using same contact for guardian
+      guardianEmail: application.email, // Using same email for guardian
+      gradeApplying: parseInt(application.gradeApplying, 10) || 1, // Default to grade 1 if parsing fails
+      previousSchool: "Not Available",
+      previousGrade: "Not Available", 
+      previousPercentage: 75.0, // Default value between 0-100
+    };
+    
+    // Debug log
+    console.log('Sending admission request with structured data:', requestData);
+    console.log('Date format checking - original:', application.dateOfBirth, 'formatted:', formattedDate);
+    
+    return api.post<any>('/admissions', requestData);
+  },
+    
+  updateApplication: (id: number, application: AdmissionApplication) => {
+    // Same format as create
+    const requestData = {
+      applicantName: application.studentName,
+      dateOfBirth: application.dateOfBirth, 
+      email: application.email,
+      contactNumber: application.contactNumber,
+      guardianName: application.parentName,
+      guardianContact: application.contactNumber,
+      guardianEmail: application.email,
+      gradeApplying: parseInt(application.gradeApplying, 10),
+      previousSchool: "N/A",
+      previousGrade: "N/A", 
+      previousPercentage: 70.0,
+    };
+    
+    return api.put<any>(`/admissions/${id}`, requestData);
+  },
   
   submitApplication: (application: AdmissionApplication) => 
     api.post<AdmissionApplication>('/admissions/submit', application),
@@ -79,3 +161,19 @@ export const admissionService = {
     };
   }
 };
+
+// Helper function to transform backend response to frontend format
+function transformResponseToApplication(response: BackendAdmissionResponse): AdmissionApplication {
+  return {
+    id: response.id,
+    studentName: response.applicantName || 'Unknown',
+    dateOfBirth: '', // Backend doesn't return this in the list view
+    gradeApplying: response.gradeApplying?.toString() || '',
+    parentName: 'Not available', // Backend doesn't return guardian info in list view
+    contactNumber: '', // Not available in response
+    email: '', // Not available in response
+    address: '', // Not available in response
+    status: response.status as any,
+    submissionDate: response.applicationDate
+  };
+}

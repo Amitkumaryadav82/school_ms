@@ -12,6 +12,7 @@ import DataTable from '../components/DataTable';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import Permission from '../components/Permission';
+import AdmissionDialog from '../components/dialogs/AdmissionDialog';
 import { useApi } from '../hooks/useApi';
 import { formatDate } from '../utils/tableFormatters';
 import environment from '../config/environment';
@@ -155,7 +156,31 @@ const Admissions = () => {
           message: 'Application updated successfully',
         });
       } else {
-        await admissionService.createApplication(application);
+        // Enhanced error logging for create operation
+        console.log('Submitting application data:', application);
+        
+        // Validate required fields before submission
+        const missingFields = [];
+        if (!application.studentName) missingFields.push('Student Name');
+        if (!application.dateOfBirth) missingFields.push('Date of Birth');
+        if (!application.gradeApplying) missingFields.push('Grade');
+        if (!application.parentName) missingFields.push('Parent/Guardian Name');
+        if (!application.contactNumber) missingFields.push('Contact Number');
+        if (!application.email) missingFields.push('Email');
+        if (!application.address) missingFields.push('Address');
+        
+        if (missingFields.length > 0) {
+          throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+        }
+
+        // Extra date validation for the backend's expected format
+        const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+        if (!datePattern.test(application.dateOfBirth)) {
+          throw new Error('Date of Birth must be in YYYY-MM-DD format');
+        }
+        
+        const result = await admissionService.createApplication(application);
+        console.log('Submission successful, response:', result);
         showNotification({
           type: 'success',
           message: 'New application created successfully',
@@ -164,9 +189,58 @@ const Admissions = () => {
       setIsDialogOpen(false);
       refresh();
     } catch (err) {
+      console.error('Error saving application:', err);
+      
+      // Enhanced error message based on the error details
+      let errorMessage = 'Failed to save application';
+      
+      if (err.message) {
+        errorMessage += `: ${err.message}`;
+      }
+      
+      if (err.originalError?.response?.data) {
+        console.log('Backend validation errors:', err.originalError.response.data);
+        
+        // Display specific backend validation errors if available
+        if (err.originalError.response.data.message) {
+          errorMessage = `Validation error: ${err.originalError.response.data.message}`;
+        }
+        
+        // Handle Spring Boot validation error format - safely check if errors is an array
+        if (err.originalError.response.data.errors) {
+          try {
+            // Check if errors is an array we can map over
+            if (Array.isArray(err.originalError.response.data.errors)) {
+              const validationErrors = err.originalError.response.data.errors
+                .map(e => e.defaultMessage || e.field)
+                .join(', ');
+              errorMessage = `Validation errors: ${validationErrors}`;
+            } 
+            // Check if errors is an object with field names as keys
+            else if (typeof err.originalError.response.data.errors === 'object') {
+              const errorObj = err.originalError.response.data.errors;
+              const errorMessages = [];
+              
+              for (const field in errorObj) {
+                if (errorObj.hasOwnProperty(field)) {
+                  errorMessages.push(`${field}: ${errorObj[field]}`);
+                }
+              }
+              
+              if (errorMessages.length > 0) {
+                errorMessage = `Validation errors: ${errorMessages.join(', ')}`;
+              }
+            }
+          } catch (parseError) {
+            console.error('Error parsing validation errors:', parseError);
+            // Fall back to using the general message
+          }
+        }
+      }
+      
       showNotification({
         type: 'error',
-        message: `Failed to save application: ${err.message}`,
+        message: errorMessage,
       });
     }
   };
@@ -440,7 +514,13 @@ const Admissions = () => {
       
       {renderDebugDialog()}
       
-      {/* Admission dialog would be implemented here */}
+      <AdmissionDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={handleSave}
+        initialData={selectedApplication}
+        loading={loading}
+      />
     </Box>
   );
 };

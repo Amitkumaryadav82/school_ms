@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextField,
   Grid,
   MenuItem,
+  FormHelperText,
 } from '@mui/material';
 import { AdmissionApplication } from '../../services/admissionService';
 import { validateAdmission } from '../../utils/admissionValidation.js';
@@ -34,8 +35,26 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
       contactNumber: '',
       email: '',
       address: '',
+      status: 'PENDING',
     }
   );
+
+  // Reset form data when dialog opens with new initialData
+  useEffect(() => {
+    if (open) {
+      setFormData(initialData || {
+        studentName: '',
+        dateOfBirth: '',
+        gradeApplying: '1', // Default to grade 1
+        parentName: '',
+        contactNumber: '',
+        email: '',
+        address: '',
+        status: 'PENDING',
+      });
+      setErrors({});
+    }
+  }, [open, initialData]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -55,22 +74,31 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
   };
 
   const handleSubmit = () => {
-    const validationErrors = validateAdmission(formData as AdmissionApplication);
+    console.log("Submitting form data:", formData);
+    
+    // Add current date if submissionDate isn't set
+    const dataToValidate = {
+      ...formData,
+      submissionDate: formData.submissionDate || new Date().toISOString().split('T')[0]
+    };
+    
+    const validationErrors = validateAdmission(dataToValidate as AdmissionApplication);
     if (Object.keys(validationErrors).length > 0) {
+      console.log("Validation errors:", validationErrors);
       setErrors(validationErrors);
       return;
     }
 
-    onSubmit(formData as AdmissionApplication);
+    onSubmit(dataToValidate as AdmissionApplication);
   };
 
   return (
     <BaseDialog
       open={open}
       onClose={onClose}
-      title={initialData ? 'Edit Application' : 'New Admission Application'}
+      title={initialData?.id ? 'Edit Application' : 'New Admission Application'}
       onSubmit={handleSubmit}
-      submitLabel={initialData ? 'Update' : 'Submit'}
+      submitLabel={initialData?.id ? 'Update' : 'Submit'}
       loading={loading}
     >
       <Grid container spacing={2}>
@@ -78,7 +106,7 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
           <TextField
             fullWidth
             label="Student Name"
-            value={formData.studentName}
+            value={formData.studentName || ''}
             onChange={handleChange('studentName')}
             error={!!errors.studentName}
             helperText={errors.studentName}
@@ -90,10 +118,10 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
             fullWidth
             label="Date of Birth"
             type="date"
-            value={formData.dateOfBirth}
+            value={formData.dateOfBirth || ''}
             onChange={handleChange('dateOfBirth')}
             error={!!errors.dateOfBirth}
-            helperText={errors.dateOfBirth}
+            helperText={errors.dateOfBirth || 'YYYY-MM-DD format'}
             InputLabelProps={{ shrink: true }}
             required
           />
@@ -103,7 +131,7 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
             fullWidth
             select
             label="Grade Applying"
-            value={formData.gradeApplying}
+            value={formData.gradeApplying || ''}
             onChange={handleChange('gradeApplying')}
             error={!!errors.gradeApplying}
             helperText={errors.gradeApplying}
@@ -120,7 +148,7 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
           <TextField
             fullWidth
             label="Parent/Guardian Name"
-            value={formData.parentName}
+            value={formData.parentName || ''}
             onChange={handleChange('parentName')}
             error={!!errors.parentName}
             helperText={errors.parentName}
@@ -131,10 +159,10 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
           <TextField
             fullWidth
             label="Contact Number"
-            value={formData.contactNumber}
+            value={formData.contactNumber || ''}
             onChange={handleChange('contactNumber')}
             error={!!errors.contactNumber}
-            helperText={errors.contactNumber}
+            helperText={errors.contactNumber || "e.g. +1234567890"}
             required
           />
         </Grid>
@@ -143,7 +171,7 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
             fullWidth
             label="Email"
             type="email"
-            value={formData.email}
+            value={formData.email || ''}
             onChange={handleChange('email')}
             error={!!errors.email}
             helperText={errors.email}
@@ -156,12 +184,17 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
             label="Address"
             multiline
             rows={3}
-            value={formData.address}
+            value={formData.address || ''}
             onChange={handleChange('address')}
             error={!!errors.address}
             helperText={errors.address}
             required
           />
+        </Grid>
+        <Grid item xs={12}>
+          <FormHelperText>
+            All fields are required. Submission date will be set automatically.
+          </FormHelperText>
         </Grid>
       </Grid>
     </BaseDialog>
