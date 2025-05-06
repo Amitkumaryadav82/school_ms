@@ -33,6 +33,19 @@ apiClient.interceptors.response.use(
       headers: error.config?.headers,
     });
 
+    // For server errors (500), log request data for debugging
+    if (error.response?.status === 500) {
+      console.error('Server Error 500 Details:');
+      try {
+        console.error('Request URL:', error.config?.url);
+        console.error('Request Method:', error.config?.method);
+        console.error('Request Payload:', JSON.parse(error.config?.data));
+        console.error('Response Data:', error.response?.data);
+      } catch (e) {
+        console.error('Raw Request Data:', error.config?.data);
+      }
+    }
+
     // Enhanced logging for validation errors (400)
     if (error.response?.status === 400) {
       console.error('Validation Error Details:');

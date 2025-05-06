@@ -11,6 +11,7 @@ import Admissions from './pages/Admissions';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Landing from './pages/Landing';
+import Staff from './pages/Staff';
 import theme from './theme';
 import React, { useState, useEffect, useContext } from 'react';
 
@@ -106,6 +107,18 @@ function AppRoutes() {
             <Layout>
               <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]}>
                 <Students />
+              </RoleBasedRoute>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/staff"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <RoleBasedRoute allowedRoles={[ROLES.ADMIN]}>
+                <Staff />
               </RoleBasedRoute>
             </Layout>
           </ProtectedRoute>

@@ -15,4 +15,10 @@ export const teacherService = {
   create: (teacher: Teacher) => api.post<Teacher>('/staff', teacher),
   update: (id: number, teacher: Teacher) => api.put<Teacher>(`/staff/${id}`, teacher),
   delete: (id: number) => api.delete(`/staff/${id}`),
+
+  // Add aliases to match the function names used in Teachers.tsx
+  getAllTeachers: () => api.get<Teacher[]>('/staff'),
+  createTeacher: (teacher: Teacher) => api.post<Teacher>('/staff', teacher),
+  updateTeacher: (id: number, teacher: Teacher) => api.put<Teacher>(`/staff/${id}`, teacher),
+  deleteTeacher: (id: number) => api.delete(`/staff/${id}`),
 };

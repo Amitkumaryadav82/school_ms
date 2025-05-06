@@ -145,6 +145,11 @@ public class StaffServiceImpl implements StaffService {
     @Override
     @Transactional
     public StaffDTO createStaff(StaffDTO staffDTO) {
+        // Validate that role is provided
+        if (staffDTO.getRole() == null || staffDTO.getRole().trim().isEmpty()) {
+            throw new IllegalArgumentException("Staff role cannot be null or empty");
+        }
+
         // Find or create the role
         StaffRole role = staffRoleRepository.findByRoleName(staffDTO.getRole())
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + staffDTO.getRole()));
@@ -160,7 +165,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setDateOfBirth(staffDTO.getDateOfBirth());
         staff.setGender(staffDTO.getGender());
         staff.setJoinDate(staffDTO.getJoinDate());
-        staff.setRole(role);
+        staff.setRole(role);  // Role assignment is now guaranteed
         staff.setIsActive(true);
         staff.setQualifications(staffDTO.getQualifications());
         staff.setEmergencyContact(staffDTO.getEmergencyContact());
@@ -226,6 +231,11 @@ public class StaffServiceImpl implements StaffService {
             staff.setJoinDate(staffDTO.getJoinDate());
         }
         if (staffDTO.getRole() != null) {
+            // Validate that role is not empty
+            if (staffDTO.getRole().trim().isEmpty()) {
+                throw new IllegalArgumentException("Staff role cannot be empty");
+            }
+            
             StaffRole role = staffRoleRepository.findByRoleName(staffDTO.getRole())
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + staffDTO.getRole()));
             staff.setRole(role);

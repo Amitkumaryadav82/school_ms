@@ -87,6 +87,7 @@ com\school\communication\service\NotificationServiceImpl.class
 com\school\course\service\CourseService.class
 com\school\common\model\Auditable.class
 com\school\exam\dto\ExamResultRequest.class
+com\school\hrm\config\StaffRoleInitializer.class
 com\school\security\exception\DuplicateEmailException.class
 com\school\config\CacheConfig.class
 com\school\exception\StudentNotFoundException.class
