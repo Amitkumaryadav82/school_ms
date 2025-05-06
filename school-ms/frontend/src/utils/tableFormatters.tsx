@@ -1,4 +1,5 @@
-import { Chip, Button } from '@mui/material';
+import { Chip, IconButton, Tooltip } from '@mui/material';
+import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Column } from '../components/DataTable';
 
 export const formatDate = (date: string) => {
@@ -50,24 +51,26 @@ export const createActionColumn = <T extends { id?: number | string }>(
   format: (_, row) => (
     <div style={{ display: 'flex', gap: '8px' }}>
       {onEdit && (
-        <Button
-          size="small"
-          variant="outlined"
-          color="primary"
-          onClick={() => onEdit(row)}
-        >
-          Edit
-        </Button>
+        <Tooltip title="Edit">
+          <IconButton
+            size="small"
+            color="primary"
+            onClick={() => onEdit(row)}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       )}
       {onDelete && (
-        <Button
-          size="small"
-          variant="outlined"
-          color="error"
-          onClick={() => onDelete(row)}
-        >
-          Delete
-        </Button>
+        <Tooltip title="Delete">
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => onDelete(row)}
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       )}
       {additionalActions && additionalActions(row)}
     </div>

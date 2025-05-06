@@ -173,6 +173,7 @@ com\school\monitoring\DatabaseHealthIndicator.class
 com\school\admission\dto\AdmissionResponse$AdmissionResponseBuilder.class
 com\school\course\repository\CourseRepository.class
 com\school\fee\model\Fee.class
+com\school\student\dto\BulkStudentRequest.class
 com\school\communication\repository\NotificationRepository.class
 com\school\config\WebServerCustomizer.class
 com\school\exception\GlobalExceptionHandler.class

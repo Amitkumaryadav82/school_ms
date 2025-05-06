@@ -3,6 +3,7 @@ package com.school.student.controller;
 import com.school.student.model.Student;
 import com.school.student.model.StudentStatus;
 import com.school.student.service.StudentService;
+import com.school.student.dto.BulkStudentRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,6 +35,21 @@ public class StudentController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Student> createStudent(@Valid @RequestBody Student student) {
         return ResponseEntity.ok(studentService.createStudent(student));
+    }
+
+    @Operation(summary = "Create multiple students", description = "Registers multiple students in the system at once")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Students created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid student data"),
+            @ApiResponse(responseCode = "409", description = "Student ID or email already exists")
+    })
+    @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Student>> createStudentsBulk(@Valid @RequestBody BulkStudentRequest request) {
+        if (request.getStudents().size() != request.getExpectedCount()) {
+            throw new IllegalArgumentException("Expected count does not match the number of students provided");
+        }
+        return ResponseEntity.ok(studentService.createStudentsBulk(request.getStudents()));
     }
 
     @Operation(summary = "Update student information", description = "Updates an existing student's information")

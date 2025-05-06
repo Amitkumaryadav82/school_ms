@@ -4,3 +4,13 @@
 school-ms/backend/school-app/target/*.*
 school-ms/backend/school-app/target/
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\target\
+
+# Ignore all .class files
+*.class
+
+# Ignore target directory
+target/
+
+# Ignore build directories
+build/
+out/

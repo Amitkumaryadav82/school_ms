@@ -4,25 +4,32 @@
 # Log files
 *.log
 log.txt
-*/log.txt
-*/*/log.txt
-*/*/*/log.txt
-*/*/*/*/log.txt
-*.log.*
 logs/
+*.log.*
 
 # Compressed log files
 *.gz
 
-# JAR files
-*.jar
-*.jar.original
-**/target/
-
-# Build directories
+# Build directories - use forward slashes for compatibility
 target/
-out/
+*/target/
+*/*/target/
+*/*/*/target/
 build/
+out/
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven specific
+.mvn/
+mvnw
+mvnw.cmd
 
 # IDE-specific files
 .idea/
@@ -33,17 +40,29 @@ build/
 .project
 .classpath
 .settings/
-*/*.class
+.factorypath
+nb-configuration.xml
 
 # Node.js dependencies
 node_modules/
 npm-debug.log
 yarn-error.log
+package-lock.json
 
-# Specific files to ignore
-school-ms/backend/school-app/target/school-app-1.0.0.jar
-school-ms/backend/school-app/target/school-app-1.0.0.jar.original
-school-ms/backend/school-app/log.txt
-school-ms\backend\school-app\target\
-school-ms/backend/school-app/target/classes/com/school/admission/dto/AdmissionResponse.class
-school-ms/backend/school-app/target/classes/com/school/admission/exception/InvalidAdmissionStateException.class
+# Typescript build info
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# System files
+.DS_Store
+Thumbs.db

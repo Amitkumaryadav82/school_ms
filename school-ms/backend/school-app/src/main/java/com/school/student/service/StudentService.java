@@ -80,6 +80,28 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
+    /**
+     * Creates multiple student records at once, with validation
+     * 
+     * @param students List of students to create
+     * @return List of created students with IDs assigned
+     * @throws DuplicateStudentException if any student has duplicate ID or email
+     */
+    public List<Student> createStudentsBulk(List<Student> students) {
+        // Pre-validate all students before saving to ensure atomicity
+        for (Student student : students) {
+            validateNewStudent(student);
+            student.setAdmissionDate(LocalDate.now());
+            // Set default status if not provided
+            if (student.getStatus() == null) {
+                student.setStatus(StudentStatus.ACTIVE);
+            }
+        }
+
+        // Save all students
+        return studentRepository.saveAll(students);
+    }
+
     private void validateNewStudent(Student student) {
         if (studentRepository.existsByStudentId(student.getStudentId())) {
             throw new DuplicateStudentException("Student ID already exists");

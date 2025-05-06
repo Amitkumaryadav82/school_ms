@@ -11,10 +11,10 @@ import { Attendance } from '../services/attendanceService';
 // Common validation patterns
 const patterns = {
   email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  studentEmail: /^[^\s@]+@(edu\.com|school\.org)$/,  // New pattern for student emails
+  studentEmail: /^[^\s@]+@(edu\.com|school\.org)$/,  // This pattern is no longer needed but keeping for reference
   phone: /^\+?[\d\s-]{10,}$/,
   name: /^[a-zA-Z\s-']{2,}$/,
-  studentId: /^[A-Z0-9]{8,}$/,
+  studentId: /^[A-Z0-9\d]{4,}$/,  // Modified to accept IDs with at least 4 characters
   password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/,
   indianMobile: /^\+91\d{10}$/, // Indian mobile number pattern: +91 followed by 10 digits
 };
@@ -29,9 +29,11 @@ export const isPositiveNumber = (value: number): boolean => !isNaN(value) && val
 export const isValidDate = (date: string): boolean => !isNaN(Date.parse(date));
 export const isValidPassword = (password: string): boolean => patterns.password.test(password);
 
-// Student validation
-export const validateStudent = (student: Student) => {
+// Student validation with context for edit vs create operations
+export const validateStudent = (student: Student, options?: { isEdit?: boolean }) => {
+  console.log('Validating student:', student); // Debug logging
   const errors: Record<string, string> = {};
+  const isEdit = options?.isEdit || false;
 
   if (!student.name || !isValidName(student.name)) {
     errors.name = 'Please enter a valid name (minimum 2 characters, letters only)';
@@ -41,18 +43,27 @@ export const validateStudent = (student: Student) => {
   }
   if (!student.email) {
     errors.email = 'Email address is required';
-  } else if (!isValidStudentEmail(student.email)) {
-    errors.email = 'Student email must use either edu.com or school.org domain';
-  }
-  if (!student.phoneNumber || !isValidPhone(student.phoneNumber)) {
-    errors.phoneNumber = 'Please enter a valid phone number';
-  }
-  if (student.studentId && !isValidStudentId(student.studentId)) {
-    errors.studentId = 'Please enter a valid student ID';
+  } else if (!isValidEmail(student.email)) {
+    errors.email = 'Please enter a valid email address';
   }
   
-  // New validations
-  // Date of Birth validation - must be present and equal to current date
+  // Check studentId - skip validation if this is an edit operation
+  if (!isEdit) {
+    if (!student.studentId) {
+      errors.studentId = 'Student ID is required';
+    } else if (!isValidStudentId(student.studentId)) {
+      errors.studentId = 'Please enter a valid student ID (at least 4 alphanumeric characters)';
+    }
+  }
+  
+  // Using parentPhone instead of parentContact to match Student interface
+  if (!student.parentPhone) {
+    errors.parentPhone = 'Parent phone is required';
+  } else if (!patterns.indianMobile.test(student.parentPhone)) {
+    errors.parentPhone = 'Parent phone must start with +91 followed by 10 digits';
+  }
+  
+  // Date of Birth validation - must be present
   if (!student.dateOfBirth) {
     errors.dateOfBirth = 'Date of birth is required';
   }
@@ -64,16 +75,16 @@ export const validateStudent = (student: Student) => {
   
   // Guardian Name validation - must be present
   if (!student.parentName || student.parentName.trim() === '') {
-    errors.parentName = 'Guardian name is required';
+    errors.parentName = 'Parent/guardian name is required';
   }
   
-  // Guardian Contact validation - must be present, start with +91, and be exactly 10 digits after +91
-  if (!student.guardianContact) {
-    errors.guardianContact = 'Guardian contact is required';
-  } else if (!patterns.indianMobile.test(student.guardianContact)) {
-    errors.guardianContact = 'Guardian contact must start with +91 followed by 10 digits';
+  // Gender field is required
+  if (!student.gender) {
+    errors.gender = 'Gender is required';
   }
-
+  
+  console.log('Validation errors:', errors); // Add debug logging
+  
   return errors;
 };
 

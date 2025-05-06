@@ -23,6 +23,43 @@ apiClient.interceptors.request.use(config => {
 apiClient.interceptors.response.use(
   response => response,
   error => {
+    // Log the complete error for debugging
+    console.error('API Error Details:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url,
+      method: error.config?.method,
+      headers: error.config?.headers,
+    });
+
+    // Enhanced logging for validation errors (400)
+    if (error.response?.status === 400) {
+      console.error('Validation Error Details:');
+      
+      // Check for different validation error formats
+      if (error.response?.data?.errors) {
+        // Spring validation errors typically have this format
+        console.table(error.response.data.errors);
+      } else if (error.response?.data?.fieldErrors) {
+        // Some Spring Boot apps use this format
+        console.table(error.response.data.fieldErrors);
+      } else if (typeof error.response?.data === 'object') {
+        // Log all properties of the error response data
+        Object.entries(error.response.data).forEach(([key, value]) => {
+          console.log(`${key}:`, value);
+        });
+      }
+      
+      // Log request payload that caused the validation error
+      try {
+        console.log('Request payload that caused validation error:', 
+          JSON.parse(error.config?.data));
+      } catch (e) {
+        console.log('Request payload (could not parse):', error.config?.data);
+      }
+    }
+
     // Handle authentication errors
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
@@ -31,11 +68,16 @@ apiClient.interceptors.response.use(
     }
     
     // Format error messages consistently
-    const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
+    const errorMessage = error.response?.data?.message || 
+      error.response?.data?.error || 
+      error.message || 
+      'An error occurred';
+    
     const enhancedError = {
       message: errorMessage,
       status: error.response?.status || 'network_error',
-      originalError: error
+      originalError: error,
+      validationErrors: error.response?.data?.errors || error.response?.data?.fieldErrors
     };
     
     return Promise.reject(enhancedError);

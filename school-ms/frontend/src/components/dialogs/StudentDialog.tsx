@@ -31,6 +31,19 @@ const grades = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 const sections = ['A', 'B', 'C', 'D'];
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
+// Get current date in YYYY-MM-DD format for default value
+const getCurrentDate = () => {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+};
+
+// Get a date 10 years ago in YYYY-MM-DD format for default DOB
+const getDefaultDOB = () => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 10); // Set to 10 years ago as a reasonable default
+  return date.toISOString().split('T')[0];
+};
+
 const StudentDialog: React.FC<StudentDialogProps> = ({
   open,
   onClose,
@@ -38,26 +51,21 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
   initialData,
   loading,
 }) => {
-  // Get current date in YYYY-MM-DD format for default value
-  const getCurrentDate = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  };
-
   const [formData, setFormData] = useState<Partial<Student>>(
     initialData || {
       name: '',
       studentId: '',
       grade: '',
       section: '',
-      dateOfBirth: getCurrentDate(), // Set default to current date as per requirement
+      dateOfBirth: getDefaultDOB(), // Use a date in the past instead of current date
       gender: '',
       bloodGroup: '',
       address: '',
       email: '',
       parentName: '',
-      parentContact: '+91', // Prefill with India's country code
-      additionalContact: '', // Added additional contact field
+      phoneNumber: '', // This is required by the API
+      parentPhone: '+91', // Changed from parentContact to match interface
+      emergencyContact: '', // Changed from additionalContact to match interface
       admissionDate: new Date().toISOString().split('T')[0],
       status: 'ACTIVE',
     }
@@ -70,7 +78,7 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
     if (open && !initialData) {
       setFormData(prev => ({
         ...prev,
-        dateOfBirth: getCurrentDate()
+        dateOfBirth: getDefaultDOB()
       }));
     }
   }, [open, initialData]);
@@ -80,8 +88,8 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
   ) => {
     let value = e.target.value;
     
-    // Enforce +91 prefix for parent contact
-    if (field === 'parentContact' && !value.startsWith('+91')) {
+    // Enforce +91 prefix for parent phone
+    if (field === 'parentPhone' && !value.startsWith('+91')) {
       value = '+91' + value.replace(/^\+91/, '');
     }
     
@@ -99,7 +107,9 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
   };
 
   const validateForm = (): boolean => {
+    console.log("Validating form data:", formData); // Debug logging
     const validationErrors = validateStudent(formData as Student);
+    console.log("Validation errors:", validationErrors); // Debug logging
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return false;
@@ -108,9 +118,45 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
   }
 
   const handleSubmit = () => {
-    if (validateForm()) {
-      onSubmit(formData as Student);
+    console.log("Submit button clicked");
+    
+    // Create a copy of formData for submission
+    const submitData = {
+      ...formData,
+      // Ensure phoneNumber is set (required by backend)
+      phoneNumber: formData.parentPhone || '',
+    };
+    
+    // Validate date of birth is in the past
+    const dob = new Date(submitData.dateOfBirth || '');
+    const today = new Date();
+    if (dob >= today) {
+      setErrors(prev => ({
+        ...prev,
+        dateOfBirth: 'Date of birth must be in the past'
+      }));
+      console.log("Date of birth validation failed - must be in the past");
+      return;
     }
+    
+    console.log("Preparing data for submission:", submitData);
+    
+    // Create a validation context that tells validateStudent whether we're
+    // creating or updating a student
+    const isEdit = !!initialData?.id;
+    
+    // Perform validation - with context about whether this is an edit operation
+    const validationErrors = validateStudent(submitData as Student, { isEdit });
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      console.log("Form validation failed");
+      return;
+    }
+    
+    console.log("Form validation successful, submitting data");
+    // Log exact data being sent to the API for debugging
+    console.log("Submitting data to API:", JSON.stringify(submitData, null, 2));
+    onSubmit(submitData as Student);
   };
 
   return (
@@ -147,9 +193,20 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
                   value={formData.studentId}
                   onChange={handleChange('studentId')}
                   error={!!errors.studentId}
-                  helperText={errors.studentId}
+                  helperText={errors.studentId || "Student ID cannot be changed after creation"}
                   required
-                  disabled={!!initialData}
+                  disabled={!!initialData?.id}
+                  InputProps={{
+                    endAdornment: !initialData?.id && (
+                      <InputAdornment position="end">
+                        <Tooltip title="Enter a unique Student ID. This cannot be changed later.">
+                          <IconButton size="small">
+                            <InfoIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -265,11 +322,11 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Parent Contact"
-                    value={formData.parentContact}
-                    onChange={handleChange('parentContact')}
-                    error={!!errors.parentContact}
-                    helperText={errors.parentContact || "Must start with +91 followed by 10 digits"}
+                    label="Parent Phone"
+                    value={formData.parentPhone}
+                    onChange={handleChange('parentPhone')}
+                    error={!!errors.parentPhone}
+                    helperText={errors.parentPhone || "Must start with +91 followed by 10 digits"}
                     required
                     InputProps={{
                       startAdornment: (
@@ -284,15 +341,15 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
                     }}
                   />
                 </Grid>
-                {/* Ensure Additional Contact and Email are in same row with equal width */}
+                {/* Ensure Emergency Contact and Email are in same row with equal width */}
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Additional Contact Number"
-                    value={formData.additionalContact}
-                    onChange={handleChange('additionalContact')}
-                    error={!!errors.additionalContact}
-                    helperText={errors.additionalContact}
+                    label="Emergency Contact Number"
+                    value={formData.emergencyContact}
+                    onChange={handleChange('emergencyContact')}
+                    error={!!errors.emergencyContact}
+                    helperText={errors.emergencyContact}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
