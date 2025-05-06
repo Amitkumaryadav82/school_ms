@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,10 +13,16 @@ import {
   Alert,
   AlertTitle,
   Divider,
-  Chip
+  Chip,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import { Student } from '../../services/studentService';
 import { parse } from 'papaparse';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DownloadIcon from '@mui/icons-material/Download';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import * as XLSX from 'xlsx';
 
 interface BulkStudentUploadDialogProps {
   open: boolean;
@@ -46,12 +52,16 @@ const BulkStudentUploadDialog: React.FC<BulkStudentUploadDialogProps> = ({
   const [parsedStudents, setParsedStudents] = useState<Student[]>([]);
   const [validationErrors, setValidationErrors] = useState<StudentValidationError[]>([]);
   const [parseStatus, setParseStatus] = useState<'initial' | 'success' | 'error'>('initial');
+  const [fileName, setFileName] = useState<string>('');
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCsvChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCsvData(event.target.value);
     setParseStatus('initial');
     setParsedStudents([]);
     setValidationErrors([]);
+    setFileName('');
   };
 
   const validateStudent = (student: any, index: number): StudentValidationError[] => {
@@ -131,13 +141,88 @@ const BulkStudentUploadDialog: React.FC<BulkStudentUploadDialogProps> = ({
       setCsvData('');
       setParsedStudents([]);
       setParseStatus('initial');
+      setFileName('');
     } catch (error) {
       console.error('Failed to submit students:', error);
     }
   };
 
-  const handleSampleData = () => {
-    setCsvData(SAMPLE_CSV);
+  const handleSampleDownload = () => {
+    // Create a Blob from the CSV string
+    const blob = new Blob([SAMPLE_CSV], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create an invisible anchor element
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'student_upload_template.csv');
+    
+    // Append to the document, click it, and remove it
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  const handleFileUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    setFileName(file.name);
+    
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const data = e.target?.result;
+      
+      try {
+        // Handle Excel files (xlsx, xls)
+        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+          const workbook = XLSX.read(data, { type: 'binary' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Convert to CSV
+          const csv = XLSX.utils.sheet_to_csv(worksheet);
+          setCsvData(csv);
+        } 
+        // Handle CSV files directly
+        else if (file.name.endsWith('.csv')) {
+          setCsvData(data as string);
+        }
+        else {
+          throw new Error('Unsupported file format. Please use CSV, XLSX, or XLS files.');
+        }
+        
+        // Reset states
+        setParseStatus('initial');
+        setParsedStudents([]);
+        setValidationErrors([]);
+      } catch (error) {
+        console.error('Error reading file:', error);
+        setValidationErrors([{
+          index: 0,
+          field: 'file',
+          message: 'Failed to read file: ' + (error instanceof Error ? error.message : String(error))
+        }]);
+        setParseStatus('error');
+      }
+    };
+    
+    if (file.name.endsWith('.csv')) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsBinaryString(file);
+    }
+    
+    // Reset the input to allow selecting the same file again
+    if (event.target) {
+      event.target.value = '';
+    }
   };
 
   return (
@@ -146,7 +231,7 @@ const BulkStudentUploadDialog: React.FC<BulkStudentUploadDialogProps> = ({
       <DialogContent>
         <Box sx={{ mb: 2 }}>
           <Typography variant="body1" gutterBottom>
-            Paste your CSV data below or upload a CSV file to add multiple students at once.
+            Upload your CSV/Excel file or paste CSV data below to add multiple students at once.
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Required fields: Student ID, Name, Grade, Email, and Phone Number
@@ -154,14 +239,43 @@ const BulkStudentUploadDialog: React.FC<BulkStudentUploadDialogProps> = ({
         </Box>
 
         <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-          <Button 
-            variant="outlined" 
-            size="small" 
-            onClick={handleSampleData}
-          >
-            Show Sample Format
-          </Button>
+          <Tooltip title="Download sample CSV template">
+            <Button 
+              variant="outlined" 
+              size="small" 
+              onClick={handleSampleDownload}
+              startIcon={<DownloadIcon />}
+            >
+              Download Template
+            </Button>
+          </Tooltip>
+          
+          <input
+            type="file"
+            accept=".csv,.xlsx,.xls"
+            style={{ display: 'none' }}
+            ref={fileInputRef}
+            onChange={handleFileChange}
+          />
+          
+          <Tooltip title="Upload CSV or Excel file">
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleFileUpload}
+              startIcon={<FileUploadIcon />}
+              color="primary"
+            >
+              Upload File
+            </Button>
+          </Tooltip>
         </Box>
+        
+        {fileName && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            File loaded: {fileName}
+          </Alert>
+        )}
 
         <TextField
           label="CSV Data"
@@ -182,13 +296,13 @@ const BulkStudentUploadDialog: React.FC<BulkStudentUploadDialogProps> = ({
             onClick={handleParseCSV}
             disabled={!csvData.trim() || loading}
           >
-            Parse CSV
+            Parse Data
           </Button>
         </Box>
 
         {parseStatus === 'success' && (
           <Alert severity="success" sx={{ mb: 2 }}>
-            <AlertTitle>CSV Successfully Parsed</AlertTitle>
+            <AlertTitle>Data Successfully Parsed</AlertTitle>
             Found {parsedStudents.length} valid student records ready to be imported.
           </Alert>
         )}
@@ -240,8 +354,9 @@ const BulkStudentUploadDialog: React.FC<BulkStudentUploadDialogProps> = ({
           onClick={handleSubmit} 
           color="primary" 
           disabled={parsedStudents.length === 0 || parseStatus !== 'success' || loading}
+          startIcon={loading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
         >
-          {loading ? <CircularProgress size={24} /> : 'Import Students'}
+          {loading ? 'Importing...' : 'Import Students'}
         </Button>
       </DialogActions>
     </Dialog>

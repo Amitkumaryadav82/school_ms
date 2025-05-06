@@ -175,9 +175,18 @@ const Students: React.FC = () => {
 
   const confirmDelete = async () => {
     if (studentToDelete) {
-      await deleteStudent(studentToDelete.id!);
-      setConfirmationDialogOpen(false);
-      setStudentToDelete(null);
+      try {
+        await deleteStudent(studentToDelete.id!);
+        setConfirmationDialogOpen(false);
+        setStudentToDelete(null);
+      } catch (error) {
+        console.error('Error deleting student:', error);
+        showNotification({
+          type: 'error',
+          message: `Failed to delete student: ${error.message || 'Unknown error'}`
+        });
+        // Keep the dialog open if there was an error
+      }
     }
   };
 

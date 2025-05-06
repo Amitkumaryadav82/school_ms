@@ -58,10 +58,64 @@ const mapToBackendStudent = (student: Student): BackendStudent => {
     lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
   }
   
-  // Ensure date format is correct for LocalDate (YYYY-MM-DD)
-  const formattedDateOfBirth = student.dateOfBirth ? 
-    new Date(student.dateOfBirth).toISOString().split('T')[0] : 
-    new Date().toISOString().split('T')[0];
+  // Safely parse date of birth with fallback
+  let formattedDateOfBirth: string;
+  
+  try {
+    if (student.dateOfBirth) {
+      // Check if the date is already in YYYY-MM-DD format
+      if (/^\d{4}-\d{2}-\d{2}$/.test(student.dateOfBirth)) {
+        formattedDateOfBirth = student.dateOfBirth;
+      } else {
+        // Handle various date formats by attempting different parsing methods
+        const dateParts = student.dateOfBirth.split(/[-/\.]/);
+        
+        // Try to determine if the format is MM/DD/YYYY or DD/MM/YYYY or YYYY/MM/DD
+        let parsedDate: Date;
+        if (dateParts.length === 3) {
+          // Check if the first part might be a year (4 digits)
+          if (dateParts[0].length === 4) {
+            // Likely YYYY/MM/DD format
+            parsedDate = new Date(`${dateParts[0]}-${dateParts[1]}-${dateParts[2]}`);
+          } else {
+            // Try both MM/DD/YYYY and DD/MM/YYYY
+            // First attempt MM/DD/YYYY
+            parsedDate = new Date(`${dateParts[2]}-${dateParts[0]}-${dateParts[1]}`);
+            
+            // If the result is invalid, try DD/MM/YYYY
+            if (isNaN(parsedDate.getTime())) {
+              parsedDate = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+            }
+          }
+          
+          if (!isNaN(parsedDate.getTime())) {
+            formattedDateOfBirth = parsedDate.toISOString().split('T')[0];
+          } else {
+            // If all attempts failed, use current date
+            console.warn(`Invalid date format "${student.dateOfBirth}" for student ${student.name || student.studentId}, using current date`);
+            formattedDateOfBirth = new Date().toISOString().split('T')[0];
+          }
+        } else {
+          // If format is unexpected, try direct parsing
+          parsedDate = new Date(student.dateOfBirth);
+          if (!isNaN(parsedDate.getTime())) {
+            formattedDateOfBirth = parsedDate.toISOString().split('T')[0];
+          } else {
+            // Fallback to current date
+            console.warn(`Invalid date format "${student.dateOfBirth}" for student ${student.name || student.studentId}, using current date`);
+            formattedDateOfBirth = new Date().toISOString().split('T')[0];
+          }
+        }
+      }
+    } else {
+      // If no date provided, use current date
+      formattedDateOfBirth = new Date().toISOString().split('T')[0];
+    }
+  } catch (error) {
+    console.warn(`Error parsing date ${student.dateOfBirth} for student ${student.name || student.studentId}: ${error.message}`);
+    // Fallback to current date
+    formattedDateOfBirth = new Date().toISOString().split('T')[0];
+  }
   
   // Ensure grade is an integer
   const gradeAsInt = parseInt(student.grade || '0', 10);
@@ -240,7 +294,16 @@ export const studentService = {
   },
   
   // Delete a student record
-  delete: (id: number) => api.delete(`/api/students/${id}`),
+  delete: async (id: number) => {
+    try {
+      console.log(`Deleting student with ID: ${id}`);
+      await api.delete(`/api/students/${id}`);
+      return { success: true, message: 'Student deleted successfully' };
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      throw error;
+    }
+  },
   
   // Get students by grade
   getByGrade: async (grade: string) => {
