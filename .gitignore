@@ -33,6 +33,7 @@ build/
 .project
 .classpath
 .settings/
+*/*.class
 
 # Node.js dependencies
 node_modules/
@@ -43,3 +44,6 @@ yarn-error.log
 school-ms/backend/school-app/target/school-app-1.0.0.jar
 school-ms/backend/school-app/target/school-app-1.0.0.jar.original
 school-ms/backend/school-app/log.txt
+school-ms\backend\school-app\target\
+school-ms/backend/school-app/target/classes/com/school/admission/dto/AdmissionResponse.class
+school-ms/backend/school-app/target/classes/com/school/admission/exception/InvalidAdmissionStateException.class
