@@ -4,7 +4,7 @@ export interface StaffMember {
   id?: number;
   staffId: string;
   firstName: string;
-  lastName: string;
+  lastName;
   fullName?: string;
   email: string;
   phoneNumber: string;
@@ -142,6 +142,13 @@ export const staffService = {
   create: (staffMember: StaffMember) => {
     const formattedData = prepareStaffData(staffMember);
     return api.post<StaffMember>('staff', formattedData);
+  },
+  
+  // Bulk create/update multiple staff members
+  bulkCreate: (staffMembers: StaffMember[]) => {
+    // Format each staff member before sending
+    const formattedStaffMembers = staffMembers.map(staff => prepareStaffData(staff));
+    return api.post<{ created: number, updated: number, errors: any[] }>('staff/bulk', formattedStaffMembers);
   },
   
   // Update an existing staff member

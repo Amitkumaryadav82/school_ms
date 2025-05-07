@@ -289,8 +289,23 @@ export const studentService = {
   
   // Update just the student status
   updateStatus: async (id: number, status: string) => {
-    const response = await api.put<BackendStudent>(`/api/students/${id}/status`, { status });
-    return mapToFrontendStudent(response);
+    try {
+      console.log(`Updating student ${id} status to: ${status}`);
+      // First, get the current student data
+      const currentStudent = await api.get<BackendStudent>(`/api/students/${id}`);
+      
+      // Update only the status field
+      const updatedData = { 
+        ...currentStudent,
+        status: status 
+      };
+      
+      const response = await api.put<BackendStudent>(`/api/students/${id}`, updatedData);
+      return mapToFrontendStudent(response);
+    } catch (error) {
+      console.error('Error updating student status:', error);
+      throw error;
+    }
   },
   
   // Delete a student record

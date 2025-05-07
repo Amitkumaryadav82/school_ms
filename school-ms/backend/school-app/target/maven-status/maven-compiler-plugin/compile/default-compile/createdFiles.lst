@@ -1,3 +1,4 @@
+com\example\schoolms\service\impl\StaffServiceImpl.class
 com\school\exam\dto\ExamRequest.class
 com\school\exam\repository\ExamResultRepository.class
 com\school\fee\exception\FeeNotFoundException.class
@@ -27,6 +28,7 @@ com\school\config\OpenApiConfig.class
 com\school\fee\model\Payment$PaymentStatus.class
 com\school\attendance\aspect\AttendanceLoggingAspect.class
 com\school\security\User.class
+com\example\schoolms\model\Staff.class
 com\school\exception\DuplicateStudentException.class
 com\school\hrm\dto\LeaveDTO.class
 com\school\student\controller\StudentController.class
@@ -77,6 +79,7 @@ com\school\course\repository\CourseRepositoryImpl.class
 com\school\hrm\entity\StaffDesignation.class
 com\school\hrm\model\Leave.class
 com\school\hrm\repository\StaffDesignationMappingRepository.class
+com\example\schoolms\repository\StaffRepository.class
 com\school\attendance\controller\AttendanceController.class
 com\school\communication\model\MessageType.class
 com\school\attendance\exception\AttendanceNotFoundException.class
@@ -112,6 +115,7 @@ com\school\config\ResilienceConfig.class
 com\school\communication\model\Message$MessageBuilder.class
 com\school\student\exception\StudentNotFoundException.class
 com\school\admission\exception\AdmissionExceptionHandler.class
+com\example\schoolms\service\StaffService.class
 com\school\attendance\service\AttendanceService.class
 com\school\hrm\repository\StaffRepository.class
 com\school\security\JwtAuthenticationFilter.class
@@ -133,10 +137,12 @@ com\school\security\UserRole.class
 com\school\attendance\dto\AttendanceSummary.class
 com\school\admission\service\AdmissionService.class
 com\school\config\StaticResourceConfiguration.class
+com\example\schoolms\repository\TeacherDetailsRepository.class
 com\school\fee\model\Fee$FeeFrequency.class
 com\school\hrm\entity\StaffRole$StaffRoleBuilder.class
 com\school\communication\service\NotificationService.class
 com\school\fee\service\FeeService.class
+com\example\schoolms\service\StaffServiceImpl.class
 com\school\admission\model\Admission$AdmissionStatus.class
 com\school\hrm\dto\LeaveDTO$LeaveDTOBuilder.class
 com\school\hrm\service\LeaveService.class
@@ -151,6 +157,7 @@ com\school\communication\model\InAppNotification.class
 com\school\hrm\dto\StaffDesignationDTO$StaffDesignationDTOBuilder.class
 com\school\hrm\dto\StaffRoleDTO.class
 com\school\attendance\dto\MonthlyAttendanceReport$StudentAttendanceDetail.class
+com\example\schoolms\controller\StaffController.class
 com\school\hrm\model\Leave$LeaveBuilder.class
 com\school\timetable\model\ClassRoom.class
 com\school\communication\controller\MessageController.class
@@ -165,6 +172,7 @@ com\school\hrm\dto\EmployeeDTO.class
 com\school\config\CorsConfig.class
 com\school\fee\model\Payment$PaymentBuilder.class
 com\school\config\AuditConfig.class
+com\example\schoolms\dto\BulkUploadResponse.class
 com\school\config\JpaAuditingConfig.class
 com\school\exam\service\ExamService.class
 com\school\exception\InvalidAttendanceException.class
@@ -174,6 +182,7 @@ com\school\monitoring\DatabaseHealthIndicator.class
 com\school\admission\dto\AdmissionResponse$AdmissionResponseBuilder.class
 com\school\course\repository\CourseRepository.class
 com\school\fee\model\Fee.class
+com\example\schoolms\util\CsvXlsParser.class
 com\school\student\dto\BulkStudentRequest.class
 com\school\communication\repository\NotificationRepository.class
 com\school\config\WebServerCustomizer.class
@@ -200,6 +209,7 @@ com\school\security\User$UserBuilder.class
 com\school\fee\dto\FeePaymentSummary.class
 com\school\fee\exception\FeeExceptionHandler.class
 com\school\monitoring\RequestTracingFilter.class
+com\example\schoolms\model\TeacherDetails.class
 com\school\security\dto\AuthResponse.class
 com\school\security\dto\AuthResponse$AuthResponseBuilder.class
 com\school\exam\model\ExamResult$ExamResultBuilder.class

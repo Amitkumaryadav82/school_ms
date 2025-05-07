@@ -13,7 +13,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Grid
+  Grid,
+  Stack
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -22,12 +23,14 @@ import {
   School as SchoolIcon,
   Assignment as AssignmentIcon,
   Schedule as ScheduleIcon,
-  Email as EmailIcon
+  Email as EmailIcon,
+  CloudUpload as CloudUploadIcon
 } from '@mui/icons-material';
 import { useApi, useApiMutation } from '../hooks/useApi';
 import { staffService, StaffMember } from '../services/staffService';
 import DataTable, { Column } from '../components/DataTable';
 import StaffDialog from '../components/dialogs/StaffDialog';
+import BulkStaffUploadDialog from '../components/dialogs/BulkStaffUploadDialog';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import { useNotification } from '../context/NotificationContext';
@@ -36,6 +39,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Staff: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [bulkUploadDialogOpen, setBulkUploadDialogOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -63,6 +67,36 @@ const Staff: React.FC = () => {
         showNotification({ 
           type: 'error', 
           message: `Failed to create staff member: ${error.message}` 
+        });
+      }
+    }
+  );
+
+  const { mutate: bulkCreateStaff, loading: bulkCreateLoading } = useApiMutation(
+    (data: StaffMember[]) => staffService.bulkCreate(data),
+    {
+      onSuccess: (result) => {
+        const { created, updated, errors } = result;
+        
+        if (errors && errors.length > 0) {
+          showNotification({ 
+            type: 'warning', 
+            message: `Partially completed: Created ${created}, Updated ${updated}, Failed ${errors.length} records` 
+          });
+        } else {
+          showNotification({ 
+            type: 'success', 
+            message: `Successfully imported staff data: Created ${created}, Updated ${updated} records` 
+          });
+        }
+        
+        setBulkUploadDialogOpen(false);
+        refresh();
+      },
+      onError: (error) => {
+        showNotification({ 
+          type: 'error', 
+          message: `Failed to import staff data: ${error.message}` 
         });
       }
     }
@@ -119,6 +153,10 @@ const Staff: React.FC = () => {
     setSelectedStaff(null);
   };
 
+  const handleBulkUploadDialogClose = () => {
+    setBulkUploadDialogOpen(false);
+  };
+
   const confirmDelete = () => {
     if (selectedStaff?.id) {
       deleteStaff(selectedStaff.id);
@@ -131,6 +169,10 @@ const Staff: React.FC = () => {
     } else {
       await createStaff(data);
     }
+  };
+
+  const handleBulkSubmit = async (staffMembers: StaffMember[]) => {
+    await bulkCreateStaff(staffMembers);
   };
 
   // Format staff roles for display
@@ -379,14 +421,24 @@ const Staff: React.FC = () => {
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4">Staff Management</Typography>
         {hasPermission(user?.role || '', 'MANAGE_STAFF') && (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => setDialogOpen(true)}
-          >
-            Add Staff Member
-          </Button>
+          <Stack direction="row" spacing={2}>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<CloudUploadIcon />}
+              onClick={() => setBulkUploadDialogOpen(true)}
+            >
+              Bulk Upload
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={() => setDialogOpen(true)}
+            >
+              Add Staff Member
+            </Button>
+          </Stack>
         )}
       </Box>
 
@@ -442,6 +494,13 @@ const Staff: React.FC = () => {
         onSubmit={handleSubmit}
         initialData={selectedStaff}
         loading={createLoading || updateLoading}
+      />
+
+      <BulkStaffUploadDialog
+        open={bulkUploadDialogOpen}
+        onClose={handleBulkUploadDialogClose}
+        onSubmit={handleBulkSubmit}
+        loading={bulkCreateLoading}
       />
 
       <Dialog

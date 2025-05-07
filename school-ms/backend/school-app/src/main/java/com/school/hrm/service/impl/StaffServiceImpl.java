@@ -165,7 +165,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setDateOfBirth(staffDTO.getDateOfBirth());
         staff.setGender(staffDTO.getGender());
         staff.setJoinDate(staffDTO.getJoinDate());
-        staff.setRole(role);  // Role assignment is now guaranteed
+        staff.setRole(role); // Role assignment is now guaranteed
         staff.setIsActive(true);
         staff.setQualifications(staffDTO.getQualifications());
         staff.setEmergencyContact(staffDTO.getEmergencyContact());
@@ -235,7 +235,7 @@ public class StaffServiceImpl implements StaffService {
             if (staffDTO.getRole().trim().isEmpty()) {
                 throw new IllegalArgumentException("Staff role cannot be empty");
             }
-            
+
             StaffRole role = staffRoleRepository.findByRoleName(staffDTO.getRole())
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found: " + staffDTO.getRole()));
             staff.setRole(role);

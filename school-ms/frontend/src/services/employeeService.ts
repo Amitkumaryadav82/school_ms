@@ -32,4 +32,7 @@ export const employeeService = {
 
   deleteEmployee: (id: number) =>
     api.delete(`/employees/${id}`),
+
+  bulkCreateEmployees: (employees: Employee[]) =>
+    api.post<Employee[]>('/employees/bulk', employees),
 };
