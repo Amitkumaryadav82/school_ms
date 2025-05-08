@@ -32,6 +32,7 @@ com\example\schoolms\model\Staff.class
 com\school\exception\DuplicateStudentException.class
 com\school\hrm\dto\LeaveDTO.class
 com\school\student\controller\StudentController.class
+com\example\schoolms\dto\BulkStaffRequest.class
 com\school\fee\model\Fee$FeeType.class
 com\school\security\AuthController.class
 com\school\attendance\dto\AttendanceAlert$AttendanceAlertBuilder.class
@@ -72,6 +73,7 @@ com\school\attendance\dto\AttendanceDTO$AttendanceDTOBuilder.class
 com\school\config\WebMvcConfig.class
 com\school\exam\exception\ExamNotFoundException.class
 com\school\attendance\dto\BulkAttendanceRequest.class
+com\school\staff\controller\StaffBulkController.class
 com\school\fee\repository\PaymentRepository.class
 com\school\attendance\dto\MonthlyAttendanceReport$MonthlyAttendanceReportBuilder.class
 com\school\admission\dto\AdmissionResponse.class
@@ -143,6 +145,7 @@ com\school\hrm\entity\StaffRole$StaffRoleBuilder.class
 com\school\communication\service\NotificationService.class
 com\school\fee\service\FeeService.class
 com\example\schoolms\service\StaffServiceImpl.class
+com\school\staff\util\CsvXlsParserAdapter.class
 com\school\admission\model\Admission$AdmissionStatus.class
 com\school\hrm\dto\LeaveDTO$LeaveDTOBuilder.class
 com\school\hrm\service\LeaveService.class
@@ -159,6 +162,7 @@ com\school\hrm\dto\StaffRoleDTO.class
 com\school\attendance\dto\MonthlyAttendanceReport$StudentAttendanceDetail.class
 com\example\schoolms\controller\StaffController.class
 com\school\hrm\model\Leave$LeaveBuilder.class
+com\school\staff\service\StaffServiceAdapter.class
 com\school\timetable\model\ClassRoom.class
 com\school\communication\controller\MessageController.class
 com\school\hrm\dto\TeacherDetailsDTO$TeacherDetailsDTOBuilder.class

@@ -4,15 +4,21 @@ import com.example.schoolms.dto.BulkUploadResponse;
 import com.example.schoolms.model.Staff;
 import com.example.schoolms.repository.StaffRepository;
 import com.example.schoolms.service.StaffService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service("exampleSchoolmsStaffServiceImpl")  // Added a unique bean name here
 public class StaffServiceImpl implements StaffService {
+
+    private static final Logger logger = LoggerFactory.getLogger(StaffServiceImpl.class);
 
     private final StaffRepository staffRepository;
 
@@ -33,6 +39,25 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public Staff createStaff(Staff staff) {
+        // Generate staff ID if not provided
+        if (staff.getStaffId() == null || staff.getStaffId().isEmpty()) {
+            String rolePrefix = getRolePrefix(staff.getRole());
+            String randomSuffix = String.format("%04d", (int) (Math.random() * 10000));
+            staff.setStaffId(rolePrefix + randomSuffix);
+        }
+
+        // Set joining date to current date if not provided
+        if (staff.getJoiningDate() == null) {
+            staff.setJoiningDate(LocalDate.now());
+        }
+
+        // Ensure phone and phoneNumber are consistent
+        if (staff.getPhone() == null && staff.getPhoneNumber() != null) {
+            staff.setPhone(staff.getPhoneNumber());
+        } else if (staff.getPhoneNumber() == null && staff.getPhone() != null) {
+            staff.setPhoneNumber(staff.getPhone());
+        }
+
         return staffRepository.save(staff);
     }
 
@@ -70,43 +95,107 @@ public class StaffServiceImpl implements StaffService {
         return staffRepository.findByIsActive(active);
     }
 
+    // Bulk create or update staff
     @Override
+    @Transactional
     public BulkUploadResponse bulkCreateOrUpdateStaff(List<Staff> staffList) {
-        List<Staff> createdStaff = new ArrayList<>();
-        List<Staff> updatedStaff = new ArrayList<>();
-        List<Staff> failedStaff = new ArrayList<>();
+        int created = 0;
+        int updated = 0;
+        List<String> errors = new ArrayList<>();
 
         for (Staff staff : staffList) {
             try {
-                // Check if staff with this email already exists
-                Optional<Staff> existingStaff = staffRepository.findByEmail(staff.getEmail());
+                // Check if staff already exists by staffId or email
+                Optional<Staff> existingStaffByStaffId = Optional.empty();
+                if (staff.getStaffId() != null && !staff.getStaffId().isEmpty()) {
+                    existingStaffByStaffId = staffRepository.findByStaffId(staff.getStaffId());
+                }
 
-                if (existingStaff.isPresent()) {
-                    // Update existing staff
-                    Staff updated = updateExistingStaff(existingStaff.get(), staff);
-                    updatedStaff.add(updated);
+                Optional<Staff> existingStaffByEmail = Optional.empty();
+                if (staff.getEmail() != null && !staff.getEmail().isEmpty()) {
+                    existingStaffByEmail = staffRepository.findByEmail(staff.getEmail());
+                }
+
+                // If staff exists (by staffId or email), update
+                if (existingStaffByStaffId.isPresent()) {
+                    Staff existingStaff = existingStaffByStaffId.get();
+                    updateExistingStaff(existingStaff, staff);
+                    staffRepository.save(existingStaff);
+                    updated++;
+                } else if (existingStaffByEmail.isPresent()) {
+                    Staff existingStaff = existingStaffByEmail.get();
+                    updateExistingStaff(existingStaff, staff);
+                    staffRepository.save(existingStaff);
+                    updated++;
                 } else {
                     // Create new staff
-                    Staff created = staffRepository.save(staff);
-                    createdStaff.add(created);
+                    createStaff(staff);
+                    created++;
                 }
             } catch (Exception e) {
-                failedStaff.add(staff);
+                String errorMsg = "Error processing staff: " + (staff.getEmail() != null ? staff.getEmail() : "unknown")
+                        + " - " + e.getMessage();
+                logger.error(errorMsg, e);
+                errors.add(errorMsg);
             }
         }
 
-        return new BulkUploadResponse(createdStaff, updatedStaff, failedStaff);
+        return new BulkUploadResponse(created, updated, errors);
     }
 
-    private Staff updateExistingStaff(Staff existing, Staff updated) {
-        existing.setFirstName(updated.getFirstName());
-        existing.setLastName(updated.getLastName());
-        existing.setPhone(updated.getPhone());
-        existing.setRole(updated.getRole());
-        existing.setActive(updated.isActive());
-        existing.setDepartment(updated.getDepartment());
-        existing.setAddress(updated.getAddress());
-        existing.setJoiningDate(updated.getJoiningDate());
-        return staffRepository.save(existing);
+    // Update existing staff with new data
+    private void updateExistingStaff(Staff existingStaff, Staff newStaff) {
+        // Update only non-null fields to preserve existing data
+        if (newStaff.getFirstName() != null) {
+            existingStaff.setFirstName(newStaff.getFirstName());
+        }
+        if (newStaff.getLastName() != null) {
+            existingStaff.setLastName(newStaff.getLastName());
+        }
+        if (newStaff.getPhone() != null) {
+            existingStaff.setPhone(newStaff.getPhone());
+            // Keep both phone fields in sync
+            existingStaff.setPhoneNumber(newStaff.getPhone());
+        }
+        if (newStaff.getPhoneNumber() != null) {
+            existingStaff.setPhoneNumber(newStaff.getPhoneNumber());
+            // Keep both phone fields in sync
+            existingStaff.setPhone(newStaff.getPhoneNumber());
+        }
+        if (newStaff.getEmail() != null) {
+            existingStaff.setEmail(newStaff.getEmail());
+        }
+        if (newStaff.getRole() != null) {
+            existingStaff.setRole(newStaff.getRole());
+        }
+        if (newStaff.getAddress() != null) {
+            existingStaff.setAddress(newStaff.getAddress());
+        }
+        if (newStaff.getDateOfBirth() != null) {
+            existingStaff.setDateOfBirth(newStaff.getDateOfBirth());
+        }
+        if (newStaff.getJoiningDate() != null) {
+            existingStaff.setJoiningDate(newStaff.getJoiningDate());
+        }
+        if (newStaff.getDepartment() != null) {
+            existingStaff.setDepartment(newStaff.getDepartment());
+        }
+    }
+
+    // Generate role-specific prefix for staff ID
+    private String getRolePrefix(String role) {
+        if (role == null) {
+            return "STF";
+        }
+
+        return switch (role.toUpperCase()) {
+            case "TEACHER" -> "TCH";
+            case "PRINCIPAL" -> "PRI";
+            case "ADMIN" -> "ADM";
+            case "ADMIN OFFICER", "ADMINISTRATION" -> "ADO";
+            case "LIBRARIAN" -> "LIB";
+            case "ACCOUNTANT", "ACCOUNT OFFICER" -> "ACC";
+            default -> "STF";
+        };
     }
 }

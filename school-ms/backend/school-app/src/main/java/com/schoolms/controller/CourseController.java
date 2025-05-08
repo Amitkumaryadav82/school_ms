@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-@RestController
+@RestController("schoolmsCourseController")
 @RequestMapping("/api/courses")
 @CrossOrigin(origins = "*") // Consider restricting this in production
 public class CourseController {

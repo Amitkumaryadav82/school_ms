@@ -1,142 +1,132 @@
-import api from './api';
+import { api } from './api';
+import config from '../config/environment';
 
 export interface StaffMember {
   id?: number;
-  staffId: string;
+  staffId?: string;
   firstName: string;
-  lastName;
-  fullName?: string;
+  lastName: string;
   email: string;
-  phoneNumber: string;
+  phoneNumber?: string;
+  phone?: string; // Some endpoints use phone, others use phoneNumber
+  role: string;
+  joinDate?: string;
+  joiningDate?: string; // Backend uses joiningDate, frontend uses joinDate
   address?: string;
   dateOfBirth?: string;
   gender?: string;
-  joinDate: string;
-  role: string;
-  roleId?: number;
-  isActive?: boolean;
+  department?: string;
+  designation?: string;
   qualifications?: string;
   emergencyContact?: string;
   bloodGroup?: string;
-  profileImage?: string;
-  teacherDetails?: TeacherDetails;
-  designations?: StaffDesignation[];
-}
-
-export interface TeacherDetails {
-  id?: number;
-  department?: string;
-  specialization?: string;
-  subjects?: string;
-  teachingExperience?: number;
-  isClassTeacher?: boolean;
-  classAssignedId?: number;
-  className?: string;
-}
-
-export interface StaffDesignation {
-  id?: number;
-  name: string;
-  description?: string;
-  assignedDate?: string;
   isActive?: boolean;
 }
 
-// Role to ID mapping - using the correct case that matches the backend database
-export const ROLE_ID_MAP = {
+// Map of role names to IDs for consistent handling
+const ROLE_ID_MAP: Record<string, number> = {
   'Teacher': 1,
   'Principal': 2,
   'Admin Officer': 3,
-  'Management': 4,
-  'Account Officer': 5,
-  'Librarian': 6
+  'Librarian': 4,
+  'Management': 5,
+  'Account Officer': 6
 };
 
-// Helper function to format staff data for API submission
-const prepareStaffData = (staffMember: StaffMember): any => {
-  // Create a copy to avoid modifying the original
-  const formattedStaff = { ...staffMember };
-  
-  // Set fullName from firstName and lastName
-  formattedStaff.fullName = `${staffMember.firstName} ${staffMember.lastName}`;
-  
-  // Ensure dates are in proper format (YYYY-MM-DD)
-  if (formattedStaff.dateOfBirth) {
-    const date = new Date(formattedStaff.dateOfBirth);
-    if (!isNaN(date.getTime())) {
-      formattedStaff.dateOfBirth = date.toISOString().split('T')[0];
-    }
-  }
-  
-  if (formattedStaff.joinDate) {
-    const date = new Date(formattedStaff.joinDate);
-    if (!isNaN(date.getTime())) {
-      formattedStaff.joinDate = date.toISOString().split('T')[0];
-    }
-  }
-  
-  // If designations is undefined, set to empty array to match API expectation
-  if (!formattedStaff.designations) {
-    formattedStaff.designations = [];
-  }
-  
-  // IMPORTANT: Ensure role and roleId are always properly set and consistent
-  if (!formattedStaff.role || formattedStaff.role.trim() === '') {
-    // If role is missing or empty, default to Teacher
-    formattedStaff.role = 'Teacher';
-    formattedStaff.roleId = ROLE_ID_MAP['Teacher'];
-  } else if (ROLE_ID_MAP[formattedStaff.role]) {
-    // If role is valid, ensure roleId matches
+// Function to prepare staff data for API calls
+const prepareStaffData = (staffMember: StaffMember): StaffMember => {
+  const formattedStaff: StaffMember = { ...staffMember };
+
+  // Convert role name to ID if needed by backend
+  if (formattedStaff.role && ROLE_ID_MAP[formattedStaff.role]) {
     formattedStaff.roleId = ROLE_ID_MAP[formattedStaff.role];
-  } else {
-    // If role string doesn't match known roles, default to Teacher
-    console.warn(`Unknown role "${formattedStaff.role}" - defaulting to Teacher`);
-    formattedStaff.role = 'Teacher';
-    formattedStaff.roleId = ROLE_ID_MAP['Teacher'];
   }
   
-  // Log the data being sent to the API for debugging
-  console.log('Staff data being sent to API:', JSON.stringify(formattedStaff, null, 2));
+  // Ensure backend date format (YYYY-MM-DD)
+  if (formattedStaff.joinDate && !formattedStaff.joiningDate) {
+    formattedStaff.joiningDate = formattedStaff.joinDate;
+  }
   
+  // Ensure phone fields consistency
+  if (formattedStaff.phoneNumber && !formattedStaff.phone) {
+    formattedStaff.phone = formattedStaff.phoneNumber;
+  } else if (formattedStaff.phone && !formattedStaff.phoneNumber) {
+    formattedStaff.phoneNumber = formattedStaff.phone;
+  }
+
   return formattedStaff;
+};
+
+// Try multiple possible bulk upload formats in sequence
+const tryBulkUploadFormats = (url: string, formattedStaffMembers: StaffMember[], headers: Record<string, string>) => {
+  // Format 1: Send with staff property (like the students/bulk endpoint)
+  const tryStaffWrapper = () => {
+    const data = { 
+      staff: formattedStaffMembers,
+      expectedCount: formattedStaffMembers.length
+    };
+    console.log('Trying Format 1: Wrapped in staff property with expectedCount', data);
+    
+    return fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data)
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      console.log('Bulk upload successful with Format 1', data);
+      return data;
+    });
+  };
+  
+  // Format 2: Send the array directly
+  const tryDirectArray = () => {
+    console.log('Trying Format 2: Direct array of staff members');
+    return fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(formattedStaffMembers)
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(data => {
+      console.log('Bulk upload successful with Format 2', data);
+      return data;
+    });
+  };
+  
+  // Try the formats in sequence, moving to next on error
+  return tryStaffWrapper()
+    .catch(error => {
+      console.log('Format 1 failed:', error.message);
+      return tryDirectArray()
+        .catch(error => {
+          console.log('Format 2 failed:', error.message);
+          // All attempts failed, throw comprehensive error
+          throw {
+            message: 'Failed to import staff data after trying multiple formats',
+            details: 'The server may not be correctly configured to accept bulk staff data',
+            originalError: error
+          };
+        });
+    });
 };
 
 export const staffService = {
   // Get all staff members
   getAll: () => api.get<StaffMember[]>('staff'),
   
-  // Get staff member by ID
+  // Get a specific staff member by ID
   getById: (id: number) => api.get<StaffMember>(`staff/${id}`),
-  
-  // Get staff member by staff ID
-  getByStaffId: (staffId: string) => api.get<StaffMember>(`staff/staff-id/${staffId}`),
-  
-  // Get staff by email
-  getByEmail: (email: string) => api.get<StaffMember>(`staff/email/${email}`),
-  
-  // Get staff by role
-  getByRole: (roleName: string) => api.get<StaffMember[]>(`staff/role/${roleName}`),
-  
-  // Get active staff
-  getActiveStaff: () => api.get<StaffMember[]>('staff/active'),
-  
-  // Get all teachers
-  getAllTeachers: () => api.get<StaffMember[]>('staff/teachers'),
-  
-  // Get all principals
-  getAllPrincipals: () => api.get<StaffMember[]>('staff/principals'),
-  
-  // Get all admin officers
-  getAllAdminOfficers: () => api.get<StaffMember[]>('staff/admin-officers'),
-  
-  // Get all management staff
-  getAllManagementStaff: () => api.get<StaffMember[]>('staff/management'),
-  
-  // Get all account officers
-  getAllAccountOfficers: () => api.get<StaffMember[]>('staff/account-officers'),
-  
-  // Get all librarians
-  getAllLibrarians: () => api.get<StaffMember[]>('staff/librarians'),
   
   // Create a new staff member
   create: (staffMember: StaffMember) => {
@@ -144,11 +134,58 @@ export const staffService = {
     return api.post<StaffMember>('staff', formattedData);
   },
   
-  // Bulk create/update multiple staff members
-  bulkCreate: (staffMembers: StaffMember[]) => {
-    // Format each staff member before sending
-    const formattedStaffMembers = staffMembers.map(staff => prepareStaffData(staff));
-    return api.post<{ created: number, updated: number, errors: any[] }>('staff/bulk', formattedStaffMembers);
+  // Bulk upload staff members (CSV/XLS)
+  createBulk: (staffMembers: StaffMember[]) => {
+    // Format the data for the API
+    const formattedStaffMembers = staffMembers.map(staff => {
+      const formatted = prepareStaffData(staff);
+      
+      // Handle date formats consistently
+      if (formatted.joinDate) {
+        formatted.joiningDate = formatted.joinDate;
+        // Keep both for compatibility
+        formatted.joinDate = formatted.joinDate;
+      }
+      
+      // Ensure both phone and phoneNumber are set (backend has both fields)
+      if (formatted.phoneNumber && !formatted.phone) {
+        formatted.phone = formatted.phoneNumber;
+      }
+      
+      return formatted;
+    });
+    
+    console.log('Sending bulk staff data to server:', JSON.stringify(formattedStaffMembers, null, 2));
+    
+    // Use the /api/staff/bulk endpoint
+    const baseUrl = config.apiUrl.endsWith('/') ? config.apiUrl.slice(0, -1) : config.apiUrl;
+    const url = `${baseUrl}/api/staff/bulk`;
+    
+    console.log('Using URL:', url);
+    
+    // Get the authentication token
+    const token = localStorage.getItem('token');
+    
+    // Set up headers with both Content-Type and Authorization
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Add authentication token if available
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('Using authentication token');
+    } else {
+      console.warn('No authentication token found in localStorage');
+    }
+    
+    // Try the bulk upload with the new formats
+    return tryBulkUploadFormats(url, formattedStaffMembers, headers);
+  },
+  
+  // Alias for createBulk to maintain compatibility with existing code
+  bulkCreate: function(staffMembers: StaffMember[]) {
+    return this.createBulk(staffMembers);
   },
   
   // Update an existing staff member
@@ -160,3 +197,5 @@ export const staffService = {
   // Delete a staff member
   delete: (id: number) => api.delete(`staff/${id}`)
 };
+
+export default staffService;

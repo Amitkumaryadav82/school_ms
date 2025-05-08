@@ -1,81 +1,61 @@
 package com.example.schoolms.service;
 
+import com.example.schoolms.dto.BulkUploadResponse;
+import com.example.schoolms.model.Staff;
+import com.example.schoolms.repository.StaffRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.schoolms.model.Staff;
-import com.example.schoolms.model.TeacherDetails;
-import com.example.schoolms.repository.StaffRepository;
-import com.example.schoolms.repository.TeacherDetailsRepository;
-import com.example.schoolms.dto.BulkUploadResponse;
-
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-@Service
+@Service("exampleSchoolmsServiceStaffServiceImpl")
 public class StaffServiceImpl implements StaffService {
 
     private static final Logger logger = LoggerFactory.getLogger(StaffServiceImpl.class);
 
-    @Autowired
-    private StaffRepository staffRepository;
+    private final StaffRepository staffRepository;
 
     @Autowired
-    private TeacherDetailsRepository teacherDetailsRepository;
+    public StaffServiceImpl(@Qualifier("exampleStaffRepository") StaffRepository staffRepository) {
+        this.staffRepository = staffRepository;
+    }
 
-    // Get all staff
     @Override
     public List<Staff> getAllStaff() {
         return staffRepository.findAll();
     }
 
-    // Get staff by ID
     @Override
     public Optional<Staff> getStaffById(Long id) {
         return staffRepository.findById(id);
     }
 
-    // Find by staff ID
-    public Optional<Staff> findByStaffId(String staffId) {
-        return staffRepository.findByStaffId(staffId);
-    }
-
-    // Find by email
-    public Optional<Staff> findByEmail(String email) {
-        return staffRepository.findByEmail(email);
-    }
-
-    // Find by role
-    @Override
-    public List<Staff> findByRole(String role) {
-        return staffRepository.findByRole(role);
-    }
-
-    // Find by active status
-    @Override
-    public List<Staff> findByIsActive(boolean isActive) {
-        return staffRepository.findByIsActive(isActive);
-    }
-
-    // Create new staff
     @Override
     public Staff createStaff(Staff staff) {
-        // Generate and set a unique staff ID if not provided
+        // Generate staff ID if not provided
         if (staff.getStaffId() == null || staff.getStaffId().isEmpty()) {
-            String prefix = getRolePrefix(staff.getRole());
-            String uuid = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-            staff.setStaffId(prefix + "-" + uuid);
+            String rolePrefix = getRolePrefix(staff.getRole());
+            String randomSuffix = String.format("%04d", (int) (Math.random() * 10000));
+            staff.setStaffId(rolePrefix + randomSuffix);
         }
 
-        // Save teacher details if the staff is a teacher
-        if ("TEACHER".equals(staff.getRole()) && staff.getTeacherDetails() != null) {
-            TeacherDetails savedTeacherDetails = teacherDetailsRepository.save(staff.getTeacherDetails());
-            staff.setTeacherDetails(savedTeacherDetails);
+        // Set joining date to current date if not provided
+        if (staff.getJoiningDate() == null) {
+            staff.setJoiningDate(LocalDate.now());
+        }
+
+        // Ensure phone and phoneNumber are consistent
+        if (staff.getPhone() == null && staff.getPhoneNumber() != null) {
+            staff.setPhone(staff.getPhoneNumber());
+        } else if (staff.getPhoneNumber() == null && staff.getPhone() != null) {
+            staff.setPhoneNumber(staff.getPhone());
         }
 
         return staffRepository.save(staff);
@@ -131,114 +111,88 @@ public class StaffServiceImpl implements StaffService {
 
     // Update existing staff with new data
     private void updateExistingStaff(Staff existingStaff, Staff newStaff) {
-        // Update basic info
-        if (newStaff.getFirstName() != null)
+        // Update only non-null fields to preserve existing data
+        if (newStaff.getFirstName() != null) {
             existingStaff.setFirstName(newStaff.getFirstName());
-        if (newStaff.getLastName() != null)
-            existingStaff.setLastName(newStaff.getLastName());
-        if (newStaff.getEmail() != null)
-            existingStaff.setEmail(newStaff.getEmail());
-        if (newStaff.getPhoneNumber() != null)
-            existingStaff.setPhoneNumber(newStaff.getPhoneNumber());
-        if (newStaff.getAddress() != null)
-            existingStaff.setAddress(newStaff.getAddress());
-        if (newStaff.getDateOfBirth() != null)
-            existingStaff.setDateOfBirth(newStaff.getDateOfBirth());
-        if (newStaff.getGender() != null)
-            existingStaff.setGender(newStaff.getGender());
-        if (newStaff.getNin() != null)
-            existingStaff.setNin(newStaff.getNin());
-
-        // Only update role if provided (this might require special handling)
-        if (newStaff.getRole() != null && !newStaff.getRole().equals(existingStaff.getRole())) {
-            existingStaff.setRole(newStaff.getRole());
-
-            // Handle teacher details if role is changed to or from TEACHER
-            if ("TEACHER".equals(newStaff.getRole())) {
-                // If changing to TEACHER role and teacher details are provided
-                if (newStaff.getTeacherDetails() != null) {
-                    // If existing staff already has teacher details, update them
-                    if (existingStaff.getTeacherDetails() != null) {
-                        TeacherDetails existingDetails = existingStaff.getTeacherDetails();
-                        if (newStaff.getTeacherDetails().getDepartment() != null) {
-                            existingDetails.setDepartment(newStaff.getTeacherDetails().getDepartment());
-                        }
-                        if (newStaff.getTeacherDetails().getSubjects() != null) {
-                            existingDetails.setSubjects(newStaff.getTeacherDetails().getSubjects());
-                        }
-                        teacherDetailsRepository.save(existingDetails);
-                    } else {
-                        // Create new teacher details
-                        TeacherDetails savedDetails = teacherDetailsRepository.save(newStaff.getTeacherDetails());
-                        existingStaff.setTeacherDetails(savedDetails);
-                    }
-                }
-            } else {
-                // If changing from TEACHER role, remove teacher details
-                existingStaff.setTeacherDetails(null);
-            }
-        } else if ("TEACHER".equals(existingStaff.getRole()) && newStaff.getTeacherDetails() != null) {
-            // Update teacher details if role is still TEACHER and details are provided
-            if (existingStaff.getTeacherDetails() != null) {
-                TeacherDetails existingDetails = existingStaff.getTeacherDetails();
-                if (newStaff.getTeacherDetails().getDepartment() != null) {
-                    existingDetails.setDepartment(newStaff.getTeacherDetails().getDepartment());
-                }
-                if (newStaff.getTeacherDetails().getSubjects() != null) {
-                    existingDetails.setSubjects(newStaff.getTeacherDetails().getSubjects());
-                }
-                teacherDetailsRepository.save(existingDetails);
-            } else {
-                // Create new teacher details
-                TeacherDetails savedDetails = teacherDetailsRepository.save(newStaff.getTeacherDetails());
-                existingStaff.setTeacherDetails(savedDetails);
-            }
         }
+        if (newStaff.getLastName() != null) {
+            existingStaff.setLastName(newStaff.getLastName());
+        }
+        if (newStaff.getPhone() != null) {
+            existingStaff.setPhone(newStaff.getPhone());
+            // Keep both phone fields in sync
+            existingStaff.setPhoneNumber(newStaff.getPhone());
+        }
+        if (newStaff.getPhoneNumber() != null) {
+            existingStaff.setPhoneNumber(newStaff.getPhoneNumber());
+            // Keep both phone fields in sync
+            existingStaff.setPhone(newStaff.getPhoneNumber());
+        }
+        if (newStaff.getEmail() != null) {
+            existingStaff.setEmail(newStaff.getEmail());
+        }
+        if (newStaff.getRole() != null) {
+            existingStaff.setRole(newStaff.getRole());
+        }
+        if (newStaff.getAddress() != null) {
+            existingStaff.setAddress(newStaff.getAddress());
+        }
+        if (newStaff.getDateOfBirth() != null) {
+            existingStaff.setDateOfBirth(newStaff.getDateOfBirth());
+        }
+        if (newStaff.getJoiningDate() != null) {
+            existingStaff.setJoiningDate(newStaff.getJoiningDate());
+        }
+        if (newStaff.getDepartment() != null) {
+            existingStaff.setDepartment(newStaff.getDepartment());
+        }
+        // Note: The Staff model doesn't have these properties so we are removing them
+        // designation, qualifications, emergencyContact, bloodGroup
     }
 
     // Update staff
     @Override
     public Optional<Staff> updateStaff(Long id, Staff staffDetails) {
-        Optional<Staff> staffOptional = staffRepository.findById(id);
-        if (staffOptional.isPresent()) {
-            Staff staff = staffOptional.get();
-            updateExistingStaff(staff, staffDetails);
-            return Optional.of(staffRepository.save(staff));
-        }
-        return Optional.empty();
+        return staffRepository.findById(id).map(existingStaff -> {
+            updateExistingStaff(existingStaff, staffDetails);
+            return staffRepository.save(existingStaff);
+        });
     }
 
     // Delete staff
     @Override
     public boolean deleteStaff(Long id) {
-        Optional<Staff> staffOptional = staffRepository.findById(id);
-        if (staffOptional.isPresent()) {
+        if (staffRepository.existsById(id)) {
             staffRepository.deleteById(id);
             return true;
         }
         return false;
     }
 
+    @Override
+    public List<Staff> findByRole(String role) {
+        return staffRepository.findByRole(role);
+    }
+
+    @Override
+    public List<Staff> findByIsActive(boolean active) {
+        return staffRepository.findByIsActive(active);
+    }
+
     // Generate role-specific prefix for staff ID
     private String getRolePrefix(String role) {
-        if (role == null)
-            return "STAF";
-
-        switch (role) {
-            case "TEACHER":
-                return "TCHR";
-            case "PRINCIPAL":
-                return "PRIN";
-            case "ADMIN_OFFICER":
-                return "ADMN";
-            case "MANAGEMENT":
-                return "MGMT";
-            case "ACCOUNT_OFFICER":
-                return "ACCT";
-            case "LIBRARIAN":
-                return "LIBR";
-            default:
-                return "STAF";
+        if (role == null) {
+            return "STF";
         }
+
+        return switch (role.toUpperCase()) {
+            case "TEACHER" -> "TCH";
+            case "PRINCIPAL" -> "PRI";
+            case "ADMIN" -> "ADM";
+            case "ADMIN OFFICER", "ADMINISTRATION" -> "ADO";
+            case "LIBRARIAN" -> "LIB";
+            case "ACCOUNTANT", "ACCOUNT OFFICER" -> "ACC";
+            default -> "STF";
+        };
     }
 }

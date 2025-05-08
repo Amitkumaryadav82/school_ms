@@ -36,6 +36,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import { useNotification } from '../context/NotificationContext';
 import { hasPermission } from '../utils/permissions';
 import { useAuth } from '../context/AuthContext';
+import AuthDebugger from '../components/debug/AuthDebugger';
 
 const Staff: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -526,6 +527,8 @@ const Staff: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <AuthDebugger />
     </Box>
   );
 };

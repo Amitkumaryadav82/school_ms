@@ -110,22 +110,45 @@ export const api = {
   
   delete: <T>(endpoint: string) => 
     apiClient.delete<T>(ensureEndpoint(endpoint)).then(res => res.data),
+    
+  // Specialized method for handling file uploads with XLS/CSV, especially for bulk imports
+  bulkUpload: <T>(endpoint: string, fileOrData: File | any[], options?: {isFile?: boolean}) => {
+    const isFile = options?.isFile ?? (fileOrData instanceof File);
+    const url = ensureEndpoint(endpoint);
+    
+    if (isFile) {
+      // Handle file upload case
+      const formData = new FormData();
+      formData.append('file', fileOrData as File);
+      return apiClient.post<T>(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(res => res.data);
+    } else {
+      // Handle JSON data case
+      return apiClient.post<T>(url, fileOrData).then(res => res.data);
+    }
+  }
 };
 
 // Helper function to ensure endpoint has consistent format
 function ensureEndpoint(endpoint: string): string {
-  // If the endpoint already starts with /api/, use it as is
+  // Remove any trailing slashes from the API URL
+  const baseUrl = config.apiUrl.endsWith('/') ? config.apiUrl.slice(0, -1) : config.apiUrl;
+  
+  // If the endpoint already starts with /api/, just add the base URL without double slashes
   if (endpoint.startsWith('/api/')) {
-    return endpoint;
+    return `${baseUrl}${endpoint}`;
   }
   
   // If the endpoint starts with /, add api
   if (endpoint.startsWith('/')) {
-    return `/api${endpoint}`;
+    return `${baseUrl}/api${endpoint}`;
   }
   
   // Otherwise, add /api/
-  return `/api/${endpoint}`;
+  return `${baseUrl}/api/${endpoint}`;
 }
 
 export default api;

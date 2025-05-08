@@ -6,6 +6,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\CustomUserDetailsService.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\SecurityConfig.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffDesignationRepository.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffServiceAdapter.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\StaffDTO.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\model\EmployeeRole.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\communication\model\Message.java
@@ -135,6 +136,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\AuthenticationException.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exam\dto\ExamSummary.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exception\InvalidAttendanceException.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\example\schoolms\dto\BulkStaffRequest.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffDesignationMappingRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceSummary.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\attendance\model\Attendance.java
@@ -159,12 +161,14 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\UserRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffDesignationMapping.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\admission\exception\AdmissionNotFoundException.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\staff\controller\StaffBulkController.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\course\repository\CourseRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\schoolms\repository\CourseRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\schoolms\service\CourseServiceImpl.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exam\dto\ExamRequest.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\StudentAttendanceSummary.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\config\ResilienceConfig.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\staff\util\CsvXlsParserAdapter.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\course\model\Course.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\AuthController.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\schoolms\controller\CourseController.java

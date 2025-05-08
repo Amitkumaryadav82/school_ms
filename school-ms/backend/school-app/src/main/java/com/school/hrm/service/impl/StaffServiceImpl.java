@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ import com.school.hrm.repository.StaffDesignationMappingRepository;
 import com.school.hrm.service.StaffService;
 import com.school.exception.ResourceNotFoundException;
 
-@Service
+@Service("schoolHrmStaffServiceImpl")
 public class StaffServiceImpl implements StaffService {
 
     private final StaffRepository staffRepository;
@@ -37,7 +38,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Autowired
     public StaffServiceImpl(
-            StaffRepository staffRepository,
+            @Qualifier("hrmStaffRepository") StaffRepository staffRepository,
             StaffRoleRepository staffRoleRepository,
             TeacherRepository teacherRepository,
             StaffDesignationRepository staffDesignationRepository,

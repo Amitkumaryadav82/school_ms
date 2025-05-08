@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.school.hrm.entity.Staff;
 import com.school.hrm.entity.StaffRole;
 
-@Repository
+@Repository("hrmStaffRepository")
 public interface StaffRepository extends JpaRepository<Staff, Long> {
 
     Optional<Staff> findByStaffId(String staffId);

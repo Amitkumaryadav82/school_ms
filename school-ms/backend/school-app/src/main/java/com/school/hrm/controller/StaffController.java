@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import com.school.hrm.dto.StaffDTO;
 import com.school.hrm.service.StaffService;
 
-@RestController
-@RequestMapping("/api/staff")
+@RestController("schoolHrmStaffController")  // Added unique bean name
+@RequestMapping("/api/hrm/staff")  // Changed from "/api/staff" to "/api/hrm/staff"
 public class StaffController {
 
     private final StaffService staffService;
