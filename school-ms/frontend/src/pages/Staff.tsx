@@ -14,7 +14,11 @@ import {
   DialogContentText,
   DialogTitle,
   Grid,
-  Stack
+  Stack,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -27,7 +31,7 @@ import {
   CloudUpload as CloudUploadIcon
 } from '@mui/icons-material';
 import { useApi, useApiMutation } from '../hooks/useApi';
-import { staffService, StaffMember } from '../services/staffService';
+import { staffService, StaffMember, EmploymentStatus } from '../services/staffService';
 import DataTable, { Column } from '../components/DataTable';
 import StaffDialog from '../components/dialogs/StaffDialog';
 import BulkStaffUploadDialog from '../components/dialogs/BulkStaffUploadDialog';
@@ -139,6 +143,39 @@ const Staff: React.FC = () => {
     }
   );
 
+  const { mutate: toggleStaffStatus, loading: toggleStatusLoading } = useApiMutation(
+    (data: { id: number; isActive: boolean }) => staffService.update(data.id, { isActive: data.isActive }),
+    {
+      onSuccess: () => {
+        showNotification({ type: 'success', message: 'Staff status updated successfully' });
+        refresh();
+      },
+      onError: (error) => {
+        showNotification({ 
+          type: 'error', 
+          message: `Failed to update staff status: ${error.message}` 
+        });
+      }
+    }
+  );
+
+  const { mutate: updateEmploymentStatus, loading: updateStatusLoading } = useApiMutation(
+    (data: { id: number; status: EmploymentStatus }) => 
+      staffService.updateEmploymentStatus(data.id, data.status),
+    {
+      onSuccess: () => {
+        showNotification({ type: 'success', message: 'Employment status updated successfully' });
+        refresh();
+      },
+      onError: (error) => {
+        showNotification({ 
+          type: 'error', 
+          message: `Failed to update employment status: ${error.message}` 
+        });
+      }
+    }
+  );
+
   const handleEdit = (staff: StaffMember) => {
     setSelectedStaff(staff);
     setDialogOpen(true);
@@ -174,6 +211,37 @@ const Staff: React.FC = () => {
 
   const handleBulkSubmit = async (staffMembers: StaffMember[]) => {
     await bulkCreateStaff(staffMembers);
+  };
+
+  const handleToggleStatus = (staff: StaffMember) => {
+    if (staff.id) {
+      toggleStaffStatus({ id: staff.id, isActive: !staff.isActive });
+    }
+  };
+
+  const handleStatusChange = (staff: StaffMember, status: EmploymentStatus) => {
+    if (staff.id) {
+      updateEmploymentStatus({ id: staff.id, status });
+    }
+  };
+
+  // Helper function to get color for employment status
+  const getStatusColor = (status?: EmploymentStatus): "success" | "warning" | "error" | "default" => {
+    if (!status) return "default";
+    
+    switch (status) {
+      case EmploymentStatus.ACTIVE:
+        return "success";
+      case EmploymentStatus.ON_LEAVE:
+      case EmploymentStatus.SUSPENDED:
+        return "warning";
+      case EmploymentStatus.TERMINATED:
+      case EmploymentStatus.RETIRED:
+      case EmploymentStatus.RESIGNED:
+        return "error";
+      default:
+        return "default";
+    }
   };
 
   // Format staff roles for display
@@ -355,12 +423,30 @@ const Staff: React.FC = () => {
       id: 'isActive', 
       label: 'Status', 
       sortable: true,
-      format: (value: boolean) => (
-        <Chip 
-          label={value ? 'Active' : 'Inactive'}
-          size="small"
-          color={value ? 'success' : 'error'}
-        />
+      format: (_, staff) => (
+        hasPermission(user?.role || '', 'MANAGE_STAFF') ? (
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={staff.employmentStatus || EmploymentStatus.ACTIVE}
+              onChange={(e) => handleStatusChange(staff, e.target.value as EmploymentStatus)}
+              disabled={updateStatusLoading}
+              label="Status"
+            >
+              {Object.values(EmploymentStatus).map((status) => (
+                <MenuItem key={status} value={status}>
+                  {status.replace('_', ' ')}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        ) : (
+          <Chip 
+            label={(staff.employmentStatus || EmploymentStatus.ACTIVE).replace('_', ' ')} 
+            color={getStatusColor(staff.employmentStatus)}
+            size="small"
+          />
+        )
       )
     },
     {

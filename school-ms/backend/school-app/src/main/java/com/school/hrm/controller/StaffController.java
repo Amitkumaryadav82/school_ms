@@ -8,10 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.school.hrm.dto.StaffDTO;
+import com.school.hrm.model.EmploymentStatus;
 import com.school.hrm.service.StaffService;
 
-@RestController("schoolHrmStaffController")  // Added unique bean name
-@RequestMapping("/api/hrm/staff")  // Changed from "/api/staff" to "/api/hrm/staff"
+@RestController("schoolHrmStaffController") // Added unique bean name
+@RequestMapping("/api/hrm/staff") // Changed from "/api/staff" to "/api/hrm/staff"
 public class StaffController {
 
     private final StaffService staffService;
@@ -102,6 +103,21 @@ public class StaffController {
     @PutMapping("/{id}")
     public ResponseEntity<StaffDTO> updateStaff(@PathVariable Long id, @RequestBody StaffDTO staffDTO) {
         StaffDTO updatedStaff = staffService.updateStaff(id, staffDTO);
+        return ResponseEntity.ok(updatedStaff);
+    }
+
+    /**
+     * Update a staff member's employment status
+     * 
+     * @param id     The staff member's ID
+     * @param status The new employment status
+     * @return The updated staff data
+     */
+    @PutMapping("/{id}/status")
+    public ResponseEntity<StaffDTO> updateStaffStatus(
+            @PathVariable Long id,
+            @RequestParam EmploymentStatus status) {
+        StaffDTO updatedStaff = staffService.updateStaffStatus(id, status);
         return ResponseEntity.ok(updatedStaff);
     }
 

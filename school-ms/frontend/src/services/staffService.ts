@@ -1,6 +1,15 @@
 import { api } from './api';
 import config from '../config/environment';
 
+export enum EmploymentStatus {
+  ACTIVE = 'ACTIVE',
+  ON_LEAVE = 'ON_LEAVE',
+  SUSPENDED = 'SUSPENDED',
+  TERMINATED = 'TERMINATED',
+  RETIRED = 'RETIRED',
+  RESIGNED = 'RESIGNED'
+}
+
 export interface StaffMember {
   id?: number;
   staffId?: string;
@@ -21,6 +30,7 @@ export interface StaffMember {
   emergencyContact?: string;
   bloodGroup?: string;
   isActive?: boolean;
+  employmentStatus?: EmploymentStatus;
 }
 
 // Map of role names to IDs for consistent handling
@@ -192,6 +202,17 @@ export const staffService = {
   update: (id: number, staffMember: StaffMember) => {
     const formattedData = prepareStaffData(staffMember);
     return api.put<StaffMember>(`staff/${id}`, formattedData);
+  },
+  
+  // Toggle staff active status
+  toggleStatus: (id: number, isActive: boolean) => {
+    // Only send the isActive field to update just the status
+    return api.patch<StaffMember>(`staff/${id}/status`, { isActive });
+  },
+  
+  // Update staff employment status
+  updateEmploymentStatus: (id: number, status: EmploymentStatus) => {
+    return api.patch<StaffMember>(`staff/${id}/employment-status`, { employmentStatus: status });
   },
   
   // Delete a staff member

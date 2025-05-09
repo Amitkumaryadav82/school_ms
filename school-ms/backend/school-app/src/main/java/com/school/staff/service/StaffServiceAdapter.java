@@ -12,7 +12,7 @@ import com.example.schoolms.model.Staff;
 import com.example.schoolms.service.StaffService;
 
 /**
- * Adapter class to bridge the gap between the new controller structure 
+ * Adapter class to bridge the gap between the new controller structure
  * and the existing StaffService implementation
  */
 @Service

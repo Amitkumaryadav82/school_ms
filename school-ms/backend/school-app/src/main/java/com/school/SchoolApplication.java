@@ -18,14 +18,14 @@ import io.swagger.v3.oas.annotations.info.Info;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableScheduling
-@ComponentScan(basePackages = {"com.school", "com.example.schoolms"})
+@ComponentScan(basePackages = { "com.school", "com.example.schoolms" })
 // Explicitly define entity scanning to prevent conflicts
 @EntityScan(basePackageClasses = {
-    com.school.SchoolApplication.class,
-    com.example.schoolms.model.Staff.class
+        com.school.SchoolApplication.class,
+        com.example.schoolms.model.Staff.class
 })
 // Explicitly define repository scanning
-@EnableJpaRepositories(basePackages = {"com.school", "com.example.schoolms"})
+@EnableJpaRepositories(basePackages = { "com.school", "com.example.schoolms" })
 @OpenAPIDefinition(info = @Info(title = "School Management System API", version = "1.0", description = "Unified School Management System API Documentation"))
 public class SchoolApplication {
 

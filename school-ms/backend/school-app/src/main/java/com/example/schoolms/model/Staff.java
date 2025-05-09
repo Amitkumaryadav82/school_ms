@@ -33,7 +33,7 @@ public class Staff {
 
     @Column(nullable = false)
     private String firstName;
-    
+
     private String middleName;
 
     @Column(nullable = false)
@@ -43,23 +43,23 @@ public class Staff {
     private String email;
 
     private String phone;
-    
+
     private String phoneNumber;
-    
+
     private String address;
-    
+
     @Column(nullable = false)
     private String role;
-    
+
     private LocalDate dateOfBirth;
-    
+
     private LocalDate joiningDate;
-    
+
     private String department;
-    
+
     @Column(nullable = false)
     private boolean active = true;
-    
+
     @OneToOne(cascade = CascadeType.ALL)
     private TeacherDetails teacherDetails;
 }

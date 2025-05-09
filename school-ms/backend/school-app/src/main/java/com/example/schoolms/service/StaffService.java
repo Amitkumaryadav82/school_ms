@@ -13,12 +13,14 @@ public interface StaffService {
 
     /**
      * Get all staff members
+     * 
      * @return List of all staff
      */
     List<Staff> getAllStaff();
 
     /**
      * Get a staff member by ID
+     * 
      * @param id The staff ID
      * @return Optional containing the staff if found
      */
@@ -26,6 +28,7 @@ public interface StaffService {
 
     /**
      * Create a new staff member
+     * 
      * @param staff The staff to create
      * @return The created staff with generated ID
      */
@@ -33,7 +36,8 @@ public interface StaffService {
 
     /**
      * Update an existing staff member
-     * @param id The staff ID
+     * 
+     * @param id           The staff ID
      * @param staffDetails The updated staff details
      * @return Optional containing the updated staff if found
      */
@@ -41,6 +45,7 @@ public interface StaffService {
 
     /**
      * Delete a staff member
+     * 
      * @param id The staff ID
      * @return true if deleted, false if not found
      */
@@ -48,6 +53,7 @@ public interface StaffService {
 
     /**
      * Find staff by role
+     * 
      * @param role The role to search for
      * @return List of staff with the specified role
      */
@@ -55,6 +61,7 @@ public interface StaffService {
 
     /**
      * Find staff by active status
+     * 
      * @param active The active status to search for
      * @return List of staff with the specified active status
      */
@@ -62,8 +69,10 @@ public interface StaffService {
 
     /**
      * Bulk create or update staff
+     * 
      * @param staffList List of staff to create or update
-     * @return Response containing counts of created and updated records, plus any errors
+     * @return Response containing counts of created and updated records, plus any
+     *         errors
      */
     BulkUploadResponse bulkCreateOrUpdateStaff(List<Staff> staffList);
 }

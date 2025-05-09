@@ -2,10 +2,12 @@ package com.school.hrm.controller;
 
 import com.school.hrm.dto.EmployeeDTO;
 import com.school.hrm.model.EmployeeRole;
+import com.school.hrm.model.EmploymentStatus;
 import com.school.hrm.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +72,19 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<List<EmployeeDTO>> getEmployeesByRole(@PathVariable EmployeeRole role) {
         return ResponseEntity.ok(employeeService.getEmployeesByRole(role));
+    }
+
+    @Operation(summary = "Update employee status", description = "Updates an employee's employment status (active, terminated, resigned, etc)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Employee not found")
+    })
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EmployeeDTO> updateEmployeeStatus(
+            @PathVariable Long id,
+            @RequestParam EmploymentStatus status) {
+        return ResponseEntity.ok(employeeService.updateEmployeeStatus(id, status));
     }
 
     @Operation(summary = "Delete employee", description = "Deletes an employee record")

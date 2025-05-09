@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,6 +17,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.school.hrm.model.EmploymentStatus;
 
 @Entity
 @Table(name = "staff")
@@ -53,6 +57,13 @@ public class Staff {
 
     @Column(name = "join_date", nullable = false)
     private LocalDate joinDate;
+
+    @Column(name = "termination_date")
+    private LocalDate terminationDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "employment_status")
+    private EmploymentStatus employmentStatus = EmploymentStatus.ACTIVE;
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)

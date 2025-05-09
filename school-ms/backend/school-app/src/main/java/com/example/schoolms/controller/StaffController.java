@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RestController("exampleSchoolmsStaffController")  // Added a unique bean name here
+@RestController("exampleSchoolmsStaffController") // Added a unique bean name here
 @RequestMapping("/api/staff")
 @Tag(name = "Staff Management", description = "APIs for managing staff information")
 @SecurityRequirement(name = "bearerAuth")
@@ -126,19 +126,15 @@ public class StaffController {
 
     // Bulk import staff from CSV/XLS file
     @PostMapping(value = "/bulk-import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(
-        summary = "Import staff from CSV/XLS file", 
-        description = "Bulk imports staff members from a CSV or XLS file uploaded as multipart/form-data"
-    )
+    @Operation(summary = "Import staff from CSV/XLS file", description = "Bulk imports staff members from a CSV or XLS file uploaded as multipart/form-data")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Staff data imported successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid file or data format"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+            @ApiResponse(responseCode = "200", description = "Staff data imported successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid file or data format"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
     })
     public ResponseEntity<BulkUploadResponse> bulkImportStaff(
-            @Parameter(description = "CSV or XLS file containing staff data")
-            @RequestParam("file") MultipartFile file) {
+            @Parameter(description = "CSV or XLS file containing staff data") @RequestParam("file") MultipartFile file) {
         try {
             List<Staff> staffList = csvXlsParser.parseStaffFromFile(file);
             BulkUploadResponse response = staffService.bulkCreateOrUpdateStaff(staffList);
@@ -154,43 +150,25 @@ public class StaffController {
      * Structured JSON format for bulk staff creation/update
      */
     @PostMapping(value = "/bulk", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        operationId = "bulkCreateOrUpdateStaff",
-        summary = "Create or update multiple staff members",
-        description = "Bulk creates or updates multiple staff members from a JSON request with staff list and expected count"
-    )
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-        description = "Structured staff data with validation",
-        required = true,
-        content = @Content(
-            mediaType = MediaType.APPLICATION_JSON_VALUE,
-            schema = @Schema(implementation = BulkStaffRequest.class)
-        )
-    )
+    @Operation(operationId = "bulkCreateOrUpdateStaff", summary = "Create or update multiple staff members", description = "Bulk creates or updates multiple staff members from a JSON request with staff list and expected count")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Structured staff data with validation", required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BulkStaffRequest.class)))
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200", 
-            description = "Staff data processed successfully",
-            content = @Content(
-                mediaType = MediaType.APPLICATION_JSON_VALUE,
-                schema = @Schema(implementation = BulkUploadResponse.class)
-            )
-        ),
-        @ApiResponse(responseCode = "400", description = "Invalid staff data or count mismatch"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+            @ApiResponse(responseCode = "200", description = "Staff data processed successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BulkUploadResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid staff data or count mismatch"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
     })
     public ResponseEntity<BulkUploadResponse> bulkCreateOrUpdateStaff(@Valid @RequestBody BulkStaffRequest request) {
         logger.info("Received bulk staff creation/update request with {} staff members", request.getStaff().size());
 
         if (request.getExpectedCount() != null && request.getStaff().size() != request.getExpectedCount()) {
-            logger.warn("Expected count {} does not match actual staff count {}", 
-                request.getExpectedCount(), request.getStaff().size());
+            logger.warn("Expected count {} does not match actual staff count {}",
+                    request.getExpectedCount(), request.getStaff().size());
             return ResponseEntity.badRequest().body(
-                new BulkUploadResponse(0, 0, List.of("Expected count does not match the number of staff provided"))
-            );
+                    new BulkUploadResponse(0, 0,
+                            List.of("Expected count does not match the number of staff provided")));
         }
-        
+
         try {
             BulkUploadResponse response = staffService.bulkCreateOrUpdateStaff(request.getStaff());
             return ResponseEntity.ok(response);
@@ -205,15 +183,12 @@ public class StaffController {
      * Array format for bulk staff creation/update (legacy support)
      */
     @PostMapping(value = "/bulk-array", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(
-        summary = "Create or update multiple staff members using array format", 
-        description = "Bulk creates or updates multiple staff members from a raw JSON array (legacy format)"
-    )
+    @Operation(summary = "Create or update multiple staff members using array format", description = "Bulk creates or updates multiple staff members from a raw JSON array (legacy format)")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Staff data processed successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid staff data"),
-        @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
+            @ApiResponse(responseCode = "200", description = "Staff data processed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid staff data"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - insufficient permissions")
     })
     public ResponseEntity<BulkUploadResponse> bulkImportStaffJson(@RequestBody List<Object> staffDataList) {
         logger.info("Received bulk staff upload request with JSON array. Staff count: " + staffDataList.size());
@@ -298,8 +273,8 @@ public class StaffController {
 
             if (processedStaffList.isEmpty()) {
                 return ResponseEntity.badRequest().body(
-                    new BulkUploadResponse(0, 0,
-                        errors.isEmpty() ? List.of("No valid staff entries found") : errors));
+                        new BulkUploadResponse(0, 0,
+                                errors.isEmpty() ? List.of("No valid staff entries found") : errors));
             }
 
             logger.info("Successfully processed " + processedStaffList.size() + " staff entries");

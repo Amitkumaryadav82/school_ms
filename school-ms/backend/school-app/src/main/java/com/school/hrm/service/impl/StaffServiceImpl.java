@@ -19,6 +19,7 @@ import com.school.hrm.entity.StaffRole;
 import com.school.hrm.entity.Teacher;
 import com.school.hrm.entity.StaffDesignation;
 import com.school.hrm.entity.StaffDesignationMapping;
+import com.school.hrm.model.EmploymentStatus;
 import com.school.hrm.repository.StaffRepository;
 import com.school.hrm.repository.StaffRoleRepository;
 import com.school.hrm.repository.TeacherRepository;
@@ -410,6 +411,40 @@ public class StaffServiceImpl implements StaffService {
         mapping.setIsActive(false);
         mapping.setUpdatedAt(LocalDateTime.now());
         staffDesignationMappingRepository.save(mapping);
+    }
+
+    @Override
+    @Transactional
+    public StaffDTO updateStaffStatus(Long id, EmploymentStatus status) {
+        Staff staff = staffRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + id));
+
+        // Update the employment status
+        staff.setEmploymentStatus(status);
+
+        // Adjust isActive flag based on status
+        if (status == EmploymentStatus.ACTIVE) {
+            staff.setIsActive(true);
+        } else if (status == EmploymentStatus.SUSPENDED ||
+                status == EmploymentStatus.TERMINATED ||
+                status == EmploymentStatus.RETIRED ||
+                status == EmploymentStatus.RESIGNED) {
+            // Set isActive to false for these statuses
+            staff.setIsActive(false);
+
+            // Set the termination date to today for terminated or resigned staff
+            if ((status == EmploymentStatus.TERMINATED ||
+                    status == EmploymentStatus.RESIGNED ||
+                    status == EmploymentStatus.RETIRED) &&
+                    staff.getTerminationDate() == null) {
+                staff.setTerminationDate(LocalDate.now());
+            }
+        }
+
+        staff.setUpdatedAt(LocalDateTime.now());
+        Staff updatedStaff = staffRepository.save(staff);
+
+        return convertToDTO(updatedStaff);
     }
 
     // Helper method to convert Staff entity to StaffDTO

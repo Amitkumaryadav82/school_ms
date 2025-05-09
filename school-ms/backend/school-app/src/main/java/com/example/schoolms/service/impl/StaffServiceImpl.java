@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service("exampleSchoolmsStaffServiceImpl")  // Added a unique bean name here
+@Service("exampleSchoolmsStaffServiceImpl") // Added a unique bean name here
 public class StaffServiceImpl implements StaffService {
 
     private static final Logger logger = LoggerFactory.getLogger(StaffServiceImpl.class);

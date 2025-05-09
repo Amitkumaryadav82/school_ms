@@ -60,6 +60,23 @@ public class EmployeeService {
         return convertToDTO(updatedEmployee);
     }
 
+    public EmployeeDTO updateEmployeeStatus(Long id, EmploymentStatus status) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        employee.setStatus(status);
+
+        // Handle special cases for certain statuses
+        if (status == EmploymentStatus.RESIGNED || status == EmploymentStatus.TERMINATED) {
+            if (employee.getTerminationDate() == null) {
+                employee.setTerminationDate(java.time.LocalDate.now());
+            }
+        }
+
+        Employee updatedEmployee = employeeRepository.save(employee);
+        return convertToDTO(updatedEmployee);
+    }
+
     public EmployeeDTO getEmployee(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException(id));

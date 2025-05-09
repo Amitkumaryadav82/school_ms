@@ -3,6 +3,7 @@ package com.school.hrm.service;
 import java.util.List;
 
 import com.school.hrm.dto.StaffDTO;
+import com.school.hrm.model.EmploymentStatus;
 
 public interface StaffService {
 
@@ -48,4 +49,13 @@ public interface StaffService {
     StaffDTO assignDesignationToStaff(Long staffId, Long designationId);
 
     void removeDesignationFromStaff(Long staffId, Long designationId);
+
+    /**
+     * Updates the employment status of a staff member
+     *
+     * @param id     The ID of the staff member
+     * @param status The new employment status
+     * @return The updated staff member information
+     */
+    StaffDTO updateStaffStatus(Long id, EmploymentStatus status);
 }

@@ -110,6 +110,9 @@ export const api = {
   
   delete: <T>(endpoint: string) => 
     apiClient.delete<T>(ensureEndpoint(endpoint)).then(res => res.data),
+  
+  patch: <T>(endpoint: string, data?: any) => 
+    apiClient.patch<T>(ensureEndpoint(endpoint), data).then(res => res.data),
     
   // Specialized method for handling file uploads with XLS/CSV, especially for bulk imports
   bulkUpload: <T>(endpoint: string, fileOrData: File | any[], options?: {isFile?: boolean}) => {
