@@ -416,35 +416,77 @@ public class StaffServiceImpl implements StaffService {
     @Override
     @Transactional
     public StaffDTO updateStaffStatus(Long id, EmploymentStatus status) {
-        Staff staff = staffRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + id));
+        // Debug: Log attempt to update status with details
+        System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Attempting to update staff status: Staff ID=" + id
+                + ", New Status=" + status);
 
-        // Update the employment status
-        staff.setEmploymentStatus(status);
+        try {
+            // Get authentication context
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder
+                    .getContext().getAuthentication();
 
-        // Adjust isActive flag based on status
-        if (status == EmploymentStatus.ACTIVE) {
-            staff.setIsActive(true);
-        } else if (status == EmploymentStatus.SUSPENDED ||
-                status == EmploymentStatus.TERMINATED ||
-                status == EmploymentStatus.RETIRED ||
-                status == EmploymentStatus.RESIGNED) {
-            // Set isActive to false for these statuses
-            staff.setIsActive(false);
-
-            // Set the termination date to today for terminated or resigned staff
-            if ((status == EmploymentStatus.TERMINATED ||
-                    status == EmploymentStatus.RESIGNED ||
-                    status == EmploymentStatus.RETIRED) &&
-                    staff.getTerminationDate() == null) {
-                staff.setTerminationDate(LocalDate.now());
+            if (auth != null) {
+                System.out.println("[DEBUG] [" + LocalDateTime.now() + "] User performing status update: " +
+                        auth.getName() + ", Authorities: " + auth.getAuthorities());
+            } else {
+                System.out
+                        .println("[DEBUG] [" + LocalDateTime.now() + "] WARNING: No authentication context available!");
             }
+
+            Staff staff = staffRepository.findById(id)
+                    .orElseThrow(() -> {
+                        System.out
+                                .println("[DEBUG] [" + LocalDateTime.now() + "] ERROR: Staff not found with id: " + id);
+                        return new ResourceNotFoundException("Staff not found with id: " + id);
+                    });
+
+            System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Found staff: " + staff.getFirstName() + " " +
+                    staff.getLastName() + ", Current status: " + staff.getEmploymentStatus());
+
+            // Update the employment status
+            staff.setEmploymentStatus(status);
+
+            // Adjust isActive flag based on status
+            if (status == EmploymentStatus.ACTIVE) {
+                staff.setIsActive(true);
+                System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Setting staff to ACTIVE state");
+            } else if (status == EmploymentStatus.SUSPENDED ||
+                    status == EmploymentStatus.TERMINATED ||
+                    status == EmploymentStatus.RETIRED ||
+                    status == EmploymentStatus.RESIGNED) {
+                // Set isActive to false for these statuses
+                staff.setIsActive(false);
+                System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Setting staff to INACTIVE state due to "
+                        + status + " status");
+
+                // Set the termination date to today for terminated or resigned staff
+                if ((status == EmploymentStatus.TERMINATED ||
+                        status == EmploymentStatus.RESIGNED ||
+                        status == EmploymentStatus.RETIRED) &&
+                        staff.getTerminationDate() == null) {
+                    staff.setTerminationDate(LocalDate.now());
+                    System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Setting termination date to today");
+                }
+            }
+
+            staff.setUpdatedAt(LocalDateTime.now());
+
+            try {
+                Staff updatedStaff = staffRepository.save(staff);
+                System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Successfully saved staff status update");
+                return convertToDTO(updatedStaff);
+            } catch (Exception e) {
+                System.out.println(
+                        "[DEBUG] [" + LocalDateTime.now() + "] ERROR saving staff status update: " + e.getMessage());
+                e.printStackTrace();
+                throw e;
+            }
+        } catch (Exception e) {
+            System.out
+                    .println("[DEBUG] [" + LocalDateTime.now() + "] EXCEPTION in updateStaffStatus: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-
-        staff.setUpdatedAt(LocalDateTime.now());
-        Staff updatedStaff = staffRepository.save(staff);
-
-        return convertToDTO(updatedStaff);
     }
 
     // Helper method to convert Staff entity to StaffDTO

@@ -7,6 +7,15 @@ export interface Teacher {
   email: string;
   phoneNumber: string;
   department: string;
+  // Add missing properties used in TeacherDialog
+  employeeId: string;
+  subjects: string[];
+  qualifications: string[];
+  dateOfBirth: string;
+  gender: string;
+  address: string;
+  joiningDate: string;
+  status: string;
 }
 
 export const teacherService = {

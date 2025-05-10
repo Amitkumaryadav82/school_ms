@@ -31,6 +31,22 @@ export interface StaffMember {
   bloodGroup?: string;
   isActive?: boolean;
   employmentStatus?: EmploymentStatus;
+  // PF and Service fields
+  pfUAN?: string;          // PF UAN (alphanumeric)
+  gratuity?: string;       // Gratuity (alphanumeric)
+  serviceEndDate?: string; // Service End Date (optional)
+  // Salary fields
+  basicSalary?: number;
+  hra?: number;
+  da?: number;
+  ta?: number;
+  otherAllowances?: number;
+  pfContribution?: number;
+  taxDeduction?: number;
+  netSalary?: number;
+  salaryAccountNumber?: string;
+  bankName?: string;
+  ifscCode?: string;
 }
 
 // Map of role names to IDs for consistent handling
@@ -212,7 +228,61 @@ export const staffService = {
   
   // Update staff employment status
   updateEmploymentStatus: (id: number, status: EmploymentStatus) => {
-    return api.patch<StaffMember>(`staff/${id}/employment-status`, { employmentStatus: status });
+    console.log(`[staffService] Updating employment status for staff ID ${id} to ${status}`);
+    
+    // Get the authentication token to log during the request
+    const token = localStorage.getItem('token');
+    const tokenStatus = token ? 
+      `Token present (${token.substring(0, 15)}...)` : 
+      'Token missing';
+    
+    // Extract user roles from token for debugging
+    let userRoles = [];
+    if (token) {
+      try {
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        userRoles = decodedToken.roles || decodedToken.authorities || [];
+        console.log(`[staffService] User roles from token:`, userRoles);
+        console.log(`[staffService] Token expires:`, new Date(decodedToken.exp * 1000).toLocaleString());
+      } catch (e) {
+        console.error(`[staffService] Error decoding token:`, e);
+      }
+    }
+    
+    console.log(`[staffService] Request details:`, {
+      endpoint: `staff/${id}/employment-status`,
+      method: 'PATCH',
+      payload: { employmentStatus: status },
+      authStatus: tokenStatus,
+      userRoles,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Make the API request and add detailed response logging
+    return api.patch<StaffMember>(`staff/${id}/employment-status`, { employmentStatus: status })
+      .then(response => {
+        console.log(`[staffService] Status update successful:`, {
+          statusCode: 200,
+          responseData: response,
+          timestamp: new Date().toISOString()
+        });
+        return response;
+      })
+      .catch(error => {
+        console.error(`[staffService] Status update failed:`, {
+          statusCode: error.response?.status || 'No status',
+          errorMessage: error.response?.data?.message || error.message,
+          requestDetails: {
+            url: `staff/${id}/employment-status`,
+            method: 'PATCH',
+            payload: { employmentStatus: status },
+            authStatus: tokenStatus,
+            userRoles
+          },
+          timestamp: new Date().toISOString()
+        });
+        throw error;
+      });
   },
   
   // Delete a staff member

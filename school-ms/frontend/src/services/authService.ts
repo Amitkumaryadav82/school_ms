@@ -1,4 +1,5 @@
 import api from './api';
+import jwtDecode from 'jwt-decode';
 
 export interface LoginRequest {
   username: string;
@@ -156,6 +157,36 @@ export const authService = {
   },
 };
 
+/**
+ * Specifically checks if the current user has permission to update staff employment status
+ * This requires either ADMIN or HR_MANAGER role
+ * @returns {boolean} true if user has required role, false otherwise
+ */
+export const hasStaffStatusUpdatePermission = (): boolean => {
+  const user = getCurrentUser();
+  
+  // Enhanced debugging for permission check
+  console.log(`[AUTH DEBUG] [${new Date().toISOString()}] Checking staff status update permission`);
+  
+  if (!user) {
+    console.log(`[AUTH DEBUG] [${new Date().toISOString()}] Permission check failed: No user found`);
+    return false;
+  }
+  
+  console.log(`[AUTH DEBUG] [${new Date().toISOString()}] User role: ${user.role}`);
+  console.log(`[AUTH DEBUG] [${new Date().toISOString()}] Token present: ${!!localStorage.getItem('token')}`);
+  
+  if (localStorage.getItem('token')) {
+    const tokenSample = localStorage.getItem('token')?.substring(0, 15) + '...';
+    console.log(`[AUTH DEBUG] [${new Date().toISOString()}] Token sample: ${tokenSample}`);
+  }
+  
+  const hasPermission = user.role === 'ADMIN' || user.role === 'HR_MANAGER';
+  console.log(`[AUTH DEBUG] [${new Date().toISOString()}] Has permission: ${hasPermission}`);
+  
+  return hasPermission;
+};
+
 // Simple hashing function for offline validation - not for real security
 function hashCredentials(str: string): string {
   let hash = 0;
@@ -165,4 +196,19 @@ function hashCredentials(str: string): string {
     hash = hash & hash; // Convert to 32bit integer
   }
   return hash.toString(36);
+}
+
+function getAuthToken(): string | null {
+  return localStorage.getItem('token');
+}
+
+function getCurrentUser(): { role: string } | null {
+  const userJson = localStorage.getItem('user');
+  if (!userJson) return null;
+  try {
+    return JSON.parse(userJson);
+  } catch (error) {
+    console.error(`[AUTH DEBUG] [${new Date().toISOString()}] Error parsing user JSON:`, error);
+    return null;
+  }
 }

@@ -4,6 +4,8 @@ import com.school.student.model.Student;
 import com.school.student.model.StudentStatus;
 import com.school.student.service.StudentService;
 import com.school.student.dto.BulkStudentRequest;
+import com.school.student.dto.StudentDTO;
+import com.school.student.util.StudentMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -25,6 +27,9 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
+    @Autowired
+    private StudentMapper studentMapper;
+
     @Operation(summary = "Create a new student", description = "Registers a new student in the system")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Student created successfully"),
@@ -33,8 +38,10 @@ public class StudentController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Student> createStudent(@Valid @RequestBody Student student) {
-        return ResponseEntity.ok(studentService.createStudent(student));
+    public ResponseEntity<StudentDTO> createStudent(@Valid @RequestBody StudentDTO studentDTO) {
+        Student student = studentMapper.toEntity(studentDTO);
+        Student createdStudent = studentService.createStudent(student);
+        return ResponseEntity.ok(studentMapper.toDTO(createdStudent));
     }
 
     @Operation(summary = "Create multiple students", description = "Registers multiple students in the system at once")
@@ -45,11 +52,12 @@ public class StudentController {
     })
     @PostMapping("/bulk")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Student>> createStudentsBulk(@Valid @RequestBody BulkStudentRequest request) {
+    public ResponseEntity<List<StudentDTO>> createStudentsBulk(@Valid @RequestBody BulkStudentRequest request) {
         if (request.getStudents().size() != request.getExpectedCount()) {
             throw new IllegalArgumentException("Expected count does not match the number of students provided");
         }
-        return ResponseEntity.ok(studentService.createStudentsBulk(request.getStudents()));
+        List<Student> createdStudents = studentService.createStudentsBulk(request.getStudents());
+        return ResponseEntity.ok(studentMapper.toDTOList(createdStudents));
     }
 
     @Operation(summary = "Update student information", description = "Updates an existing student's information")
@@ -60,10 +68,12 @@ public class StudentController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Student> updateStudent(
+    public ResponseEntity<StudentDTO> updateStudent(
             @PathVariable Long id,
-            @Valid @RequestBody Student student) {
-        return ResponseEntity.ok(studentService.updateStudent(id, student));
+            @Valid @RequestBody StudentDTO studentDTO) {
+        Student student = studentMapper.toEntity(studentDTO);
+        Student updatedStudent = studentService.updateStudent(id, student);
+        return ResponseEntity.ok(studentMapper.toDTO(updatedStudent));
     }
 
     @Operation(summary = "Get student by ID", description = "Retrieves a student by their unique identifier")
@@ -73,8 +83,9 @@ public class StudentController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<Student> getStudent(@PathVariable Long id) {
-        return ResponseEntity.ok(studentService.getStudent(id));
+    public ResponseEntity<StudentDTO> getStudent(@PathVariable Long id) {
+        Student student = studentService.getStudent(id);
+        return ResponseEntity.ok(studentMapper.toDTO(student));
     }
 
     @Operation(summary = "Find student by student ID", description = "Retrieves a student by their student ID (roll number)")
@@ -84,58 +95,65 @@ public class StudentController {
     })
     @GetMapping("/student-id/{studentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<Student> findByStudentId(@PathVariable String studentId) {
-        return ResponseEntity.ok(studentService.findByStudentId(studentId));
+    public ResponseEntity<StudentDTO> findByStudentId(@PathVariable String studentId) {
+        Student student = studentService.findByStudentId(studentId);
+        return ResponseEntity.ok(studentMapper.toDTO(student));
     }
 
     @Operation(summary = "Get all students", description = "Retrieves a list of all students in the system")
     @ApiResponse(responseCode = "200", description = "List of students retrieved successfully")
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<List<Student>> getAllStudents() {
-        return ResponseEntity.ok(studentService.getAllStudents());
+    public ResponseEntity<List<StudentDTO>> getAllStudents() {
+        List<Student> students = studentService.getAllStudents();
+        return ResponseEntity.ok(studentMapper.toDTOList(students));
     }
 
     @Operation(summary = "Search students", description = "Search students by first name or last name")
     @ApiResponse(responseCode = "200", description = "Search results retrieved successfully")
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<List<Student>> searchStudents(@RequestParam String query) {
-        return ResponseEntity.ok(studentService.searchStudents(query));
+    public ResponseEntity<List<StudentDTO>> searchStudents(@RequestParam String query) {
+        List<Student> students = studentService.searchStudents(query);
+        return ResponseEntity.ok(studentMapper.toDTOList(students));
     }
 
     @Operation(summary = "Get students by grade", description = "Retrieves all students in a specific grade")
     @ApiResponse(responseCode = "200", description = "List of students retrieved successfully")
     @GetMapping("/grade/{grade}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<List<Student>> getStudentsByGrade(@PathVariable Integer grade) {
-        return ResponseEntity.ok(studentService.getStudentsByGrade(grade));
+    public ResponseEntity<List<StudentDTO>> getStudentsByGrade(@PathVariable Integer grade) {
+        List<Student> students = studentService.getStudentsByGrade(grade);
+        return ResponseEntity.ok(studentMapper.toDTOList(students));
     }
 
     @Operation(summary = "Get students by section", description = "Retrieves all students in a specific section")
     @ApiResponse(responseCode = "200", description = "List of students retrieved successfully")
     @GetMapping("/section/{section}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<List<Student>> getStudentsBySection(@PathVariable String section) {
-        return ResponseEntity.ok(studentService.getStudentsBySection(section));
+    public ResponseEntity<List<StudentDTO>> getStudentsBySection(@PathVariable String section) {
+        List<Student> students = studentService.getStudentsBySection(section);
+        return ResponseEntity.ok(studentMapper.toDTOList(students));
     }
 
     @Operation(summary = "Get students by grade and section", description = "Retrieves all students in a specific grade and section")
     @ApiResponse(responseCode = "200", description = "List of students retrieved successfully")
     @GetMapping("/grade/{grade}/section/{section}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<List<Student>> getStudentsByGradeAndSection(
+    public ResponseEntity<List<StudentDTO>> getStudentsByGradeAndSection(
             @PathVariable Integer grade,
             @PathVariable String section) {
-        return ResponseEntity.ok(studentService.getStudentsByGradeAndSection(grade, section));
+        List<Student> students = studentService.getStudentsByGradeAndSection(grade, section);
+        return ResponseEntity.ok(studentMapper.toDTOList(students));
     }
 
     @Operation(summary = "Get students by status", description = "Retrieves all students with a specific status")
     @ApiResponse(responseCode = "200", description = "List of students retrieved successfully")
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<List<Student>> getStudentsByStatus(@PathVariable StudentStatus status) {
-        return ResponseEntity.ok(studentService.getStudentsByStatus(status));
+    public ResponseEntity<List<StudentDTO>> getStudentsByStatus(@PathVariable StudentStatus status) {
+        List<Student> students = studentService.getStudentsByStatus(status);
+        return ResponseEntity.ok(studentMapper.toDTOList(students));
     }
 
     @Operation(summary = "Update student status", description = "Updates a student's status (active, inactive, graduated, etc)")
@@ -145,10 +163,11 @@ public class StudentController {
     })
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Student> updateStudentStatus(
+    public ResponseEntity<StudentDTO> updateStudentStatus(
             @PathVariable Long id,
             @RequestBody StudentStatus status) {
-        return ResponseEntity.ok(studentService.updateStudentStatus(id, status));
+        Student student = studentService.updateStudentStatus(id, status);
+        return ResponseEntity.ok(studentMapper.toDTO(student));
     }
 
     @Operation(summary = "Delete student", description = "Removes a student from the system")

@@ -4,10 +4,10 @@ import Layout from './components/Layout';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import Dashboard from './pages/Dashboard';
 import Students from './pages/Students';
-import Teachers from './pages/Teachers';
 import Courses from './pages/Courses';
 import Reports from './pages/Reports';
 import Admissions from './pages/Admissions';
+import FeeManagement from './pages/FeeManagement'; // Import the FeeManagement page
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Landing from './pages/Landing';
@@ -125,18 +125,6 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/teachers"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
-                <Teachers />
-              </RoleBasedRoute>
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/courses"
         element={
           <ProtectedRoute>
@@ -167,6 +155,19 @@ function AppRoutes() {
             <Layout>
               <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.STAFF]}>
                 <Admissions />
+              </RoleBasedRoute>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      {/* Add Fee Management route */}
+      <Route
+        path="/fees"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <RoleBasedRoute allowedRoles={[ROLES.ADMIN]}>
+                <FeeManagement />
               </RoleBasedRoute>
             </Layout>
           </ProtectedRoute>

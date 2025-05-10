@@ -13,8 +13,13 @@ import {
   Paper,
   Typography,
   Box,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Divider,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Student } from '../../services/studentService';
 import { validateStudent } from '../../utils/validation';
 import BaseDialog from './BaseDialog';
@@ -30,6 +35,7 @@ interface StudentDialogProps {
 const grades = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 const sections = ['A', 'B', 'C', 'D'];
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const transportModes = ['School Bus', 'Self'];
 
 // Get current date in YYYY-MM-DD format for default value
 const getCurrentDate = () => {
@@ -68,10 +74,31 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
       emergencyContact: '', // Changed from additionalContact to match interface
       admissionDate: new Date().toISOString().split('T')[0],
       status: 'ACTIVE',
+      // New TC-related fields
+      guardianOccupation: '',
+      guardianOfficeAddress: '',
+      aadharNumber: '',
+      udiseNumber: '',
+      houseAlloted: '',
+      guardianAnnualIncome: '',
+      previousSchool: '',
+      tcNumber: '',
+      tcReason: '',
+      tcDate: '',
+      whatsappNumber: '',
+      subjects: '',
+      transportMode: '',
+      busRouteNumber: '',
+      medicalConditions: '',
     }
   );
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [expanded, setExpanded] = useState<string | false>('panel1');
+
+  const handleAccordionChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   // Reset form to current date when dialog opens
   useEffect(() => {
@@ -171,9 +198,11 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
       disableSubmitButton={false}
     >
       <Box sx={{ width: '100%' }}>
-        <Grid container spacing={2}>
-          {/* Student Information Section */}
-          <Grid item xs={12}>
+        <Accordion expanded={expanded === 'panel1'} onChange={handleAccordionChange('panel1')}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle1">Basic Information</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
@@ -253,17 +282,6 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
                   error={!!errors.dateOfBirth}
                   helperText={errors.dateOfBirth}
                   InputLabelProps={{ shrink: true }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <Tooltip title="Date of Birth field is required">
-                          <IconButton size="small" edge="end">
-                            <InfoIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </InputAdornment>
-                    )
-                  }}
                   required
                 />
               </Grid>
@@ -290,6 +308,7 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
                     onChange={handleChange('bloodGroup') as any}
                     label="Blood Group"
                   >
+                    <MenuItem value="">Not Specified</MenuItem>
                     {bloodGroups.map((group) => (
                       <MenuItem key={group} value={group}>
                         {group}
@@ -298,89 +317,267 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
                   </Select>
                 </FormControl>
               </Grid>
-            </Grid>
-          </Grid>
-            
-          {/* Parent/Guardian Information Section */}
-          <Grid item xs={12} sx={{ mt: 2 }}>
-            <Paper elevation={1} sx={{ p: 2 }}>
-              <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                Parent/Guardian Information
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Parent/Guardian Name"
-                    value={formData.parentName}
-                    onChange={handleChange('parentName')}
-                    error={!!errors.parentName}
-                    helperText={errors.parentName}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Parent Phone"
-                    value={formData.parentPhone}
-                    onChange={handleChange('parentPhone')}
-                    error={!!errors.parentPhone}
-                    helperText={errors.parentPhone || "Must start with +91 followed by 10 digits"}
-                    required
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Tooltip title="Indian mobile number format: +91 followed by 10 digits">
-                            <IconButton size="small">
-                              <InfoIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </Grid>
-                {/* Ensure Emergency Contact and Email are in same row with equal width */}
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Emergency Contact Number"
-                    value={formData.emergencyContact}
-                    onChange={handleChange('emergencyContact')}
-                    error={!!errors.emergencyContact}
-                    helperText={errors.emergencyContact}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange('email')}
-                    error={!!errors.email}
-                    helperText={errors.email}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Address"
-                    multiline
-                    rows={3}
-                    value={formData.address}
-                    onChange={handleChange('address')}
-                    error={!!errors.address}
-                    helperText={errors.address}
-                    required
-                  />
-                </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="House Alloted"
+                  value={formData.houseAlloted}
+                  onChange={handleChange('houseAlloted')}
+                />
               </Grid>
-            </Paper>
-          </Grid>
-        </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Address"
+                  multiline
+                  rows={2}
+                  value={formData.address}
+                  onChange={handleChange('address')}
+                  error={!!errors.address}
+                  helperText={errors.address}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Medical Conditions"
+                  value={formData.medicalConditions}
+                  onChange={handleChange('medicalConditions')}
+                  multiline
+                  rows={2}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange('email')}
+                  error={!!errors.email}
+                  helperText={errors.email}
+                  required
+                />
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion expanded={expanded === 'panel2'} onChange={handleAccordionChange('panel2')}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle1">Parent/Guardian Information</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Parent/Guardian Name"
+                  value={formData.parentName}
+                  onChange={handleChange('parentName')}
+                  error={!!errors.parentName}
+                  helperText={errors.parentName}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Parent Phone"
+                  value={formData.parentPhone}
+                  onChange={handleChange('parentPhone')}
+                  error={!!errors.parentPhone}
+                  helperText={errors.parentPhone || "Must start with +91 followed by 10 digits"}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Emergency Contact Number"
+                  value={formData.emergencyContact}
+                  onChange={handleChange('emergencyContact')}
+                  error={!!errors.emergencyContact}
+                  helperText={errors.emergencyContact}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="WhatsApp Number"
+                  value={formData.whatsappNumber}
+                  onChange={handleChange('whatsappNumber')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Parent/Guardian Email"
+                  type="email"
+                  value={formData.parentEmail}
+                  onChange={handleChange('parentEmail')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Guardian Occupation"
+                  value={formData.guardianOccupation}
+                  onChange={handleChange('guardianOccupation')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Guardian Annual Income"
+                  value={formData.guardianAnnualIncome}
+                  onChange={handleChange('guardianAnnualIncome')}
+                  type="number"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Guardian Office Address"
+                  value={formData.guardianOfficeAddress}
+                  onChange={handleChange('guardianOfficeAddress')}
+                  multiline
+                  rows={2}
+                />
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion expanded={expanded === 'panel3'} onChange={handleAccordionChange('panel3')}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle1">Identification & Records</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Aadhar Number"
+                  value={formData.aadharNumber}
+                  onChange={handleChange('aadharNumber')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="UDISE Number"
+                  value={formData.udiseNumber}
+                  onChange={handleChange('udiseNumber')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Previous School"
+                  value={formData.previousSchool}
+                  onChange={handleChange('previousSchool')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Subjects"
+                  value={formData.subjects}
+                  onChange={handleChange('subjects')}
+                  multiline
+                  rows={2}
+                  placeholder="Comma separated list of subjects"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Admission Date"
+                  type="date"
+                  value={formData.admissionDate}
+                  onChange={handleChange('admissionDate')}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion expanded={expanded === 'panel4'} onChange={handleAccordionChange('panel4')}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle1">Transfer Certificate Details</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="TC Number"
+                  value={formData.tcNumber}
+                  onChange={handleChange('tcNumber')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="TC Date"
+                  type="date"
+                  value={formData.tcDate}
+                  onChange={handleChange('tcDate')}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="TC Reason"
+                  value={formData.tcReason}
+                  onChange={handleChange('tcReason')}
+                  multiline
+                  rows={2}
+                />
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion expanded={expanded === 'panel5'} onChange={handleAccordionChange('panel5')}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle1">Transportation</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Transport Mode</InputLabel>
+                  <Select
+                    value={formData.transportMode}
+                    onChange={handleChange('transportMode') as any}
+                    label="Transport Mode"
+                  >
+                    <MenuItem value="">Not Specified</MenuItem>
+                    {transportModes.map((mode) => (
+                      <MenuItem key={mode} value={mode}>
+                        {mode}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Bus Route Number"
+                  value={formData.busRouteNumber}
+                  onChange={handleChange('busRouteNumber')}
+                  disabled={formData.transportMode !== 'School Bus'}
+                />
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
       </Box>
     </BaseDialog>
   );

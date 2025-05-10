@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.school.hrm.dto.StaffDTO;
@@ -114,9 +115,23 @@ public class StaffController {
      * @return The updated staff data
      */
     @PutMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<StaffDTO> updateStaffStatus(
             @PathVariable Long id,
             @RequestParam EmploymentStatus status) {
+        // Add debug logging to track permission issues
+        System.out.println("[DEBUG] [" + java.time.LocalDateTime.now() + "] Staff status update requested: ID=" + id
+                + ", Status=" + status);
+
+        // Log authentication details
+        var auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            System.out.println("[DEBUG] [" + java.time.LocalDateTime.now() + "] User: " + auth.getName()
+                    + ", Authorities: " + auth.getAuthorities());
+        } else {
+            System.out.println("[DEBUG] [" + java.time.LocalDateTime.now() + "] No authentication found in context!");
+        }
+
         StaffDTO updatedStaff = staffService.updateStaffStatus(id, status);
         return ResponseEntity.ok(updatedStaff);
     }

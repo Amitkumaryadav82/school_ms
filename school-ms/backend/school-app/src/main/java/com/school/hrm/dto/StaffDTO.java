@@ -35,6 +35,22 @@ public class StaffDTO {
     private String emergencyContact;
     private String bloodGroup;
     private String profileImage;
+    private String pfUAN;
+    private String gratuity;
+    private LocalDate serviceEndDate;
+
+    // Salary details
+    private Double basicSalary;
+    private Double hra;
+    private Double da;
+    private Double ta;
+    private Double otherAllowances;
+    private Double pfContribution;
+    private Double taxDeduction;
+    private Double netSalary;
+    private String salaryAccountNumber;
+    private String bankName;
+    private String ifscCode;
 
     // Teacher-specific fields
     private TeacherDetailsDTO teacherDetails;

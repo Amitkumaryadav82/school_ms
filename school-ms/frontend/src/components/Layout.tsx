@@ -29,6 +29,7 @@ import {
   HowToReg as AdmissionsIcon,
   AccountCircle,
   ExitToApp as LogoutIcon,
+  AttachMoney as FeeIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import ServerStatusIndicator from './ServerStatusIndicator';
@@ -80,16 +81,16 @@ const menuItems: MenuItem[] = [
     allowedRoles: [ROLES.ADMIN]
   },
   { 
-    text: 'Teachers', 
-    icon: <School />, 
-    path: '/teachers',
-    allowedRoles: [ROLES.ADMIN, ROLES.STAFF]
-  },
-  { 
     text: 'Courses', 
     icon: <Book />, 
     path: '/courses',
     allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]
+  },
+  { 
+    text: 'Fee Management', 
+    icon: <FeeIcon />, 
+    path: '/fees',
+    allowedRoles: [ROLES.ADMIN]
   },
   { 
     text: 'Reports', 

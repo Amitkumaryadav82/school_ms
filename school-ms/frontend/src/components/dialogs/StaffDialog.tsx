@@ -68,6 +68,22 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
       isActive: true,
       qualifications: '',
       bloodGroup: '',
+      // Initialize new fields
+      pfUAN: '',
+      gratuity: '',
+      serviceEndDate: '',
+      // Salary details
+      basicSalary: 0,
+      hra: 0,
+      da: 0,
+      ta: 0,
+      otherAllowances: 0,
+      pfContribution: 0,
+      taxDeduction: 0,
+      netSalary: 0,
+      salaryAccountNumber: '',
+      bankName: '',
+      ifscCode: '',
       teacherDetails: {
         department: '',
         specialization: '',
@@ -143,6 +159,16 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
       newErrors.phoneNumber = 'Invalid phone number';
     }
     
+    // Validate PF UAN (alphanumeric)
+    if (formData.pfUAN && !/^[a-zA-Z0-9]+$/.test(formData.pfUAN)) {
+      newErrors.pfUAN = 'PF UAN must be alphanumeric only';
+    }
+    
+    // Validate Gratuity (alphanumeric)
+    if (formData.gratuity && !/^[a-zA-Z0-9]+$/.test(formData.gratuity)) {
+      newErrors.gratuity = 'Gratuity must be alphanumeric only';
+    }
+    
     // Teacher-specific validation
     if (formData.role === 'TEACHER') {
       if (!formData.teacherDetails?.department) {
@@ -179,7 +205,23 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
       emergencyContact: formData.emergencyContact || '',
       bloodGroup: formData.bloodGroup || '',
       profileImage: formData.profileImage || '',
-      designations: []
+      designations: [],
+      // Add new fields
+      pfUAN: formData.pfUAN || '',
+      gratuity: formData.gratuity || '',
+      serviceEndDate: formData.serviceEndDate || '',
+      // Salary details
+      basicSalary: formData.basicSalary || 0,
+      hra: formData.hra || 0,
+      da: formData.da || 0,
+      ta: formData.ta || 0,
+      otherAllowances: formData.otherAllowances || 0,
+      pfContribution: formData.pfContribution || 0,
+      taxDeduction: formData.taxDeduction || 0,
+      netSalary: formData.netSalary || 0,
+      salaryAccountNumber: formData.salaryAccountNumber || '',
+      bankName: formData.bankName || '',
+      ifscCode: formData.ifscCode || ''
     };
     
     // Add teacher details only if the role is TEACHER
@@ -380,6 +422,157 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
             label="Emergency Contact"
             value={formData.emergencyContact}
             onChange={handleChange('emergencyContact')}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="PF UAN"
+            value={formData.pfUAN}
+            onChange={handleChange('pfUAN')}
+            placeholder="Enter PF UAN"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Gratuity"
+            value={formData.gratuity}
+            onChange={handleChange('gratuity')}
+            placeholder="Enter Gratuity"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Service End Date"
+            type="date"
+            value={formData.serviceEndDate}
+            onChange={handleChange('serviceEndDate')}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <Typography variant="h6" sx={{ mt: 2 }}>Salary Details</Typography>
+          <Divider sx={{ mb: 2 }} />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Basic Salary"
+            type="number"
+            value={formData.basicSalary}
+            onChange={handleChange('basicSalary')}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="HRA"
+            type="number"
+            value={formData.hra}
+            onChange={handleChange('hra')}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="DA"
+            type="number"
+            value={formData.da}
+            onChange={handleChange('da')}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="TA"
+            type="number"
+            value={formData.ta}
+            onChange={handleChange('ta')}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Other Allowances"
+            type="number"
+            value={formData.otherAllowances}
+            onChange={handleChange('otherAllowances')}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="PF Contribution"
+            type="number"
+            value={formData.pfContribution}
+            onChange={handleChange('pfContribution')}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Tax Deduction"
+            type="number"
+            value={formData.taxDeduction}
+            onChange={handleChange('taxDeduction')}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Net Salary"
+            type="number"
+            value={formData.netSalary}
+            onChange={handleChange('netSalary')}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Salary Account Number"
+            value={formData.salaryAccountNumber}
+            onChange={handleChange('salaryAccountNumber')}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="Bank Name"
+            value={formData.bankName}
+            onChange={handleChange('bankName')}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            fullWidth
+            label="IFSC Code"
+            value={formData.ifscCode}
+            onChange={handleChange('ifscCode')}
           />
         </Grid>
 

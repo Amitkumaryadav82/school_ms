@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -32,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useApi, useApiMutation } from '../hooks/useApi';
 import { staffService, StaffMember, EmploymentStatus } from '../services/staffService';
+import { hasStaffStatusUpdatePermission } from '../services/authService';
 import DataTable, { Column } from '../components/DataTable';
 import StaffDialog from '../components/dialogs/StaffDialog';
 import BulkStaffUploadDialog from '../components/dialogs/BulkStaffUploadDialog';
@@ -50,6 +51,13 @@ const Staff: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const { showNotification } = useNotification();
   const { user } = useAuth();
+
+  // Add debug logging to track user role and permissions
+  useEffect(() => {
+    console.log('Current user:', user);
+    console.log('Has MANAGE_STAFF permission:', 
+      user ? hasPermission(user.role, 'MANAGE_STAFF') : false);
+  }, [user]);
 
   const {
     data: staffList,
@@ -160,14 +168,29 @@ const Staff: React.FC = () => {
   );
 
   const { mutate: updateEmploymentStatus, loading: updateStatusLoading } = useApiMutation(
-    (data: { id: number; status: EmploymentStatus }) => 
-      staffService.updateEmploymentStatus(data.id, data.status),
+    (data: { id: number; status: EmploymentStatus }) => {
+      // Add detailed request logging
+      console.log('Attempting to update employment status with:', {
+        staffId: data.id,
+        newStatus: data.status,
+        currentTime: new Date().toISOString()
+      });
+      return staffService.updateEmploymentStatus(data.id, data.status);
+    },
     {
-      onSuccess: () => {
+      onSuccess: (result) => {
+        console.log('Employment status update succeeded:', {
+          result,
+          timestamp: new Date().toISOString()
+        });
         showNotification({ type: 'success', message: 'Employment status updated successfully' });
         refresh();
       },
       onError: (error) => {
+        console.error('Employment status update failed:', {
+          error,
+          timestamp: new Date().toISOString()
+        });
         showNotification({ 
           type: 'error', 
           message: `Failed to update employment status: ${error.message}` 
@@ -176,12 +199,113 @@ const Staff: React.FC = () => {
     }
   );
 
+  const handleEmploymentStatusChange = async (staffId: number, newStatus: string) => {
+    console.log(`[DEBUG] [${new Date().toISOString()}] Attempting to update employment status for staff ID: ${staffId} to ${newStatus}`);
+    
+    // Advanced permission check using specialized function
+    if (!hasStaffStatusUpdatePermission()) {
+      console.error(`[DEBUG] [${new Date().toISOString()}] Permission denied: User lacks required role (ADMIN or HR_MANAGER) for staff status updates`);
+      
+      // Log JWT details for debugging
+      debugPermissions();
+      
+      // Show user-friendly message
+      showNotification({ 
+        type: 'error', 
+        message: "You don't have permission to update employment status. This action requires ADMIN or HR_MANAGER role." 
+      });
+      return;
+    }
+
+    console.log(`[DEBUG] [${new Date().toISOString()}] Permission check passed. User has ADMIN or HR_MANAGER role.`);
+    
+    try {
+      // Log attempt with timestamp and additional token information
+      console.log(`[DEBUG] [${new Date().toISOString()}] Calling staffService.updateEmploymentStatus with ID: ${staffId}, status: ${newStatus}`);
+      
+      // Attempt to decode and log the current auth token before making the request
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const tokenDetails = parseJwt(token);
+          console.log('[DEBUG] Auth token details before request:', {
+            exp: new Date(tokenDetails.exp * 1000).toISOString(),
+            roles: tokenDetails.roles || tokenDetails.authorities,
+            sub: tokenDetails.sub,
+            tokenLength: token.length,
+            tokenPrefix: token.substring(0, 15) + '...'
+          });
+        } else {
+          console.error('[DEBUG] No authentication token found in localStorage');
+        }
+      } catch (tokenError) {
+        console.error('[DEBUG] Error parsing authentication token:', tokenError);
+      }
+      
+      await updateEmploymentStatus({ id: staffId, status: newStatus as EmploymentStatus });
+      console.log(`[DEBUG] [${new Date().toISOString()}] Employment status update successful for staff ID: ${staffId}`);
+    } catch (error: any) {
+      console.error(`[DEBUG] [${new Date().toISOString()}] Error occurred while updating employment status:`, error);
+      
+      // Enhanced error logging
+      if (error.response) {
+        console.error('[DEBUG] Server response error details:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          headers: error.response.headers,
+          data: error.response.data
+        });
+        
+        if (error.response.status === 403) {
+          console.error('[DEBUG] 403 Forbidden error detected. Possible causes:');
+          console.error('1. Token expired during the request');
+          console.error('2. Token does not contain required roles (ADMIN or HR_MANAGER)');
+          console.error('3. Backend permission check differs from frontend');
+          
+          // Re-check permissions after error
+          debugPermissions();
+        }
+      } else if (error.request) {
+        console.error('[DEBUG] Request was made but no response received:', error.request);
+      } else {
+        console.error('[DEBUG] Error setting up the request:', error.message);
+      }
+    }
+  };
+
+  // Add a debug function to check user permissions
+  const debugPermissions = () => {
+    if (!user) {
+      console.log('Debug: No user is logged in');
+      return false;
+    }
+    
+    console.log('Debug: User permissions check', {
+      userId: user.id,
+      userName: user.username,
+      userRole: user.role,
+      token: localStorage.getItem('token') ? 'Present (first 10 chars): ' + 
+        localStorage.getItem('token')?.substring(0, 10) + '...' : 'Missing',
+      hasManageStaff: hasPermission(user.role, 'MANAGE_STAFF'),
+      timestamp: new Date().toISOString()
+    });
+    
+    return hasPermission(user.role, 'MANAGE_STAFF');
+  };
+
+  // Use effect to run the debug check when component loads
+  useEffect(() => {
+    debugPermissions();
+  }, [user]);
+
   const handleEdit = (staff: StaffMember) => {
+    debugPermissions(); // Debug check permissions
     setSelectedStaff(staff);
     setDialogOpen(true);
   };
 
   const handleDelete = (staff: StaffMember) => {
+    debugPermissions(); // Debug check permissions
     setSelectedStaff(staff);
     setConfirmDeleteOpen(true);
   };
@@ -220,8 +344,43 @@ const Staff: React.FC = () => {
   };
 
   const handleStatusChange = (staff: StaffMember, status: EmploymentStatus) => {
+    // Enhanced debug logging
+    console.log('Status change requested:', {
+      staffId: staff.id,
+      staffName: `${staff.firstName} ${staff.lastName}`,
+      currentStatus: staff.employmentStatus,
+      requestedStatus: status,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Debug the current user permissions
+    const hasManageStaffPermission = debugPermissions();
+    
+    // Adding more robust permission checking
+    if (!user) {
+      console.error('Permission denied: No authenticated user');
+      showNotification({ 
+        type: 'error', 
+        message: 'Authentication required: Please log in again' 
+      });
+      refresh(); // Refresh to restore original view
+      return;
+    }
+    
+    // Double-check permissions before proceeding with the API call
+    if (!hasManageStaffPermission) {
+      console.error(`Permission denied: User role ${user.role} does not have MANAGE_STAFF permission`);
+      showNotification({ 
+        type: 'error', 
+        message: 'You do not have permission to update employment status' 
+      });
+      refresh(); // Refresh to reset UI
+      return;
+    }
+    
     if (staff.id) {
-      updateEmploymentStatus({ id: staff.id, status });
+      console.log(`Proceeding with status update for staff ${staff.id} to ${status}`);
+      handleEmploymentStatusChange(staff.id, status);
     }
   };
 
@@ -425,13 +584,32 @@ const Staff: React.FC = () => {
       sortable: true,
       format: (_, staff) => (
         hasPermission(user?.role || '', 'MANAGE_STAFF') ? (
-          <FormControl size="small" sx={{ minWidth: 120 }}>
-            <InputLabel>Status</InputLabel>
+          <FormControl size="small" fullWidth>
             <Select
               value={staff.employmentStatus || EmploymentStatus.ACTIVE}
               onChange={(e) => handleStatusChange(staff, e.target.value as EmploymentStatus)}
               disabled={updateStatusLoading}
-              label="Status"
+              variant="standard"
+              sx={{ 
+                '& .MuiSelect-select': { 
+                  py: 0, 
+                  color: () => {
+                    switch (staff.employmentStatus) {
+                      case EmploymentStatus.ACTIVE:
+                        return 'success.main';
+                      case EmploymentStatus.ON_LEAVE:
+                      case EmploymentStatus.SUSPENDED:
+                        return 'warning.main';
+                      case EmploymentStatus.TERMINATED:
+                      case EmploymentStatus.RETIRED:
+                      case EmploymentStatus.RESIGNED:
+                        return 'error.main';
+                      default:
+                        return 'text.primary';
+                    }
+                  }
+                }
+              }}
             >
               {Object.values(EmploymentStatus).map((status) => (
                 <MenuItem key={status} value={status}>

@@ -21,6 +21,22 @@ export interface Student {
   admissionDate?: string;
   bloodGroup?: string;
   gender?: string;
+  // New TC-related fields
+  guardianOccupation?: string;
+  guardianOfficeAddress?: string;
+  aadharNumber?: string;
+  udiseNumber?: string;
+  houseAlloted?: string;
+  guardianAnnualIncome?: string;
+  previousSchool?: string;
+  tcNumber?: string;
+  tcReason?: string;
+  tcDate?: string;
+  whatsappNumber?: string;
+  subjects?: string;
+  transportMode?: string;
+  busRouteNumber?: string;
+  medicalConditions?: string;
 }
 
 // Backend Student interface - this maps exactly to the Java entity
@@ -39,6 +55,20 @@ export interface BackendStudent {
   guardianName: string;
   guardianContact: string;
   guardianEmail: string;
+  guardianOccupation?: string;
+  guardianOfficeAddress?: string;
+  aadharNumber?: string;
+  udiseNumber?: string;
+  houseAlloted?: string;
+  guardianAnnualIncome?: number;
+  previousSchool?: string;
+  tcNumber?: string;
+  tcReason?: string;
+  tcDate?: string;
+  whatsappNumber?: string;
+  subjects?: string;
+  transportMode?: string;
+  busRouteNumber?: string;
   admissionDate: string;
   bloodGroup?: string;
   medicalConditions?: string;
@@ -136,12 +166,26 @@ const mapToBackendStudent = (student: Student): BackendStudent => {
     guardianName: student.parentName || 'Guardian',
     guardianContact: student.parentPhone || '0000000000',
     guardianEmail: student.parentEmail || student.email || '',
+    guardianOccupation: student.guardianOccupation || '',
+    guardianOfficeAddress: student.guardianOfficeAddress || '',
+    aadharNumber: student.aadharNumber || '',
+    udiseNumber: student.udiseNumber || '',
+    houseAlloted: student.houseAlloted || '',
+    guardianAnnualIncome: parseFloat(student.guardianAnnualIncome || '0') || 0,
+    previousSchool: student.previousSchool || '',
+    tcNumber: student.tcNumber || '',
+    tcReason: student.tcReason || '',
+    tcDate: student.tcDate || '',
+    whatsappNumber: student.whatsappNumber || '',
+    subjects: student.subjects || '',
+    transportMode: student.transportMode || '',
+    busRouteNumber: student.busRouteNumber || '',
     admissionDate: student.admissionDate || new Date().toISOString().split('T')[0],
     bloodGroup: student.bloodGroup || '',
     gender: (student.gender && ['MALE', 'FEMALE', 'OTHER'].includes(student.gender.toUpperCase())) 
       ? student.gender.toUpperCase() 
       : 'MALE',
-    medicalConditions: ''
+    medicalConditions: student.medicalConditions || ''
   };
 };
 
@@ -161,9 +205,24 @@ const mapToFrontendStudent = (backendStudent: BackendStudent): Student => {
     parentName: backendStudent.guardianName,
     parentPhone: backendStudent.guardianContact,
     parentEmail: backendStudent.guardianEmail,
+    guardianOccupation: backendStudent.guardianOccupation,
+    guardianOfficeAddress: backendStudent.guardianOfficeAddress,
+    aadharNumber: backendStudent.aadharNumber,
+    udiseNumber: backendStudent.udiseNumber,
+    houseAlloted: backendStudent.houseAlloted,
+    guardianAnnualIncome: backendStudent.guardianAnnualIncome?.toString(),
+    previousSchool: backendStudent.previousSchool,
+    tcNumber: backendStudent.tcNumber,
+    tcReason: backendStudent.tcReason,
+    tcDate: backendStudent.tcDate,
+    whatsappNumber: backendStudent.whatsappNumber,
+    subjects: backendStudent.subjects,
+    transportMode: backendStudent.transportMode,
+    busRouteNumber: backendStudent.busRouteNumber,
     admissionDate: backendStudent.admissionDate,
     bloodGroup: backendStudent.bloodGroup,
-    gender: backendStudent.gender
+    gender: backendStudent.gender,
+    medicalConditions: backendStudent.medicalConditions
   };
 };
 

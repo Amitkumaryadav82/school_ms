@@ -80,7 +80,7 @@ public class EmployeeController {
             @ApiResponse(responseCode = "404", description = "Employee not found")
     })
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<EmployeeDTO> updateEmployeeStatus(
             @PathVariable Long id,
             @RequestParam EmploymentStatus status) {

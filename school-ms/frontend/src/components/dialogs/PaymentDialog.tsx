@@ -1,0 +1,377 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  FormHelperText,
+  Typography,
+  CircularProgress,
+  Box,
+  Chip,
+  Divider,
+  InputAdornment
+} from '@mui/material';
+import { 
+  DatePicker, 
+  LocalizationProvider 
+} from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useApi } from '../../hooks/useApi';
+import { feeService, Payment, PaymentMethod, PaymentFrequency, FeeStructure } from '../../services/feeService';
+import ErrorMessage from '../ErrorMessage';
+import { format, parseISO } from 'date-fns';
+import { 
+  CreditCard as CreditCardIcon, 
+  Payments as PaymentsIcon,
+  AccountBalanceWallet as WalletIcon,
+  Receipt as ReceiptIcon
+} from '@mui/icons-material';
+
+interface PaymentDialogProps {
+  open: boolean;
+  studentId: number | null;
+  onClose: () => void;
+  onSubmit: (payment: Payment) => void;
+  loading: boolean;
+  initialData?: Payment;
+}
+
+const PaymentDialog: React.FC<PaymentDialogProps> = ({
+  open,
+  studentId,
+  onClose,
+  onSubmit,
+  loading,
+  initialData
+}) => {
+  const [selectedFrequency, setSelectedFrequency] = useState<PaymentFrequency>(
+    initialData?.frequency || PaymentFrequency.MONTHLY
+  );
+  
+  // Get student details and fee structure
+  const {
+    data: studentFees,
+    loading: loadingStudentFees,
+    error: studentFeesError,
+    refetch: refetchStudentFees
+  } = useApi(
+    () => (studentId ? feeService.getStudentFeeDetails(studentId) : Promise.reject('No student selected')),
+    { dependencies: [studentId], skip: !studentId }
+  );
+
+  // Fetch payment history for this student
+  const {
+    data: paymentHistory,
+    loading: loadingPaymentHistory
+  } = useApi(
+    () => (studentId ? feeService.getStudentPaymentHistory(studentId) : Promise.reject('No student selected')),
+    { dependencies: [studentId], skip: !studentId }
+  );
+
+  // Calculate amount due based on payment frequency
+  const calculateAmountDue = (feeStructure: FeeStructure | undefined, frequency: PaymentFrequency): number => {
+    if (!feeStructure) return 0;
+    
+    const annualFee = feeStructure.amount;
+    
+    switch (frequency) {
+      case PaymentFrequency.MONTHLY:
+        return annualFee / 12;
+      case PaymentFrequency.QUARTERLY:
+        return annualFee / 4;
+      case PaymentFrequency.HALF_YEARLY:
+        return annualFee / 2;
+      case PaymentFrequency.YEARLY:
+        return annualFee;
+      default:
+        return annualFee / 12; // Default to monthly
+    }
+  };
+
+  // Calculate amount paid and remaining for the current academic year
+  const calculateFeeStatus = () => {
+    if (!studentFees?.feeStructure || !paymentHistory) return { paid: 0, remaining: 0, totalAnnualFee: 0 };
+    
+    const totalAnnualFee = studentFees.feeStructure.amount;
+    const paid = paymentHistory.reduce((sum, payment) => sum + payment.amount, 0);
+    const remaining = totalAnnualFee - paid;
+    
+    return { paid, remaining, totalAnnualFee };
+  };
+
+  const feeStatus = calculateFeeStatus();
+
+  const validationSchema = Yup.object({
+    amount: Yup.number()
+      .positive('Amount must be positive')
+      .required('Amount is required')
+      .test(
+        'not-exceeding-pending',
+        'Amount exceeds remaining fees',
+        function(value) {
+          // Skip this validation for existing payments
+          if (initialData?.id) return true;
+          return value <= feeStatus.remaining;
+        }
+      ),
+    paymentMethod: Yup.string()
+      .required('Payment method is required'),
+    paymentDate: Yup.date()
+      .required('Payment date is required')
+      .max(new Date(), 'Payment date cannot be in the future'),
+    frequency: Yup.string()
+      .required('Payment frequency is required'),
+    reference: Yup.string()
+      .when('paymentMethod', {
+        is: (method: string) => method !== PaymentMethod.CASH,
+        then: Yup.string().required('Reference number is required for non-cash payments')
+      }),
+    notes: Yup.string()
+      .max(200, 'Notes must be less than 200 characters')
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      amount: initialData?.amount || calculateAmountDue(studentFees?.feeStructure, selectedFrequency),
+      paymentMethod: initialData?.paymentMethod || PaymentMethod.CASH,
+      paymentDate: initialData?.paymentDate || format(new Date(), 'yyyy-MM-dd'),
+      frequency: initialData?.frequency || PaymentFrequency.MONTHLY,
+      reference: initialData?.reference || '',
+      notes: initialData?.notes || ''
+    },
+    validationSchema,
+    enableReinitialize: true,
+    onSubmit: (values) => {
+      if (studentId) {
+        const finalValues = {
+          ...values,
+          studentId,
+          studentFeeId: studentFees?.studentFeeId,
+          id: initialData?.id,
+          paymentDate: typeof values.paymentDate === 'string' 
+            ? values.paymentDate 
+            : format(values.paymentDate, 'yyyy-MM-dd')
+        };
+        onSubmit(finalValues);
+      }
+    }
+  });
+
+  // Update amount when frequency changes
+  useEffect(() => {
+    if (!initialData?.id) { // Only auto-calculate for new payments
+      const newAmount = calculateAmountDue(studentFees?.feeStructure, formik.values.frequency as PaymentFrequency);
+      formik.setFieldValue('amount', newAmount);
+    }
+  }, [formik.values.frequency, studentFees?.feeStructure]);
+
+  const handleFrequencyChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    const newFrequency = event.target.value as PaymentFrequency;
+    setSelectedFrequency(newFrequency);
+    formik.setFieldValue('frequency', newFrequency);
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+        <ReceiptIcon sx={{ mr: 1 }} />
+        {initialData?.id ? 'Edit Payment' : 'Record New Payment'}
+      </DialogTitle>
+      
+      <form onSubmit={formik.handleSubmit}>
+        <DialogContent>
+          {studentFeesError && <ErrorMessage message="Error loading student fees information" />}
+          
+          {/* Fee Status Summary */}
+          {!loadingStudentFees && studentFees && (
+            <Box sx={{ mb: 3, p: 2, bgcolor: '#f8f9fa', borderRadius: 1 }}>
+              <Typography variant="subtitle1" gutterBottom>Fee Status</Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={4}>
+                  <Typography variant="body2" color="textSecondary">Total Annual Fee</Typography>
+                  <Typography variant="h6">₹{feeStatus.totalAnnualFee.toLocaleString()}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body2" color="textSecondary">Paid</Typography>
+                  <Typography variant="h6" color="success.main">₹{feeStatus.paid.toLocaleString()}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="body2" color="textSecondary">Remaining</Typography>
+                  <Typography variant="h6" color="error.main">₹{feeStatus.remaining.toLocaleString()}</Typography>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+
+          <Grid container spacing={3}>
+            {/* Payment Frequency */}
+            <Grid item xs={12} sm={6}>
+              <FormControl 
+                fullWidth 
+                error={formik.touched.frequency && Boolean(formik.errors.frequency)}
+              >
+                <InputLabel id="frequency-label">Payment Frequency</InputLabel>
+                <Select
+                  labelId="frequency-label"
+                  id="frequency"
+                  name="frequency"
+                  value={formik.values.frequency}
+                  onChange={(e) => {
+                    handleFrequencyChange(e as React.ChangeEvent<{ value: unknown }>);
+                  }}
+                  label="Payment Frequency"
+                >
+                  <MenuItem value={PaymentFrequency.MONTHLY}>Monthly</MenuItem>
+                  <MenuItem value={PaymentFrequency.QUARTERLY}>Quarterly</MenuItem>
+                  <MenuItem value={PaymentFrequency.HALF_YEARLY}>Half Yearly</MenuItem>
+                  <MenuItem value={PaymentFrequency.YEARLY}>Yearly</MenuItem>
+                </Select>
+                {formik.touched.frequency && formik.errors.frequency && (
+                  <FormHelperText>{formik.errors.frequency as string}</FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            
+            {/* Amount */}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                id="amount"
+                name="amount"
+                label="Amount"
+                type="number"
+                value={formik.values.amount}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.amount && Boolean(formik.errors.amount)}
+                helperText={formik.touched.amount && formik.errors.amount}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                }}
+              />
+            </Grid>
+            
+            {/* Payment Method */}
+            <Grid item xs={12} sm={6}>
+              <FormControl 
+                fullWidth 
+                error={formik.touched.paymentMethod && Boolean(formik.errors.paymentMethod)}
+              >
+                <InputLabel id="payment-method-label">Payment Method</InputLabel>
+                <Select
+                  labelId="payment-method-label"
+                  id="paymentMethod"
+                  name="paymentMethod"
+                  value={formik.values.paymentMethod}
+                  onChange={formik.handleChange}
+                  label="Payment Method"
+                >
+                  <MenuItem value={PaymentMethod.CASH}>Cash</MenuItem>
+                  <MenuItem value={PaymentMethod.CHEQUE}>Cheque</MenuItem>
+                  <MenuItem value={PaymentMethod.BANK_TRANSFER}>Bank Transfer</MenuItem>
+                  <MenuItem value={PaymentMethod.UPI}>UPI</MenuItem>
+                  <MenuItem value={PaymentMethod.CREDIT_CARD}>Credit Card</MenuItem>
+                </Select>
+                {formik.touched.paymentMethod && formik.errors.paymentMethod && (
+                  <FormHelperText>{formik.errors.paymentMethod as string}</FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            
+            {/* Payment Date */}
+            <Grid item xs={12} sm={6}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="Payment Date"
+                  value={formik.values.paymentDate ? (typeof formik.values.paymentDate === 'string' ? parseISO(formik.values.paymentDate) : formik.values.paymentDate) : null}
+                  onChange={(date) => {
+                    formik.setFieldValue('paymentDate', date);
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: formik.touched.paymentDate && Boolean(formik.errors.paymentDate),
+                      helperText: formik.touched.paymentDate && formik.errors.paymentDate,
+                    }
+                  }}
+                />
+              </LocalizationProvider>
+            </Grid>
+            
+            {/* Reference Number (only shown for non-cash payments) */}
+            {formik.values.paymentMethod !== PaymentMethod.CASH && (
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  id="reference"
+                  name="reference"
+                  label={
+                    formik.values.paymentMethod === PaymentMethod.CHEQUE
+                      ? 'Cheque Number'
+                      : formik.values.paymentMethod === PaymentMethod.BANK_TRANSFER
+                      ? 'Transaction Reference'
+                      : formik.values.paymentMethod === PaymentMethod.UPI
+                      ? 'UPI Reference ID'
+                      : formik.values.paymentMethod === PaymentMethod.CREDIT_CARD
+                      ? 'Transaction ID'
+                      : 'Reference Number'
+                  }
+                  value={formik.values.reference}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.reference && Boolean(formik.errors.reference)}
+                  helperText={formik.touched.reference && formik.errors.reference}
+                />
+              </Grid>
+            )}
+            
+            {/* Notes */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                id="notes"
+                name="notes"
+                label="Notes"
+                multiline
+                rows={2}
+                value={formik.values.notes}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched.notes && Boolean(formik.errors.notes)}
+                helperText={
+                  (formik.touched.notes && formik.errors.notes) || 
+                  `${formik.values.notes.length}/200 characters`
+                }
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            disabled={loading || !formik.isValid}
+            startIcon={loading ? <CircularProgress size={20} /> : <PaymentsIcon />}
+          >
+            {initialData?.id ? 'Update Payment' : 'Complete Payment'}
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
+
+export default PaymentDialog;

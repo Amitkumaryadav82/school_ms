@@ -2,21 +2,22 @@ package com.school.fee.service;
 
 import com.school.fee.model.Fee;
 import com.school.fee.model.Payment;
+import com.school.fee.model.FeePaymentSchedule;
 import com.school.fee.repository.FeeRepository;
 import com.school.fee.repository.PaymentRepository;
-import com.school.fee.dto.FeeRequest;
-import com.school.fee.dto.PaymentRequest;
-import com.school.fee.dto.FeePaymentSummary;
-import com.school.fee.dto.SemesterFeeReport;
+import com.school.fee.repository.FeePaymentScheduleRepository;
+import com.school.fee.dto.*;
 import com.school.fee.exception.FeeNotFoundException;
 import com.school.student.model.Student;
 import com.school.student.service.StudentService;
+import com.school.notification.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +33,13 @@ public class FeeService {
     private PaymentRepository paymentRepository;
 
     @Autowired
+    private FeePaymentScheduleRepository scheduleRepository;
+
+    @Autowired
     private StudentService studentService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public Fee createFee(FeeRequest request) {
         Fee fee = Fee.builder()
@@ -88,9 +95,17 @@ public class FeeService {
                 .transactionReference(request.getTransactionReference())
                 .status(Payment.PaymentStatus.COMPLETED)
                 .remarks(request.getRemarks())
+                .payerName(request.getPayerName())
+                .payerContactInfo(request.getPayerContactInfo())
+                .payerRelationToStudent(request.getPayerRelationToStudent())
+                .receiptNumber(request.getReceiptNumber())
                 .build();
 
-        return paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+
+        sendPaymentConfirmationEmail(student, savedPayment);
+
+        return savedPayment;
     }
 
     public List<Payment> getStudentPayments(Long studentId) {
@@ -134,6 +149,120 @@ public class FeeService {
                 .build();
     }
 
+    public ClassSectionFeeReport generateClassSectionReport(Integer grade, String section) {
+        List<Student> students = studentService.getStudentsByGradeAndSection(grade, section);
+
+        if (students.isEmpty()) {
+            return ClassSectionFeeReport.builder()
+                    .grade(grade)
+                    .section(section)
+                    .academicYear(getCurrentFinancialYear() + "-" + (getCurrentFinancialYear() + 1))
+                    .totalStudents(0)
+                    .build();
+        }
+
+        List<Long> studentIds = students.stream().map(Student::getId).collect(Collectors.toList());
+
+        List<Fee> fees = getFeesByGrade(grade);
+        List<Payment> allPayments = new ArrayList<>();
+        Map<Long, List<Payment>> paymentsByStudent = new HashMap<>();
+
+        for (Long studentId : studentIds) {
+            List<Payment> studentPayments = getStudentPayments(studentId);
+            allPayments.addAll(studentPayments);
+            paymentsByStudent.put(studentId, studentPayments);
+        }
+
+        Double totalFeesCharged = fees.stream().mapToDouble(Fee::getAmount).sum() * students.size();
+        Double totalCollected = allPayments.stream()
+                .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
+                .mapToDouble(Payment::getAmount).sum();
+
+        Double totalPending = totalFeesCharged - totalCollected;
+
+        Map<String, Double> feeTypeDistribution = calculateFeeTypeDistribution(allPayments);
+
+        List<ClassSectionFeeReport.StudentFeeDetail> studentDetails = new ArrayList<>();
+        int completePaymentCount = 0;
+        int pendingPaymentCount = 0;
+        int overduePaymentCount = 0;
+
+        for (Student student : students) {
+            List<Payment> studentPayments = paymentsByStudent.getOrDefault(student.getId(), Collections.emptyList());
+            double totalFees = fees.stream().mapToDouble(Fee::getAmount).sum();
+            double paidAmount = studentPayments.stream()
+                    .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
+                    .mapToDouble(Payment::getAmount).sum();
+            double pendingAmount = totalFees - paidAmount;
+
+            boolean isOverdue = fees.stream()
+                    .anyMatch(fee -> fee.getDueDate().isBefore(LocalDate.now()) &&
+                            studentPayments.stream()
+                                    .filter(p -> p.getFee().getId().equals(fee.getId()))
+                                    .mapToDouble(Payment::getAmount).sum() < fee.getAmount());
+
+            FeePaymentSchedule activeSchedule = scheduleRepository
+                    .findByStudentIdAndIsActiveTrue(student.getId())
+                    .orElse(null);
+
+            String paymentScheduleType = activeSchedule != null ? activeSchedule.getPaymentFrequency().toString()
+                    : "NONE";
+
+            ClassSectionFeeReport.StudentFeeDetail detail = ClassSectionFeeReport.StudentFeeDetail.builder()
+                    .studentId(student.getId())
+                    .studentName(student.getFirstName() + " " + student.getLastName())
+                    .totalFees(totalFees)
+                    .paidAmount(paidAmount)
+                    .pendingAmount(pendingAmount)
+                    .isOverdue(isOverdue)
+                    .paymentScheduleType(paymentScheduleType)
+                    .build();
+
+            studentDetails.add(detail);
+
+            if (pendingAmount <= 0)
+                completePaymentCount++;
+            if (pendingAmount > 0)
+                pendingPaymentCount++;
+            if (isOverdue)
+                overduePaymentCount++;
+        }
+
+        return ClassSectionFeeReport.builder()
+                .grade(grade)
+                .section(section)
+                .academicYear(getCurrentFinancialYear() + "-" + (getCurrentFinancialYear() + 1))
+                .totalFeesCharged(totalFeesCharged)
+                .totalCollected(totalCollected)
+                .totalPending(totalPending)
+                .totalOverdue(calculateTotalOverdue(LocalDate.now()))
+                .totalStudents(students.size())
+                .studentsWithCompletePayment(completePaymentCount)
+                .studentsWithPendingPayment(pendingPaymentCount)
+                .studentsWithOverduePayment(overduePaymentCount)
+                .feeTypeDistribution(feeTypeDistribution)
+                .studentDetails(studentDetails)
+                .build();
+    }
+
+    public List<ClassSectionFeeReport> generateAggregateReports() {
+        Map<String, List<Student>> studentsByClassSection = studentService.getAllStudents().stream()
+                .collect(Collectors.groupingBy(s -> s.getGrade() + "-" + s.getSection()));
+
+        List<ClassSectionFeeReport> reports = new ArrayList<>();
+
+        for (String classSection : studentsByClassSection.keySet()) {
+            String[] parts = classSection.split("-");
+            Integer grade = Integer.parseInt(parts[0]);
+            String section = parts.length > 1 ? parts[1] : "A";
+
+            ClassSectionFeeReport report = generateClassSectionReport(grade, section);
+            reports.add(report);
+        }
+
+        return reports;
+    }
+
     private FeePaymentSummary createFeeSummary(Fee fee, List<Payment> payments) {
         Double paidAmount = payments.stream()
                 .filter(p -> p.getFee().getId().equals(fee.getId()))
@@ -169,8 +298,6 @@ public class FeeService {
     }
 
     private Double calculateLateCharges(Fee fee, Double remainingAmount) {
-        // Calculate late payment charges based on business rules
-        // For example: 2% of remaining amount per month
         long monthsLate = ChronoUnit.MONTHS.between(fee.getDueDate(), LocalDate.now());
         return remainingAmount * 0.02 * monthsLate;
     }
@@ -240,40 +367,77 @@ public class FeeService {
     }
 
     private Map<String, Double> calculateFeeTypeDistribution(List<Payment> payments) {
-        return payments.stream()
-                .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
-                .collect(Collectors.groupingBy(
-                        p -> p.getFee().getFeeType().name(),
-                        Collectors.summingDouble(Payment::getAmount)));
+        Map<String, Double> distribution = new HashMap<>();
+
+        Map<Long, Fee> feeMap = new HashMap<>();
+        payments.forEach(p -> {
+            if (!feeMap.containsKey(p.getFee().getId())) {
+                feeMap.put(p.getFee().getId(), p.getFee());
+            }
+
+            String feeType = p.getFee().getFeeType().toString();
+            distribution.put(
+                    feeType,
+                    distribution.getOrDefault(feeType, 0.0) + p.getAmount());
+        });
+
+        return distribution;
     }
 
     private Map<String, Double> calculatePaymentMethodDistribution(List<Payment> payments) {
-        return payments.stream()
-                .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
-                .collect(Collectors.groupingBy(
-                        p -> p.getPaymentMethod().name(),
-                        Collectors.summingDouble(Payment::getAmount)));
+        Map<String, Double> distribution = new HashMap<>();
+
+        payments.forEach(p -> {
+            String method = p.getPaymentMethod().toString();
+            distribution.put(
+                    method,
+                    distribution.getOrDefault(method, 0.0) + p.getAmount());
+        });
+
+        return distribution;
     }
 
     private List<FeePaymentSummary> calculateGradewiseCollection(List<Payment> payments) {
-        Map<Integer, List<Payment>> gradewisePayments = payments.stream()
-                .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
-                .collect(Collectors.groupingBy(p -> p.getStudent().getGrade()));
+        Map<Integer, Double> gradewiseAmounts = new HashMap<>();
 
-        return gradewisePayments.entrySet().stream()
-                .map(entry -> {
-                    Double totalAmount = entry.getValue().stream()
-                            .mapToDouble(Payment::getAmount)
-                            .sum();
+        payments.forEach(p -> {
+            int grade = p.getStudent().getGrade();
+            gradewiseAmounts.put(
+                    grade,
+                    gradewiseAmounts.getOrDefault(grade, 0.0) + p.getAmount());
+        });
 
-                    return FeePaymentSummary.builder()
-                            .feeName("Grade " + entry.getKey())
-                            .totalAmount(totalAmount)
-                            .paidAmount(totalAmount)
-                            .remainingAmount(0.0)
-                            .status(Payment.PaymentStatus.COMPLETED)
-                            .build();
-                })
+        return gradewiseAmounts.entrySet().stream()
+                .map(entry -> FeePaymentSummary.builder()
+                        .feeName("Grade " + entry.getKey())
+                        .totalAmount(entry.getValue())
+                        .build())
                 .collect(Collectors.toList());
+    }
+
+    private void sendPaymentConfirmationEmail(Student student, Payment payment) {
+        String message = String.format(
+                "Dear %s %s,\n\nYour payment of %.2f for %s has been received successfully. " +
+                        "Payment reference: %s\n\nThank you for your prompt payment.",
+                student.getFirstName(),
+                student.getLastName(),
+                payment.getAmount(),
+                payment.getFee().getName(),
+                payment.getTransactionReference() != null ? payment.getTransactionReference()
+                        : payment.getId().toString());
+
+        notificationService.sendEmail(
+                student.getEmail(),
+                "Payment Confirmation - " + payment.getFee().getName(),
+                message);
+    }
+
+    private int getCurrentFinancialYear() {
+        LocalDate today = LocalDate.now();
+        if (today.getMonthValue() >= Month.APRIL.getValue()) {
+            return today.getYear();
+        } else {
+            return today.getYear() - 1;
+        }
     }
 }

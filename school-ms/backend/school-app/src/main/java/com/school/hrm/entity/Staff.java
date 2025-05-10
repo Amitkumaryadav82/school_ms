@@ -87,6 +87,48 @@ public class Staff {
     @Column(name = "profile_image")
     private String profileImage;
 
+    @Column(name = "pf_uan")
+    private String pfUAN;
+
+    @Column(name = "gratuity")
+    private String gratuity;
+
+    @Column(name = "service_end_date")
+    private LocalDate serviceEndDate;
+
+    @Column(name = "basic_salary")
+    private Double basicSalary;
+
+    @Column(name = "hra")
+    private Double hra;
+
+    @Column(name = "da")
+    private Double da;
+
+    @Column(name = "ta")
+    private Double ta;
+
+    @Column(name = "other_allowances")
+    private Double otherAllowances;
+
+    @Column(name = "pf_contribution")
+    private Double pfContribution;
+
+    @Column(name = "tax_deduction")
+    private Double taxDeduction;
+
+    @Column(name = "net_salary")
+    private Double netSalary;
+
+    @Column(name = "salary_account_number")
+    private String salaryAccountNumber;
+
+    @Column(name = "bank_name")
+    private String bankName;
+
+    @Column(name = "ifsc_code")
+    private String ifscCode;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

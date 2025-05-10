@@ -20,6 +20,20 @@ CREATE TABLE students (
     blood_group VARCHAR(10),
     medical_conditions TEXT,
     admission_id BIGINT UNIQUE REFERENCES admissions(id),
+    guardian_occupation VARCHAR(100),
+    guardian_office_address TEXT,
+    aadhar_number VARCHAR(20),
+    udise_number VARCHAR(20),
+    house_alloted VARCHAR(50),
+    guardian_annual_income DECIMAL(15,2),
+    previous_school VARCHAR(100),
+    tc_number VARCHAR(50),
+    tc_reason TEXT,
+    tc_date DATE,
+    whatsapp_number VARCHAR(20),
+    subjects TEXT,
+    transport_mode VARCHAR(10),
+    bus_route_number VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(100),
@@ -235,6 +249,20 @@ CREATE TABLE IF NOT EXISTS staff (
     emergency_contact VARCHAR(100),
     blood_group VARCHAR(5),
     profile_image VARCHAR(255),
+    pf_uan VARCHAR(50),              -- PF UAN (alphanumeric)
+    gratuity VARCHAR(50),            -- Gratuity (alphanumeric)
+    service_end_date DATE,           -- Service End Date (optional)
+    basic_salary DECIMAL(12,2),      -- Basic salary amount
+    hra DECIMAL(12,2),               -- House Rent Allowance
+    da DECIMAL(12,2),                -- Dearness Allowance
+    ta DECIMAL(12,2),                -- Travel Allowance
+    other_allowances DECIMAL(12,2),  -- Other allowances
+    pf_contribution DECIMAL(12,2),   -- PF contribution
+    tax_deduction DECIMAL(12,2),     -- Tax deduction
+    net_salary DECIMAL(12,2),        -- Net salary after all deductions
+    salary_account_number VARCHAR(50), -- Bank account number for salary
+    bank_name VARCHAR(100),          -- Bank name
+    ifsc_code VARCHAR(20),           -- IFSC code for bank transfers
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -324,3 +352,133 @@ VALUES
     ('Computer Science Basics', 'Computer Science', 3, 4, 20, 0),
     ('Physics Fundamentals', 'Science', 4, 4, 30, 0),
     ('World History', 'Social Studies', 5, 3, 35, 0);
+
+-- Fee Management Tables
+
+-- Fee Structure table - defines fee structure for a class
+CREATE TABLE IF NOT EXISTS fee_structures (
+    id SERIAL PRIMARY KEY,
+    class_grade INT NOT NULL,
+    annual_fees DECIMAL(12,2) NOT NULL,
+    building_fees DECIMAL(12,2) NOT NULL DEFAULT 0,
+    lab_fees DECIMAL(12,2) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(100),
+    modified_by VARCHAR(100),
+    UNIQUE(class_grade)
+);
+
+-- Payment Schedule Options table - defines available payment schedules for each class
+CREATE TABLE IF NOT EXISTS payment_schedules (
+    id SERIAL PRIMARY KEY,
+    fee_structure_id BIGINT NOT NULL,
+    schedule_type VARCHAR(20) NOT NULL, -- 'MONTHLY', 'QUARTERLY', 'YEARLY'
+    amount DECIMAL(12,2) NOT NULL,
+    is_enabled BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id) ON DELETE CASCADE,
+    UNIQUE(fee_structure_id, schedule_type)
+);
+
+-- Late Fees and Fines table - defines late fees for each month if applicable
+CREATE TABLE IF NOT EXISTS late_fees (
+    id SERIAL PRIMARY KEY,
+    fee_structure_id BIGINT NOT NULL,
+    month INT NOT NULL, -- 1-12 for Jan-Dec
+    late_fee_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    late_fee_description TEXT,
+    fine_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    fine_description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id) ON DELETE CASCADE,
+    UNIQUE(fee_structure_id, month)
+);
+
+-- Transport Routes table with fees
+CREATE TABLE IF NOT EXISTS transport_routes (
+    id SERIAL PRIMARY KEY,
+    route_name VARCHAR(100) NOT NULL,
+    route_description TEXT,
+    fee_amount DECIMAL(12,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(route_name)
+);
+
+-- Student Fee Assignments - links students to their fee structures and payment options
+CREATE TABLE IF NOT EXISTS student_fee_assignments (
+    id SERIAL PRIMARY KEY,
+    student_id BIGINT NOT NULL,
+    fee_structure_id BIGINT NOT NULL,
+    payment_schedule_id BIGINT NOT NULL,
+    transport_route_id BIGINT,
+    effective_from DATE NOT NULL,
+    effective_to DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id),
+    FOREIGN KEY (payment_schedule_id) REFERENCES payment_schedules(id),
+    FOREIGN KEY (transport_route_id) REFERENCES transport_routes(id)
+);
+
+-- Fee Payments - records actual payments made by students
+CREATE TABLE IF NOT EXISTS fee_payments (
+    id SERIAL PRIMARY KEY,
+    student_id BIGINT NOT NULL,
+    fee_structure_id BIGINT NOT NULL,
+    payment_schedule_id BIGINT NOT NULL,
+    amount_paid DECIMAL(12,2) NOT NULL,
+    payment_date DATE NOT NULL,
+    payment_mode VARCHAR(50) NOT NULL,
+    transaction_reference VARCHAR(100),
+    remarks TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(id),
+    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id),
+    FOREIGN KEY (payment_schedule_id) REFERENCES payment_schedules(id)
+);
+
+-- Insert some sample data for fee structures
+INSERT INTO fee_structures (class_grade, annual_fees, building_fees, lab_fees)
+VALUES 
+    (1, 50000.00, 5000.00, 0.00),
+    (2, 55000.00, 5000.00, 0.00),
+    (3, 60000.00, 5000.00, 0.00),
+    (4, 65000.00, 5000.00, 0.00),
+    (5, 70000.00, 5000.00, 2000.00),
+    (6, 75000.00, 5000.00, 2000.00),
+    (7, 80000.00, 5000.00, 3000.00),
+    (8, 85000.00, 5000.00, 3000.00),
+    (9, 90000.00, 5000.00, 5000.00),
+    (10, 95000.00, 5000.00, 5000.00),
+    (11, 100000.00, 5000.00, 8000.00),
+    (12, 100000.00, 5000.00, 8000.00);
+
+-- Insert sample payment schedules for class 1
+INSERT INTO payment_schedules (fee_structure_id, schedule_type, amount, is_enabled)
+VALUES 
+    (1, 'MONTHLY', 4583.33, TRUE),
+    (1, 'QUARTERLY', 13750.00, TRUE),
+    (1, 'YEARLY', 50000.00, TRUE);
+
+-- Insert sample transport routes
+INSERT INTO transport_routes (route_name, route_description, fee_amount)
+VALUES 
+    ('Route A', 'City Center to School', 5000.00),
+    ('Route B', 'North Suburb to School', 6000.00),
+    ('Route C', 'East Suburb to School', 7000.00),
+    ('Route D', 'South Suburb to School', 6500.00),
+    ('Route E', 'West Suburb to School', 6000.00);
+
+-- Insert sample late fees for class 1
+INSERT INTO late_fees (fee_structure_id, month, late_fee_amount, late_fee_description, fine_amount, fine_description)
+VALUES
+    (1, 7, 500.00, 'Late payment fee for July', 200.00, 'Additional fine for delayed payment after July 15th'),
+    (1, 10, 500.00, 'Late payment fee for October', 200.00, 'Additional fine for delayed payment after October 15th'),
+    (1, 1, 500.00, 'Late payment fee for January', 200.00, 'Additional fine for delayed payment after January 15th');

@@ -51,13 +51,17 @@ export type Permission = keyof typeof PERMISSIONS;
 
 export const hasPermission = (userRole: Role | string, permission: Permission): boolean => {
   if (!userRole || !permission) return false;
-  return PERMISSIONS[permission].includes(userRole as Role);
+  // Add null check and handle type casting more safely
+  const allowedRoles = PERMISSIONS[permission] || [];
+  return allowedRoles.includes(userRole as any);
 };
 
 export const hasAnyPermission = (userRole: Role | string, permissions: Permission[]): boolean => {
+  if (!permissions || !Array.isArray(permissions)) return false;
   return permissions.some(permission => hasPermission(userRole, permission));
 };
 
 export const hasAllPermissions = (userRole: Role | string, permissions: Permission[]): boolean => {
+  if (!permissions || !Array.isArray(permissions)) return false;
   return permissions.every(permission => hasPermission(userRole, permission));
 };

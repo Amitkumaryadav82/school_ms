@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "students")
@@ -60,6 +61,35 @@ public class Student extends Auditable {
     private String guardianContact;
 
     private String guardianEmail;
+
+    private String guardianOccupation;
+
+    private String guardianOfficeAddress;
+
+    private String aadharNumber;
+
+    private String udiseNumber;
+
+    private String houseAlloted;
+
+    private BigDecimal guardianAnnualIncome;
+
+    private String previousSchool;
+
+    private String tcNumber;
+
+    private String tcReason;
+
+    private LocalDate tcDate;
+
+    private String whatsappNumber;
+
+    @Column(columnDefinition = "TEXT")
+    private String subjects;
+
+    private String transportMode;
+
+    private String busRouteNumber;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default

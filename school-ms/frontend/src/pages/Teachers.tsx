@@ -177,18 +177,21 @@ const Teachers: React.FC = () => {
 
   return (
     <Box>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4">Teachers</Typography>
-        <Permission permission="CREATE_TEACHER">
+        <Box>
+          <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic', mr: 2, display: 'inline-block' }}>
+            * To add new teachers, please use the Staff Management page
+          </Typography>
           <Button
-            variant="contained"
+            variant="outlined"
             color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => setDialogOpen(true)}
+            component="a"
+            href="/staff" // Assuming this is the correct path to the Staff page
           >
-            New Teacher
+            Go to Staff Management
           </Button>
-        </Permission>
+        </Box>
       </Box>
 
       <Paper>

@@ -14,7 +14,9 @@ import {
   DialogContentText,
   DialogActions,
   Menu,
-  MenuItem
+  MenuItem,
+  FormControl,
+  Select
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -198,56 +200,22 @@ const Students: React.FC = () => {
   const handleSubmit = async (data: Student) => {
     try {
       if (selectedStudent) {
-        const updatedStudentData = {
-          id: selectedStudent.id,
-          studentId: data.studentId,
-          firstName: data.name.split(' ')[0],
-          lastName: data.name.includes(' ') ? data.name.substring(data.name.indexOf(' ') + 1) : '',
-          grade: parseInt(data.grade, 10),
-          section: data.section || "A",
-          email: data.email,
-          contactNumber: data.phoneNumber || "",
-          dateOfBirth: data.dateOfBirth,
-          gender: data.gender || "MALE",
-          address: data.address || "",
-          guardianName: data.parentName || "",
-          guardianContact: data.parentPhone || "",
-          guardianEmail: data.parentEmail || data.email,
-          status: data.status || "ACTIVE",
-          bloodGroup: data.bloodGroup || "",
-          admissionDate: data.admissionDate || new Date().toISOString().split('T')[0]
-        };
-        
-        await updateStudent(updatedStudentData);
+        // For updating existing student
+        await updateStudent({
+          ...data,
+          id: selectedStudent.id
+        });
       } else {
-        const newStudentData = {
-          studentId: data.studentId,
-          firstName: data.name.split(' ')[0],
-          lastName: data.name.includes(' ') ? data.name.substring(data.name.indexOf(' ') + 1) : '',
-          grade: parseInt(data.grade, 10),
-          section: data.section || "A",
-          email: data.email,
-          contactNumber: data.phoneNumber || "",
-          dateOfBirth: data.dateOfBirth,
-          gender: data.gender || "MALE",
-          address: data.address || "",
-          guardianName: data.parentName || "",
-          guardianContact: data.parentPhone || "",
-          guardianEmail: data.parentEmail || data.email,
-          status: "ACTIVE",
-          bloodGroup: data.bloodGroup || "",
-          admissionDate: new Date().toISOString().split('T')[0]
-        };
-        
-        console.log("Creating new student with properly structured data:", newStudentData);
+        // For creating new student
+        console.log("Creating new student with properly structured data:", data);
         
         try {
-          await createStudent(newStudentData);
+          await createStudent(data);
         } catch (err) {
           console.error('Standard API approach failed, trying with elevated permissions:', err);
           
           try {
-            await studentService.createWithElevatedPermissions(newStudentData);
+            await studentService.createWithElevatedPermissions(data);
             showNotification({ type: 'success', message: 'Student created successfully with admin permissions' });
             setDialogOpen(false);
             refresh();
@@ -304,33 +272,65 @@ const Students: React.FC = () => {
       id: 'status',
       label: 'Status',
       sortable: true,
-      format: (value) => {
+      format: (value, row: Student) => {
         const status = String(value).toUpperCase();
-        let color = 'default';
         
-        if (status === 'ACTIVE') color = 'success';
-        else if (status === 'INACTIVE') color = 'error';
-        else if (status === 'GRADUATED') color = 'info';
-        else if (status === 'SUSPENDED') color = 'warning';
-        
-        return (
-          <Typography
-            variant="body2"
-            sx={{
-              color: `${color}.main`,
-              fontWeight: 'medium',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 0.5
-            }}
-          >
-            {status === 'ACTIVE' && <CheckIcon fontSize="small" />}
-            {status === 'INACTIVE' && <CloseIcon fontSize="small" />}
-            {status === 'GRADUATED' && <SchoolIcon fontSize="small" />}
-            {status === 'SUSPENDED' && <LogoutIcon fontSize="small" />}
-            {status}
-          </Typography>
-        );
+        if (hasPermission(user?.role || '', 'EDIT_STUDENT')) {
+          return (
+            <FormControl size="small" fullWidth>
+              <Select
+                value={status}
+                onChange={(e) => handleStatusChange(row, e.target.value)}
+                displayEmpty
+                variant="standard"
+                sx={{ 
+                  '& .MuiSelect-select': { 
+                    py: 0, 
+                    color: () => {
+                      switch (status) {
+                        case 'ACTIVE': return 'success.main';
+                        case 'INACTIVE': return 'error.main';
+                        case 'GRADUATED': return 'info.main';
+                        case 'SUSPENDED': return 'warning.dark';
+                        default: return 'text.primary';
+                      }
+                    }
+                  }
+                }}
+              >
+                <MenuItem value="ACTIVE">Active</MenuItem>
+                <MenuItem value="INACTIVE">Inactive</MenuItem>
+                <MenuItem value="GRADUATED">Graduated</MenuItem>
+                <MenuItem value="SUSPENDED">Suspended</MenuItem>
+              </Select>
+            </FormControl>
+          );
+        } else {
+          let color = 'default';
+          if (status === 'ACTIVE') color = 'success';
+          else if (status === 'INACTIVE') color = 'error';
+          else if (status === 'GRADUATED') color = 'info';
+          else if (status === 'SUSPENDED') color = 'warning';
+          
+          return (
+            <Typography
+              variant="body2"
+              sx={{
+                color: `${color}.main`,
+                fontWeight: 'medium',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.5
+              }}
+            >
+              {status === 'ACTIVE' && <CheckIcon fontSize="small" />}
+              {status === 'INACTIVE' && <CloseIcon fontSize="small" />}
+              {status === 'GRADUATED' && <SchoolIcon fontSize="small" />}
+              {status === 'SUSPENDED' && <LogoutIcon fontSize="small" />}
+              {status}
+            </Typography>
+          );
+        }
       }
     },
     {
@@ -351,14 +351,6 @@ const Students: React.FC = () => {
             <Tooltip title="Delete">
               <IconButton size="small" onClick={() => handleDelete(row)} color="error">
                 <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
-          
-          {hasPermission(user?.role || '', 'EDIT_STUDENT') && (
-            <Tooltip title="Change Status">
-              <IconButton size="small" onClick={(e) => handleMenuOpen(e, row)}>
-                <MoreVertIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           )}

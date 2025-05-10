@@ -22,4 +22,10 @@ public class PaymentRequest {
     private String transactionReference;
 
     private String remarks;
+
+    // Optional fields for detailed tracking
+    private String payerName;
+    private String payerContactInfo;
+    private String payerRelationToStudent;
+    private String receiptNumber;
 }

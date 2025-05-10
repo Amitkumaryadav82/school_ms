@@ -13,6 +13,15 @@ const apiClient = axios.create({
 // Add authentication token to all requests
 apiClient.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
+  // Add enhanced logging for debugging
+  console.log(`Request to ${config.url}:`, {
+    method: config.method,
+    hasToken: !!token,
+    tokenFirstChars: token ? `${token.substring(0, 10)}...` : 'none',
+    headers: config.headers,
+    timestamp: new Date().toISOString()
+  });
+  
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -21,9 +30,20 @@ apiClient.interceptors.request.use(config => {
 
 // Standard error handling
 apiClient.interceptors.response.use(
-  response => response,
+  response => {
+    // Log successful responses for endpoints of interest
+    if (response.config.url?.includes('staff') && response.config.url?.includes('employment-status')) {
+      console.log('Successful staff status update response:', {
+        status: response.status,
+        url: response.config.url,
+        method: response.config.method,
+        data: response.data
+      });
+    }
+    return response;
+  },
   error => {
-    // Log the complete error for debugging
+    // Log the complete error for debugging with more detail
     console.error('API Error Details:', {
       status: error.response?.status,
       statusText: error.response?.statusText,
@@ -31,7 +51,27 @@ apiClient.interceptors.response.use(
       url: error.config?.url,
       method: error.config?.method,
       headers: error.config?.headers,
+      requestTimestamp: new Date().toISOString()
     });
+
+    // For 403 errors, log all possible information to diagnose permission issues
+    if (error.response?.status === 403) {
+      console.error('Permission Error (403) Details:');
+      console.error('Current localStorage token:', localStorage.getItem('token') ? 'Present (first 10 chars): ' + 
+        localStorage.getItem('token')?.substring(0, 10) + '...' : 'Missing');
+      console.error('User from localStorage:', localStorage.getItem('user'));
+      console.error('Full request URL:', error.config?.baseURL + error.config?.url);
+      console.error('Request Method:', error.config?.method?.toUpperCase());
+      console.error('Request Headers:', error.config?.headers);
+      
+      try {
+        console.error('Request Payload:', error.config?.data ? JSON.parse(error.config?.data) : 'No data');
+      } catch (e) {
+        console.error('Raw Request Payload:', error.config?.data);
+      }
+      
+      console.error('Response Body:', error.response?.data);
+    }
 
     // For server errors (500), log request data for debugging
     if (error.response?.status === 500) {
