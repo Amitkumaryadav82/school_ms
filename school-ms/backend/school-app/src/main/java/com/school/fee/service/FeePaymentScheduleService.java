@@ -104,7 +104,7 @@ public class FeePaymentScheduleService {
      */
     private void validateFrequencyChange(Long studentId, int academicYear) {
         List<FeePaymentSchedule> schedules = scheduleRepository.findByStudentIdAndAcademicYear(studentId,
-                String.valueOf(academicYear));
+                academicYear);
 
         // Check if any existing schedule has already reached the maximum frequency
         // change count
@@ -128,8 +128,8 @@ public class FeePaymentScheduleService {
         // Use the same sendEmail method with admin email
         String adminEmail = "admin@school.com"; // You may want to fetch this from a configuration
         String adminSubject = "Fee Schedule Change Notification";
-        String adminMessage = "Fee schedule changed for student: " + student.getId() + 
-                              " (" + student.getFirstName() + " " + student.getLastName() + ")";
+        String adminMessage = "Fee schedule changed for student: " + student.getId() +
+                " (" + student.getFirstName() + " " + student.getLastName() + ")";
         notificationService.sendEmail(adminEmail, adminSubject, adminMessage);
     }
 

@@ -34,5 +34,5 @@ public interface FeePaymentScheduleRepository extends JpaRepository<FeePaymentSc
     /**
      * Find payment schedules for a student in a specific academic year
      */
-    List<FeePaymentSchedule> findByStudentIdAndAcademicYear(Long studentId, String academicYear);
+    List<FeePaymentSchedule> findByStudentIdAndAcademicYear(Long studentId, Integer academicYear);
 }
