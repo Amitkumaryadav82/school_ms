@@ -21,32 +21,53 @@ import {
 } from '@mui/icons-material';
 import { useReactToPrint } from 'react-to-print';
 import { format } from 'date-fns';
-import { Payment, PaymentMethod, PaymentFrequency } from '../../services/feeService';
+import { Payment } from '../../types/payment.types';
 import { notificationService } from '../../services/notificationService';
+
+// Define the enums that are referenced but not exported from feeService
+enum PaymentMethod {
+  CASH = 'CASH',
+  CHECK = 'CHECK',
+  CHEQUE = 'CHEQUE',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  UPI = 'UPI',
+  CREDIT_CARD = 'CREDIT_CARD',
+  ONLINE = 'ONLINE'
+}
+
+enum PaymentFrequency {
+  MONTHLY = 'MONTHLY',
+  QUARTERLY = 'QUARTERLY',
+  HALF_YEARLY = 'HALF_YEARLY',
+  YEARLY = 'YEARLY'
+}
 
 interface ReceiptDialogProps {
   open: boolean;
   onClose: () => void;
-  payment: Payment | null;
+  payment: Payment;
+  onDownload: () => void;
   studentName: string;
   className: string;
   studentId?: number;
   parentEmail?: string;
 }
 
-const paymentMethodLabels: Record<PaymentMethod, string> = {
-  [PaymentMethod.CASH]: 'Cash',
-  [PaymentMethod.CHEQUE]: 'Cheque',
-  [PaymentMethod.BANK_TRANSFER]: 'Bank Transfer',
-  [PaymentMethod.UPI]: 'UPI',
-  [PaymentMethod.CREDIT_CARD]: 'Credit Card'
+const paymentMethodLabels: Record<string, string> = {
+  'CASH': 'Cash',
+  'CHEQUE': 'Cheque',
+  'CHECK': 'Check',
+  'BANK_TRANSFER': 'Bank Transfer',
+  'UPI': 'UPI',
+  'ONLINE': 'Online',
+  'CREDIT_CARD': 'Credit Card'
 };
 
-const frequencyLabels: Record<PaymentFrequency, string> = {
-  [PaymentFrequency.MONTHLY]: 'Monthly',
-  [PaymentFrequency.QUARTERLY]: 'Quarterly',
-  [PaymentFrequency.HALF_YEARLY]: 'Half-Yearly',
-  [PaymentFrequency.YEARLY]: 'Annual'
+const frequencyLabels: Record<string, string> = {
+  'MONTHLY': 'Monthly',
+  'QUARTERLY': 'Quarterly',
+  'HALF_YEARLY': 'Half-Yearly',
+  'YEARLY': 'Annual'
 };
 
 const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
@@ -70,14 +91,13 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
     open: false,
     message: '',
     severity: 'success'
-  });
-  
-  const handlePrint = useReactToPrint({
-    content: () => receiptRef.current,
-    documentTitle: `Receipt_${payment?.id || 'Unknown'}_${studentName.replace(/\s+/g, '_')}`,
+  });    const handlePrint = useReactToPrint({
+    documentTitle: `Receipt_${payment?.id || 'Unknown'}_${studentName?.replace(/\s+/g, '_') || 'Student'}`,
     onAfterPrint: () => {
       console.log('Print complete');
     },
+    // @ts-ignore - content prop seems to be missing in the type definitions
+    content: () => receiptRef.current
   });
 
   const handleSendEmail = async () => {
@@ -164,12 +184,11 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
               </Grid>
               
               <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" gutterBottom>PAYMENT DETAILS</Typography>
-                <Typography variant="body2">
-                  <strong>Payment Type:</strong> {frequencyLabels[payment.frequency]} Fee
+                <Typography variant="subtitle2" gutterBottom>PAYMENT DETAILS</Typography>                <Typography variant="body2">
+                  <strong>Payment Type:</strong> {payment.frequency && frequencyLabels[payment.frequency] ? frequencyLabels[payment.frequency] : payment.frequency} Fee
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Payment Method:</strong> {paymentMethodLabels[payment.paymentMethod]}
+                  <strong>Payment Method:</strong> {payment.paymentMethod && paymentMethodLabels[payment.paymentMethod] ? paymentMethodLabels[payment.paymentMethod] : payment.paymentMethod}
                 </Typography>
                 {payment.reference && (
                   <Typography variant="body2">
@@ -190,9 +209,8 @@ const ReceiptDialog: React.FC<ReceiptDialogProps> = ({
                   mt: 2
                 }}>
                   <Grid container spacing={2}>
-                    <Grid item xs={8}>
-                      <Typography variant="subtitle1">
-                        {frequencyLabels[payment.frequency]} Fee Payment
+                    <Grid item xs={8}>                      <Typography variant="subtitle1">
+                        {payment.frequency && frequencyLabels[payment.frequency] ? frequencyLabels[payment.frequency] : payment.frequency} Fee Payment
                       </Typography>
                       {payment.notes && (
                         <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>

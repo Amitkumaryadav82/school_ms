@@ -16,6 +16,8 @@ interface UseApiOptions {
   onSuccess?: (data: any) => void;
   onError?: (error: Error) => void;
   showErrorNotification?: boolean;
+  dependencies?: any[];
+  skip?: boolean;
 }
 
 export function useApi<T>(
@@ -26,16 +28,29 @@ export function useApi<T>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { showNotification } = useNotification();
-
   const {
     cacheKey,
     cacheDuration = CACHE_DURATION,
     onSuccess,
     onError,
     showErrorNotification = true,
+    dependencies = [],
+    skip = false,
   } = options;
+  useEffect(() => {
+    if (!skip) {
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [...dependencies]);
 
   const fetchData = async (ignoreCache = false) => {
+    if (skip) {
+      return;
+    }
+    
     if (cacheKey && !ignoreCache) {
       const cached = cache.get(cacheKey);
       if (cached && Date.now() - cached.timestamp < cacheDuration) {
@@ -74,9 +89,13 @@ export function useApi<T>(
       setLoading(false);
     }
   };
-
+  // We've moved the main useEffect to respect dependencies
+  // This is just a fallback for backwards compatibility
   useEffect(() => {
-    fetchData();
+    if (dependencies.length === 0 && !skip) {
+      fetchData();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const refresh = () => fetchData(true);
@@ -87,6 +106,7 @@ export function useApi<T>(
     loading,
     error,
     refresh,
+    refetch: () => fetchData(true),
     clearCache,
   };
 }

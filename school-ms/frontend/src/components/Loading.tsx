@@ -7,9 +7,10 @@ import {
 
 interface LoadingProps {
   message?: string;
+  size?: number;
 }
 
-const Loading: React.FC<LoadingProps> = ({ message = 'Loading...' }) => {
+const Loading: React.FC<LoadingProps> = ({ message = 'Loading...', size }) => {
   return (
     <Box
       sx={{
@@ -18,13 +19,15 @@ const Loading: React.FC<LoadingProps> = ({ message = 'Loading...' }) => {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 2,
-        minHeight: 200,
+        minHeight: size ? 'auto' : 200,
       }}
     >
-      <CircularProgress />
-      <Typography variant="body1" color="text.secondary">
-        {message}
-      </Typography>
+      <CircularProgress size={size} />
+      {!size && (
+        <Typography variant="body1" color="text.secondary">
+          {message}
+        </Typography>
+      )}
     </Box>
   );
 };

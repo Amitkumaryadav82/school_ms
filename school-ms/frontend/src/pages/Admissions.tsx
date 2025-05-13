@@ -202,10 +202,11 @@ const Admissions = () => {
     console.log('🔒 Auth token present:', !!localStorage.getItem('token'));
     
     return admissionService.getAllApplications();
-  }, [], (err) => {
+  }, {
+    onError: (err) => {
     console.error('❌ Error in useApi for admissions:', err);
-    setErrorDetails(err);
-    return [];
+    setErrorDetails(err);    return [];
+    }
   });
 
   // Filter the admissions data based on applied filters
@@ -385,7 +386,7 @@ const Admissions = () => {
               // Check if errors is an array we can map over
               if (Array.isArray(error.originalError.response.data.errors)) {
                 const validationErrors = error.originalError.response.data.errors
-                  .map(e => e.defaultMessage || e.field)
+                  .map((e: any) => e.defaultMessage || e.field)
                   .join(', ');
                 errorMessage = `Validation errors: ${validationErrors}`;
               } 
@@ -433,7 +434,11 @@ const Admissions = () => {
       
       // Convert action to backend status enum value
       const action = status === 'APPROVED' ? 'APPROVE' : 'REJECT';
-      await admissionService.processAdmission(application.id, action, reason);
+      if (application.id !== undefined) {
+        await admissionService.processAdmission(application.id, action, reason);
+      } else {
+        throw new Error('Application ID is undefined');
+      }
       
       showNotification({
         type: 'success',
@@ -466,11 +471,19 @@ const Admissions = () => {
       // Check if application status is approved
       if (application.status !== 'APPROVED') {
         // If not approved, approve it first
-        await admissionService.processAdmission(application.id, 'APPROVE');
+        if (application.id !== undefined) {
+          await admissionService.processAdmission(application.id, 'APPROVE');
+        } else {
+          throw new Error('Application ID is undefined');
+        }
       }
       
       // Create student from the application
-      const student = await admissionService.createStudentFromAdmission(application.id);
+      if (application.id !== undefined) {
+        const student = await admissionService.createStudentFromAdmission(application.id);
+      } else {
+        throw new Error('Application ID is undefined');
+      }
       
       showNotification({
         type: 'success',
@@ -486,7 +499,7 @@ const Admissions = () => {
       console.error('Error creating student from application:', err);
       showNotification({
         type: 'error',
-        message: `Failed to create student: ${err.message}`
+        message: `Failed to create student: ${(err as Error).message || 'Unknown error'}`
       });
     } finally {
       setLoading(false);
@@ -538,7 +551,11 @@ const Admissions = () => {
             
             // Convert status to action for the API
             const action = bulkStatus === 'APPROVED' ? 'APPROVE' : 'REJECT';
-            return admissionService.processAdmission(application.id, action, reason);
+            if (application.id !== undefined) {
+              return admissionService.processAdmission(application.id, action, reason);
+            } else {
+              throw new Error('Application ID is undefined');
+            }
           })
         );
         
@@ -560,7 +577,7 @@ const Admissions = () => {
     } catch (error) {
       showNotification({
         type: 'error',
-        message: `Failed to process bulk action: ${error.message}`
+        message: `Failed to process bulk action: ${(error as Error).message || 'Unknown error'}`
       });
     } finally {
       setLoading(false);
@@ -579,7 +596,11 @@ const Admissions = () => {
       (async () => {
         try {
           setLoading(true);
-          await admissionService.updateStatus(application.id, status);
+          if (application.id !== undefined) {
+            await admissionService.updateStatus(application.id, status);
+          } else {
+            throw new Error('Application ID is undefined');
+          }
           showNotification({
             type: 'success',
             message: `Status updated to ${status.toLowerCase()}`
@@ -588,7 +609,7 @@ const Admissions = () => {
         } catch (error) {
           showNotification({
             type: 'error',
-            message: `Failed to update status: ${error.message}`
+            message: `Failed to update status: ${(error as Error).message || 'Unknown error'}`
           });
         } finally {
           setLoading(false);
@@ -699,7 +720,7 @@ const Admissions = () => {
       console.error('Error exporting CSV:', error);
       showNotification({
         type: 'error',
-        message: 'Failed to export CSV: ' + (error.message || 'Unknown error')
+        message: 'Failed to export CSV: ' + ((error as Error).message || 'Unknown error')
       });
     }
   };
@@ -732,8 +753,8 @@ const Admissions = () => {
         results.push({
           name: endpoint.name,
           success: false,
-          status: e.status || 'Error',
-          error: e.message || JSON.stringify(e)
+          status: (e as any).status || 'Error',
+          error: (e as any).message || JSON.stringify(e)
         });
       }
     }
@@ -741,25 +762,25 @@ const Admissions = () => {
     setDebugResults(results);
     setDebugLoading(false);
   };
-
   // Define columns for DataTable
-  const columns = [
+  const columns: Array<any> = [
     {
       id: 'selector',
-      label: (
-        <Checkbox 
-          checked={admissions?.length > 0 && selectedApplications.length === admissions?.length}
-          indeterminate={selectedApplications.length > 0 && selectedApplications.length < (admissions?.length || 0)}
-          onChange={(e) => handleSelectAll(e.target.checked)}
-          size="small"
-        />
-      ),
+      label: "Select",
       sortable: false,
       width: 50,
       format: (value: any, row: AdmissionApplication) => (
         <Checkbox 
           checked={selectedApplications.some(app => app.id === row.id)}
           onChange={(e) => handleSelectApplication(row, e.target.checked)}
+          size="small"
+        />
+      ),
+      renderHeader: () => (
+        <Checkbox 
+          checked={Boolean(admissions && admissions.length > 0 && selectedApplications.length === admissions.length)}
+          indeterminate={selectedApplications.length > 0 && selectedApplications.length < (admissions?.length || 0)}
+          onChange={(e) => handleSelectAll(e.target.checked)}
           size="small"
         />
       )
@@ -1093,7 +1114,7 @@ const Admissions = () => {
       <Box sx={{ p: 3 }}>
         <ErrorMessage 
           title="Error Loading Admissions" 
-          message={error.message || "Couldn't load admissions data"} 
+          message={typeof error === 'string' ? error : (error as Error).message || "Couldn't load admissions data"} 
         />
         
         <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
@@ -1297,24 +1318,20 @@ const Admissions = () => {
             Clear Selection
           </Button>
         </Paper>
-      )}
-      
-      <DataTable
+      )}      <DataTable
         columns={columns}
         data={filteredAdmissions || []}
-        pagination
-        emptyMessage={filtersActive ? "No applications match your filter criteria" : "No applications found"}
+        defaultRowsPerPage={10}
       />
       
       {renderDebugDialog()}
       {renderConfirmDialog()}
       {renderFilterDialog()}
-      
-      <AdmissionDialog
+        <AdmissionDialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         onSubmit={handleSave}
-        initialData={selectedApplication}
+        initialData={selectedApplication || undefined}
         loading={loading}
       />
 

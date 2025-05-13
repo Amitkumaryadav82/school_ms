@@ -63,10 +63,10 @@ const Login = () => {
           console.log('✅ Direct login API call successful:', directLoginResponse);
           setTestResult('Direct API call successful! Proceeding with normal login flow...');
           // Continue with normal login
-        } catch (directError) {
+        } catch (directError: unknown) {
           console.error('❌ Direct login API call failed:', directError);
           setDetailedError(directError);
-          setTestResult(`Direct API call failed: ${directError.message || JSON.stringify(directError)}`);
+          setTestResult(`Direct API call failed: ${(directError as Error)?.message || JSON.stringify(directError)}`);
           throw directError;
         }
       }

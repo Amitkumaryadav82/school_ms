@@ -120,14 +120,14 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
 
   const handleInputChange = (field: keyof FeeStructure) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.type === 'number' ? Number(e.target.value) : e.target.value;
-    setFormData((prev) => ({
+    setFormData((prev: FeeStructure) => ({
       ...prev,
       [field]: value
     }));
 
     // Clear error message when field is updated
     if (errors[field]) {
-      setErrors((prev) => ({
+      setErrors((prev: Record<string, string>) => ({
         ...prev,
         [field]: ''
       }));
@@ -141,7 +141,7 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
       [field]: value
     };
 
-    setFormData((prev) => ({
+    setFormData((prev: FeeStructure) => ({
       ...prev,
       paymentSchedules: updatedSchedules
     }));
@@ -154,14 +154,14 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
       [field]: value
     };
 
-    setFormData((prev) => ({
+    setFormData((prev: FeeStructure) => ({
       ...prev,
       lateFees: updatedLateFees
     }));
   };
 
   const addLateFee = () => {
-    setFormData((prev) => ({
+    setFormData((prev: FeeStructure) => ({
       ...prev,
       lateFees: [
         ...prev.lateFees,
@@ -179,14 +179,14 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
   const removeLateFee = (index: number) => {
     const updatedLateFees = [...formData.lateFees];
     updatedLateFees.splice(index, 1);
-    setFormData((prev) => ({
+    setFormData((prev: FeeStructure) => ({
       ...prev,
       lateFees: updatedLateFees
     }));
   };
 
   const updatePaymentScheduleAmounts = (annualFees: number) => {
-    const updatedSchedules = formData.paymentSchedules.map(schedule => {
+    const updatedSchedules = formData.paymentSchedules.map((schedule: PaymentSchedule) => {
       let amount = 0;
       switch (schedule.scheduleType) {
         case 'MONTHLY':
@@ -202,7 +202,7 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
       return { ...schedule, amount };
     });
 
-    setFormData(prev => ({
+    setFormData((prev: FeeStructure) => ({
       ...prev,
       paymentSchedules: updatedSchedules
     }));
@@ -210,7 +210,7 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
 
   const handleAnnualFeesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const annualFees = Number(e.target.value);
-    setFormData(prev => ({
+    setFormData((prev: FeeStructure) => ({
       ...prev,
       annualFees
     }));
@@ -366,7 +366,7 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
           )}
           
           <Grid container spacing={3} sx={{ mt: 1 }}>
-            {formData.paymentSchedules.map((schedule, index) => (
+            {formData.paymentSchedules.map((schedule: PaymentSchedule, index: number) => (
               <Grid item xs={12} key={index}>
                 <Card variant="outlined">
                   <CardContent>
@@ -428,7 +428,7 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
               No late fees or fines defined. Click "Add Late Fee" to create one.
             </Typography>
           ) : (
-            formData.lateFees.map((lateFee, index) => (
+            formData.lateFees.map((lateFee: LateFee, index: number) => (
               <Card key={index} variant="outlined" sx={{ mb: 2 }}>
                 <CardHeader 
                   title={`Late Fee for ${getMonthName(lateFee.month)}`}

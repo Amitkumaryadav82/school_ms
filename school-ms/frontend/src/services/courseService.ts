@@ -20,4 +20,5 @@ export const courseService = {
     api.post<void>(`courses/${courseId}/enroll`, { studentId }),  // Removed /api prefix
   unenrollStudent: (courseId: number, studentId: number) => 
     api.delete<void>(`courses/${courseId}/enroll?studentId=${studentId}`),  // Removed /api prefix
+  getAllCourses: () => api.get<Course[]>('courses'),  // Alias for getAll for compatibility
 };

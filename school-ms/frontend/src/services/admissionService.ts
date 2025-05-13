@@ -13,6 +13,7 @@ export interface AdmissionApplication {
   gender?: string;
   parentName: string;
   contactNumber: string;
+  guardianContact?: string; // Added missing field
   email: string;
   address: string; // Now required field
   bloodGroup?: string;
@@ -282,8 +283,7 @@ export const admissionService = {
     const admission = await admissionService.getApplicationById(admissionId);
     
     if (!admission) {
-      throw new Error(`Admission record ${admissionId} not found`);
-    }
+      throw new Error(`Admission record ${admissionId} not found`);    }
     
     if (admission.status !== 'APPROVED') {
       throw new Error(`Cannot create student from admission with status ${admission.status}`);
@@ -291,23 +291,21 @@ export const admissionService = {
     
     // Prepare student data from admission
     const studentData: Partial<Student> = {
-      firstName: admission.studentName.split(' ')[0],
-      lastName: admission.studentName.includes(' ') 
-        ? admission.studentName.split(' ').slice(1).join(' ') 
-        : '',
+      studentId: `STU${new Date().getFullYear()}${Math.floor(1000 + Math.random() * 9000)}`,
+      name: admission.studentName,
       email: admission.email,
+      phoneNumber: admission.contactNumber,
       dateOfBirth: admission.dateOfBirth,
-      grade: parseInt(admission.gradeApplying, 10),
-      section: additionalData.section || 'A', // Default section
-      contactNumber: admission.contactNumber,
+      grade: String(parseInt(admission.gradeApplying, 10)),
+      section: additionalData.section as string || 'A',
       address: admission.address || '',
-      guardianName: admission.parentName,
-      guardianContact: admission.contactNumber,
-      guardianEmail: admission.email,
+      parentName: admission.parentName,
+      parentPhone: admission.contactNumber,
+      parentEmail: admission.email,
       status: 'ACTIVE',
       admissionDate: new Date().toISOString().split('T')[0],
-      gender: additionalData.gender || 'MALE', // Default gender can be updated later
-      ...additionalData,
+      gender: additionalData.gender as string || 'MALE',
+      ...additionalData
     };
     
     return studentData;

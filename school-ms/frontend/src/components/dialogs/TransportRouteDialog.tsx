@@ -53,17 +53,16 @@ const TransportRouteDialog: React.FC<TransportRouteDialogProps> = ({
       });
     }
   }, [initialData, open]);
-
   const handleInputChange = (field: keyof TransportRoute) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = field === 'feeAmount' ? Number(e.target.value) : e.target.value;
-    setFormData((prev) => ({
+    setFormData((prev: TransportRoute) => ({
       ...prev,
       [field]: value
     }));
 
     // Clear error message when field is updated
     if (errors[field]) {
-      setErrors((prev) => ({
+      setErrors((prev: Record<string, string>) => ({
         ...prev,
         [field]: ''
       }));

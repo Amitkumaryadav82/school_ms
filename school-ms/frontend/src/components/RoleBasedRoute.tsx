@@ -13,11 +13,10 @@ const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRoles 
   const { showNotification } = useNotification();
   
   // Debug logging for role-based access
-  useEffect(() => {
-    console.log('🔒 RoleBasedRoute checking access for path:', window.location.pathname);
+  useEffect(() => {    console.log('🔒 RoleBasedRoute checking access for path:', window.location.pathname);
     console.log('👤 User role:', user?.role);
     console.log('✅ Allowed roles:', allowedRoles);
-    console.log('🔑 Access granted:', user && allowedRoles.includes(user.role));
+    console.log('🔑 Access granted:', user && user.role && allowedRoles.includes(user.role));
     
     // Log more details about the token
     const token = localStorage.getItem('token');
@@ -53,12 +52,11 @@ const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ children, allowedRoles 
   }
   
   // Case-insensitive role comparison
-  const hasAccess = allowedRoles.some(
-    role => user.role.toUpperCase() === role.toUpperCase()
+  const hasAccess = user.role && allowedRoles.some(
+    role => user.role!.toUpperCase() === role.toUpperCase()
   );
-  
-  if (!hasAccess) {
-    console.error(`❌ Access denied: User role "${user.role}" not in allowed roles:`, allowedRoles);
+    if (!hasAccess) {
+    console.error(`❌ Access denied: User role "${user.role || 'unknown'}" not in allowed roles:`, allowedRoles);
     showNotification({
       type: 'error',
       message: 'Access denied: You do not have permission to view this page',

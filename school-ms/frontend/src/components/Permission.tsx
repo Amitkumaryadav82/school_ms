@@ -21,17 +21,17 @@ const Permission: React.FC<PermissionProps> = ({
     // Log permission checks
     if (permission) {
       console.log(`🔒 Checking permission "${permission}" for user role: "${user?.role || 'unknown'}"`, {
-        hasPermission: user ? hasPermission(user.role, permission) : false
+        hasPermission: user && user.role ? hasPermission(user.role, permission) : false
       });
     }
     
     if (permissions.length > 0) {
       console.log(`🔒 Checking permissions [${permissions.join(', ')}] for user role: "${user?.role || 'unknown'}"`, {
         requireAll,
-        hasPermissions: user 
+        hasPermissions: user && user.role
           ? (requireAll 
-            ? hasAllPermissions(user.role, permissions)
-            : hasAnyPermission(user.role, permissions))
+              ? hasAllPermissions(user.role, permissions)
+              : hasAnyPermission(user.role, permissions))
           : false
       });
     }
@@ -43,7 +43,7 @@ const Permission: React.FC<PermissionProps> = ({
   }
 
   if (permission) {
-    const isAllowed = hasPermission(user.role, permission);
+    const isAllowed = user.role ? hasPermission(user.role, permission) : false;
     console.log(`🔑 Permission "${permission}" check result: ${isAllowed ? 'granted ✅' : 'denied ❌'}`);
     if (!isAllowed) {
       return null;
@@ -51,9 +51,11 @@ const Permission: React.FC<PermissionProps> = ({
   }
 
   if (permissions.length > 0) {
-    const isAllowed = requireAll 
-      ? hasAllPermissions(user.role, permissions)
-      : hasAnyPermission(user.role, permissions);
+    const isAllowed = user.role ? (
+      requireAll 
+        ? hasAllPermissions(user.role, permissions)
+        : hasAnyPermission(user.role, permissions)
+    ) : false;
     
     console.log(`🔑 Permissions [${permissions.join(', ')}] check result: ${isAllowed ? 'granted ✅' : 'denied ❌'}`);
     if (!isAllowed) {

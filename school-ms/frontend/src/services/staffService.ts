@@ -10,15 +10,28 @@ export enum EmploymentStatus {
   RESIGNED = 'RESIGNED'
 }
 
+export interface TeacherDetails {
+  id?: number;
+  department: string;
+  specialization?: string;
+  subjects: string;
+  teachingExperience: number;
+  isClassTeacher: boolean;
+  classAssignedId?: number;
+  className?: string;
+}
+
 export interface StaffMember {
   id?: number;
   staffId?: string;
   firstName: string;
   lastName: string;
+  fullName?: string;
   email: string;
   phoneNumber?: string;
   phone?: string; // Some endpoints use phone, others use phoneNumber
   role: string;
+  roleId?: number;
   joinDate?: string;
   joiningDate?: string; // Backend uses joiningDate, frontend uses joinDate
   address?: string;
@@ -26,11 +39,15 @@ export interface StaffMember {
   gender?: string;
   department?: string;
   designation?: string;
+  designations?: any[];
   qualifications?: string;
   emergencyContact?: string;
   bloodGroup?: string;
   isActive?: boolean;
   employmentStatus?: EmploymentStatus;
+  profileImage?: string;
+  // Teacher-specific fields
+  teacherDetails?: TeacherDetails;
   // PF and Service fields
   pfUAN?: string;          // PF UAN (alphanumeric)
   gratuity?: string;       // Gratuity (alphanumeric)

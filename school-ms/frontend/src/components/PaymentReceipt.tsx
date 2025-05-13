@@ -15,7 +15,7 @@ import {
   Download as DownloadIcon,
   Print as PrintIcon
 } from '@mui/icons-material';
-import * as feeService from '../services/feeService';
+import feeService from '../services/feeService';
 import * as feeNotificationService from '../services/feeNotificationService';
 
 interface PaymentReceiptProps {

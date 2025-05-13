@@ -24,7 +24,7 @@ const api: AxiosInstance = axios.create({
 
 // Request interceptor
 api.interceptors.request.use(
-  (config: AxiosRequestConfig): AxiosRequestConfig => {
+  (config: any): any => {
     const token = localStorage.getItem('token');
     
     // Add detailed request logging
@@ -208,9 +208,8 @@ api.interceptors.response.use(
         timestamp: new Date().toISOString(),
         errorDetail: (error.response?.data as any)?.error || (error.response?.data as any)?.message || 'No error details'
       });
-      
-      // To help debug server-side permissions, add an additional header for follow-up requests
-      if (token && config.headers) {
+        // To help debug server-side permissions, add an additional header for follow-up requests
+      if (token && config && typeof config === 'object') {
         localStorage.setItem('last_403_url', fullUrl);
         localStorage.setItem('last_403_time', new Date().toISOString());
         localStorage.setItem('last_403_data', JSON.stringify(originalRequest?.data || {}));
@@ -237,4 +236,13 @@ api.interceptors.response.use(
   }
 );
 
+// Export the API client with additional methods for HTTP requests
+export { api as apiClient };
+export const get = api.get;
+export const post = api.post;
+export const put = api.put;
+export const del = api.delete;
 export { api };
+
+// Default export for backward compatibility
+export default api;

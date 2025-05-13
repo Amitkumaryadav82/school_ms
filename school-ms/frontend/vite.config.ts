@@ -16,11 +16,13 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-  },
-  // Configure base path for production build to work with Spring Boot
+  },  // Configure base path for production build to work with Spring Boot
   base: '/',
   server: {
     port: 5173, // Vite's default port
+    host: true, // Listen on all network interfaces and show network URLs
+    strictPort: false, // Try other ports if 5173 is taken
+    open: true, // Automatically open browser
     proxy: {
       // Proxy API requests to Spring Boot backend during development
       '/api': {

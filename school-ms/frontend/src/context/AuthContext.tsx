@@ -12,6 +12,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   resetInactivityTimer: () => void; // New method to reset the inactivity timer
+  loading: boolean; // Add loading state property
 }
 
 // Add export here so it can be imported in other files
@@ -20,6 +21,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthResponse | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const inactivityTimerRef = useRef<number | null>(null);
@@ -98,9 +100,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.log('ℹ️ No authentication data found in localStorage');
     }
   }, []);
-
   const login = async (username: string, password: string) => {
     try {
+      setLoading(true); // Set loading to true when starting login
       console.log('🔐 AuthContext: Attempting login for user:', username);
       
       const response = await authService.login({ username, password });
@@ -144,13 +146,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         type: 'success',
         message: 'Login successful',
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ Login error in AuthContext:', error);
       
       let errorMessage = 'Login failed. Please check your credentials.';
-      if (error.message) {
+      if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
         errorMessage = error.message;
-      } else if (error.response?.data?.message) {
+      } else if (
+        error && 
+        typeof error === 'object' && 
+        'response' in error && 
+        error.response && 
+        typeof error.response === 'object' &&
+        'data' in error.response &&
+        error.response.data &&
+        typeof error.response.data === 'object' &&
+        'message' in error.response.data &&
+        typeof error.response.data.message === 'string'
+      ) {
         errorMessage = error.response.data.message;
       }
       
@@ -160,6 +173,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       
       throw error;
+    } finally {
+      setLoading(false); // Set loading to false when login completes (success or failure)
     }
   };
 
@@ -180,9 +195,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       message: 'You have been logged out',
     });
   };
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, resetInactivityTimer }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, resetInactivityTimer, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -122,10 +122,9 @@ const Layout = ({ children }: LayoutProps) => {
     handleProfileMenuClose();
     logout();
   };
-
   // Filter menu items based on user role
   const filteredMenuItems = menuItems.filter(
-    item => user && item.allowedRoles.includes(user.role)
+    item => user && user.role && item.allowedRoles.includes(user.role)
   );
 
   const drawer = (

@@ -23,7 +23,7 @@ import {
   InfoOutlined as InfoIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
-import { Payment } from '../services/feeService';
+import { Payment } from '../types/payment.types';
 
 interface PaymentHistoryProps {
   payments: Payment[];
@@ -243,12 +243,11 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                       <TableCell>Description</TableCell>
                       <TableCell align="right">Amount</TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {selectedPayment.feeBreakdown.map((item, index) => (
+                  </TableHead>                  <TableBody>
+                    {selectedPayment.feeBreakdown?.map((item: {feeType: string, amount: number, description?: string}, index: number) => (
                       <TableRow key={index}>
                         <TableCell>{item.feeType}</TableCell>
-                        <TableCell>{item.description}</TableCell>
+                        <TableCell>{item.description || '-'}</TableCell>
                         <TableCell align="right">₹{item.amount.toLocaleString()}</TableCell>
                       </TableRow>
                     ))}

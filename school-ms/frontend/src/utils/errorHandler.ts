@@ -1,5 +1,13 @@
 import { AxiosError } from 'axios';
-import { CustomError } from '../services/api';
+
+// Define our own CustomError interface since it's not exported from api.ts
+export interface CustomError {
+  message: string;
+  status?: number;
+  errors?: Record<string, string[]>;
+  timestamp?: string;
+  path?: string;
+}
 
 export const handleApiError = (error: unknown): string => {
   if ((error as AxiosError).isAxiosError) {

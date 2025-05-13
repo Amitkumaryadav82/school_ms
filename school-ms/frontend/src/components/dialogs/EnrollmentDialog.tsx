@@ -18,6 +18,7 @@ import { useApi } from '../../hooks/useApi';
 import { studentService } from '../../services/studentService';
 import { courseService } from '../../services/courseService';
 import { validateEnrollment } from '../../utils/validation';
+import { SelectChangeEvent } from '@mui/material';
 
 interface EnrollmentDialogProps {
   open: boolean;
@@ -58,12 +59,20 @@ const EnrollmentDialog: React.FC<EnrollmentDialogProps> = ({
       });
     }
   }, [initialData]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  // Create separate handlers for different input types
+  const handleTextFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name!]: value }));
-    if (errors[name!]) {
-      setErrors(prev => ({ ...prev, [name!]: '' }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleSelectChange = (e: SelectChangeEvent) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -86,16 +95,14 @@ const EnrollmentDialog: React.FC<EnrollmentDialogProps> = ({
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <FormControl fullWidth error={!!errors.studentId}>
-              <InputLabel>Student</InputLabel>
-              <Select
+              <InputLabel>Student</InputLabel>              <Select
                 name="studentId"
                 value={formData.studentId}
-                onChange={handleChange}
+                onChange={handleSelectChange}
                 label="Student"
-              >
-                {students?.map(student => (
+              >                {students?.map(student => (
                   <MenuItem key={student.id} value={student.id}>
-                    {student.firstName} {student.lastName}
+                    {student.name}
                   </MenuItem>
                 ))}
               </Select>
@@ -105,18 +112,15 @@ const EnrollmentDialog: React.FC<EnrollmentDialogProps> = ({
             </FormControl>
 
             <FormControl fullWidth error={!!errors.courseId}>
-              <InputLabel>Course</InputLabel>
-              <Select
+              <InputLabel>Course</InputLabel>              <Select
                 name="courseId"
                 value={formData.courseId}
-                onChange={handleChange}
-                label="Course"
-              >
-                {courses?.map(course => (
+                onChange={handleSelectChange}
+                label="Course"              >                {courses && Array.isArray(courses) ? courses.map(course => (
                   <MenuItem key={course.id} value={course.id}>
-                    {course.name} ({course.courseCode})
+                    {course.name}
                   </MenuItem>
-                ))}
+                )) : null}
               </Select>
               {errors.courseId && (
                 <FormHelperText>{errors.courseId}</FormHelperText>
@@ -128,7 +132,7 @@ const EnrollmentDialog: React.FC<EnrollmentDialogProps> = ({
               label="Enrollment Date"
               type="date"
               value={formData.enrollmentDate}
-              onChange={handleChange}
+              onChange={handleTextFieldChange}
               error={!!errors.enrollmentDate}
               helperText={errors.enrollmentDate}
               InputLabelProps={{ shrink: true }}
@@ -136,11 +140,10 @@ const EnrollmentDialog: React.FC<EnrollmentDialogProps> = ({
             />
 
             <FormControl fullWidth error={!!errors.status}>
-              <InputLabel>Status</InputLabel>
-              <Select
+              <InputLabel>Status</InputLabel>              <Select
                 name="status"
                 value={formData.status}
-                onChange={handleChange}
+                onChange={handleSelectChange}
                 label="Status"
               >
                 <MenuItem value="ACTIVE">Active</MenuItem>

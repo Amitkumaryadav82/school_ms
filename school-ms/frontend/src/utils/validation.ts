@@ -4,7 +4,8 @@ import { Course } from '../services/courseService';
 import { AdmissionApplication } from '../services/admissionService';
 import { LeaveRequest } from '../services/leaveService';
 import { Message } from '../services/messageService';
-import { Fee, Payment } from '../services/feeService';
+import { FeeStructure } from '../services/feeService';
+import { Payment } from '../types/payment.types';
 import { Exam, ExamResult } from '../services/examService';
 import { Attendance } from '../services/attendanceService';
 
@@ -26,8 +27,43 @@ export const isValidPhone = (phone: string): boolean => patterns.phone.test(phon
 export const isValidName = (name: string): boolean => patterns.name.test(name);
 export const isValidStudentId = (id: string): boolean => patterns.studentId.test(id);
 export const isPositiveNumber = (value: number): boolean => !isNaN(value) && value > 0;
-export const isValidDate = (date: string): boolean => !isNaN(Date.parse(date));
+export const isValidDate = (date: string | Date): boolean => {
+  if (date instanceof Date) {
+    return !isNaN(date.getTime());
+  }
+  return !isNaN(Date.parse(date.toString()));
+};
 export const isValidPassword = (password: string): boolean => patterns.password.test(password);
+
+// Enrollment validation function
+export const validateEnrollment = (enrollment: { 
+  studentId: string;
+  courseId: string;
+  enrollmentDate: string;
+  status: string;
+}) => {
+  const errors: Record<string, string> = {};
+  
+  if (!enrollment.studentId) {
+    errors.studentId = 'Student is required';
+  }
+  
+  if (!enrollment.courseId) {
+    errors.courseId = 'Course is required';
+  }
+  
+  if (!enrollment.enrollmentDate) {
+    errors.enrollmentDate = 'Enrollment date is required';
+  } else if (!isValidDate(enrollment.enrollmentDate)) {
+    errors.enrollmentDate = 'Please enter a valid date';
+  }
+  
+  if (!enrollment.status) {
+    errors.status = 'Status is required';
+  }
+  
+  return errors;
+};
 
 // Student validation with context for edit vs create operations
 export const validateStudent = (student: Student, options?: { isEdit?: boolean }) => {
@@ -209,6 +245,15 @@ export const validateMessage = (message: Message) => {
   return errors;
 };
 
+// Type definition for Fee
+interface Fee {
+  grade: number;
+  type: string;
+  amount: number;
+  dueDate: string | Date;
+  [key: string]: any;
+}
+
 // Fee validation
 export const validateFee = (fee: Fee) => {
   const errors: Record<string, string> = {};
@@ -274,7 +319,32 @@ export const validateExam = (exam: Exam) => {
   if (exam.passingMarks > exam.maxMarks) {
     errors.passingMarks = 'Passing marks cannot exceed maximum marks';
   }
+  return errors;
+};
 
+// Enrollment validation - already defined above
+// Removing duplicate function
+const validateEnrollmentExtended = (enrollment: any): Record<string, string> => {
+  const errors: Record<string, string> = {};
+  
+  if (!enrollment.studentId) {
+    errors.studentId = 'Student is required';
+  }
+  
+  if (!enrollment.courseId) {
+    errors.courseId = 'Course is required';
+  }
+  
+  if (!enrollment.enrollmentDate) {
+    errors.enrollmentDate = 'Enrollment date is required';
+  } else if (!isValidDate(enrollment.enrollmentDate)) {
+    errors.enrollmentDate = 'Please enter a valid date';
+  }
+  
+  if (!enrollment.status) {
+    errors.status = 'Status is required';
+  }
+  
   return errors;
 };
 

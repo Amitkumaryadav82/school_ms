@@ -7,6 +7,7 @@ import {
   FormControl,
   InputLabel,
   Select,
+  SelectChangeEvent,
   Divider,
   Typography,
   Box,
@@ -140,7 +141,7 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
   }, [formData.firstName, formData.lastName]);
 
   const handleChange = (field: string) => (
-    e: React.ChangeEvent<HTMLInputElement | { value: unknown }>
+    e: React.ChangeEvent<HTMLInputElement | { value: unknown }> | SelectChangeEvent<string>
   ) => {
     setFormData((prev) => ({
       ...prev,

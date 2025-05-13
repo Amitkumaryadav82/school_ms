@@ -21,8 +21,7 @@ const AuthDebugger: React.FC = () => {
     // Get the token from localStorage
     const token = localStorage.getItem('token');
     
-    if (token) {
-      try {
+    if (token) {      try {
         // Decode the JWT token
         const parts = token.split('.');
         if (parts.length !== 3) {
@@ -43,14 +42,16 @@ const AuthDebugger: React.FC = () => {
           expiresIn: payload.exp ? new Date(payload.exp * 1000).toLocaleString() : 'Unknown',
           decodedPayload: payload
         });
-      } catch (e) {
-        setTokenInfo({ error: 'Failed to decode token', details: e.message });
+      } catch (e: unknown) {
+        const errorMessage = e && typeof e === 'object' && 'message' in e && typeof e.message === 'string' 
+          ? e.message 
+          : 'Unknown error';
+        setTokenInfo({ error: 'Failed to decode token', details: errorMessage });
       }
     } else {
       setTokenInfo({ error: 'No token found in localStorage' });
     }
   }, [refreshKey]);
-
   // Get user info
   const userInfo = React.useMemo(() => {
     const userStr = localStorage.getItem('user');
@@ -58,8 +59,11 @@ const AuthDebugger: React.FC = () => {
     
     try {
       return JSON.parse(userStr);
-    } catch (e) {
-      return { error: 'Failed to parse user data', details: e.message };
+    } catch (e: unknown) {
+      const errorMessage = e && typeof e === 'object' && 'message' in e && typeof e.message === 'string'
+        ? e.message
+        : 'Unknown error';
+      return { error: 'Failed to parse user data', details: errorMessage };
     }
   }, [refreshKey]);
 

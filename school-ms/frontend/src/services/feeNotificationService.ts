@@ -1,4 +1,4 @@
-import * as apiClient from './apiClient';
+import { apiClient, post, get } from './apiClient';
 import { AxiosResponse } from 'axios';
 
 // Types
@@ -26,7 +26,7 @@ export const sendPaymentReceiptNotification = async (
 ): Promise<NotificationResponse> => {
   try {
     const response: AxiosResponse<NotificationResponse> = 
-      await apiClient.post(`/api/notifications/fee/receipt/${paymentId}`);
+      await post(`/api/notifications/fee/receipt/${paymentId}`);
     return response.data;
   } catch (error) {
     console.error('Error sending payment receipt notification:', error);
@@ -41,7 +41,7 @@ export const sendPaymentReminderNotification = async (
 ): Promise<NotificationResponse> => {
   try {
     const response: AxiosResponse<NotificationResponse> = 
-      await apiClient.post(`/api/notifications/fee/reminder`, { studentId, dueDate });
+      await post(`/api/notifications/fee/reminder`, { studentId, dueDate });
     return response.data;
   }
   catch (error) {
@@ -56,7 +56,7 @@ export const sendOverduePaymentNotification = async (
 ): Promise<NotificationResponse> => {
   try {
     const response: AxiosResponse<NotificationResponse> = 
-      await apiClient.post(`/api/notifications/fee/overdue/${studentId}`);
+      await post(`/api/notifications/fee/overdue/${studentId}`);
     return response.data;
   }
   catch (error) {
@@ -71,7 +71,7 @@ export const getNotificationStatus = async (
 ): Promise<NotificationResponse> => {
   try {
     const response: AxiosResponse<NotificationResponse> = 
-      await apiClient.get(`/api/notifications/status/${notificationId}`);
+      await get(`/api/notifications/status/${notificationId}`);
     return response.data;
   }
   catch (error) {
@@ -88,7 +88,7 @@ export const schedulePaymentReminders = async (
 ): Promise<NotificationResponse> => {
   try {
     const response: AxiosResponse<NotificationResponse> = 
-      await apiClient.post(`/api/notifications/fee/schedule-reminders`, {
+      await post(`/api/notifications/fee/schedule-reminders`, {
         studentId,
         dueDate,
         reminderDays

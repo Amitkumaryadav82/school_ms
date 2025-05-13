@@ -27,8 +27,7 @@ import { hasPermission } from '../utils/permissions';
 import { useAuth } from '../context/AuthContext';
 
 const Teachers: React.FC = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);  const [selectedTeacher, setSelectedTeacher] = useState<Partial<Teacher> | undefined>(undefined);
   const { showNotification } = useNotification();
   const { user } = useAuth();
 
@@ -54,11 +53,10 @@ const Teachers: React.FC = () => {
 
   const { mutate: updateTeacher, loading: updateLoading } = useApiMutation(
     (data: Teacher) => teacherService.updateTeacher(data.id!, data),
-    {
-      onSuccess: () => {
+    {      onSuccess: () => {
         showNotification({ type: 'success', message: 'Teacher updated successfully' });
         setDialogOpen(false);
-        setSelectedTeacher(null);
+        setSelectedTeacher(undefined);
         refresh();
       },
     }
@@ -87,7 +85,7 @@ const Teachers: React.FC = () => {
 
   const handleDialogClose = () => {
     setDialogOpen(false);
-    setSelectedTeacher(null);
+    setSelectedTeacher(undefined);
   };
 
   const handleSubmit = async (data: Teacher) => {

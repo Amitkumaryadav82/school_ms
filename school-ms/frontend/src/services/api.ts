@@ -150,8 +150,7 @@ export const api = {
   
   delete: <T>(endpoint: string) => 
     apiClient.delete<T>(ensureEndpoint(endpoint)).then(res => res.data),
-  
-  patch: <T>(endpoint: string, data?: any) => 
+    patch: <T>(endpoint: string, data?: any) => 
     apiClient.patch<T>(ensureEndpoint(endpoint), data).then(res => res.data),
     
   // Specialized method for handling file uploads with XLS/CSV, especially for bulk imports
@@ -172,6 +171,21 @@ export const api = {
       // Handle JSON data case
       return apiClient.post<T>(url, fileOrData).then(res => res.data);
     }
+  },
+  
+  // Method for handling binary responses like PDFs or spreadsheets
+  downloadBlob: (endpoint: string, params?: any) => {
+    return apiClient.get(ensureEndpoint(endpoint), { 
+      responseType: 'blob',
+      params 
+    }).then(res => res.data);
+  },
+  
+  // Method for handling binary POST responses
+  downloadBlobPost: (endpoint: string, data?: any) => {
+    return apiClient.post(ensureEndpoint(endpoint), data, { 
+      responseType: 'blob' 
+    }).then(res => res.data);
   }
 };
 

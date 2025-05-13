@@ -6,6 +6,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { 
   BarChart, Bar, LineChart, Line, PieChart, Pie, XAxis, YAxis, 
@@ -19,7 +20,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import paymentAnalyticsService, { 
   AnalyticsSummary, DateRange, ClassWiseCollection 
 } from '../services/paymentAnalyticsService';
-import { DataTable } from './DataTable';
+import DataTable from './DataTable';
 import Loading from './Loading';
 import ErrorMessage from './ErrorMessage';
 
@@ -70,9 +71,8 @@ const PaymentAnalytics: React.FC = () => {
           data = await paymentAnalyticsService.getClassAnalytics(selectedClass, dateRange);
         } else {
           data = await paymentAnalyticsService.getAnalyticsSummary(dateRange);
-        }
-      }
-      setAnalytics(data);
+        }      }
+      setAnalytics(data || null);
     } catch (err) {
       setError("Failed to load analytics data. Please try again later.");
       console.error(err);
@@ -121,7 +121,7 @@ const PaymentAnalytics: React.FC = () => {
   };
 
   if (loading && !analytics) return <Loading />;
-  if (error && !analytics) return <ErrorMessage message={error} />;
+  if (error && !analytics) return <ErrorMessage message={error} title="Analytics Error" />;
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -283,9 +283,9 @@ const PaymentAnalytics: React.FC = () => {
                       <XAxis dataKey="grade" label={{ value: 'Grade', position: 'insideBottom', offset: -5 }} />
                       <YAxis />
                       <RechartsTooltip />
-                      <Legend />
-                      <Bar dataKey="collectionRate" name="Collection Rate (%)" fill="#8884d8" 
-                        formatter={(value) => `${(value * 100).toFixed(1)}%`} />
+                      <Legend />                      <Bar dataKey="collectionRate" name="Collection Rate (%)" fill="#8884d8">
+                        <RechartsTooltip formatter={(value: number) => `${(value * 100).toFixed(1)}%`} />
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </Paper>
@@ -371,14 +371,13 @@ const PaymentAnalytics: React.FC = () => {
             <Paper elevation={2} sx={{ p: 2, mb: 4 }}>
               <Typography variant="h6" gutterBottom>Class-wise Collection Analysis</Typography>
               <DataTable
-                columns={[
-                  { id: 'grade', label: 'Grade', format: (value) => `Grade ${value}` },
+                columns={[                  { id: 'grade', label: 'Grade', format: (value: number) => `Grade ${value}` },
                   { id: 'studentCount', label: 'Students' },
-                  { id: 'collected', label: 'Collected', format: (value) => `$${value.toLocaleString()}` },
-                  { id: 'due', label: 'Outstanding', format: (value) => `$${value.toLocaleString()}` },
-                  { id: 'collectionRate', label: 'Collection %', format: (value) => `${(value * 100).toFixed(1)}%` },
+                  { id: 'collected', label: 'Collected', format: (value: number) => `$${value.toLocaleString()}` },
+                  { id: 'due', label: 'Outstanding', format: (value: number) => `$${value.toLocaleString()}` },
+                  { id: 'collectionRate', label: 'Collection %', format: (value: number) => `${(value * 100).toFixed(1)}%` },
                 ]}
-                rows={analytics.classWiseCollection}
+                data={analytics.classWiseCollection || []}
               />
             </Paper>
           </TabPanel>

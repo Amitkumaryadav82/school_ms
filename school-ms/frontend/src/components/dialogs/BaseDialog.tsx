@@ -22,6 +22,8 @@ interface BaseDialogProps {
   loading?: boolean;
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   hideActions?: boolean;
+  fullWidth?: boolean;
+  disableSubmitButton?: boolean;
 }
 
 const BaseDialog: React.FC<BaseDialogProps> = ({
@@ -35,13 +37,14 @@ const BaseDialog: React.FC<BaseDialogProps> = ({
   loading = false,
   maxWidth = 'sm',
   hideActions = false,
+  fullWidth = true,
+  disableSubmitButton = false,
 }) => {
-  return (
-    <Dialog
+  return (    <Dialog
       open={open}
       onClose={loading ? undefined : onClose}
       maxWidth={maxWidth}
-      fullWidth
+      fullWidth={fullWidth}
     >
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -59,12 +62,11 @@ const BaseDialog: React.FC<BaseDialogProps> = ({
           <Button onClick={onClose} disabled={loading}>
             {cancelLabel}
           </Button>
-          {onSubmit && (
-            <Button
+          {onSubmit && (            <Button
               onClick={onSubmit}
               variant="contained"
               color="primary"
-              disabled={loading}
+              disabled={loading || disableSubmitButton}
             >
               {submitLabel}
             </Button>

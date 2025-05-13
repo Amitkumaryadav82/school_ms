@@ -1,5 +1,14 @@
+import axios from 'axios';
 import api from './api';
-import { AxiosResponse } from 'axios';
+import { Payment, FeeBreakdownItem, StudentFeeDetails } from '../types/payment.types';
+import config from '../config/environment';
+
+// Local interface for fee breakdown with extra fields needed in the service
+export interface FeeBreakdown extends FeeBreakdownItem {
+    id?: number;
+    paymentId?: number;
+    description: string;
+}
 
 // Fee Structure interfaces
 export interface FeeStructure {
@@ -56,31 +65,8 @@ export interface StudentFeeAssignment {
     isActive: boolean;
 }
 
-// Payment interfaces
-export interface Payment {
-    id?: number;
-    studentId: number;
-    studentName?: string;
-    paymentDate: string; // ISO format date
-    amountPaid: number;
-    paymentMethod: string; // 'CASH' | 'CHECK' | 'BANK_TRANSFER' | 'ONLINE'
-    transactionReference?: string;
-    paymentStatus: string; // 'PENDING' | 'COMPLETED' | 'FAILED'
-    academicYear: string; // e.g., '2024-2025'
-    academicTerm: string; // 'TERM1' | 'TERM2' | 'TERM3'
-    feeBreakdown: FeeBreakdown[];
-    receiptNumber?: string;
-    notes?: string;
-    processedBy?: string;
-}
-
-export interface FeeBreakdown {
-    id?: number;
-    paymentId?: number;
-    feeType: string; // 'TUITION' | 'TRANSPORT' | 'LATE_FEE' | 'OTHER'
-    description: string;
-    amount: number;
-}
+// Already imported at the top
+// Additional interfaces for receipts and payments
 
 export interface PaymentReceipt {
     id?: number;
@@ -214,17 +200,10 @@ const feeService = {
 
     voidPayment: async (id: number, reason: string): Promise<void> => {
         return await api.put(`/api/fees/payments/${id}/void`, { reason });
-    },
-
-    getPaymentReceipt: async (paymentId: number): Promise<PaymentReceipt> => {
+    },    getPaymentReceipt: async (paymentId: number): Promise<PaymentReceipt> => {
         return await api.get<PaymentReceipt>(`/api/fees/payments/${paymentId}/receipt`);
     },
-
-    downloadReceipt: async (paymentId: number): Promise<Blob> => {
-        return await api.get<Blob>(`/api/fees/payments/${paymentId}/receipt/download`, {
-            responseType: 'blob'
-        });
-    },
+      // Removed duplicate downloadReceipt function
 
     // Analytics endpoints
     getPaymentAnalytics: async (startDate?: string, endDate?: string): Promise<PaymentAnalytics> => {
@@ -249,9 +228,7 @@ const feeService = {
             url += `&year=${year}`;
         }
         return await api.get<RevenueTrendItem[]>(url);
-    },
-
-    getOverdueAnalytics: async (): Promise<OverdueAnalytics> => {
+    },    getOverdueAnalytics: async (): Promise<OverdueAnalytics> => {
         return await api.get<OverdueAnalytics>('/api/fees/analytics/overdue');
     },
 
@@ -262,16 +239,66 @@ const feeService = {
         }
         return await api.get<PaymentSummary[]>(url);
     },
-
-    exportPaymentData: async (format: string, startDate?: string, endDate?: string): Promise<Blob> => {
-        let url = `/api/fees/export?format=${format}`;
-        if (startDate && endDate) {
-            url += `&startDate=${startDate}&endDate=${endDate}`;
+      exportPaymentData: async (filters: any): Promise<void> => {
+        try {
+            // Use direct axios call with responseType: 'blob'
+            const response = await axios.post(`${config.apiUrl}/api/payments/export`, filters, {
+                responseType: 'blob',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Payments-${new Date().toISOString().split('T')[0]}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error) {
+            console.error('Error exporting payment data:', error);
+            throw error;
         }
-        return await api.get<Blob>(url, {
-            responseType: 'blob'
-        });
+    },
+
+    // Additional methods needed for PaymentDialog.tsx
+    getStudentFeeDetails: async (studentId: number): Promise<StudentFeeDetails> => {
+        return await api.get<StudentFeeDetails>(`/api/students/${studentId}/fee-details`);
+    },    getStudentPaymentHistory: async (studentId: number): Promise<Payment[]> => {
+        return await api.get<Payment[]>(`/api/students/${studentId}/payment-history`);
+    },    downloadReceipt: async (paymentId: number): Promise<void> => {
+        try {
+            // Use direct axios call with responseType: 'blob'
+            const response = await axios.get(`${config.apiUrl}/api/payments/${paymentId}/receipt`, {
+                responseType: 'blob',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            // Create blob link to download
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Receipt-${paymentId}.pdf`);
+            
+            // Append to html page
+            document.body.appendChild(link);
+            
+            // Force download
+            link.click();
+            
+            // Clean up and remove the link
+            link.parentNode?.removeChild(link);
+        } catch (error) {            console.error('Error downloading receipt:', error);
+            throw error;
+        }
     }
-};
+  };
+
+// Types already imported at the top
+// import { Payment, FeeBreakdownItem, PaymentMethod, PaymentFrequency, StudentFeeDetails } from '../types/payment.types';
 
 export default feeService;

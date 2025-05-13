@@ -20,6 +20,7 @@ import {
   FormControl,
   InputLabel
 } from '@mui/material';
+import { parseJwt } from '../services/authService';
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -47,16 +48,15 @@ const Staff: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkUploadDialogOpen, setBulkUploadDialogOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+  const [selectedStaff, setSelectedStaff] = useState<Partial<StaffMember> | undefined>(undefined);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const { showNotification } = useNotification();
   const { user } = useAuth();
-
-  // Add debug logging to track user role and permissions
+  // Add debug logging to track user role and permissions  
   useEffect(() => {
     console.log('Current user:', user);
     console.log('Has MANAGE_STAFF permission:', 
-      user ? hasPermission(user.role, 'MANAGE_STAFF') : false);
+      user && user.role ? hasPermission(user.role, 'MANAGE_STAFF') : false);
   }, [user]);
 
   const {
@@ -117,11 +117,10 @@ const Staff: React.FC = () => {
 
   const { mutate: updateStaff, loading: updateLoading } = useApiMutation(
     (data: StaffMember) => staffService.update(data.id!, data),
-    {
-      onSuccess: () => {
+    {      onSuccess: () => {
         showNotification({ type: 'success', message: 'Staff member updated successfully' });
         setDialogOpen(false);
-        setSelectedStaff(null);
+        setSelectedStaff(undefined);
         refresh();
       },
       onError: (error) => {
@@ -135,11 +134,10 @@ const Staff: React.FC = () => {
 
   const { mutate: deleteStaff, loading: deleteLoading } = useApiMutation(
     (id: number) => staffService.delete(id),
-    {
-      onSuccess: () => {
+    {      onSuccess: () => {
         showNotification({ type: 'success', message: 'Staff member deleted successfully' });
         setConfirmDeleteOpen(false);
-        setSelectedStaff(null);
+        setSelectedStaff(undefined);
         refresh();
       },
       onError: (error) => {
@@ -150,9 +148,11 @@ const Staff: React.FC = () => {
       }
     }
   );
-
   const { mutate: toggleStaffStatus, loading: toggleStatusLoading } = useApiMutation(
-    (data: { id: number; isActive: boolean }) => staffService.update(data.id, { isActive: data.isActive }),
+    (data: { id: number; isActive: boolean }) => {
+      const staffUpdate: Partial<StaffMember> = { isActive: data.isActive };
+      return staffService.update(data.id, staffUpdate as StaffMember);
+    },
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Staff status updated successfully' });
@@ -282,15 +282,15 @@ const Staff: React.FC = () => {
     
     console.log('Debug: User permissions check', {
       userId: user.id,
-      userName: user.username,
-      userRole: user.role,
+      userName: user?.username || 'unknown',
+      userRole: user?.role || 'none',
       token: localStorage.getItem('token') ? 'Present (first 10 chars): ' + 
         localStorage.getItem('token')?.substring(0, 10) + '...' : 'Missing',
-      hasManageStaff: hasPermission(user.role, 'MANAGE_STAFF'),
+      hasManageStaff: user?.role ? hasPermission(user.role, 'MANAGE_STAFF') : false,
       timestamp: new Date().toISOString()
     });
     
-    return hasPermission(user.role, 'MANAGE_STAFF');
+    return user?.role ? hasPermission(user.role, 'MANAGE_STAFF') : false;
   };
 
   // Use effect to run the debug check when component loads
@@ -309,10 +309,9 @@ const Staff: React.FC = () => {
     setSelectedStaff(staff);
     setConfirmDeleteOpen(true);
   };
-
   const handleDialogClose = () => {
     setDialogOpen(false);
-    setSelectedStaff(null);
+    setSelectedStaff(undefined);
   };
 
   const handleBulkUploadDialogClose = () => {
@@ -423,9 +422,8 @@ const Staff: React.FC = () => {
     
     return `${firstInitial}${lastInitial}`.toUpperCase();
   };
-
-  const getStaffFullName = (staff: StaffMember) => {
-    return `${staff.firstName} ${staff.lastName}`;
+  const getStaffFullName = (staff: Partial<StaffMember>) => {
+    return `${staff.firstName || ''} ${staff.lastName || ''}`;
   };
 
   const getAvatarColor = (role: string) => {
@@ -676,9 +674,12 @@ const Staff: React.FC = () => {
   if (loading && !staffList) {
     return <Loading />;
   }
-
   if (error) {
-    return <ErrorMessage message={error.message} onRetry={refresh} />;
+    // Properly handle potential string error by explicitly converting to string
+    const errorMessage = typeof error === 'string' 
+      ? error 
+      : (error as Error)?.message || String(error);
+    return <ErrorMessage message={errorMessage} onRetry={refresh} />;
   }
 
   return (

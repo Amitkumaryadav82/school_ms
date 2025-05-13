@@ -140,9 +140,8 @@ const mapToBackendStudent = (student: Student): BackendStudent => {
     } else {
       // If no date provided, use current date
       formattedDateOfBirth = new Date().toISOString().split('T')[0];
-    }
-  } catch (error) {
-    console.warn(`Error parsing date ${student.dateOfBirth} for student ${student.name || student.studentId}: ${error.message}`);
+    }  } catch (error: unknown) {
+    console.warn(`Error parsing date ${student.dateOfBirth} for student ${student.name || student.studentId}: ${(error as Error)?.message}`);
     // Fallback to current date
     formattedDateOfBirth = new Date().toISOString().split('T')[0];
   }

@@ -192,7 +192,7 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
       staffId: formData.staffId || '',
       firstName: formData.firstName || '',
       lastName: formData.lastName || '',
-      fullName: `${formData.firstName} ${formData.lastName}`,
+      fullName: `${formData.firstName || ''} ${formData.lastName || ''}`.trim(),
       email: formData.email || '',
       phoneNumber: formData.phoneNumber || '',
       address: formData.address || '',
@@ -640,11 +640,10 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <InputLabel>Class Teacher</InputLabel>
-                <Select
-                  value={formData.teacherDetails?.isClassTeacher ? "yes" : "no"}
+                <Select                  value={formData.teacherDetails?.isClassTeacher ? "yes" : "no"}
                   onChange={(e) => {
                     handleTeacherCheckboxChange('isClassTeacher')(
-                      { target: { checked: e.target.value === "yes" } } as React.ChangeEvent<HTMLInputElement>
+                      { target: { checked: String(e.target.value) === "yes" } } as React.ChangeEvent<HTMLInputElement>
                     );
                   }}
                   label="Class Teacher"

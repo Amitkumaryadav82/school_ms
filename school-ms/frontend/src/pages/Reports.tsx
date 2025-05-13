@@ -16,6 +16,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import { AxiosResponse } from 'axios';
 import {
   BarChart,
   Bar,
@@ -67,15 +68,38 @@ const Reports = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const [coursesRes, studentsRes, teachersRes] = await Promise.all([
-        courseService.getAll(),
-        studentService.getAll(),
-        teacherService.getAll(),
-      ]);
-      setCourses(coursesRes.data);
-      setStudents(studentsRes.data);
-      setTeachers(teachersRes.data);
+      setError(null);      // Each service returns data in a potentially different format, handle accordingly
+      const coursesResult = await courseService.getAll();
+      const studentsResult = await studentService.getAll();
+      const teachersResult = await teacherService.getAll();
+      
+      // Process each response separately with proper type assertions
+      if (Array.isArray(coursesResult)) {
+        // Direct array response
+        setCourses(coursesResult as Course[]);
+      } else {
+        // Assume AxiosResponse with data property
+        const axiosResult = coursesResult as any;
+        setCourses(Array.isArray(axiosResult.data) ? axiosResult.data : []);
+      }
+      
+      if (Array.isArray(studentsResult)) {
+        // Direct array response
+        setStudents(studentsResult as Student[]);
+      } else {
+        // Assume AxiosResponse with data property
+        const axiosResult = studentsResult as any;
+        setStudents(Array.isArray(axiosResult.data) ? axiosResult.data : []);
+      }
+      
+      if (Array.isArray(teachersResult)) {
+        // Direct array response
+        setTeachers(teachersResult as Teacher[]);
+      } else {
+        // Assume AxiosResponse with data property
+        const axiosResult = teachersResult as any;
+        setTeachers(Array.isArray(axiosResult.data) ? axiosResult.data : []);
+      }
     } catch (error) {
       console.error('Error loading report data:', error);
       setError('Failed to load report data. Please try again.');

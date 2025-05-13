@@ -3,16 +3,30 @@ import axios from 'axios';
 import config from '../config/environment';
 
 interface ErrorMessageProps {
-  error: any;
+  error?: any;
+  message?: string;
+  title?: string;
   resetError?: () => void;
+  onRetry?: () => Promise<void> | void;
   className?: string;
 }
 
-const ErrorMessage: React.FC<ErrorMessageProps> = ({ error, resetError, className = '' }) => {
+const ErrorMessage: React.FC<ErrorMessageProps> = ({ error, message, title, resetError, onRetry, className = '' }) => {
   const [countdown, setCountdown] = useState<number>(0);
   const [isRetrying, setIsRetrying] = useState<boolean>(false);
   const [backupServerStatus, setBackupServerStatus] = useState<'unknown' | 'available' | 'unavailable'>('unknown');
   
+  // If direct message is provided, use that instead of error processing
+  if (message) {
+    return (
+      <div className={`error-message ${className}`}>
+        {title && <h4>{title}</h4>}
+        <p>{message}</p>
+      </div>
+    );
+  }
+  
+  // Otherwise process the error object
   const isNetworkError = error?.status === 'network_error';
   const isServerUnreachable = isNetworkError && !error?.isOffline;
   
@@ -35,10 +49,10 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ error, resetError, classNam
     // Fallback for unknown error formats
     return 'An unexpected error occurred.';
   };
-  
-  // Function to retry a request with backup server if primary server is down
+    // Function to retry a request with backup server if primary server is down
   const handleRetry = async () => {
-    if (!resetError) return;
+    // Use onRetry if provided, otherwise fall back to resetError
+    if (!onRetry && !resetError) return;
     
     setIsRetrying(true);
     setCountdown(3);
@@ -53,10 +67,18 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ error, resetError, classNam
         return prevCount - 1;
       });
     }, 1000);
-    
-    // Wait for the countdown to finish
-    setTimeout(() => {
-      resetError();
+      // Wait for the countdown to finish
+    setTimeout(async () => {
+      // Call onRetry if available, otherwise fall back to resetError
+      if (onRetry) {
+        try {
+          await onRetry();
+        } catch (error) {
+          console.error('Retry failed:', error);
+        }
+      } else if (resetError) {
+        resetError();
+      }
       setIsRetrying(false);
     }, 3000);
   };

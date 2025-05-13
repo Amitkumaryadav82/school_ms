@@ -31,27 +31,27 @@ import {
   Close as CloseIcon,
   Logout as LogoutIcon
 } from '@mui/icons-material';
-import { useApi, useApiMutation } from '../hooks/useApi.ts';
-import { studentService, Student } from '../services/studentService.ts';
-import DataTable, { Column } from '../components/DataTable.tsx';
-import StudentDialog from '../components/dialogs/StudentDialog.tsx';
-import BulkStudentUploadDialog from '../components/dialogs/BulkStudentUploadDialog.tsx';
-import Loading from '../components/Loading.tsx';
-import ErrorMessage from '../components/ErrorMessage.tsx';
-import { formatDate, formatStatus, createActionColumn } from '../utils/tableFormatters.tsx';
-import Permission from '../components/Permission.tsx';
-import { useNotification } from '../context/NotificationContext.tsx';
-import { hasPermission } from '../utils/permissions.ts';
-import { useAuth } from '../context/AuthContext.tsx';
-import ApiTestDialog from '../components/debug/ApiTestDialog.tsx';
+import { useApi, useApiMutation } from '../hooks/useApi';
+import { studentService, Student } from '../services/studentService';
+import DataTable, { Column } from '../components/DataTable';
+import StudentDialog from '../components/dialogs/StudentDialog';
+import BulkStudentUploadDialog from '../components/dialogs/BulkStudentUploadDialog';
+import Loading from '../components/Loading';
+import ErrorMessage from '../components/ErrorMessage';
+import { formatDate, formatStatus, createActionColumn } from '../utils/tableFormatters';
+import Permission from '../components/Permission';
+import { useNotification } from '../context/NotificationContext';
+import { hasPermission } from '../utils/permissions';
+import { useAuth } from '../context/AuthContext';
+import ApiTestDialog from '../components/debug/ApiTestDialog';
 
 const Students: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Partial<Student> | undefined>(undefined);
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
+  const [studentToDelete, setStudentToDelete] = useState<Student | undefined>(undefined);
   const { showNotification } = useNotification();
   const { user } = useAuth();
   const [debugDialogOpen, setDebugDialogOpen] = useState(false);
@@ -77,16 +77,16 @@ const Students: React.FC = () => {
         showNotification({ type: 'success', message: 'Student created successfully' });
         setDialogOpen(false);
         refresh();
-      },
-      onError: (err) => {
+      },      onError: (err: unknown) => {
         console.error('Error saving student:', err);
-        if (err.response) {
-          console.error('Server response:', err.response.data);
-          console.error('Status code:', err.response.status);
+        const axiosError = err as any;
+        if (axiosError.response) {
+          console.error('Server response:', axiosError.response.data);
+          console.error('Status code:', axiosError.response.status);
         }
         showNotification({ 
           type: 'error', 
-          message: `Failed to create student: ${err.response?.data?.message || err.message || 'Unknown error'}` 
+          message: `Failed to create student: ${axiosError.response?.data?.message || (err as Error)?.message || 'Unknown error'}` 
         });
       }
     }
@@ -97,8 +97,7 @@ const Students: React.FC = () => {
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Student updated successfully' });
-        setDialogOpen(false);
-        setSelectedStudent(null);
+        setDialogOpen(false);        setSelectedStudent(undefined);
         refresh();
       },
     }
@@ -150,17 +149,17 @@ const Students: React.FC = () => {
       }
     }
   );
-  
-  const handleStatusChange = async (student: Student, newStatus: string) => {
+    const handleStatusChange = async (student: Partial<Student>, newStatus: string) => {
     try {
-      await updateStudentStatus({ id: student.id!, status: newStatus });
+      if (student.id) {
+        await updateStudentStatus({ id: student.id, status: newStatus });
+      }
       setMenuAnchorEl(null);
     } catch (error) {
       console.error('Error updating student status:', error);
     }
   };
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, student: Student) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, student: Partial<Student>) => {
     setSelectedStudent(student);
     setMenuAnchorEl(event.currentTarget);
   };
@@ -180,21 +179,20 @@ const Students: React.FC = () => {
       try {
         await deleteStudent(studentToDelete.id!);
         setConfirmationDialogOpen(false);
-        setStudentToDelete(null);
-      } catch (error) {
+        setStudentToDelete(undefined);
+      } catch (error: unknown) {
         console.error('Error deleting student:', error);
         showNotification({
           type: 'error',
-          message: `Failed to delete student: ${error.message || 'Unknown error'}`
+          message: `Failed to delete student: ${(error as Error)?.message || 'Unknown error'}`
         });
         // Keep the dialog open if there was an error
       }
     }
   };
-
   const handleDialogClose = () => {
     setDialogOpen(false);
-    setSelectedStudent(null);
+    setSelectedStudent(undefined);
   };
 
   const handleSubmit = async (data: Student) => {
@@ -225,19 +223,19 @@ const Students: React.FC = () => {
           }
         }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error in handleSubmit:', error);
+      const axiosError = error as any;
       showNotification({
         type: 'error',
-        message: `Error: ${error.response?.data?.message || error.message || 'Unknown error occurred'}`
+        message: `Error: ${axiosError.response?.data?.message || (error as Error)?.message || 'Unknown error occurred'}`
       });
     }
   };
-
   const handleBulkSubmit = async (students: Student[]) => {
     try {
       await createBulkStudents(students);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Standard API approach failed, trying with elevated permissions:', err);
       
       try {
@@ -248,7 +246,7 @@ const Students: React.FC = () => {
         });
         setBulkDialogOpen(false);
         refresh();
-      } catch (elevatedErr) {
+      } catch (elevatedErr: unknown) {
         console.error('Failed with elevated permissions too:', elevatedErr);
         throw elevatedErr;
       }
@@ -386,13 +384,16 @@ const Students: React.FC = () => {
   if (loading) {
     return <Loading />;
   }
-
   if (error) {
+    // Properly handle potential string error by explicitly checking type first
+    const errorMessage = typeof error === 'string' 
+      ? error 
+      : (error as Error)?.message || String(error) || "Couldn't load student data";
+    
     return (
-      <Box sx={{ p: 3 }}>
-        <ErrorMessage 
+      <Box sx={{ p: 3 }}>        <ErrorMessage 
           title="Error Loading Students" 
-          message={error.message || "Couldn't load student data"} 
+          message={errorMessage} 
           onRetry={refresh} 
         />
         

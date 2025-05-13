@@ -38,6 +38,7 @@ interface DataTableProps<T> {
   searchEnabled?: boolean;
   searchPlaceholder?: string;
   onSearch?: (query: string) => void;
+  initialSortBy?: string;
 }
 
 function DataTable<T extends { [key: string]: any }>({
@@ -50,11 +51,12 @@ function DataTable<T extends { [key: string]: any }>({
   searchEnabled = true,
   searchPlaceholder = 'Search...',
   onSearch,
+  initialSortBy,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(initialSortBy || null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
