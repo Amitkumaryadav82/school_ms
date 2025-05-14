@@ -13,8 +13,15 @@ const apiClient = axios.create({
 // Add authentication token to all requests
 apiClient.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
+  
+  // Fix: ensure we don't have duplicate base URLs
+  if (config.url?.startsWith('http://localhost:8080') && config.baseURL?.includes('localhost:8080')) {
+    config.url = config.url.replace('http://localhost:8080', '');
+    console.warn('Detected and fixed duplicate base URL in request');
+  }
+  
   // Add enhanced logging for debugging
-  console.log(`Request to ${config.url}:`, {
+  console.log(`Request to ${config.baseURL}${config.url}:`, {
     method: config.method,
     hasToken: !!token,
     tokenFirstChars: token ? `${token.substring(0, 10)}...` : 'none',
@@ -52,15 +59,22 @@ apiClient.interceptors.response.use(
       method: error.config?.method,
       headers: error.config?.headers,
       requestTimestamp: new Date().toISOString()
-    });
-
-    // For 403 errors, log all possible information to diagnose permission issues
+    });    // For 403 errors, log all possible information to diagnose permission issues
     if (error.response?.status === 403) {
       console.error('Permission Error (403) Details:');
       console.error('Current localStorage token:', localStorage.getItem('token') ? 'Present (first 10 chars): ' + 
         localStorage.getItem('token')?.substring(0, 10) + '...' : 'Missing');
       console.error('User from localStorage:', localStorage.getItem('user'));
-      console.error('Full request URL:', error.config?.baseURL + error.config?.url);
+      
+      // Fix: Ensure we correctly display the URL without duplication
+      let fullRequestUrl = '';
+      if (error.config?.url?.startsWith('http')) {
+        fullRequestUrl = error.config.url;
+      } else {
+        fullRequestUrl = `${error.config?.baseURL || ''}${error.config?.url || ''}`;
+      }
+      console.error('Full request URL:', fullRequestUrl);
+      
       console.error('Request Method:', error.config?.method?.toUpperCase());
       console.error('Request Headers:', error.config?.headers);
       
@@ -71,6 +85,18 @@ apiClient.interceptors.response.use(
       }
       
       console.error('Response Body:', error.response?.data);
+      
+      // Check for role/authorization issues
+      const userDataStr = localStorage.getItem('user');
+      if (userDataStr) {
+        try {
+          const userData = JSON.parse(userDataStr);
+          console.error('User role:', userData.role);
+          console.error('Required roles for this endpoint may include ADMIN or TEACHER');
+        } catch (e) {
+          console.error('Could not parse user data');
+        }
+      }
     }
 
     // For server errors (500), log request data for debugging

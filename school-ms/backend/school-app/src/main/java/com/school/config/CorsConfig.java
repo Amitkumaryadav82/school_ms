@@ -36,12 +36,12 @@ public class CorsConfig {
         config.setAllowedHeaders(Arrays.asList(
                 "Authorization", "Content-Type", "Accept",
                 "X-Requested-With", "X-User-Role", "Origin",
-                "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-
-        // Expose headers that frontend might need
+                "Access-Control-Request-Method", "Access-Control-Request-Headers"));        // Expose headers that frontend might need
         config.setExposedHeaders(Arrays.asList(
                 "Access-Control-Allow-Origin",
                 "Access-Control-Allow-Credentials",
+                "Access-Control-Allow-Headers",
+                "Content-Disposition",
                 "Authorization"));
 
         config.setAllowCredentials(true);

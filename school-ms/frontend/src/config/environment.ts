@@ -11,7 +11,7 @@ const development: Config = {
   apiUrl: 'http://localhost:8080',  // Using port 8080 which is typical for Spring Boot apps
   fallbackApiUrl: 'http://localhost:3000', // Fallback URL in case primary fails
   swaggerUrl: 'http://localhost:8080/swagger-ui/index.html',
-  apiTimeout: 10000, // 10 second timeout for API calls
+  apiTimeout: 15000, // Extended to 15 seconds for debugging
   retryAttempts: 2 // Number of times to retry failed requests
 };
 

@@ -35,14 +35,14 @@ public class SecurityConfig {
     private String jwtSecret;
 
     @Value("${jwt.expiration}")
-    private long jwtExpiration;
-
-    private final CorsFilter corsFilter;
+    private long jwtExpiration;    private final CorsFilter corsFilter;
     private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    public SecurityConfig(CorsFilter corsFilter, UserDetailsService userDetailsService) {
+    public SecurityConfig(CorsFilter corsFilter, UserDetailsService userDetailsService, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
         this.corsFilter = corsFilter;
         this.userDetailsService = userDetailsService;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
     @Bean
@@ -96,10 +96,12 @@ public class SecurityConfig {
                     corsConfiguration.setAllowCredentials(true);
                     corsConfiguration.setMaxAge(3600L);
                     return corsConfiguration;
-                }))
-
-                // Use stateless sessions for API calls
+                }))                // Use stateless sessions for API calls
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                
+                // Set up exception handlers
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> {
@@ -119,10 +121,13 @@ public class SecurityConfig {
                             AntPathRequestMatcher.antMatcher("/images/**"),
                             AntPathRequestMatcher.antMatcher("/favicon.ico"),
                             AntPathRequestMatcher.antMatcher("/manifest.json"),
-                            AntPathRequestMatcher.antMatcher("/robots.txt")).permitAll();
-
-                    // Authentication endpoints
+                            AntPathRequestMatcher.antMatcher("/robots.txt")).permitAll();                    // Authentication endpoints
                     auth.requestMatchers("/api/auth/**", "/api/auth/login", "/api/auth/register").permitAll();
+                    
+                    // IMPORTANT: Override the method-level security for fee report endpoints
+                    // to ensure they are accessible by both ADMIN and TEACHER roles
+                    auth.requestMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status").authenticated();
+                    auth.requestMatchers("/api/fees/reports/download/**").authenticated();
 
                     // Swagger/OpenAPI documentation
                     auth.requestMatchers(

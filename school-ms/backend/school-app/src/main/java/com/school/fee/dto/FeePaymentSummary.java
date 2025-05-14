@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class FeePaymentSummary {
+    // Original fields for single fee summary
     private Long feeId;
     private String feeName;
     private Double totalAmount;
@@ -17,4 +18,10 @@ public class FeePaymentSummary {
     private PaymentStatus status;
     private Double latePaymentCharges;
     private boolean isOverdue;
+    
+    // Additional fields for report generation
+    private Long studentId;
+    private String studentName;
+    private String lastPaymentDate;
+    private String nextDueDate;
 }

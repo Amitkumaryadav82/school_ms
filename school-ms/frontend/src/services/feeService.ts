@@ -281,6 +281,55 @@ const feeService = {
         }
         return await api.get<PaymentSummary[]>(url);
     },
+    
+    // Report generation methods
+    generateFeesDueReport: async (classGrade?: number | null): Promise<PaymentSummary[]> => {
+        let url = '/api/fees/reports/fees-due';
+        if (classGrade !== undefined && classGrade !== null) {
+            url += `?classGrade=${classGrade}`;
+        }
+        return await api.get<PaymentSummary[]>(url);
+    },    generateFeeStatusReport: async (classGrade?: number | null): Promise<PaymentSummary[]> => {
+        // Ensure the endpoint matches exactly what's in the backend FeeController
+        let url = '/api/fees/reports/fee-status';
+        if (classGrade !== undefined && classGrade !== null) {
+            url += `?classGrade=${classGrade}`;
+        }
+        return await api.get<PaymentSummary[]>(url);
+    },
+      downloadFeeReport: async (reportType: string, classGrade?: number | null): Promise<void> => {
+        try {
+            // Fix the URL to prevent duplication of the base URL
+            let url = `/api/fees/reports/download/${reportType}`;
+            if (classGrade !== undefined && classGrade !== null) {
+                url += `?classGrade=${classGrade}`;
+            }
+            
+            // Use apiClient to ensure consistent configuration
+            const response = await api.get(url, {
+                responseType: 'blob'
+            });
+            
+            // Create blob link to download
+            const fileDate = new Date().toISOString().split('T')[0];
+            const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', `Fee-Report-${reportType}-${fileDate}.xlsx`);
+            
+            // Append to html page
+            document.body.appendChild(link);
+            
+            // Force download
+            link.click();
+            
+            // Clean up and remove the link
+            link.parentNode?.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading fee report:', error);
+            throw error;
+        }
+    },
       exportPaymentData: async (filters: any): Promise<void> => {
         try {
             // Use direct axios call with responseType: 'blob'

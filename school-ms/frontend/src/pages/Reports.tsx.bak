@@ -161,69 +161,41 @@ const Reports = () => {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };  // Fee report generation methods
+  };
+
+  // Fee report generation methods
   const handleGenerateFeeReport = async (reportType: 'students-with-fees-due' | 'fee-payment-status') => {
     setSelectedFeeReportType(reportType);
     setLoadingFeeReport(true);
     setFeeReportError(null);
     
     try {
-      // Import debug utilities for testing
-      const debugApi = (await import('../utils/debug-api')).default;
+      // For the MVP, we'll use mock data
+      setFeeReportData([{ type: reportType }]); // Just a placeholder to indicate report has been generated
       
-      // Log the API configuration to help debug issues
-      const apiConfig = debugApi.checkApiConfig();
-      console.log('API config check before generating report:', apiConfig);
-      
-      // Use real data from backend API
+      // Commented out until backend endpoints are ready
+      /*
       let data: any[];
       if (reportType === 'students-with-fees-due') {
         data = await feeService.generateFeesDueReport(feeReportType === 'byClass' ? selectedClassGrade : null);
       } else {
-        // For fee-payment-status, first try with the debug utility to isolate the problem
-        try {
-          console.log('Trying debug API call first...');          data = await debugApi.testFeeStatusReport(feeReportType === 'byClass' ? selectedClassGrade : null);
-        } catch (debugError) {
-          console.error('Debug API call failed, falling back to regular service:', debugError);
-          data = await feeService.generateFeeStatusReport(feeReportType === 'byClass' ? selectedClassGrade : null);
-        }
+        data = await feeService.generateFeeStatusReport(feeReportType === 'byClass' ? selectedClassGrade : null);
       }
-      
-      // Import and use the fee report debug utility
-      const feeReportDebug = await import('../utils/fee-report-debug');
-      
-      if (!data || !Array.isArray(data)) {
-        console.warn('Received non-array data:', data);
-        data = [];
-      }
-      
-      // Analyze the data for potential issues
-      const analysis = feeReportDebug.analyzeFeeReportData(
-        reportType,
-        feeReportType === 'byClass' ? selectedClassGrade : null,
-        data
-      );
-      
-      // Log diagnostic information
-      console.log('Fee report diagnostics:', analysis.diagnostics.join('\n'));
-      
-      if (analysis.hasIssues) {
-        console.warn('⚠️ Issues detected in fee report data. Check console for details.');
-      }
-      
       setFeeReportData(data);
+      */
     } catch (error) {
       console.error('Error generating fee report:', error);
-      setFeeReportError('Failed to generate report. Please try again. Check console for details.');
+      setFeeReportError('Failed to generate report. Please try again.');
       showNotification({
         type: 'error',
-        message: 'Failed to generate fee report. Check browser console for details.',
+        message: 'Failed to generate fee report',
       });
     } finally {
       setLoadingFeeReport(false);
     }
   };
-    const handleDownloadFeeReport = async () => {
+  
+  const handleDownloadFeeReport = async () => {
     if (!selectedFeeReportType) {
       showNotification({
         type: 'error',
@@ -233,11 +205,35 @@ const Reports = () => {
     }
     
     try {
-      // Use the downloadFeeReport service method to get real data
-      await feeService.downloadFeeReport(
-        selectedFeeReportType, 
-        feeReportType === 'byClass' ? selectedClassGrade : null
-      );
+      // For the MVP, we'll create a simple CSV download
+      const headers = "Student ID,Student Name,Total Due,Total Paid,Balance,Status,Last Payment,Next Due Date\n";
+      let csvContent = headers;
+      
+      // Sample data for demonstration
+      const mockData = selectedFeeReportType === 'students-with-fees-due' ? 
+        [
+          "1001,John Doe,15000,10000,5000,PARTIALLY_PAID,2025-03-15,2025-06-01",
+          "1002,Jane Smith,15000,0,15000,UNPAID,,2025-05-15",
+          "1003,Michael Brown,15000,5000,10000,PARTIALLY_PAID,2025-02-10,2025-05-15"
+        ] :
+        [
+          "1001,John Doe,15000,10000,5000,PARTIALLY_PAID,2025-03-15,2025-06-01",
+          "1002,Jane Smith,15000,0,15000,UNPAID,,2025-05-15",
+          "1003,Michael Brown,15000,5000,10000,PARTIALLY_PAID,2025-02-10,2025-05-15",
+          "1004,Sarah Johnson,15000,15000,0,PAID,2025-01-15,2025-06-15"
+        ];
+        
+      csvContent += mockData.join("\n");
+      
+      // Create a download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${selectedFeeReportType}-${feeReportType === 'byClass' ? 'grade-' + selectedClassGrade : 'all'}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       
       showNotification({
         type: 'success',
@@ -251,11 +247,12 @@ const Reports = () => {
       });
     }
   };
+
   const enrollmentData: EnrollmentData[] = courses.map((course: Course) => ({
     courseName: course.name,
-    enrolled: course.enrolled,
-    capacity: course.capacity,
-    availableSeats: course.capacity - course.enrolled
+    enrolled: number;
+    capacity: number;
+    availableSeats: number;
   }));
 
   const departmentStats: DepartmentStats[] = courses.reduce((acc: DepartmentStats[], course: Course) => {
@@ -451,39 +448,39 @@ const Reports = () => {
           </Grid>
         </Grid>      )}
       </TabPanel>
-        <TabPanel value={tabValue} index={1}>
+      
+      <TabPanel value={tabValue} index={1}>
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#1565C0' }}>Fee Reports</Typography>
-          <Paper sx={{ p: 3, backgroundColor: '#f5f9ff', boxShadow: '0 4px 8px rgba(0,0,0,0.05)' }}>
-            <Grid container spacing={3}>
+          <Typography variant="h6" gutterBottom>Fee Reports</Typography>
+          <Paper sx={{ p: 3 }}>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'medium', mb: 2 }}>
-                  Report Filters
-                </Typography>
-                <Grid container spacing={3} alignItems="center">
+                <Typography variant="subtitle1" gutterBottom>Select Report Type</Typography>
+                <Grid container spacing={2}>
                   <Grid item>
-                    <FormControl sx={{ minWidth: 200 }} variant="outlined">
-                      <InputLabel>Filter By</InputLabel>
-                      <Select
-                        value={feeReportType}
-                        label="Filter By"
-                        onChange={(e) => setFeeReportType(e.target.value as 'all' | 'byClass')}
-                        sx={{ backgroundColor: 'white' }}
-                      >
-                        <MenuItem value="all">All Classes</MenuItem>
-                        <MenuItem value="byClass">Specific Class</MenuItem>
-                      </Select>
-                    </FormControl>
+                    <Button
+                      variant={feeReportType === 'all' ? 'contained' : 'outlined'}
+                      onClick={() => setFeeReportType('all')}
+                    >
+                      All Classes
+                    </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      variant={feeReportType === 'byClass' ? 'contained' : 'outlined'}
+                      onClick={() => setFeeReportType('byClass')}
+                    >
+                      By Class
+                    </Button>
                   </Grid>
                   {feeReportType === 'byClass' && (
                     <Grid item>
-                      <FormControl sx={{ minWidth: 150 }} variant="outlined">
+                      <FormControl sx={{ minWidth: 120 }}>
                         <InputLabel>Class Grade</InputLabel>
                         <Select
                           value={selectedClassGrade ?? ''}
                           label="Class Grade"
                           onChange={(e) => setSelectedClassGrade(e.target.value ? Number(e.target.value) : null)}
-                          sx={{ backgroundColor: 'white' }}
                         >
                           {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
                             <MenuItem key={grade} value={grade}>Grade {grade}</MenuItem>
@@ -495,78 +492,45 @@ const Reports = () => {
                 </Grid>
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 1 }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'medium', mb: 2 }}>
-                  Report Types
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleGenerateFeeReport('students-with-fees-due')}
-                      disabled={(feeReportType === 'byClass' && !selectedClassGrade)}
-                      startIcon={<DescriptionIcon />}
-                      sx={{ 
-                        borderRadius: '4px', 
-                        textTransform: 'none',
-                        backgroundColor: selectedFeeReportType === 'students-with-fees-due' ? '#1565C0' : '#e0e0e0',
-                        color: selectedFeeReportType === 'students-with-fees-due' ? 'white' : 'rgba(0, 0, 0, 0.87)',
-                        '&:hover': {
-                          backgroundColor: selectedFeeReportType === 'students-with-fees-due' ? '#1976D2' : '#d5d5d5',
-                        }
-                      }}
-                    >
-                      Students with Fees Due
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleGenerateFeeReport('fee-payment-status')}
-                      disabled={(feeReportType === 'byClass' && !selectedClassGrade)}
-                      startIcon={<DescriptionIcon />}
-                      sx={{ 
-                        borderRadius: '4px', 
-                        textTransform: 'none',
-                        backgroundColor: selectedFeeReportType === 'fee-payment-status' ? '#1565C0' : '#e0e0e0',
-                        color: selectedFeeReportType === 'fee-payment-status' ? 'white' : 'rgba(0, 0, 0, 0.87)',
-                        '&:hover': {
-                          backgroundColor: selectedFeeReportType === 'fee-payment-status' ? '#1976D2' : '#d5d5d5',
-                        }
-                      }}
-                    >
-                      Fee Payment Status
-                    </Button>
-                  </Grid>
+              <Grid item container spacing={2} sx={{ mt: 2 }}>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleGenerateFeeReport('students-with-fees-due')}
+                    disabled={(feeReportType === 'byClass' && !selectedClassGrade)}
+                  >
+                    Students with Fees Due
+                  </Button>
                 </Grid>
-              </Grid>
-
-              <Grid item xs={12} sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={handleDownloadFeeReport}
-                  disabled={(feeReportType === 'byClass' && !selectedClassGrade) || !selectedFeeReportType}
-                  startIcon={<GetAppIcon />}
-                  sx={{ 
-                    borderRadius: '4px', 
-                    textTransform: 'none',
-                    fontWeight: 'medium',
-                    boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  Download Report
-                </Button>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleGenerateFeeReport('fee-payment-status')}
+                    disabled={(feeReportType === 'byClass' && !selectedClassGrade)}
+                  >
+                    Fee Payment Status
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleDownloadFeeReport}
+                    disabled={(feeReportType === 'byClass' && !selectedClassGrade) || !selectedFeeReportType}
+                    startIcon={<GetAppIcon />}
+                  >
+                    Download Report
+                  </Button>
+                </Grid>
               </Grid>
             </Grid>
           </Paper>
         </Box>
         
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="h6" gutterBottom>Report Results</Typography>
           {loadingFeeReport ? (
-            <Loading message="Generating report, please wait..." />
+            <Loading />
           ) : feeReportError ? (
             <ErrorMessage message={feeReportError} />
           ) : feeReportData && feeReportData.length > 0 ? (
@@ -576,11 +540,7 @@ const Reports = () => {
               onDownload={handleDownloadFeeReport}
             />
           ) : (
-            <Paper sx={{ p: 4, textAlign: 'center', backgroundColor: '#f9f9f9' }}>
-              <Typography variant="subtitle1" color="textSecondary">
-                No report data to display. Select a report type and generate a report to view results.
-              </Typography>
-            </Paper>
+            <Typography>Select a report type and click Generate to view results</Typography>
           )}
         </Box>
       </TabPanel>

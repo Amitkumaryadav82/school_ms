@@ -8,9 +8,13 @@ import java.util.List;
 
 @Repository
 public interface FeeRepository extends JpaRepository<Fee, Long> {
-    List<Fee> findByGrade(Integer grade);
-
-    List<Fee> findByDueDateBetween(LocalDate startDate, LocalDate endDate);
+    List<Fee> findByGrade(Integer grade);    List<Fee> findByDueDateBetween(LocalDate startDate, LocalDate endDate);
 
     List<Fee> findByDueDateBefore(LocalDate date);
+    
+    List<Fee> findByGradeAndDueDateBefore(Integer grade, LocalDate date);
+    
+    List<Fee> findByGradeAndDueDateAfterOrderByDueDate(Integer grade, LocalDate date);
+    
+    List<Fee> findTopByGradeAndDueDateAfterOrderByDueDate(Integer grade, LocalDate date);
 }

@@ -79,6 +79,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\student\dto\BulkStudentRequest.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\LeaveDTO.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exception\InvalidDateRangeException.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\JwtAuthenticationEntryPoint.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\service\FeeService.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\example\schoolms\service\StaffService.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\AttendanceController.java

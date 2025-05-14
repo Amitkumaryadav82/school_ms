@@ -57,10 +57,22 @@ public class StudentService {
 
     public List<Student> getStudentsBySection(String section) {
         return studentRepository.findBySection(section);
-    }
-
-    public List<Student> getStudentsByGradeAndSection(Integer grade, String section) {
-        return studentRepository.findByGradeAndSection(grade, section);
+    }    public List<Student> getStudentsByGradeAndSection(Integer grade, String section) {
+        List<Student> students;
+        if (section != null) {
+            students = studentRepository.findByGradeAndSection(grade, section);
+            System.out.println("Found " + students.size() + " students in grade " + grade + ", section " + section);
+        } else {
+            students = studentRepository.findByGrade(grade);
+            System.out.println("Found " + students.size() + " students in grade " + grade + " (all sections)");
+        }
+          // Log warning if no students found for any requested grade
+        if (grade != null && students.isEmpty()) {
+            System.out.println("WARNING: No students found for Grade " + grade + 
+                ". This might affect fee reports and other grade-specific functionality.");
+        }
+        
+        return students;
     }
 
     public List<Student> getStudentsByStatus(StudentStatus status) {

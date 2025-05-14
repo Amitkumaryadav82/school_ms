@@ -21,6 +21,7 @@ com\school\fee\dto\TransportRouteDTO$TransportRouteDTOBuilder.class
 com\schoolms\service\CourseService.class
 com\school\attendance\service\AttendanceServiceImpl.class
 com\school\hrm\entity\Staff.class
+com\school\security\JwtAuthenticationEntryPoint.class
 com\school\fee\model\FeeStructure.class
 com\school\admission\model\Admission$AdmissionBuilder.class
 com\school\fee\dto\FeePaymentDTO.class

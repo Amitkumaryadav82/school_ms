@@ -19,15 +19,21 @@ public class JwtTokenProvider {
         // Generate a secure key for HS512 algorithm
         this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         this.jwtExpiration = jwtExpiration;
-    }
-
-    public String generateToken(Authentication authentication) {
+    }    public String generateToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
+        
+        // Add claims including authorities/roles
+        Claims claims = Jwts.claims().setSubject(userDetails.getUsername());
+        
+        // Add roles as a claim
+        claims.put("roles", userDetails.getAuthorities().stream()
+                .map(Object::toString)
+                .toList());
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
+                .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key)

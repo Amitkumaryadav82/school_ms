@@ -8,9 +8,10 @@ import java.util.List;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    List<Payment> findByStudentId(Long studentId);
-
-    List<Payment> findByFeeId(Long feeId);
+    List<Payment> findByStudentId(Long studentId);    List<Payment> findByFeeId(Long feeId);
 
     List<Payment> findByPaymentDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+    
+    // For getting the latest payment for a student
+    java.util.Optional<Payment> findTopByStudentIdOrderByPaymentDateDesc(Long studentId);
 }
