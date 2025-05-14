@@ -39,6 +39,8 @@ interface DataTableProps<T> {
   searchPlaceholder?: string;
   onSearch?: (query: string) => void;
   initialSortBy?: string;
+  renderRowDetail?: (row: T) => React.ReactNode;
+  expandableRows?: boolean;
 }
 
 function DataTable<T extends { [key: string]: any }>({
@@ -52,12 +54,15 @@ function DataTable<T extends { [key: string]: any }>({
   searchPlaceholder = 'Search...',
   onSearch,
   initialSortBy,
+  renderRowDetail,
+  expandableRows = false,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<string | null>(initialSortBy || null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [expandedRows, setExpandedRows] = useState<Record<string | number, boolean>>({});
 
   useEffect(() => {
     setPage(0);
@@ -82,6 +87,13 @@ function DataTable<T extends { [key: string]: any }>({
     const query = event.target.value;
     setSearchQuery(query);
     onSearch?.(query);
+  };
+
+  const toggleRowExpand = (rowId: string | number) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [rowId]: !prev[rowId]
+    }));
   };
 
   const filteredData = data.filter((row) =>
@@ -176,15 +188,31 @@ function DataTable<T extends { [key: string]: any }>({
               </TableRow>
             ) : (
               paginatedData.map((row, index) => (
-                <TableRow hover key={index}>
-                  {columns.map((column) => (
-                    <TableCell key={column.id}>
-                      {column.format
-                        ? column.format(row[column.id], row)
-                        : row[column.id]}
-                    </TableCell>
-                  ))}
-                </TableRow>
+                <React.Fragment key={index}>
+                  <TableRow hover>
+                    {columns.map((column) => (
+                      <TableCell key={column.id}>
+                        {column.format
+                          ? column.format(row[column.id], row)
+                          : row[column.id]}
+                      </TableCell>
+                    ))}
+                    {expandableRows && renderRowDetail && (
+                      <TableCell>
+                        <IconButton onClick={() => toggleRowExpand(row.id)}>
+                          {expandedRows[row.id] ? '-' : '+'}
+                        </IconButton>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                  {expandableRows && renderRowDetail && expandedRows[row.id] && (
+                    <TableRow>
+                      <TableCell colSpan={columns.length}>
+                        {renderRowDetail(row)}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
               ))
             )}
           </TableBody>

@@ -15,7 +15,7 @@ const patterns = {
   studentEmail: /^[^\s@]+@(edu\.com|school\.org)$/,  // This pattern is no longer needed but keeping for reference
   phone: /^\+?[\d\s-]{10,}$/,
   name: /^[a-zA-Z\s-']{2,}$/,
-  studentId: /^[A-Z0-9\d]{4,}$/,  // Modified to accept IDs with at least 4 characters
+  studentId: /^[A-Za-z0-9]{4,}$/,  // Modified to accept alphanumeric IDs (both upper and lowercase) with at least 4 characters
   password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/,
   indianMobile: /^\+91\d{10}$/, // Indian mobile number pattern: +91 followed by 10 digits
 };

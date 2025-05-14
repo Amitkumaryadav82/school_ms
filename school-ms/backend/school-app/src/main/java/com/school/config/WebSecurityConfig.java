@@ -2,28 +2,29 @@ package com.school.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import java.util.Arrays;
 
 /**
- * CORS configuration for the application.
- * 
- * Allows cross-origin requests from specified origins for development and
- * production.
+ * Custom CORS configuration with expanded origin support.
+ * This class adds support for port 5174 for Vite development server.
  */
 @Configuration
-public class CorsConfig {
+@Order(1)
+public class WebSecurityConfig {
 
     /**
-     * Universal CORS filter that works for all environments
+     * Extended CORS filter that supports additional ports for development
      */
-    @Bean
-    public CorsFilter corsFilter() {
+    @Bean(name = "extendedCorsFilter")
+    public CorsFilter extendedCorsFilter() {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        final CorsConfiguration config = new CorsConfiguration(); // Allow origins for both backend and frontend
-                                                                  // development servers
+        final CorsConfiguration config = new CorsConfiguration();
+
+        // Allow origins for all development servers, including 5174
         config.addAllowedOrigin("http://localhost:8080");
         config.addAllowedOrigin("http://localhost:5173");
         config.addAllowedOrigin("http://localhost:5174");

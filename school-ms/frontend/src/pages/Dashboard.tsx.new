@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -99,26 +98,24 @@ interface StudentDashboardData {
   feePaymentSummary?: FeePaymentSummary;
 }
 
-const StatCard = ({
-  title,
-  value,
-  icon: Icon,
+const StatCard = ({ 
+  title, 
+  value, 
+  icon: Icon, 
   color,
-  onClick,
+  onClick 
 }: StatCardProps) => (
-  <Card
-    sx={{
+  <Card 
+    sx={{ 
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
       cursor: onClick ? 'pointer' : 'default',
       transition: 'transform 0.2s',
-      '&:hover': onClick
-        ? {
-            transform: 'translateY(-4px)',
-            boxShadow: 4,
-          }
-        : {},
+      '&:hover': onClick ? {
+        transform: 'translateY(-4px)',
+        boxShadow: 4,
+      } : {},
     }}
     onClick={onClick}
   >
@@ -151,12 +148,11 @@ const StudentDashboard = () => {
     studentInfo: null,
     enrolledCourses: [],
     upcomingAssignments: [],
-    attendance: { present: 0, absent: 0, late: 0, percentage: 0 },
-    feePaymentSummary: undefined,
+    attendance: { present: 0, absent: 0, late: 0, percentage: 0 }
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  
   // State for payment dialog
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
@@ -166,25 +162,24 @@ const StudentDashboard = () => {
       setLoading(true);
       setError(null);
 
+      // Get student data from API using student ID from authenticated user
       const userId = user?.id;
       if (!userId) {
         throw new Error('User ID not found');
       }
 
-      const [studentInfo, enrolledCourses, assignments, attendance] =
-        await Promise.all([
-          api.get<Student>(`/students/${userId}`),
-          api.get<StudentCourse[]>(`/students/${userId}/courses`),
-          api.get<any[]>(`/students/${userId}/assignments`),
-          api.get<any>(`/students/${userId}/attendance`),
-        ]);
-
+      // These API calls should return data from the database only, no mock data
+      const [studentInfo, enrolledCourses, assignments, attendance] = await Promise.all([
+        api.get<Student>(`/students/${userId}`),
+        api.get<StudentCourse[]>(`/students/${userId}/courses`),
+        api.get<any[]>(`/students/${userId}/assignments`),
+        api.get<any>(`/students/${userId}/attendance`),
+      ]);
+      
       // Also fetch fee payment summary
       let feePaymentSummary;
       try {
-        feePaymentSummary = await feeService.getPaymentSummaryByStudent(
-          userId
-        );
+        feePaymentSummary = await feeService.getPaymentSummaryByStudent(userId);
       } catch (error) {
         console.error('Error loading fee payment summary:', error);
         // Create mock payment summary if API call fails
@@ -196,7 +191,7 @@ const StudentDashboard = () => {
           balance: 10000,
           paymentStatus: 'PARTIALLY_PAID',
           lastPaymentDate: '2025-04-15',
-          nextDueDate: '2025-05-15',
+          nextDueDate: '2025-05-15'
         };
       }
 
@@ -204,23 +199,15 @@ const StudentDashboard = () => {
         studentInfo: studentInfo || null,
         enrolledCourses: Array.isArray(enrolledCourses) ? enrolledCourses : [],
         upcomingAssignments: Array.isArray(assignments) ? assignments : [],
-        attendance: attendance || {
-          present: 0,
-          absent: 0,
-          late: 0,
-          percentage: 0,
-        },
-        feePaymentSummary,
+        attendance: attendance || { present: 0, absent: 0, late: 0, percentage: 0 },
+        feePaymentSummary
       });
     } catch (error) {
       console.error('Error loading student dashboard data:', error);
-      setError(
-        'Failed to load student data from database. Please ensure the backend server is running.'
-      );
+      setError('Failed to load student data from database. Please ensure the backend server is running.');
       showNotification({
         type: 'error',
-        message:
-          'Failed to load your dashboard data from database. Please try again later.',
+        message: 'Failed to load your dashboard data from database. Please try again later.',
       });
     } finally {
       setLoading(false);
@@ -229,24 +216,25 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     loadStudentData();
+    // Refresh data every 5 minutes
     const interval = setInterval(loadStudentData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
+  
   // Handle payment submission
   const handlePaymentSubmit = async (payment: Payment) => {
     try {
       setProcessingPayment(true);
-
+      
       // Create a new payment
       await feeService.createPayment(payment);
-
+      
       // Show success notification
       showNotification({
         type: 'success',
-        message: 'Payment recorded successfully!',
+        message: 'Payment recorded successfully!'
       });
-
+      
       // Close dialog and refresh data
       setPaymentDialogOpen(false);
       loadStudentData();
@@ -254,7 +242,7 @@ const StudentDashboard = () => {
       console.error('Error creating payment:', error);
       showNotification({
         type: 'error',
-        message: 'Failed to record payment. Please try again later.',
+        message: 'Failed to record payment. Please try again later.'
       });
     } finally {
       setProcessingPayment(false);
@@ -273,11 +261,7 @@ const StudentDashboard = () => {
     <Box>
       <Typography variant="h4" sx={{ mb: 4 }}>
         Student Dashboard
-        {user && (
-          <Typography variant="subtitle1" color="text.secondary">
-            Welcome, {user.name || user.email}
-          </Typography>
-        )}
+        {user && <Typography variant="subtitle1" color="text.secondary">Welcome, {user.name || user.email}</Typography>}
       </Typography>
 
       <Grid container spacing={3}>
@@ -309,7 +293,7 @@ const StudentDashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
             title="GPA"
-            value="3.5"
+            value="3.5" // Mocked value, in real app would fetch from backend
             icon={SchoolIcon}
             color="info.main"
           />
@@ -319,24 +303,19 @@ const StudentDashboard = () => {
         {studentData.feePaymentSummary && (
           <Grid item xs={12}>
             <Paper sx={{ p: 2, mb: 3 }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ display: 'flex', alignItems: 'center' }}
-                >
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                mb: 2 
+              }}>
+                <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
                   <PaymentIcon sx={{ mr: 1 }} />
                   Fee Payment Summary
                 </Typography>
-                <Button
-                  variant="contained"
-                  color="primary"
+                <Button 
+                  variant="contained" 
+                  color="primary" 
                   onClick={() => setPaymentDialogOpen(true)}
                   startIcon={<PaymentIcon />}
                   disabled={studentData.feePaymentSummary.balance <= 0}
@@ -344,123 +323,57 @@ const StudentDashboard = () => {
                   Make Payment
                 </Button>
               </Box>
-
+              
               <Grid container spacing={2}>
                 <Grid item xs={12} md={4}>
-                  <Box
-                    sx={{
-                      p: 2,
-                      textAlign: 'center',
-                      bgcolor: '#f5f5f5',
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Typography variant="body2" color="text.secondary">
-                      Total Fee
-                    </Typography>
-                    <Typography variant="h5">
-                      ₹{studentData.feePaymentSummary.totalDue.toLocaleString()}
-                    </Typography>
+                  <Box sx={{ p: 2, textAlign: 'center', bgcolor: '#f5f5f5', borderRadius: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Total Fee</Typography>
+                    <Typography variant="h5">₹{studentData.feePaymentSummary.totalDue.toLocaleString()}</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Box
-                    sx={{
-                      p: 2,
-                      textAlign: 'center',
-                      bgcolor: '#e8f5e9',
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Typography variant="body2" color="text.secondary">
-                      Paid Amount
-                    </Typography>
-                    <Typography variant="h5" color="success.main">
-                      ₹{studentData.feePaymentSummary.totalPaid.toLocaleString()}
-                    </Typography>
+                  <Box sx={{ p: 2, textAlign: 'center', bgcolor: '#e8f5e9', borderRadius: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Paid Amount</Typography>
+                    <Typography variant="h5" color="success.main">₹{studentData.feePaymentSummary.totalPaid.toLocaleString()}</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Box
-                    sx={{
-                      p: 2,
-                      textAlign: 'center',
-                      bgcolor:
-                        studentData.feePaymentSummary.balance > 0
-                          ? '#ffebee'
-                          : '#e8f5e9',
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Typography variant="body2" color="text.secondary">
-                      Balance
-                    </Typography>
-                    <Typography
-                      variant="h5"
-                      color={
-                        studentData.feePaymentSummary.balance > 0
-                          ? 'error.main'
-                          : 'success.main'
-                      }
-                    >
+                  <Box sx={{ p: 2, textAlign: 'center', bgcolor: studentData.feePaymentSummary.balance > 0 ? '#ffebee' : '#e8f5e9', borderRadius: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Balance</Typography>
+                    <Typography variant="h5" color={studentData.feePaymentSummary.balance > 0 ? 'error.main' : 'success.main'}>
                       ₹{studentData.feePaymentSummary.balance.toLocaleString()}
                     </Typography>
                   </Box>
                 </Grid>
               </Grid>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  mt: 2,
-                  alignItems: 'center',
-                }}
-              >
+              
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, alignItems: 'center' }}>
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    Status:{' '}
-                    <Chip
-                      label={studentData.feePaymentSummary.paymentStatus}
+                    Status: <Chip 
+                      label={studentData.feePaymentSummary.paymentStatus} 
                       color={
-                        studentData.feePaymentSummary.paymentStatus === 'PAID'
-                          ? 'success'
-                          : studentData.feePaymentSummary.paymentStatus ===
-                            'PARTIALLY_PAID'
-                          ? 'warning'
-                          : 'error'
-                      }
-                      size="small"
+                        studentData.feePaymentSummary.paymentStatus === 'PAID' ? 'success' :
+                        studentData.feePaymentSummary.paymentStatus === 'PARTIALLY_PAID' ? 'warning' : 'error'
+                      } 
+                      size="small" 
                       sx={{ ml: 1 }}
                     />
                   </Typography>
                   {studentData.feePaymentSummary.lastPaymentDate && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mt: 1 }}
-                    >
-                      Last Payment:{' '}
-                      {new Date(
-                        studentData.feePaymentSummary.lastPaymentDate
-                      ).toLocaleDateString()}
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      Last Payment: {new Date(studentData.feePaymentSummary.lastPaymentDate).toLocaleDateString()}
                     </Typography>
                   )}
                 </Box>
-
+                
                 {studentData.feePaymentSummary.nextDueDate && (
                   <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="body2" color="text.secondary">
                       Next Due Date:
                     </Typography>
-                    <Typography
-                      variant="body1"
-                      color="error.main"
-                      fontWeight="bold"
-                    >
-                      {new Date(
-                        studentData.feePaymentSummary.nextDueDate
-                      ).toLocaleDateString()}
+                    <Typography variant="body1" color="error.main" fontWeight="bold">
+                      {new Date(studentData.feePaymentSummary.nextDueDate).toLocaleDateString()}
                     </Typography>
                   </Box>
                 )}
@@ -476,44 +389,41 @@ const StudentDashboard = () => {
               Your Courses
             </Typography>
             <List>
-              {studentData.enrolledCourses.map((course, index) => (
-                <React.Fragment key={course.id}>
-                  {index > 0 && <Divider />}
-                  <ListItem>
-                    <ListItemIcon>
-                      <BookIcon color="primary" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={course.name}
-                      secondary={
-                        <>
-                          {course.teacher} • {course.schedule}
-                          {course.grade && (
-                            <Typography component="span" color="text.secondary">
-                              {' '}
-                              • Grade:{' '}
-                              <Typography
-                                component="span"
-                                color="primary.main"
-                                fontWeight="bold"
-                              >
-                                {course.grade}
+              {studentData.enrolledCourses.length > 0 ? (
+                studentData.enrolledCourses.map((course, index) => (
+                  <React.Fragment key={course.id}>
+                    {index > 0 && <Divider />}
+                    <ListItem>
+                      <ListItemIcon>
+                        <BookIcon color="primary" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={course.name}
+                        secondary={
+                          <>
+                            {course.teacher} • {course.schedule}
+                            {course.grade && (
+                              <Typography component="span" color="text.secondary">
+                                {" • Grade: "}
+                                <Typography component="span" color="primary.main" fontWeight="bold">
+                                  {course.grade}
+                                </Typography>
                               </Typography>
-                            </Typography>
-                          )}
-                        </>
-                      }
-                    />
-                  </ListItem>
-                </React.Fragment>
-              ))}
+                            )}
+                          </>
+                        }
+                      />
+                    </ListItem>
+                  </React.Fragment>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No courses enrolled" />
+                </ListItem>
+              )}
             </List>
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                size="small"
-                color="primary"
-                onClick={() => navigate('/courses')}
-              >
+              <Button size="small" color="primary" onClick={() => navigate('/courses')}>
                 View All Courses
               </Button>
             </Box>
@@ -527,24 +437,30 @@ const StudentDashboard = () => {
               Upcoming Assignments
             </Typography>
             <List>
-              {studentData.upcomingAssignments.map((assignment, index) => (
-                <React.Fragment key={assignment.id}>
-                  {index > 0 && <Divider />}
-                  <ListItem>
-                    <ListItemIcon>
-                      <AssignmentIcon color="secondary" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={assignment.title}
-                      secondary={
-                        <>
-                          Due: {assignment.dueDate} • {assignment.course}
-                        </>
-                      }
-                    />
-                  </ListItem>
-                </React.Fragment>
-              ))}
+              {studentData.upcomingAssignments.length > 0 ? (
+                studentData.upcomingAssignments.map((assignment, index) => (
+                  <React.Fragment key={assignment.id}>
+                    {index > 0 && <Divider />}
+                    <ListItem>
+                      <ListItemIcon>
+                        <AssignmentIcon color="secondary" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={assignment.title}
+                        secondary={
+                          <>
+                            Due: {assignment.dueDate} • {assignment.course}
+                          </>
+                        }
+                      />
+                    </ListItem>
+                  </React.Fragment>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No upcoming assignments" />
+                </ListItem>
+              )}
             </List>
           </Paper>
         </Grid>
@@ -584,7 +500,7 @@ const StudentDashboard = () => {
           </Paper>
         </Grid>
       </Grid>
-
+      
       {/* Payment Dialog */}
       {paymentDialogOpen && user && studentData.studentInfo && (
         <PaymentDialog
@@ -618,13 +534,15 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       setError(null);
-
+      
+      // Using consistent method names across all service files
       const [students, teachers, courses] = await Promise.all([
         studentService.getAll(),
         teacherService.getAll(),
         courseService.getAll(),
       ]);
 
+      // Process the actual response data
       const studentsData = Array.isArray(students) ? students : [];
       const teachersData = Array.isArray(teachers) ? teachers : [];
       const coursesData = Array.isArray(courses) ? courses : [];
@@ -634,37 +552,29 @@ const AdminDashboard = () => {
         0
       );
 
-      const avgClassSize =
-        coursesData.length > 0
-          ? totalEnrollments / coursesData.length
-          : 0;
+      const avgClassSize = coursesData.length > 0 
+        ? totalEnrollments / coursesData.length 
+        : 0;
 
       const coursesAtCapacity = coursesData.filter(
-        (course: Course) =>
-          (course.enrolled || 0) >= (course.capacity || 30)
+        (course: Course) => (course.enrolled || 0) >= (course.capacity || 30)
       ).length;
 
+      // Generate the recent activity from actual data
       const recentActivity = [
         ...coursesData.slice(0, 3).map((course: Course) => ({
           id: course.id!,
           type: 'course' as const,
-          description: `Course ${course.name} has ${
-            (course.capacity || 30) - (course.enrolled || 0)
-          } seats remaining`,
+          description: `Course ${course.name} has ${(course.capacity || 30) - (course.enrolled || 0)} seats remaining`,
           timestamp: new Date().toISOString(),
         })),
         ...studentsData.slice(0, 3).map((student: Student) => ({
           id: student.id!,
           type: 'student' as const,
-          description: `Student ${student.name} - Grade ${
-            student.grade || 'N/A'
-          }`,
+          description: `Student ${student.name} - Grade ${student.grade || 'N/A'}`,
           timestamp: new Date(Date.now() - 3600000).toISOString(),
         })),
-      ].sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
+      ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
       setStats({
         totalStudents: studentsData.length,
@@ -677,13 +587,10 @@ const AdminDashboard = () => {
       });
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
-      setError(
-        'Failed to load dashboard statistics. Please ensure the backend server is running and the database is properly configured.'
-      );
+      setError('Failed to load dashboard statistics. Please ensure the backend server is running and the database is properly configured.');
       showNotification({
         type: 'error',
-        message:
-          'Failed to load dashboard statistics from database. Please check your server connection.',
+        message: 'Failed to load dashboard statistics from database. Please check your server connection.',
       });
     } finally {
       setLoading(false);
@@ -766,15 +673,10 @@ const AdminDashboard = () => {
 
         <Grid item xs={12}>
           <Paper sx={{ p: 2, mt: 2 }}>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6">Recent Activity</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6">
+                Recent Activity
+              </Typography>
               <Button
                 size="small"
                 startIcon={<RefreshIcon />}
@@ -784,35 +686,23 @@ const AdminDashboard = () => {
               </Button>
             </Box>
             <List>
-              {stats.recentActivity.map(
-                (activity: ActivityItem, index: number) => (
-                  <React.Fragment key={activity.id || index}>
-                    {index > 0 && <Divider />}
-                    <ListItem>
-                      <ListItemIcon>
-                        {activity.type === 'enrollment' && (
-                          <PeopleIcon color="primary" />
-                        )}
-                        {activity.type === 'course' && (
-                          <BookIcon color="secondary" />
-                        )}
-                        {activity.type === 'student' && (
-                          <SchoolIcon color="success" />
-                        )}
-                        {activity.type === 'teacher' && (
-                          <PersonIcon color="info" />
-                        )}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={activity.description}
-                        secondary={new Date(
-                          activity.timestamp
-                        ).toLocaleString()}
-                      />
-                    </ListItem>
-                  </React.Fragment>
-                )
-              )}
+              {stats.recentActivity.map((activity: ActivityItem, index: number) => (
+                <React.Fragment key={activity.id || index}>
+                  {index > 0 && <Divider />}
+                  <ListItem>
+                    <ListItemIcon>
+                      {activity.type === 'enrollment' && <PeopleIcon color="primary" />}
+                      {activity.type === 'course' && <BookIcon color="secondary" />}
+                      {activity.type === 'student' && <SchoolIcon color="success" />}
+                      {activity.type === 'teacher' && <PersonIcon color="info" />}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={activity.description}
+                      secondary={new Date(activity.timestamp).toLocaleString()}
+                    />
+                  </ListItem>
+                </React.Fragment>
+              ))}
             </List>
           </Paper>
         </Grid>
@@ -824,22 +714,25 @@ const AdminDashboard = () => {
 // Main Dashboard component that renders the appropriate dashboard based on user role
 const Dashboard = () => {
   const { user } = useAuth();
-
+  
+  // Show the appropriate dashboard based on user role
   if (user && user.role === ROLES.STUDENT) {
     return <StudentDashboard />;
   } else if (user && user.role === ROLES.TEACHER) {
+    // In the future, a specific TeacherDashboard component could be added here
+    // For now, teachers will use the AdminDashboard with their specific permissions
     return <AdminDashboard />;
   } else if (user && (user.role === ROLES.ADMIN || user.role === ROLES.STAFF)) {
     return <AdminDashboard />;
   } else {
+    // Fallback for unknown roles or unauthenticated users
     return (
       <Box sx={{ textAlign: 'center', py: 5 }}>
         <Typography variant="h5" color="text.secondary">
           Dashboard not available for your role.
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          Please contact the system administrator if you believe this is an
-          error.
+          Please contact the system administrator if you believe this is an error.
         </Typography>
       </Box>
     );

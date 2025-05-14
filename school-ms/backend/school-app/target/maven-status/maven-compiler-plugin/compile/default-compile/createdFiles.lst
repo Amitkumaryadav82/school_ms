@@ -124,6 +124,7 @@ com\school\exam\dto\ExamResultRequest.class
 com\school\hrm\config\StaffRoleInitializer.class
 com\school\student\dto\StudentDTO.class
 com\school\security\exception\DuplicateEmailException.class
+com\school\config\WebSecurityConfig.class
 com\school\config\CacheConfig.class
 com\school\exception\StudentNotFoundException.class
 com\school\security\CustomUserDetailsService.class

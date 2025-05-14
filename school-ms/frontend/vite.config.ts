@@ -29,16 +29,28 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
+        headers: {
+          // Ensure proper headers are sent for authorization
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      // Special configuration for fee management API endpoints
+      '/api/fees': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
       },
     },
   },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    // Skip TS type checking during build
-    typescript: {
-      ignoreBuildErrors: true
-    },
     // Generate source maps for production builds
     sourcemap: true,
     // Optimize chunks

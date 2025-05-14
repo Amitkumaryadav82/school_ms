@@ -49,16 +49,8 @@ interface PaymentFormValues {
   notes: string;
 }
 
-// Local interface for student fee details
-interface StudentFeeDetails {
-  studentId: number;
-  studentFeeId?: number;
-  feeStructure?: {
-    amount?: number;
-    annualFees?: number;
-    totalFees?: number;
-  };
-}
+// Import StudentFeeDetails type from payment.types
+import { StudentFeeDetails } from '../../types/payment.types';
 
 interface PaymentDialogProps {
   open: boolean;

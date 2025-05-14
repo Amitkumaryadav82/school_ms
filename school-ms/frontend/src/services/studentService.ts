@@ -37,6 +37,9 @@ export interface Student {
   transportMode?: string;
   busRouteNumber?: string;
   medicalConditions?: string;
+  // Fee-related fields
+  feeStructureId?: number;
+  paymentScheduleId?: number;
 }
 
 // Backend Student interface - this maps exactly to the Java entity

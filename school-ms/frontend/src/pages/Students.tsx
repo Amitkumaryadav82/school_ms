@@ -16,7 +16,11 @@ import {
   Menu,
   MenuItem,
   FormControl,
-  Select
+  Select,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  CircularProgress
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -29,10 +33,12 @@ import {
   MoreVert as MoreVertIcon,
   Check as CheckIcon,
   Close as CloseIcon,
-  Logout as LogoutIcon
+  Logout as LogoutIcon,
+  ExpandMore as ExpandMoreIcon
 } from '@mui/icons-material';
 import { useApi, useApiMutation } from '../hooks/useApi';
 import { studentService, Student } from '../services/studentService';
+import feeService from '../services/feeService';
 import DataTable, { Column } from '../components/DataTable';
 import StudentDialog from '../components/dialogs/StudentDialog';
 import BulkStudentUploadDialog from '../components/dialogs/BulkStudentUploadDialog';
@@ -44,6 +50,8 @@ import { useNotification } from '../context/NotificationContext';
 import { hasPermission } from '../utils/permissions';
 import { useAuth } from '../context/AuthContext';
 import ApiTestDialog from '../components/debug/ApiTestDialog';
+import StudentFeeDetails from '../components/StudentFeeDetails';
+import { StudentFeeDetails as StudentFeeDetailsType } from '../types/payment.types';
 
 const Students: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -52,11 +60,17 @@ const Students: React.FC = () => {
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [studentToDelete, setStudentToDelete] = useState<Student | undefined>(undefined);
+  const [feeDetailsDialogOpen, setFeeDetailsDialogOpen] = useState(false);
+  const [selectedStudentFeeDetails, setSelectedStudentFeeDetails] = useState<StudentFeeDetailsType | null>(null);
+  const [loadingFeeDetails, setLoadingFeeDetails] = useState(false);
   const { showNotification } = useNotification();
   const { user } = useAuth();
   const [debugDialogOpen, setDebugDialogOpen] = useState(false);
   const [errorDetails, setErrorDetails] = useState<any>(null);
-  
+  const [feeDetailsOpen, setFeeDetailsOpen] = useState(false);
+  const [feeDetailsLoading, setFeeDetailsLoading] = useState(false);
+  const [studentFeeDetails, setStudentFeeDetails] = useState<StudentFeeDetailsType | null>(null);
+
   const {
     data: students,
     loading,
@@ -77,16 +91,17 @@ const Students: React.FC = () => {
         showNotification({ type: 'success', message: 'Student created successfully' });
         setDialogOpen(false);
         refresh();
-      },      onError: (err: unknown) => {
+      },
+      onError: (err: unknown) => {
         console.error('Error saving student:', err);
         const axiosError = err as any;
         if (axiosError.response) {
           console.error('Server response:', axiosError.response.data);
           console.error('Status code:', axiosError.response.status);
         }
-        showNotification({ 
-          type: 'error', 
-          message: `Failed to create student: ${axiosError.response?.data?.message || (err as Error)?.message || 'Unknown error'}` 
+        showNotification({
+          type: 'error',
+          message: `Failed to create student: ${axiosError.response?.data?.message || (err as Error)?.message || 'Unknown error'}`
         });
       }
     }
@@ -97,7 +112,8 @@ const Students: React.FC = () => {
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Student updated successfully' });
-        setDialogOpen(false);        setSelectedStudent(undefined);
+        setDialogOpen(false);
+        setSelectedStudent(undefined);
         refresh();
       },
     }
@@ -117,18 +133,18 @@ const Students: React.FC = () => {
     (students: Student[]) => studentService.createBulk(students),
     {
       onSuccess: (data) => {
-        showNotification({ 
-          type: 'success', 
-          message: `${data.length} students created successfully` 
+        showNotification({
+          type: 'success',
+          message: `${data.length} students created successfully`
         });
         setBulkDialogOpen(false);
         refresh();
       },
       onError: (err) => {
         console.error('Error creating students in bulk:', err);
-        showNotification({ 
-          type: 'error', 
-          message: `Failed to create students: ${err.message || 'Unknown error'}` 
+        showNotification({
+          type: 'error',
+          message: `Failed to create students: ${err.message || 'Unknown error'}`
         });
       }
     }
@@ -142,14 +158,15 @@ const Students: React.FC = () => {
         refresh();
       },
       onError: (error) => {
-        showNotification({ 
-          type: 'error', 
-          message: `Failed to update student status: ${error.message}` 
+        showNotification({
+          type: 'error',
+          message: `Failed to update student status: ${error.message}`
         });
       }
     }
   );
-    const handleStatusChange = async (student: Partial<Student>, newStatus: string) => {
+
+  const handleStatusChange = async (student: Partial<Student>, newStatus: string) => {
     try {
       if (student.id) {
         await updateStudentStatus({ id: student.id, status: newStatus });
@@ -159,6 +176,7 @@ const Students: React.FC = () => {
       console.error('Error updating student status:', error);
     }
   };
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, student: Partial<Student>) => {
     setSelectedStudent(student);
     setMenuAnchorEl(event.currentTarget);
@@ -172,6 +190,72 @@ const Students: React.FC = () => {
   const handleDelete = async (student: Student) => {
     setStudentToDelete(student);
     setConfirmationDialogOpen(true);
+  };  const handleFeeDetailsClick = async (student: Student) => {
+    try {
+      if (!student.id) {
+        showNotification({ 
+          type: 'error', 
+          message: 'Cannot fetch fee details: Student ID is missing' 
+        });
+        return;
+      }
+
+      // Check if user has permission to view fees
+      if (!hasPermission(user?.role || '', 'VIEW_FEES') && !hasPermission(user?.role || '', 'MANAGE_FEES')) {
+        showNotification({
+          type: 'error',
+          message: 'You do not have permission to view fee details.'
+        });
+        return;
+      }
+
+      setLoadingFeeDetails(true);
+      
+      try {
+        // Get the mock fee details from our service
+        const feeDetails = await feeService.getStudentFeeDetails(student.id);
+        
+        setSelectedStudent(student);
+        setSelectedStudentFeeDetails(feeDetails);
+        setFeeDetailsDialogOpen(true);
+        
+        // Show a notification to indicate we're using mock data
+        showNotification({
+          type: 'info',
+          message: 'Displaying sample fee data while API access is being configured.'
+        });
+      } catch (apiError: any) {
+        console.error('Error fetching fee details:', apiError);
+        throw apiError;
+      }    } catch (error) {
+      console.error('Error in fee details handling:', error);
+      
+      // Even if there's an error, we'll use mock data so the UI doesn't break
+      const mockFeeDetails: StudentFeeDetailsType = {
+        studentId: student.id!,
+        studentFeeId: 1,
+        feeStructure: {
+          id: 1,
+          classGrade: Number(student.grade) || 1,
+          annualFees: 15000,
+          buildingFees: 3000,
+          labFees: 2000,
+          amount: 20000,
+          totalFees: 20000
+        }
+      };
+      
+      setSelectedStudent(student);
+      setSelectedStudentFeeDetails(mockFeeDetails);
+      setFeeDetailsDialogOpen(true);
+      
+      showNotification({ 
+        type: 'warning', 
+        message: 'Using sample fee data due to an error connecting to the fee service.' 
+      });
+    } finally {
+      setLoadingFeeDetails(false);
+    }
   };
 
   const confirmDelete = async () => {
@@ -190,9 +274,15 @@ const Students: React.FC = () => {
       }
     }
   };
+
   const handleDialogClose = () => {
     setDialogOpen(false);
     setSelectedStudent(undefined);
+  };
+
+  const handleFeeDetailsDialogClose = () => {
+    setFeeDetailsDialogOpen(false);
+    setSelectedStudentFeeDetails(null);
   };
 
   const handleSubmit = async (data: Student) => {
@@ -206,12 +296,12 @@ const Students: React.FC = () => {
       } else {
         // For creating new student
         console.log("Creating new student with properly structured data:", data);
-        
+
         try {
           await createStudent(data);
         } catch (err) {
           console.error('Standard API approach failed, trying with elevated permissions:', err);
-          
+
           try {
             await studentService.createWithElevatedPermissions(data);
             showNotification({ type: 'success', message: 'Student created successfully with admin permissions' });
@@ -232,17 +322,18 @@ const Students: React.FC = () => {
       });
     }
   };
+
   const handleBulkSubmit = async (students: Student[]) => {
     try {
       await createBulkStudents(students);
     } catch (err: unknown) {
       console.error('Standard API approach failed, trying with elevated permissions:', err);
-      
+
       try {
         await studentService.createBulkWithElevatedPermissions(students);
-        showNotification({ 
-          type: 'success', 
-          message: `${students.length} students created successfully with admin permissions` 
+        showNotification({
+          type: 'success',
+          message: `${students.length} students created successfully with admin permissions`
         });
         setBulkDialogOpen(false);
         refresh();
@@ -250,6 +341,23 @@ const Students: React.FC = () => {
         console.error('Failed with elevated permissions too:', elevatedErr);
         throw elevatedErr;
       }
+    }
+  };
+
+  const handleFeeDetailsOpen = async (studentId: number) => {
+    setFeeDetailsLoading(true);
+    setFeeDetailsOpen(true);
+    try {
+      const feeDetails = await feeService.getStudentFeeDetails(studentId);
+      setStudentFeeDetails(feeDetails);
+    } catch (error) {
+      console.error('Error fetching fee details:', error);
+      showNotification({
+        type: 'error',
+        message: `Failed to fetch fee details: ${(error as Error)?.message || 'Unknown error'}`
+      });
+    } finally {
+      setFeeDetailsLoading(false);
     }
   };
 
@@ -272,7 +380,7 @@ const Students: React.FC = () => {
       sortable: true,
       format: (value, row: Student) => {
         const status = String(value).toUpperCase();
-        
+
         if (hasPermission(user?.role || '', 'EDIT_STUDENT')) {
           return (
             <FormControl size="small" fullWidth>
@@ -281,9 +389,9 @@ const Students: React.FC = () => {
                 onChange={(e) => handleStatusChange(row, e.target.value)}
                 displayEmpty
                 variant="standard"
-                sx={{ 
-                  '& .MuiSelect-select': { 
-                    py: 0, 
+                sx={{
+                  '& .MuiSelect-select': {
+                    py: 0,
                     color: () => {
                       switch (status) {
                         case 'ACTIVE': return 'success.main';
@@ -309,7 +417,7 @@ const Students: React.FC = () => {
           else if (status === 'INACTIVE') color = 'error';
           else if (status === 'GRADUATED') color = 'info';
           else if (status === 'SUSPENDED') color = 'warning';
-          
+
           return (
             <Typography
               variant="body2"
@@ -344,7 +452,7 @@ const Students: React.FC = () => {
               </IconButton>
             </Tooltip>
           )}
-          
+
           {hasPermission(user?.role || '', 'DELETE_STUDENT') && (
             <Tooltip title="Delete">
               <IconButton size="small" onClick={() => handleDelete(row)} color="error">
@@ -352,7 +460,7 @@ const Students: React.FC = () => {
               </IconButton>
             </Tooltip>
           )}
-          
+
           {hasPermission(user?.role || '', 'MANAGE_ATTENDANCE') && (
             <Tooltip title="Attendance">
               <IconButton size="small" color="info">
@@ -360,18 +468,16 @@ const Students: React.FC = () => {
               </IconButton>
             </Tooltip>
           )}
-          
+
           {hasPermission(user?.role || '', 'MANAGE_EXAMS') && (
             <Tooltip title="Academic Records">
               <IconButton size="small" color="success">
                 <SchoolIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-          )}
-          
-          {hasPermission(user?.role || '', 'MANAGE_FEES') && (
+          )}          {(hasPermission(user?.role || '', 'MANAGE_FEES') || hasPermission(user?.role || '', 'VIEW_FEES')) && (
             <Tooltip title="Fee Details">
-              <IconButton size="small" color="secondary">
+              <IconButton size="small" color="secondary" onClick={() => handleFeeDetailsClick(row)}>
                 <PaymentIcon fontSize="small" />
               </IconButton>
             </Tooltip>
@@ -386,47 +492,48 @@ const Students: React.FC = () => {
   }
   if (error) {
     // Properly handle potential string error by explicitly checking type first
-    const errorMessage = typeof error === 'string' 
-      ? error 
+    const errorMessage = typeof error === 'string'
+      ? error
       : (error as Error)?.message || String(error) || "Couldn't load student data";
-    
+
     return (
-      <Box sx={{ p: 3 }}>        <ErrorMessage 
-          title="Error Loading Students" 
-          message={errorMessage} 
-          onRetry={refresh} 
+      <Box sx={{ p: 3 }}>
+        <ErrorMessage
+          title="Error Loading Students"
+          message={errorMessage}
+          onRetry={refresh}
         />
-        
+
         <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
           <Button variant="contained" onClick={refresh}>
             Try Again
           </Button>
-          <Button 
-            variant="outlined" 
-            color="secondary" 
+          <Button
+            variant="outlined"
+            color="secondary"
             onClick={() => setDebugDialogOpen(true)}
           >
             Diagnostics
           </Button>
         </Box>
-        
+
         {errorDetails && (
           <Paper elevation={0} variant="outlined" sx={{ p: 3, mt: 4 }}>
             <Alert severity="error" sx={{ mb: 2 }}>
               <Typography variant="subtitle1">HTTP Status: {errorDetails.status || 'Unknown'}</Typography>
               {errorDetails.message}
             </Alert>
-            
+
             <Typography variant="subtitle1">Debug Information:</Typography>
-            <Box component="pre" sx={{ 
-              p: 2, 
-              bgcolor: 'grey.100', 
+            <Box component="pre" sx={{
+              p: 2,
+              bgcolor: 'grey.100',
               borderRadius: 1,
               overflowX: 'auto'
             }}>
               {JSON.stringify(errorDetails.originalError || errorDetails, null, 2)}
             </Box>
-            
+
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle2" gutterBottom>Possible Solutions:</Typography>
               <ul>
@@ -495,22 +602,22 @@ const Students: React.FC = () => {
         initialData={selectedStudent}
         loading={createLoading || updateLoading}
       />
-      
-      <BulkStudentUploadDialog 
+
+      <BulkStudentUploadDialog
         open={bulkDialogOpen}
         onClose={() => setBulkDialogOpen(false)}
         onSubmit={handleBulkSubmit}
         loading={bulkCreateLoading}
       />
-      
-      <ApiTestDialog 
+
+      <ApiTestDialog
         open={debugDialogOpen}
         onClose={() => setDebugDialogOpen(false)}
         entityType="students"
         customEndpoints={[
-          { 
-            name: 'Get student entities', 
-            fn: () => studentService.getAllStudents() 
+          {
+            name: 'Get student entities',
+            fn: () => studentService.getAllStudents()
           }
         ]}
       />
@@ -531,6 +638,29 @@ const Students: React.FC = () => {
           </Button>
           <Button onClick={confirmDelete} color="secondary">
             Delete
+          </Button>
+        </DialogActions>
+      </Dialog>      <Dialog
+        open={feeDetailsDialogOpen}
+        onClose={handleFeeDetailsDialogClose}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>Fee Details</DialogTitle>
+        <DialogContent>
+          {loadingFeeDetails ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <CircularProgress />
+            </Box>
+          ) : selectedStudentFeeDetails ? (
+            <StudentFeeDetails feeDetails={selectedStudentFeeDetails} />
+          ) : (
+            <Typography>No fee details available</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleFeeDetailsDialogClose} color="primary">
+            Close
           </Button>
         </DialogActions>
       </Dialog>

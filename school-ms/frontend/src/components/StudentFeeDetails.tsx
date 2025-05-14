@@ -3,7 +3,7 @@ import { Box, Typography, Paper, Grid, Divider } from '@mui/material';
 import { StudentFeeDetails as StudentFeeDetailsType } from '../types/payment.types';
 
 interface StudentFeeDetailsProps {
-  feeDetails: StudentFeeDetailsType;
+  feeDetails: StudentFeeDetailsType | null;
 }
 
 const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({ feeDetails }) => {
