@@ -31,193 +31,209 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+        @Value("${jwt.secret}")
+        private String jwtSecret;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;    private final CorsFilter corsFilter;
-    private final UserDetailsService userDetailsService;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+        @Value("${jwt.expiration}")
+        private long jwtExpiration;
+        private final CorsFilter corsFilter;
+        private final UserDetailsService userDetailsService;
+        private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    public SecurityConfig(CorsFilter corsFilter, UserDetailsService userDetailsService, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
-        this.corsFilter = corsFilter;
-        this.userDetailsService = userDetailsService;
-        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
-    }
+        public SecurityConfig(CorsFilter corsFilter, UserDetailsService userDetailsService,
+                        JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+                this.corsFilter = corsFilter;
+                this.userDetailsService = userDetailsService;
+                this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        }
 
-    @Bean
-    public JwtTokenProvider jwtTokenProvider() {
-        return new JwtTokenProvider(jwtSecret, jwtExpiration);
-    }
+        @Bean
+        public JwtTokenProvider jwtTokenProvider() {
+                return new JwtTokenProvider(jwtSecret, jwtExpiration);
+        }
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtTokenProvider());
-        filter.setUserDetailsService(userDetailsService);
-        return filter;
-    }
+        @Bean
+        public JwtAuthenticationFilter jwtAuthenticationFilter() {
+                JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtTokenProvider());
+                filter.setUserDetailsService(userDetailsService);
+                return filter;
+        }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+                return config.getAuthenticationManager();
+        }
 
-    /**
-     * Main security filter chain for the monolithic application.
-     * Handles both static resources and API endpoints in a single configuration.
-     */
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                // Security headers configuration
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin())
-                        .referrerPolicy(referrer -> referrer
-                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
+        /**
+         * Main security filter chain for the monolithic application.
+         * Handles both static resources and API endpoints in a single configuration.
+         */
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                // Security headers configuration
+                                .headers(headers -> headers
+                                                .frameOptions(frame -> frame.sameOrigin())
+                                                .referrerPolicy(referrer -> referrer
+                                                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
 
-                // Disable CSRF for REST APIs and static resources
-                .csrf(AbstractHttpConfigurer::disable)
+                                // Disable CSRF for REST APIs and static resources
+                                .csrf(AbstractHttpConfigurer::disable) // Apply CORS configuration - properly enable
+                                                                       // CORS
+                                .cors(cors -> cors.configurationSource(request -> {
+                                        var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                                        corsConfiguration.setAllowedOrigins(java.util.Arrays.asList(
+                                                        "http://localhost:5173",
+                                                        "http://localhost:8080", "http://localhost:3000"));
+                                        corsConfiguration.setAllowedMethods(
+                                                        java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH",
+                                                                        "OPTIONS"));
+                                        corsConfiguration.setAllowedHeaders(java.util.Arrays.asList("Authorization",
+                                                        "Content-Type",
+                                                        "Accept", "Origin", "X-Requested-With",
+                                                        "Access-Control-Request-Method",
+                                                        "Access-Control-Request-Headers",
+                                                        "Cache-Control", "cache-control", "CACHE-CONTROL",
+                                                        "Pragma", "pragma", "PRAGMA",
+                                                        "Expires", "expires", "EXPIRES"));
+                                        corsConfiguration.setAllowCredentials(true);
+                                        corsConfiguration.setMaxAge(3600L);
+                                        return corsConfiguration;
+                                }))// Use stateless sessions for API calls
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // Apply CORS configuration - properly enable CORS
-                .cors(cors -> cors.configurationSource(request -> {
-                    var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfiguration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:5173",
-                            "http://localhost:8080", "http://localhost:3000"));
-                    corsConfiguration.setAllowedMethods(
-                            java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-                    corsConfiguration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type",
-                            "Accept", "Origin", "X-Requested-With", "Access-Control-Request-Method",
-                            "Access-Control-Request-Headers"));
-                    corsConfiguration.setAllowCredentials(true);
-                    corsConfiguration.setMaxAge(3600L);
-                    return corsConfiguration;
-                }))                // Use stateless sessions for API calls
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                
-                // Set up exception handlers
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                                // Set up exception handlers
+                                .exceptionHandling(exceptions -> exceptions
+                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
-                // Configure authorization rules
-                .authorizeHttpRequests(auth -> {
-                    // First, explicitly permit all static resources with very specific patterns
-                    auth.requestMatchers(
-                            AntPathRequestMatcher.antMatcher("/"),
-                            AntPathRequestMatcher.antMatcher("/index.html"),
-                            AntPathRequestMatcher.antMatcher("/*.js"),
-                            AntPathRequestMatcher.antMatcher("/*.css"),
-                            AntPathRequestMatcher.antMatcher("/*.json"),
-                            AntPathRequestMatcher.antMatcher("/*.ico"),
-                            AntPathRequestMatcher.antMatcher("/*.png"),
-                            AntPathRequestMatcher.antMatcher("/assets/**"),
-                            AntPathRequestMatcher.antMatcher("/static/**"),
-                            AntPathRequestMatcher.antMatcher("/css/**"),
-                            AntPathRequestMatcher.antMatcher("/js/**"),
-                            AntPathRequestMatcher.antMatcher("/images/**"),
-                            AntPathRequestMatcher.antMatcher("/favicon.ico"),
-                            AntPathRequestMatcher.antMatcher("/manifest.json"),
-                            AntPathRequestMatcher.antMatcher("/robots.txt")).permitAll();                    // Authentication endpoints
-                    auth.requestMatchers("/api/auth/**", "/api/auth/login", "/api/auth/register").permitAll();
-                    
-                    // IMPORTANT: Override the method-level security for fee report endpoints
-                    // to ensure they are accessible by both ADMIN and TEACHER roles
-                    auth.requestMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status").authenticated();
-                    auth.requestMatchers("/api/fees/reports/download/**").authenticated();
+                                // Configure authorization rules
+                                .authorizeHttpRequests(auth -> {
+                                        // First, explicitly permit all static resources with very specific patterns
+                                        auth.requestMatchers(
+                                                        AntPathRequestMatcher.antMatcher("/"),
+                                                        AntPathRequestMatcher.antMatcher("/index.html"),
+                                                        AntPathRequestMatcher.antMatcher("/*.js"),
+                                                        AntPathRequestMatcher.antMatcher("/*.css"),
+                                                        AntPathRequestMatcher.antMatcher("/*.json"),
+                                                        AntPathRequestMatcher.antMatcher("/*.ico"),
+                                                        AntPathRequestMatcher.antMatcher("/*.png"),
+                                                        AntPathRequestMatcher.antMatcher("/assets/**"),
+                                                        AntPathRequestMatcher.antMatcher("/static/**"),
+                                                        AntPathRequestMatcher.antMatcher("/css/**"),
+                                                        AntPathRequestMatcher.antMatcher("/js/**"),
+                                                        AntPathRequestMatcher.antMatcher("/images/**"),
+                                                        AntPathRequestMatcher.antMatcher("/favicon.ico"),
+                                                        AntPathRequestMatcher.antMatcher("/manifest.json"),
+                                                        AntPathRequestMatcher.antMatcher("/robots.txt")).permitAll(); // Authentication
+                                                                                                                      // endpoints
+                                        auth.requestMatchers("/api/auth/**", "/api/auth/login", "/api/auth/register")
+                                                        .permitAll();
 
-                    // Swagger/OpenAPI documentation
-                    auth.requestMatchers(
-                            "/v3/api-docs/**",
-                            "/v3/api-docs.yaml",
-                            "/swagger-ui/**",
-                            "/swagger-ui.html",
-                            "/swagger-resources/**",
-                            "/webjars/**",
-                            "/api-docs/**").permitAll();
+                                        // IMPORTANT: Override the method-level security for fee report endpoints
+                                        // to ensure they are accessible by both ADMIN and TEACHER roles
+                                        auth.requestMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
+                                                        .authenticated();
+                                        auth.requestMatchers("/api/fees/reports/download/**").authenticated();
 
-                    // SPA frontend routes
-                    auth.requestMatchers(
-                            "/login",
-                            "/register",
-                            "/dashboard",
-                            "/students",
-                            "/teachers",
-                            "/courses",
-                            "/admissions",
-                            "/reports",
-                            "/admin",
-                            "/profile").permitAll();
+                                        // Swagger/OpenAPI documentation
+                                        auth.requestMatchers(
+                                                        "/v3/api-docs/**",
+                                                        "/v3/api-docs.yaml",
+                                                        "/swagger-ui/**",
+                                                        "/swagger-ui.html",
+                                                        "/swagger-resources/**",
+                                                        "/webjars/**",
+                                                        "/api-docs/**").permitAll();
 
-                    // All other API requests require authentication
-                    auth.anyRequest().authenticated();
-                })
+                                        // SPA frontend routes
+                                        auth.requestMatchers(
+                                                        "/login",
+                                                        "/register",
+                                                        "/dashboard",
+                                                        "/students",
+                                                        "/teachers",
+                                                        "/courses",
+                                                        "/admissions",
+                                                        "/reports",
+                                                        "/admin",
+                                                        "/profile").permitAll();
 
-                // Add filters
-                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                                        // All other API requests require authentication
+                                        auth.anyRequest().authenticated();
+                                }) // Add JWT filter only - corsFilter is already registered via @Component
+                                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    /**
-     * Development-specific security configuration with more permissive settings.
-     * Only active when the 'dev' profile is active.
-     */
-    @Bean
-    @Profile("dev")
-    public SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
-        http
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(request -> {
-                    var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfiguration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:5173",
-                            "http://localhost:8080", "http://localhost:3000"));
-                    corsConfiguration.setAllowedMethods(
-                            java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-                    corsConfiguration.setAllowedHeaders(java.util.Arrays.asList("Authorization", "Content-Type",
-                            "Accept", "Origin", "X-Requested-With", "Access-Control-Request-Method",
-                            "Access-Control-Request-Headers"));
-                    corsConfiguration.setAllowCredentials(true);
-                    corsConfiguration.setMaxAge(3600L);
-                    return corsConfiguration;
-                }))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> {
-                    // All static resources
-                    auth.requestMatchers(AntPathRequestMatcher.antMatcher("/**/*.js"),
-                            AntPathRequestMatcher.antMatcher("/**/*.css"),
-                            AntPathRequestMatcher.antMatcher("/**/*.html"),
-                            AntPathRequestMatcher.antMatcher("/**/*.json"),
-                            AntPathRequestMatcher.antMatcher("/**/*.ico"),
-                            AntPathRequestMatcher.antMatcher("/**/*.png"),
-                            AntPathRequestMatcher.antMatcher("/"),
-                            AntPathRequestMatcher.antMatcher("/index.html"),
-                            AntPathRequestMatcher.antMatcher("/static/**"),
-                            AntPathRequestMatcher.antMatcher("/assets/**")).permitAll();
+        /**
+         * Development-specific security configuration with more permissive settings.
+         * Only active when the 'dev' profile is active.
+         */
+        @Bean
+        @Profile("dev")
+        public SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(cors -> cors.configurationSource(request -> {
+                                        var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                                        corsConfiguration.setAllowedOrigins(java.util.Arrays.asList(
+                                                        "http://localhost:5173",
+                                                        "http://localhost:8080", "http://localhost:3000"));
+                                        corsConfiguration.setAllowedMethods(
+                                                        java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH",
+                                                                        "OPTIONS"));
+                                        corsConfiguration.setAllowedHeaders(java.util.Arrays.asList("Authorization",
+                                                        "Content-Type",
+                                                        "Accept", "Origin", "X-Requested-With",
+                                                        "Access-Control-Request-Method",
+                                                        "Access-Control-Request-Headers",
+                                                        "Cache-Control", "cache-control", "CACHE-CONTROL",
+                                                        "Pragma", "pragma", "PRAGMA",
+                                                        "Expires", "expires", "EXPIRES"));
+                                        corsConfiguration.setAllowCredentials(true);
+                                        corsConfiguration.setMaxAge(3600L);
+                                        return corsConfiguration;
+                                }))
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> {
+                                        // All static resources
+                                        auth.requestMatchers(AntPathRequestMatcher.antMatcher("/**/*.js"),
+                                                        AntPathRequestMatcher.antMatcher("/**/*.css"),
+                                                        AntPathRequestMatcher.antMatcher("/**/*.html"),
+                                                        AntPathRequestMatcher.antMatcher("/**/*.json"),
+                                                        AntPathRequestMatcher.antMatcher("/**/*.ico"),
+                                                        AntPathRequestMatcher.antMatcher("/**/*.png"),
+                                                        AntPathRequestMatcher.antMatcher("/"),
+                                                        AntPathRequestMatcher.antMatcher("/index.html"),
+                                                        AntPathRequestMatcher.antMatcher("/static/**"),
+                                                        AntPathRequestMatcher.antMatcher("/assets/**")).permitAll();
 
-                    // Allow access to H2 console in dev mode
-                    auth.requestMatchers("/h2-console/**").permitAll();
-                    auth.requestMatchers("/actuator/**").permitAll();
+                                        // Allow access to H2 console in dev mode
+                                        auth.requestMatchers("/h2-console/**").permitAll();
+                                        auth.requestMatchers("/actuator/**").permitAll();
 
-                    // Auth endpoints
-                    auth.requestMatchers("/api/auth/**").permitAll();
+                                        // Auth endpoints
+                                        auth.requestMatchers("/api/auth/**").permitAll();
 
-                    // API docs
-                    auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
+                                        // API docs
+                                        auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll();
 
-                    // SPA routes
-                    auth.requestMatchers("/login", "/register", "/dashboard", "/admin").permitAll();
+                                        // SPA routes
+                                        auth.requestMatchers("/login", "/register", "/dashboard", "/admin").permitAll();
 
-                    auth.anyRequest().authenticated();
-                })
-                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                                        auth.anyRequest().authenticated();
+                                }) // Add JWT filter only - corsFilter is already registered via @Component
+                                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

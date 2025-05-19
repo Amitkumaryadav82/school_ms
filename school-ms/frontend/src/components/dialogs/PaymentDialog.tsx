@@ -169,11 +169,12 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      if (studentId) {
-        // Create a payment object
+      if (studentId) {              // Create a payment object that matches the backend PaymentRequest expectations
         const paymentData: Payment = {
           studentId,
           id: initialData?.id,
+          // Make sure we have a valid feeId by prioritizing the feeStructure.id
+          feeId: studentFees?.feeStructure?.id || studentFees?.studentFeeId, 
           paymentDate: typeof values.paymentDate === 'string' 
             ? values.paymentDate 
             : format(values.paymentDate, 'yyyy-MM-dd'),
@@ -181,17 +182,16 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
           amountPaid: values.amount, // Assuming full payment
           paymentMethod: values.paymentMethod,
           frequency: values.frequency,
-          reference: values.reference,
-          notes: values.notes,
+          transactionReference: values.reference || '', // Match backend field name
+          remarks: values.notes || '', // Match backend field name
           paymentStatus: 'PAID', // Default status
           academicYear: (new Date().getFullYear()).toString(),
-          academicTerm: 'CURRENT' // Default term
+          academicTerm: 'CURRENT', // Default term
+          payerName: 'Parent/Guardian', // Required by backend
+          payerContactInfo: '', // Required by backend
+          payerRelationToStudent: 'PARENT', // Required by backend
+          receiptNumber: `RCPT-${Date.now().toString().slice(-8)}` // Generate a unique receipt number
         };
-        
-        // Add studentFeeId if available
-        if (studentFees?.studentFeeId) {
-          paymentData.studentFeeId = studentFees.studentFeeId;
-        }
         
         onSubmit(paymentData);
       }

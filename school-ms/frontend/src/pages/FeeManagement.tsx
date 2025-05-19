@@ -103,15 +103,32 @@ const FeeManagement: React.FC = () => {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-  const handleSearchStudent = async () => {
+  };  const handleSearchStudent = async () => {
     if (!studentIdOrName.trim()) return;
       try {      // Use the studentService that was imported at the top of the file
       const student = await studentService.search(studentIdOrName);
       if (student) {
-        setSelectedStudent(student);
-        await fetchStudentFeeDetails(student.id);
-        await fetchStudentPayments(student.id);
+        // Check if student is an array and handle accordingly
+        const studentData = Array.isArray(student) ? student[0] : student;
+        if (studentData && studentData.id) {
+          setSelectedStudent(studentData);
+          
+          // Log student data for debugging
+          console.log('Selected student:', studentData);
+          
+          // Fetch fee details and ensure we have a valid feeId
+          const feeDetails = await fetchStudentFeeDetails(studentData.id);
+          
+          if (!feeDetails || !feeDetails.studentFeeId) {
+            console.warn('No fee details found for student. Payments may not work correctly.');
+          } else {
+            console.log('Successfully loaded fee details:', feeDetails);
+          }
+          
+          await fetchStudentPayments(studentData.id);
+        } else {
+          throw new Error('Invalid student data returned');
+        }
       } else {
         setSnackbar({ 
           open: true, 
@@ -128,17 +145,20 @@ const FeeManagement: React.FC = () => {
       });
     }
   };
-
   const fetchStudentFeeDetails = async (studentId: number) => {
     try {
       const details = await feeService.getStudentFeeDetails(studentId);
       setStudentFeeDetails(details);
+      console.log('Fetched student fee details:', details);
+      return details; // Return the details so they can be used by the caller
     } catch (error) {
+      console.error('Error fetching student fee details:', error);
       setSnackbar({ 
         open: true, 
         message: 'Error fetching student fee details', 
         severity: 'error' 
       });
+      return null;
     }
   };
   const fetchStudentPayments = async (studentId: number) => {
@@ -384,21 +404,33 @@ const FeeManagement: React.FC = () => {
             </Box>
           </>
         )}
-      </TabPanel>
-
-      {/* Fee Structure Dialog */}      {feeStructureDialogOpen && (
+      </TabPanel>      {/* Fee Structure Dialog */}      {feeStructureDialogOpen && (
         <FeeStructureDialog 
           open={feeStructureDialogOpen}
-          onClose={() => setFeeStructureDialogOpen(false)}
-          onSubmit={async (data: FeeStructure) => {
-            await feeService.createFeeStructure(data);
-            setFeeStructureDialogOpen(false);
-            refetchFeeStructures();
-            setSnackbar({ 
-              open: true, 
-              message: 'Fee structure created successfully', 
-              severity: 'success' 
-            });
+          onClose={() => setFeeStructureDialogOpen(false)}          onSubmit={async (data: FeeStructure) => {
+            try {
+              // Import the utility for creating fee structures
+              const { createFeeStructure } = await import('../utils/createFeeStructure');
+              
+              // Use the utility to create the fee structure with validation and processing
+              await createFeeStructure(data);
+              
+              setFeeStructureDialogOpen(false);
+              refetchFeeStructures();
+              
+              setSnackbar({ 
+                open: true, 
+                message: 'Fee structure created successfully', 
+                severity: 'success' 
+              });
+            } catch (error) {
+              console.error('Error creating fee structure:', error);
+              setSnackbar({
+                open: true,
+                message: `Failed to create fee structure: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                severity: 'error'
+              });
+            }
           }}
         />
       )}
@@ -421,20 +453,70 @@ const FeeManagement: React.FC = () => {
         />
       )}
 
-      {/* Payment Dialog */}
-      {paymentDialogOpen && selectedStudent && studentFeeDetails && (
+      {/* Payment Dialog */}      {paymentDialogOpen && selectedStudent && studentFeeDetails && (
         <PaymentDialog 
           open={paymentDialogOpen}
           onClose={() => setPaymentDialogOpen(false)}
           studentId={selectedStudent.id ?? null}
           onSubmit={async (payment) => {
             try {
-              await feeService.createPayment(payment);
+              // Import utilities
+              const { debugPayment } = await import('../utils/debugUtils');
+              const { processPayment } = await import('../services/paymentHandler');
+              
+              // Log initial payment data for debugging
+              debugPayment('Payment Submission Start', payment);
+              
+              // Ensure all required properties are present and have valid values
+              if (!payment.studentId || !payment.amount || !payment.paymentDate) {
+                const error = new Error('Missing required payment information');
+                debugPayment('Payment Validation Failed', payment, error);
+                throw error;
+              }
+              
+              // Ensure we have a valid feeId (studentFeeId)
+              if (!payment.feeId && !payment.studentFeeId && studentFeeDetails) {
+                // Try to get the fee ID from studentFeeDetails
+                payment.feeId = studentFeeDetails.studentFeeId || studentFeeDetails.feeStructure?.id;
+                debugPayment('Added missing feeId to payment', payment);
+              }
+              
+              // Use our enhanced payment processor that handles CORS issues
+              const result = await processPayment(payment);
+              debugPayment('Payment Created Successfully', result);
               handlePaymentSuccess();
-            } catch (error) {
+            } catch (error: any) {
+              // Import error reporting service
+              const { reportPaymentError } = await import('../services/errorReporting');
+              
+              // Generate detailed error diagnostics
+              const diagnostics = reportPaymentError(error, payment);
+              console.error('Payment processing error diagnostics:', diagnostics);
+              
+              // Provide more specific error messages based on error type
+              let errorMessage = 'Error processing payment';
+              
+              if (diagnostics.corsRelated) {
+                errorMessage = 'Network error processing payment. This appears to be a CORS-related issue.';
+              } else if (diagnostics.validationRelated) {
+                const validationErrors = error.validationErrors || 
+                                       error.response?.data?.validationErrors || 
+                                       error.response?.data?.errors || 
+                                       error.response?.data?.fieldErrors;
+                                       
+                if (validationErrors) {
+                  const errorFields = Object.keys(validationErrors).join(', ');
+                  errorMessage = `Validation error with fields: ${errorFields}`;
+                } else if (error.response?.data?.message) {
+                  errorMessage = `Validation error: ${error.response.data.message}`;
+                }
+              } else if (error.message) {
+                errorMessage = `Error: ${error.message}`;
+              }
+              
               setSnackbar({ 
                 open: true, 
-                message: 'Error processing payment', 
+                message: errorMessage, 
                 severity: 'error' 
               });
             }

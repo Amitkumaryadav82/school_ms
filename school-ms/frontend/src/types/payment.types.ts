@@ -29,16 +29,24 @@ export interface Payment {
   id?: number;
   studentId: number;
   studentFeeId?: number;
+  feeId?: number; // Added to match backend expectation
   paymentDate: string | Date;
   amount: number;
   amountPaid: number;
   paymentMethod: string;
   frequency: string;
   reference?: string;
+  transactionReference?: string; // Added to match backend field name
   notes?: string;
+  remarks?: string; // Added to match backend field name
   paymentStatus: string;
   academicYear: string;
   academicTerm: string;
+  // Additional fields required by backend
+  payerName?: string;
+  payerContactInfo?: string;
+  payerRelationToStudent?: string;
+  receiptNumber?: string;
   feeBreakdown?: FeeBreakdownItem[];
   [key: string]: any; // Allow additional properties for compatibility
 }

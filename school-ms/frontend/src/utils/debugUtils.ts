@@ -92,3 +92,82 @@ export const debugStorage = {
     localStorage.setItem('use_mock_data', enabled ? 'true' : 'false');
   }
 };
+
+/**
+ * Comprehensive logging utility for payment processing
+ * Provides detailed debug information for payment-related operations
+ */
+export const debugPayment = (action: string, data: any, error?: any) => {
+  // Create a timestamp for the log
+  const timestamp = new Date().toISOString();
+  const prefix = `[PAYMENT DEBUG] [${timestamp}]`;
+  
+  console.group(`${prefix} ${action}`);
+  
+  // Log basic information
+  console.log('Action:', action);
+  console.log('Data:', data);
+  
+  // If we have payment-specific data, log detailed information
+  if (data.studentId) {
+    console.log('Student ID:', data.studentId);
+    console.log('Fee ID:', data.feeId || data.studentFeeId);
+    console.log('Amount:', data.amount);
+    console.log('Payment Method:', data.paymentMethod);
+  }
+  
+  // If there's an error, provide detailed error information
+  if (error) {
+    console.error('Error:', error);
+    
+    // Check for common error patterns
+    if (error.response?.status === 400) {
+      console.error('Validation Error Details:');
+      const errorData = error.response.data;
+      console.table(errorData);
+      
+      // Check field problems
+      const missingFields = [];
+      const requiredFields = ['feeId', 'studentId', 'amount', 'paymentMethod'];
+      
+      for (const field of requiredFields) {
+        if (!data[field] && !data[field === 'feeId' ? 'studentFeeId' : field]) {
+          missingFields.push(field);
+        }
+      }
+      
+      if (missingFields.length > 0) {
+        console.error('Missing required fields:', missingFields);
+      }
+    }
+  }
+  
+  console.groupEnd();
+  
+  // Return the original data or error for chaining
+  return error || data;
+};
+
+/**
+ * Check if a payment object has all required fields according to backend requirements
+ */
+export const validatePaymentRequest = (payment: any): { valid: boolean; missingFields: string[] } => {
+  const requiredFields = [
+    'studentId',
+    'feeId', // Can also be studentFeeId
+    'amount',
+    'paymentMethod'
+  ];
+  
+  const missingFields = requiredFields.filter(field => {
+    if (field === 'feeId') {
+      return !payment.feeId && !payment.studentFeeId;
+    }
+    return !payment[field];
+  });
+  
+  return {
+    valid: missingFields.length === 0,
+    missingFields
+  };
+};

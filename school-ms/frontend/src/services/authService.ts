@@ -112,37 +112,78 @@ export const authService = {
         }
       }
       
-      // Online mode - try regular login
-      const response = await api.post<AuthResponse>('/auth/login', credentials);
-      console.log('✅ AuthService: Login successful');
-      
-      // Enhanced debugging - Log auth response details
-      console.log('🔍 DEBUG - Auth Response Details:', {
-        responseData: response,
-        token: response.token || response.access_token,
-        username: response.username,
-        role: response.role || response.userRole,
-        allFields: Object.keys(response)
-      });
-      
-      // Cache credentials for potential offline use (expires in 24 hours)
-      storageWithTTL.setWithExpiry('offlineAuth', {
-        username: credentials.username,
-        passwordHash: hashCredentials(credentials.password),
-        authData: response,
-        timestamp: new Date().toISOString()
-      }, 86400000); // 24 hours in milliseconds
-      
-      return response;
+      // Online mode - first try with the enhanced auth request
+      try {
+        console.log('🔄 AuthService: Trying login with enhanced CORS handling...');
+        // Import authHelper for direct fetch
+        const { authFetch } = await import('./authHelper');
+        
+        const response = await authFetch<AuthResponse>('/auth/login', credentials);
+        console.log('✅ AuthService: Login successful with enhanced CORS handling');
+        
+        // Enhanced debugging - Log auth response details
+        console.log('🔍 DEBUG - Auth Response Details:', {
+          responseData: response,
+          token: response.token || response.access_token,
+          username: response.username,
+          role: response.role || response.userRole,
+          allFields: Object.keys(response)
+        });
+        
+        // Cache credentials for potential offline use (expires in 24 hours)
+        storageWithTTL.setWithExpiry('offlineAuth', {
+          username: credentials.username,
+          passwordHash: hashCredentials(credentials.password),
+          authData: response,
+          timestamp: new Date().toISOString()
+        }, 86400000); // 24 hours in milliseconds
+        
+        return response;
+      } catch (corsError) {
+        console.warn('⚠️ Enhanced auth request failed, falling back to standard request:', corsError);
+        
+        // Fallback to regular API request
+        const response = await api.authRequest<AuthResponse>('/auth/login', credentials);
+        console.log('✅ AuthService: Login successful with fallback method');
+        
+        // Cache credentials as before
+        storageWithTTL.setWithExpiry('offlineAuth', {
+          username: credentials.username,
+          passwordHash: hashCredentials(credentials.password),
+          authData: response,
+          timestamp: new Date().toISOString()
+        }, 86400000);
+        
+        return response;
+      }
     } catch (error: any) {
       console.error('❌ AuthService: Login failed:', error);
+      
+      // Enhanced error handling for CORS issues
+      if (error.message && (
+          error.message.includes('Network Error') || 
+          error.message.includes('CORS') || 
+          error.message.includes('header field') || 
+          error.status === 0)) {
+        console.error('🔄 CORS Issue Detected: Adding detailed diagnostic info');
+        throw {
+          ...error,
+          message: 'Authentication failed due to CORS issues. Please try again or contact support.',
+          corsIssue: true,
+          diagnostics: {
+            browser: navigator.userAgent,
+            time: new Date().toISOString(),
+            corsHeaders: ['Authorization', 'Content-Type', 'Cache-Control']
+          }
+        };
+      }
+      
       throw error;
     }
   },
-
   register: async (userData: RegisterRequest) => {
     try {
-      return await api.post<AuthResponse>('/auth/register', userData);
+      return await api.authRequest<AuthResponse>('/auth/register', userData);
     } catch (error: any) {
       console.error('❌ AuthService: Registration failed:', error);
       throw error;
@@ -154,17 +195,15 @@ export const authService = {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     storageWithTTL.remove('offlineAuth');
-    
-    // Try to call logout endpoint, but don't wait for it or handle errors
+      // Try to call logout endpoint, but don't wait for it or handle errors
     // as we want the client-side logout to be reliable even if server is down
-    api.post('/auth/logout', {})
+    api.authRequest('/auth/logout', {})
       .then(() => console.log('✅ AuthService: Server logout successful'))
       .catch(e => console.log('ℹ️ AuthService: Server logout failed, but client logout completed'));
   },
-  
-  validateToken: async (token: string) => {
+    validateToken: async (token: string) => {
     try {
-      const response = await api.post<{valid: boolean}>('/auth/validate-token', { token });
+      const response = await api.authRequest<{valid: boolean}>('/auth/validate-token', { token });
       return response.valid === true;
     } catch (error) {
       console.error('❌ AuthService: Token validation failed:', error);

@@ -7,30 +7,38 @@ const apiClient = axios.create({
   timeout: config.apiTimeout,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
+  withCredentials: true  // Enable sending cookies with cross-origin requests
 });
 
 // Add authentication token to all requests
-apiClient.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
+apiClient.interceptors.request.use(async config => {
+  // Get auth header using the helper that ensures proper format
+  const { getAuthHeader } = await import('./authHelper');
+  const authHeader = getAuthHeader();
   
   // Fix: ensure we don't have duplicate base URLs
   if (config.url?.startsWith('http://localhost:8080') && config.baseURL?.includes('localhost:8080')) {
     config.url = config.url.replace('http://localhost:8080', '');
     console.warn('Detected and fixed duplicate base URL in request');
   }
-  
-  // Add enhanced logging for debugging
+    // Add enhanced logging for debugging
   console.log(`Request to ${config.baseURL}${config.url}:`, {
     method: config.method,
-    hasToken: !!token,
-    tokenFirstChars: token ? `${token.substring(0, 10)}...` : 'none',
+    hasToken: !!authHeader,
+    tokenFirstChars: authHeader ? `${authHeader.substring(0, 15)}...` : 'none',
     headers: config.headers,
     timestamp: new Date().toISOString()
   });
   
-  if (token && config.headers) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Add auth header and enhanced CORS headers
+  if (authHeader && config.headers) {
+    config.headers.Authorization = authHeader;
+    
+    // Add cache control headers to avoid CORS preflight issues
+    config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+    config.headers['Pragma'] = 'no-cache';
+    config.headers['Expires'] = '0';
   }
   return config;
 });
@@ -123,8 +131,12 @@ apiClient.interceptors.response.use(
       } else if (error.response?.data?.fieldErrors) {
         // Some Spring Boot apps use this format
         console.table(error.response.data.fieldErrors);
+      } else if (error.response?.data?.message) {
+        // Single message format
+        console.error('Validation message:', error.response.data.message);
       } else if (typeof error.response?.data === 'object') {
         // Log all properties of the error response data
+        console.error('Detailed validation error information:');
         Object.entries(error.response.data).forEach(([key, value]) => {
           console.log(`${key}:`, value);
         });
@@ -132,8 +144,25 @@ apiClient.interceptors.response.use(
       
       // Log request payload that caused the validation error
       try {
-        console.log('Request payload that caused validation error:', 
-          JSON.parse(error.config?.data));
+        const requestData = JSON.parse(error.config?.data);
+        console.log('Request payload that caused validation error:', requestData);
+        
+        // Add more detailed validation of payload against expected schema
+        const missingRequiredFields = [];
+        
+        // Check for expected fields in different request types
+        if (error.config?.url?.includes('/api/fees/payments')) {
+          console.log('Validating payment request payload:');
+          
+          if (!requestData.feeId) missingRequiredFields.push('feeId');
+          if (!requestData.studentId) missingRequiredFields.push('studentId');
+          if (!requestData.amount) missingRequiredFields.push('amount');
+          if (!requestData.paymentMethod) missingRequiredFields.push('paymentMethod');
+          
+          if (missingRequiredFields.length > 0) {
+            console.error('Missing required fields:', missingRequiredFields);
+          }
+        }
       } catch (e) {
         console.log('Request payload (could not parse):', error.config?.data);
       }
@@ -176,8 +205,20 @@ export const api = {
   
   delete: <T>(endpoint: string) => 
     apiClient.delete<T>(ensureEndpoint(endpoint)).then(res => res.data),
-    patch: <T>(endpoint: string, data?: any) => 
+    
+  patch: <T>(endpoint: string, data?: any) => 
     apiClient.patch<T>(ensureEndpoint(endpoint), data).then(res => res.data),
+    
+  // Special method for auth requests that bypasses cache
+  authRequest: <T>(endpoint: string, data?: any) => 
+    apiClient.post<T>(ensureEndpoint(endpoint), data, {
+      headers: {
+        // Explicitly disable caching for auth requests
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    }).then(res => res.data),
     
   // Specialized method for handling file uploads with XLS/CSV, especially for bulk imports
   bulkUpload: <T>(endpoint: string, fileOrData: File | any[], options?: {isFile?: boolean}) => {

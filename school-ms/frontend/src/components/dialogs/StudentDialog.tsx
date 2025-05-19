@@ -251,12 +251,14 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
         setFormData(initialData);
         
         // If the student has a transport mode of School Bus, load the route details
-        if (initialData.transportMode === 'School Bus' && initialData.busRouteNumber) {
-          fetchTransportRoutes().then(() => {
+        if (initialData.transportMode === 'School Bus' && initialData.busRouteNumber) {          fetchTransportRoutes().then(() => {
             // After routes are loaded, update the fee structure with the transport fee
             setTimeout(() => {
               const routeId = initialData.busRouteNumber;
-              const selectedRoute = transportRoutes.find(route => route.id === parseInt(routeId.toString()));
+              // Add null check for routeId and use safe conversion
+              const selectedRoute = routeId !== null && routeId !== undefined ? 
+                transportRoutes.find(route => route.id === parseInt(routeId.toString())) : 
+                undefined;
               
               if (selectedRoute && feeStructure) {
                 const updatedFeeStructure = {

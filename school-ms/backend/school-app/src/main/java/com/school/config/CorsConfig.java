@@ -30,13 +30,21 @@ public class CorsConfig {
         config.addAllowedOrigin("http://localhost:3000");
 
         // Allow common HTTP methods
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-        // Allow common headers
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // Allow common
+                                                                                                     // headers -
+                                                                                                     // include all
+                                                                                                     // variations of
+                                                                                                     // cache-control
+                                                                                                     // with different
+                                                                                                     // cases
         config.setAllowedHeaders(Arrays.asList(
                 "Authorization", "Content-Type", "Accept",
                 "X-Requested-With", "X-User-Role", "Origin",
-                "Access-Control-Request-Method", "Access-Control-Request-Headers"));        // Expose headers that frontend might need
+                "Access-Control-Request-Method", "Access-Control-Request-Headers",
+                "Cache-Control", "cache-control", "CACHE-CONTROL",
+                "Pragma", "pragma", "PRAGMA",
+                "Expires", "expires", "EXPIRES"));
+        // Expose headers that frontend might need
         config.setExposedHeaders(Arrays.asList(
                 "Access-Control-Allow-Origin",
                 "Access-Control-Allow-Credentials",

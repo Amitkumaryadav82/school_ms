@@ -230,10 +230,64 @@ const feeService = {
                 nextDueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
             };
         }
-    },
-
-    createPayment: async (payment: Payment): Promise<Payment> => {
-        return await api.post<Payment>('/api/fees/payments', payment);
+    },    createPayment: async (payment: Payment): Promise<Payment> => {
+        try {
+            // Import utilities
+            const { debugPayment, validatePaymentRequest } = await import('../utils/debugUtils');
+            const { submitPaymentWithCorsHandling } = await import('../services/corsHelper');
+            
+            // Transform to match the backend PaymentRequest format
+            const paymentRequest = {
+                feeId: payment.feeId || payment.studentFeeId ? Number(payment.feeId || payment.studentFeeId) : null,
+                studentId: Number(payment.studentId),
+                amount: Number(payment.amount),
+                paymentMethod: payment.paymentMethod === 'BANK_TRANSFER' ? 'BANK_TRANSFER' : 
+                               payment.paymentMethod === 'CREDIT_CARD' ? 'CREDIT_CARD' : 
+                               payment.paymentMethod === 'UPI' ? 'ONLINE' : 'CASH',
+                transactionReference: payment.transactionReference || payment.reference || '',
+                remarks: payment.remarks || payment.notes || '',
+                // Additional fields
+                payerName: payment.payerName || 'Parent/Guardian',
+                payerContactInfo: payment.payerContactInfo || '',
+                payerRelationToStudent: payment.payerRelationToStudent || 'PARENT',
+                receiptNumber: payment.receiptNumber || `RCPT-${new Date().getTime().toString().slice(-8)}`
+            };
+            
+            // Validate all required fields are present before sending
+            const validation = validatePaymentRequest(paymentRequest);
+            if (!validation.valid) {
+                debugPayment('Payment Validation Failed', paymentRequest, {
+                    message: `Missing required fields: ${validation.missingFields.join(', ')}`
+                });
+                throw new Error(`Payment validation failed. Missing: ${validation.missingFields.join(', ')}`);
+            }
+            
+            // Log the payment request for debugging
+            debugPayment('Sending Payment Request', paymentRequest);
+            
+            // Try multiple approaches to handle CORS issues
+            try {
+                // First attempt: Use our special CORS-aware payment submission
+                const result = await submitPaymentWithCorsHandling(paymentRequest);
+                debugPayment('Payment Success (CORS-aware method)', result);
+                return result;
+            } catch (corsError) {
+                debugPayment('CORS-aware payment failed, trying standard API', paymentRequest, corsError);
+                
+                // Second attempt: Use the standard API
+                try {
+                    const result = await api.post<Payment>('/api/fees/payments', paymentRequest);
+                    debugPayment('Payment Success (standard API)', result);
+                    return result;
+                } catch (apiError) {
+                    debugPayment('All payment methods failed', paymentRequest, apiError);
+                    throw apiError;
+                }
+            }
+        } catch (error) {
+            console.error('Error in createPayment:', error);
+            throw error;
+        }
     },
 
     updatePayment: async (id: number, payment: Payment): Promise<Payment> => {
@@ -304,10 +358,14 @@ const feeService = {
             if (classGrade !== undefined && classGrade !== null) {
                 url += `?classGrade=${classGrade}`;
             }
-            
-            // Use apiClient to ensure consistent configuration
-            const response = await api.get(url, {
-                responseType: 'blob'
+              // Use apiClient to ensure consistent configuration
+            const response = await axios.get(url, {
+                responseType: 'blob',
+                baseURL: config.apiUrl,
+                withCredentials: true,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
             
             // Create blob link to download

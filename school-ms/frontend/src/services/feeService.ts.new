@@ -1,0 +1,310 @@
+import axios from 'axios';
+import api from './api';
+import { Payment, FeeBreakdownItem, StudentFeeDetails } from '../types/payment.types';
+import config from '../config/environment';
+import { studentService } from './studentService';
+
+// Local interface for fee breakdown with extra fields needed in the service
+export interface FeeBreakdown extends FeeBreakdownItem {
+    id?: number;
+    paymentId?: number;
+    description: string;
+}
+
+// Fee Payment Summary interface
+export interface FeePaymentSummary {
+    id?: number;
+    studentId: number;
+    totalDue: number;
+    totalPaid: number;
+    balance: number;
+    paymentStatus: string;
+    lastPaymentDate?: string;
+    nextDueDate?: string;
+}
+
+// Fee Structure interfaces
+export interface FeeStructure {
+    id?: number;
+    classGrade: number;
+    annualFees: number;
+    buildingFees: number;
+    labFees: number;
+    amount: number;
+    totalFees?: number;
+    transportFee?: number;
+    description?: string;
+}
+
+// Transport route interface
+export interface TransportRoute {
+    id?: number;
+    routeNumber: string;
+    description: string;
+    distance: number;
+    feeAmount: number;
+}
+
+// Fee Service object with all needed functionality
+const feeService = {
+    // Get all fee structures
+    getAllFeeStructures: async (): Promise<FeeStructure[]> => {
+        return api.get<FeeStructure[]>('/api/fees/structures');
+    },
+
+    // Get fee structure by ID
+    getFeeStructureById: async (id: number): Promise<FeeStructure> => {
+        return api.get<FeeStructure>(`/api/fees/structures/${id}`);
+    },
+
+    // Get fee structure by grade
+    getFeeStructureByGrade: async (grade: number): Promise<FeeStructure> => {
+        return api.get<FeeStructure>(`/api/fees/structures/grade/${grade}`);
+    },
+
+    // Create a new fee structure
+    createFeeStructure: async (feeStructure: FeeStructure): Promise<FeeStructure> => {
+        return api.post<FeeStructure>('/api/fees/structures', feeStructure);
+    },
+
+    // Update an existing fee structure
+    updateFeeStructure: async (id: number, feeStructure: FeeStructure): Promise<FeeStructure> => {
+        return api.put<FeeStructure>(`/api/fees/structures/${id}`, feeStructure);
+    },
+
+    // Delete a fee structure
+    deleteFeeStructure: async (id: number): Promise<void> => {
+        return api.delete(`/api/fees/structures/${id}`);
+    },
+
+    // Get all transport routes
+    getAllTransportRoutes: async (): Promise<TransportRoute[]> => {
+        return api.get<TransportRoute[]>('/api/fees/transport-routes');
+    },
+
+    // Get a transport route by ID
+    getTransportRouteById: async (id: number): Promise<TransportRoute> => {
+        return api.get<TransportRoute>(`/api/fees/transport-routes/${id}`);
+    },
+
+    // Create a new transport route
+    createTransportRoute: async (route: TransportRoute): Promise<TransportRoute> => {
+        return api.post<TransportRoute>('/api/fees/transport-routes', route);
+    },
+
+    // Update an existing transport route
+    updateTransportRoute: async (id: number, route: TransportRoute): Promise<TransportRoute> => {
+        return api.put<TransportRoute>(`/api/fees/transport-routes/${id}`, route);
+    },
+
+    // Delete a transport route
+    deleteTransportRoute: async (id: number): Promise<void> => {
+        return api.delete(`/api/fees/transport-routes/${id}`);
+    },
+
+    // Get all fee payments
+    getAllPayments: async (): Promise<Payment[]> => {
+        return api.get<Payment[]>('/api/fees/payments');
+    },
+
+    // Get payment by ID
+    getPaymentById: async (id: number): Promise<Payment> => {
+        return api.get<Payment>(`/api/fees/payments/${id}`);
+    },
+
+    // Create a new payment
+    createPayment: async (payment: Payment): Promise<Payment> => {
+        try {
+            const paymentRequest = {
+                ...payment,
+                paymentDate: payment.paymentDate || new Date().toISOString().split('T')[0]
+            };
+            
+            // Log for debugging
+            console.log("Payment request:", JSON.stringify(paymentRequest));
+            
+            // Use API service first
+            try {
+                return await api.post<Payment>('/api/fees/payments', paymentRequest);
+            } catch (error) {
+                console.error("Payment request failed with error:", error);
+                // Try with explicit URL format as fallback
+                console.log("Trying fallback payment request...");
+                const response = await axios.post<Payment>(`${config.apiUrl}/api/fees/payments`, paymentRequest, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                return response.data;
+            }
+        } catch (error) {
+            console.error("All payment attempts failed:", error);
+            throw error;
+        }
+    },
+
+    // Update an existing payment
+    updatePayment: async (id: number, payment: Payment): Promise<Payment> => {
+        return api.put<Payment>(`/api/fees/payments/${id}`, payment);
+    },
+
+    // Delete a payment
+    deletePayment: async (id: number): Promise<void> => {
+        return api.delete(`/api/fees/payments/${id}`);
+    },
+
+    // Generate a fee report
+    generateFeeReport: async (reportType: string, classGrade?: number): Promise<void> => {
+        try {
+            // Fix the URL to prevent duplication of the base URL
+            let url = `/api/fees/reports/download/${reportType}`;
+            if (classGrade !== undefined && classGrade !== null) {
+                url += `?classGrade=${classGrade}`;
+            }
+            
+            // Use apiClient to ensure consistent configuration
+            const response = await api.get(url, {
+                responseType: 'blob'
+            });
+            
+            // Create blob link to download
+            const fileDate = new Date().toISOString().split('T')[0];
+            
+            // Fix the type issues by properly handling the response
+            // TypeScript doesn't know the exact shape of response when responseType is 'blob'
+            const responseData: any = response.data;
+            const blob = new Blob([responseData]);
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', `Fee-Report-${reportType}-${fileDate}.xlsx`);
+            
+            // Append to html page
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up and remove the link
+            link.parentNode?.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading fee report:', error);
+            throw error;
+        }
+    },
+    
+    exportPaymentData: async (filters: any): Promise<void> => {
+        try {
+            // Use direct axios call with responseType: 'blob'
+            const response = await axios.post(`${config.apiUrl}/api/payments/export`, filters, {
+                responseType: 'blob',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // Type assertion for the response data
+            const responseData: any = response.data;
+            const url = window.URL.createObjectURL(new Blob([responseData]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Payments-${new Date().toISOString().split('T')[0]}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error exporting payment data:', error);
+            throw error;
+        }
+    },
+    
+    getStudentFeeDetails: async (studentId: number): Promise<StudentFeeDetails> => {
+        try {
+            // Try to get real data from API
+            const student = await studentService.getById(studentId);
+            const gradeNumber = parseInt(student.grade || '10', 10);
+            
+            // Get the fee structure for this grade
+            let feeStructure;
+            try {
+                // Don't use feeService here to avoid circular reference
+                feeStructure = await api.get<FeeStructure>(`/api/fees/structures/grade/${gradeNumber}`);
+            } catch (error) {
+                console.error("Error fetching fee structure:", error);
+                // Default structure if API fails
+                feeStructure = {
+                    id: 1,
+                    classGrade: gradeNumber,
+                    annualFees: 25000,
+                    buildingFees: 5000,
+                    labFees: 3000,
+                    amount: 33000,
+                    totalFees: 33000
+                };
+            }
+            
+            // Get the payments made by this student
+            const payments = await api.get<Payment[]>(`/api/fees/payments/student/${studentId}`);
+            
+            // Calculate totals
+            const totalFees = feeStructure.totalFees || feeStructure.amount;
+            const totalPaid = payments.reduce((sum, payment) => sum + payment.amountPaid, 0);
+            const balance = totalFees - totalPaid;
+            
+            // Return the details
+            return {
+                studentId,
+                studentName: student.name,
+                grade: student.grade,
+                section: student.section,
+                totalFees,
+                totalPaid,
+                balance,
+                paymentStatus: balance <= 0 ? 'Paid' : 'Pending',
+                feeStructure,
+                payments
+            };
+        } catch (error) {
+            console.error("Error fetching student fee details:", error);
+            throw error;
+        }
+    },
+    
+    getStudentPaymentHistory: async (studentId: number): Promise<Payment[]> => {
+        return await api.get<Payment[]>(`/api/fees/payments/student/${studentId}`);
+    },
+    
+    downloadReceipt: async (paymentId: number): Promise<void> => {
+        try {
+            // Use direct axios call with responseType: 'blob'
+            const response = await axios.get(`${config.apiUrl}/api/payments/${paymentId}/receipt`, {
+                responseType: 'blob',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            // Create blob link to download - with type assertion
+            const responseData: any = response.data;
+            const url = window.URL.createObjectURL(new Blob([responseData]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Receipt-${paymentId}.pdf`);
+            
+            // Append to html page
+            document.body.appendChild(link);
+            link.click();
+            
+            // Clean up and remove the link
+            link.parentNode?.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading receipt:', error);
+            throw error;
+        }
+    }
+};
+
+// Types already imported at the top
+// import { Payment, FeeBreakdownItem, PaymentMethod, PaymentFrequency, StudentFeeDetails } from '../types/payment.types';
+
+export default feeService;
