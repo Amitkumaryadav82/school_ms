@@ -5,6 +5,7 @@ import com.school.security.dto.LoginRequest;
 import com.school.security.dto.RegisterRequest;
 import com.school.security.exception.DuplicateUsernameException;
 import com.school.security.exception.DuplicateEmailException;
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -89,6 +90,64 @@ public class AuthService {
         } catch (Exception e) {
             log.error("Unexpected error during login", e);
             throw e;
+        }
+    }
+
+    /**
+     * Refreshes an existing JWT token
+     * 
+     * @param token The existing token to refresh
+     * @return A new token and user information
+     */
+    public AuthResponse refreshToken(String token) {
+        // Validate the token and extract user details
+        if (!tokenProvider.validateToken(token)) {
+            log.error("Invalid token provided for refresh");
+            throw new JwtException("Invalid or expired token");
+        }
+
+        String username = tokenProvider.getUsernameFromToken(token);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new JwtException("User not found"));
+
+        log.info("Refreshing token for user: {}", username);
+
+        // Generate a new token
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user, null, user.getAuthorities());
+        String newToken = tokenProvider.generateToken(authentication);
+
+        return AuthResponse.builder()
+                .token(newToken)
+                .username(user.getUsername())
+                .role(user.getRole())
+                .message("Token refreshed successfully")
+                .build();
+    }
+      /**
+     * Validates if a JWT token is valid
+     * 
+     * @param token The JWT token to validate
+     * @return true if the token is valid, false otherwise
+     */
+    public boolean validateToken(String token) {
+        log.debug("Validating token in AuthService");
+        if (token == null || token.isEmpty()) {
+            log.warn("Token validation failed: Token is null or empty");
+            return false;
+        }
+        
+        try {
+            boolean isValid = tokenProvider.validateToken(token);
+            if (isValid) {
+                log.debug("Token validated successfully");
+            } else {
+                log.warn("Token validation failed: Invalid token structure");
+            }
+            return isValid;
+        } catch (Exception e) {
+            log.error("Error validating token", e);
+            return false;
         }
     }
 }

@@ -11,8 +11,14 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
-  resetInactivityTimer: () => void; // New method to reset the inactivity timer
-  loading: boolean; // Add loading state property
+  resetInactivityTimer: () => void; // Method to reset the inactivity timer
+  loading: boolean; // Loading state property
+  currentUser?: {
+    username: string;
+    role: string;
+    roles: string[];
+    id?: number | string | null;
+  };
 }
 
 // Add export here so it can be imported in other files
@@ -79,13 +85,55 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
     }
   }, [isAuthenticated, resetInactivityTimer]);
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     
     if (token && userData) {
       try {
+        // Validate token format and expiration
+        try {
+          // Parse JWT token to check expiration
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const payload = JSON.parse(window.atob(base64));
+          
+          // Check if token is expired
+          const expiryTime = payload.exp * 1000;
+          const currentTime = Date.now();
+          const isExpired = currentTime > expiryTime;
+          
+          if (isExpired) {
+            console.error('🔑 Token expired, attempting refresh');
+            // Try to refresh the token
+            import('../services/tokenRefreshService').then(({ refreshToken }) => {
+              refreshToken().then(() => {
+                console.log('🔄 Token refreshed during initial authentication');
+                // Re-read user data after refresh
+                const refreshedUserData = localStorage.getItem('user');
+                if (refreshedUserData) {
+                  const refreshedParsedUser = JSON.parse(refreshedUserData);
+                  setUser(refreshedParsedUser);
+                  setIsAuthenticated(true);
+                }
+              }).catch((error) => {
+                console.error('❌ Token refresh failed during initial authentication:', error);
+                // Clean up on refresh failure
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                navigate('/login');
+              });
+            });
+            return;
+          }
+        } catch (tokenError) {
+          console.error('❌ Error validating token format:', tokenError);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          navigate('/login');
+          return;
+        }
+        
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
         setIsAuthenticated(true);
@@ -119,12 +167,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       const token = authData.token || authData.access_token;
+        // Extract all possible role formats from the response
+      let userRole = authData.role || authData.userRole || 'USER';
+      let userRoles = authData.roles || authData.authorities || [];
       
-      // Create user data object
+      // If there are no roles array but we have a single role, create an array
+      if (!Array.isArray(userRoles) || userRoles.length === 0) {
+        userRoles = [userRole];
+      }
+      
+      // Create enhanced user data object
       const userData = {
         token: token,
         username: authData.username || username,
-        role: authData.role || authData.userRole || 'USER' // Default to USER if no role provided
+        role: userRole, // Keep for backwards compatibility
+        roles: userRoles, // Store as array for better role-based access control
+        id: authData.id || authData.userId || null // Ensure we have a user ID if available
       };
       
       console.log('✅ Processed user data:', userData);
@@ -177,26 +235,79 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(false); // Set loading to false when login completes (success or failure)
     }
   };
-
-  const logout = () => {
+  const logout = (reason?: string) => {
+    console.log(`🔒 Logging out user${reason ? ` (Reason: ${reason})` : ''}`);
+    
     // Clear the inactivity timer when logging out
     if (inactivityTimerRef.current) {
       window.clearTimeout(inactivityTimerRef.current);
       inactivityTimerRef.current = null;
     }
     
+    // Clear authentication data
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
-    navigate('/login');
-    showNotification({
-      type: 'info',
-      message: 'You have been logged out',
-    });
-  };
+    
+    // Build the redirect URL with a reason if provided
+    const redirectUrl = reason ? `/login?reason=${encodeURIComponent(reason)}` : '/login';
+    
+    // Use navigate for programmatic redirects within React components
+    navigate(redirectUrl);
+    
+    // Show a notification based on the logout reason
+    if (reason === 'expired') {
+      showNotification({
+        type: 'warning',
+        message: 'Your session has expired. Please log in again.',
+      });
+    } else if (reason === 'invalid') {
+      showNotification({
+        type: 'error',
+        message: 'Authentication error. Please log in again.',
+      });
+    } else if (reason === 'permission') {
+      showNotification({
+        type: 'warning',
+        message: 'You do not have permission to access that resource.',
+      });
+    } else {
+      showNotification({
+        type: 'info',
+        message: 'You have been logged out',
+      });
+    }
+  };// Create a user-friendly currentUser object with proper roles
+  const currentUser = user ? {
+    username: user.username || '',
+    role: user.role || 'USER',
+    roles: Array.isArray(user.roles) ? user.roles : (user.role ? [user.role] : ['USER']),
+    id: user.id || null
+  } : undefined;
+
+  // Log the currentUser for debugging
+  useEffect(() => {
+    if (currentUser) {
+      console.log('👤 Current user context updated:', {
+        username: currentUser.username,
+        role: currentUser.role,
+        roles: currentUser.roles,
+        id: currentUser.id
+      });
+    }
+  }, [currentUser]);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, resetInactivityTimer, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      isAuthenticated, 
+      resetInactivityTimer, 
+      loading,
+      currentUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );

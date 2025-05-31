@@ -91,7 +91,9 @@ export const processPayment = async (payment: Payment): Promise<Payment> => {  t
 export const verifyPaymentReceipt = async (receiptNumber: string): Promise<boolean> => {
   try {
     const response = await api.get(`/api/fees/payments/receipt/${receiptNumber}/verify`);
-    return !!response?.verified;
+    // Apply type assertion to safely access data property
+    const responseData = response as any;
+    return !!(responseData?.data?.verified);
   } catch (error) {
     console.error('Error verifying receipt:', error);
     return false;

@@ -6,10 +6,11 @@ import path from 'path';
 export default defineConfig({
   plugins: [
     react({
-      // Skip type checking during build for faster builds
+      // Enable JSX and TypeScript type checking
       babel: {
         plugins: []
-      }
+      },
+      jsxRuntime: 'automatic'
     })
   ],
   resolve: {

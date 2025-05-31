@@ -5,6 +5,7 @@ import com.school.security.dto.LoginRequest;
 import com.school.security.dto.RegisterRequest;
 import com.school.security.exception.DuplicateUsernameException;
 import com.school.security.exception.DuplicateEmailException;
+import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,11 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "APIs for user authentication and registration")
-@CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = { "Authorization" })
+// Removed redundant @CrossOrigin annotation since we're using global CORS configuration from CorsConfig
 @Slf4j
 public class AuthController {
 
@@ -66,6 +68,86 @@ public class AuthController {
             return ResponseEntity.status(500)
                     .body(new ErrorResponse("SERVER_ERROR", "An unexpected error occurred"));
         }
+    }
+
+    @Operation(summary = "Refresh token", description = "Refresh an existing JWT token")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+            @ApiResponse(responseCode = "401", description = "Invalid or expired token")
+    })
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            if (token == null) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("INVALID_REQUEST", "Token is required"));
+            }
+
+            log.debug("Token refresh attempt");
+            AuthResponse response = authService.refreshToken(token);
+            log.info("Token refreshed successfully");
+            return ResponseEntity.ok(response);
+        } catch (JwtException e) {
+            log.warn("Token refresh failed - Invalid token: {}", e.getMessage());
+            return ResponseEntity.status(401)
+                    .body(new ErrorResponse("INVALID_TOKEN", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Token refresh error", e);
+            return ResponseEntity.status(500)
+                    .body(new ErrorResponse("SERVER_ERROR", "An unexpected error occurred"));
+        }
+    }
+
+    @Operation(summary = "Validate token", description = "Validate an existing JWT token")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Token is valid"),
+            @ApiResponse(responseCode = "401", description = "Invalid or expired token")
+    })
+    @PostMapping("/validate-token")
+    public ResponseEntity<?> validateToken(@RequestBody Map<String, String> request) {
+        try {
+            String token = request.get("token");
+            if (token == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "valid", false,
+                        "message", "Token is required"));
+            }
+
+            log.debug("Token validation attempt");
+            boolean isValid = authService.validateToken(token);
+
+            if (isValid) {
+                log.info("Token validated successfully");
+                return ResponseEntity.ok(Map.of("valid", true));
+            } else {
+                log.warn("Token validation failed - Invalid token");
+                return ResponseEntity.status(401).body(Map.of(
+                        "valid", false,
+                        "message", "Token is invalid or expired"));
+            }
+        } catch (JwtException e) {
+            log.warn("Token validation failed - Invalid token: {}", e.getMessage());
+            return ResponseEntity.status(401).body(Map.of(
+                    "valid", false,
+                    "message", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Token validation error", e);
+            return ResponseEntity.status(500).body(Map.of(
+                    "valid", false,
+                    "message", "An unexpected error occurred during token validation"));
+        }
+    }
+
+    @Operation(summary = "Authentication health check", description = "Check if authentication endpoints are accessible")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Authentication service is healthy")
+    })
+    @GetMapping("/health")
+    public ResponseEntity<?> healthCheck() {
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "timestamp", System.currentTimeMillis(),
+                "service", "authentication"));
     }
 }
 

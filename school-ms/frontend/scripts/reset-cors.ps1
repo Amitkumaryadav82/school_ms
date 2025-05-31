@@ -1,11 +1,13 @@
 # Reset CORS settings for testing
-# This script helps test different CORS configurations by applying known working settings
+# This script helps test different CORS configurations for the School Management System
+# UPDATED: Simplified CORS configuration using the unified CorsConfig approach
 
 # Print help message for the script
 function Show-Help {
     Write-Host "Reset CORS Configuration Script" -ForegroundColor Cyan
     Write-Host "--------------------------------" -ForegroundColor Cyan
     Write-Host "This script helps reset and test different CORS configurations for the School MS system."
+    Write-Host "Now using the simplified unified CORS configuration approach."
     Write-Host ""
     Write-Host "Usage:" -ForegroundColor Yellow
     Write-Host "  .\reset-cors.ps1 [Option]" -ForegroundColor Yellow

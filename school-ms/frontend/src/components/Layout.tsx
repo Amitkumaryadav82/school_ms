@@ -28,11 +28,13 @@ import {
   Assessment as AssessmentIcon,
   HowToReg as AdmissionsIcon,
   AccountCircle,
+  EventAvailable,
   ExitToApp as LogoutIcon,
   AttachMoney as FeeIcon,
+  Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
-import ServerStatusIndicator from './ServerStatusIndicator';
+import ConnectionStatusIndicator from './ConnectionStatusIndicator';
 
 interface LayoutProps {
   children: ReactNode;
@@ -46,6 +48,7 @@ const ROLES = {
   STAFF: 'STAFF',
   PARENT: 'PARENT',
   STUDENT: 'STUDENT',
+  PRINCIPAL: 'PRINCIPAL',
 };
 
 interface MenuItem {
@@ -73,12 +76,17 @@ const menuItems: MenuItem[] = [
     icon: <People />, 
     path: '/students',
     allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]
-  },
-  { 
+  },  { 
     text: 'Staff', 
     icon: <People />, 
     path: '/staff',
     allowedRoles: [ROLES.ADMIN]
+  },
+  { 
+    text: 'Teacher Attendance', 
+    icon: <EventAvailable />, 
+    path: '/teacher-attendance',
+    allowedRoles: [ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.TEACHER]
   },
   { 
     text: 'Courses', 
@@ -184,19 +192,17 @@ const Layout = ({ children }: LayoutProps) => {
             }}
           >
             School Management System
-            
-            {/* Server Status Indicator */}
-            <Tooltip title="Server connection status">
+              {/* Connection Status Indicator */}
+            <Tooltip title="Backend connection status">
               <Box sx={{ ml: 2, display: { xs: 'none', sm: 'flex' } }}>
-                <ServerStatusIndicator />
+                <ConnectionStatusIndicator />
               </Box>
             </Tooltip>
           </Typography>
           
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {/* Mobile view of server status */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>            {/* Mobile view of connection status */}
             <Box sx={{ mr: 2, display: { xs: 'flex', sm: 'none' } }}>
-              <ServerStatusIndicator />
+              <ConnectionStatusIndicator />
             </Box>
             
             {user && (
@@ -253,8 +259,7 @@ const Layout = ({ children }: LayoutProps) => {
             <LogoutIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="Logout" />
-        </MenuItem>
-      </Menu>
+        </MenuItem>      </Menu>
 
       {/* Mobile drawer */}
       <Drawer

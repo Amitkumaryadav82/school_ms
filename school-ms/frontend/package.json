@@ -2,8 +2,7 @@
   "name": "school-management-system",
   "private": true,
   "version": "0.0.1",
-  "type": "module",
-  "scripts": {
+  "type": "module",  "scripts": {
     "dev": "vite",
     "build": "tsc --skipLibCheck && vite build",
     "build:prod": "tsc --skipLibCheck && vite build --mode production",
@@ -12,7 +11,8 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "cleanup:analyze": "node scripts/cleanup-duplicates.js",
-    "cleanup:execute": "node scripts/cleanup-duplicates.js --delete"
+    "cleanup:execute": "node scripts/cleanup-duplicates.js --delete",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",
@@ -22,6 +22,7 @@
     "@mui/x-date-pickers": "^8.3.0",
     "axios": "^1.3.5",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "formik": "^2.4.6",
     "papaparse": "^5.5.2",
     "react": "^18.2.0",

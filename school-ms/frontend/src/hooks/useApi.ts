@@ -36,15 +36,17 @@ export function useApi<T>(
     showErrorNotification = true,
     dependencies = [],
     skip = false,
-  } = options;
-  useEffect(() => {
+  } = options;  useEffect(() => {
     if (!skip) {
       fetchData();
     } else {
       setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...dependencies]);
+  }, Array.isArray(dependencies) ? dependencies : [dependencies]);
+  
+  // This is only to support the old way of passing dependencies directly
+  // Will be removed in future versions
 
   const fetchData = async (ignoreCache = false) => {
     if (skip) {
@@ -148,10 +150,14 @@ export function useApiMutation<T, P>(
       setLoading(false);
     }
   };
-
+  
+  // Add mutateAsync alias for React Query compatibility
+  const mutateAsync = mutate;
   return {
     mutate,
+    mutateAsync,
     loading,
     error,
+    isLoading: loading
   };
 }

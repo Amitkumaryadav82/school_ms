@@ -8,7 +8,7 @@ interface Notification {
 }
 
 interface NotificationContextType {
-  showNotification: (notification: Notification) => void;
+  showNotification: (notification: Notification | string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -17,8 +17,15 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notification, setNotification] = useState<Notification | null>(null);
   const [open, setOpen] = useState(false);
 
-  const showNotification = (newNotification: Notification) => {
-    setNotification(newNotification);
+  const showNotification = (notificationOrMessage: Notification | string, type?: 'success' | 'error' | 'info' | 'warning') => {
+    if (typeof notificationOrMessage === 'string') {
+      setNotification({
+        message: notificationOrMessage,
+        type: type || 'info'
+      });
+    } else {
+      setNotification(notificationOrMessage);
+    }
     setOpen(true);
   };
 

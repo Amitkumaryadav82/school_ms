@@ -87,13 +87,13 @@ const PaymentAnalytics: React.FC = () => {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-
-  const handleDateChange = (type: 'start' | 'end', date: Date | null) => {
+  };  const handleDateChange = (type: 'start' | 'end', date: any) => {
     if (date) {
+      // Convert any type to Date to ensure compatibility with DatePicker
+      const safeDate = new Date(date);
       setDateRange(prev => ({
         ...prev,
-        [type === 'start' ? 'startDate' : 'endDate']: date.toISOString().split('T')[0]
+        [type === 'start' ? 'startDate' : 'endDate']: safeDate.toISOString().split('T')[0]
       }));
     }
   };
@@ -132,17 +132,16 @@ const PaymentAnalytics: React.FC = () => {
         </Tabs>
         
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DatePicker
+          <LocalizationProvider dateAdapter={AdapterDateFns}>            <DatePicker
               label="Start Date"
               value={new Date(dateRange.startDate)}
-              onChange={(date) => handleDateChange('start', date)}
+              onChange={(date) => handleDateChange('start', date as Date | null)}
               slotProps={{ textField: { size: 'small', sx: { mr: 1 } } }}
             />
             <DatePicker
               label="End Date"
               value={new Date(dateRange.endDate)}
-              onChange={(date) => handleDateChange('end', date)}
+              onChange={(date) => handleDateChange('end', date as Date | null)}
               slotProps={{ textField: { size: 'small', sx: { mr: 1 } } }}
             />
           </LocalizationProvider>

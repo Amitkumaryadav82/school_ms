@@ -31,7 +31,7 @@ const Login = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
 
-  // Debug info collection on component mount
+  // Debug info collection on component mount and handle URL parameters
   useEffect(() => {
     try {
       console.log('🔍 Login component mounted');
@@ -40,6 +40,24 @@ const Login = () => {
           ? import.meta.env.VITE_API_URL || 'https://api.schoolms.com'
           : 'http://localhost:8080'
       );
+      
+      // Check for "reason" query parameter to display appropriate messages
+      const urlParams = new URLSearchParams(window.location.search);
+      const reason = urlParams.get('reason');
+      
+      if (reason) {
+        console.log('Login reason parameter found:', reason);
+        
+        if (reason === 'expired') {
+          setError('Your session has expired. Please log in again.');
+        } else if (reason === 'invalid') {
+          setError('Authentication error. Please log in again with valid credentials.');
+        } else if (reason === 'permission') {
+          setError('You do not have permission to access that resource. Please log in with an account that has the required permissions.');
+        } else if (reason === 'timeout') {
+          setError('You have been logged out due to inactivity.');
+        }
+      }
     } catch (e) {
       console.error('Error in debug collection:', e);
     }

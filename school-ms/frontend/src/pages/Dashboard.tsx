@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -18,6 +18,10 @@ import {
   Avatar,
   Chip,
 } from '@mui/material';
+import { refreshToken } from '../services/tokenRefreshService';
+import { isDebugModeEnabled, logAccessAttempt } from '../services/userPreferencesService';
+import NetworkErrorBoundary from '../components/NetworkErrorBoundary';
+import ConnectionError from '../components/ConnectionError';
 import {
   People as PeopleIcon,
   School as SchoolIcon,
@@ -161,10 +165,77 @@ const StudentDashboard = () => {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
 
+  /**
+   * Validates the current auth token and refreshes if needed
+   * @returns true if token is valid, false otherwise
+   */
+  const validateAndRefreshToken = async (): Promise<boolean> => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No token available');
+        return false;
+      }
+
+      // Parse the JWT token
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(window.atob(base64));
+
+      // Check if token is expired or will expire in less than 5 minutes
+      const expiryTime = payload.exp * 1000;
+      const currentTime = Date.now();
+      const timeToExpiry = Math.round((expiryTime - currentTime) / 1000 / 60);
+
+      if (currentTime > expiryTime) {
+        console.log('Token is expired, attempting refresh');
+        try {
+          await refreshToken();
+          logAccessAttempt('dashboard', true, 'Token refreshed successfully');
+          return true;
+        } catch (error) {
+          console.error('Failed to refresh token:', error);
+          logAccessAttempt('dashboard', false, 'Token refresh failed');
+          return false;
+        }
+      } else if (timeToExpiry < 5) {
+        console.log(`Token will expire soon (${timeToExpiry} minutes), refreshing`);
+        try {
+          await refreshToken();
+          logAccessAttempt('dashboard', true, 'Token proactively refreshed');
+          return true;
+        } catch (error) {
+          console.warn('Failed to proactively refresh token:', error);
+          // Non-critical failure, we can still continue with the current token
+          return true;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error validating token:', error);
+      return false;
+    }
+  };
+
   const loadStudentData = async () => {
+    if (loading) return;
+
     try {
       setLoading(true);
       setError(null);
+
+      // First validate/refresh the token before making API calls
+      const tokenValid = await validateAndRefreshToken();
+      if (!tokenValid) {
+        console.error('Invalid authentication token');
+        showNotification({
+          type: 'error',
+          message: 'Your session has expired. Please log in again.',
+        });
+        navigate('/login');
+        return;
+      }
 
       const userId = user?.id;
       if (!userId) {
@@ -226,10 +297,40 @@ const StudentDashboard = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
-    loadStudentData();
-    const interval = setInterval(loadStudentData, 5 * 60 * 1000);
+    // Perform token validation first and then load student data
+    async function initializeDashboard() {
+      try {
+        // First validate/refresh the token before loading data
+        const tokenValid = await validateAndRefreshToken();
+        if (!tokenValid) {
+          console.error('Invalid authentication token during dashboard initialization');
+          showNotification({
+            type: 'error',
+            message: 'Your session has expired. Please log in again.',
+          });
+          navigate('/login');
+          return;
+        }
+        
+        // Token is valid, load student data
+        loadStudentData();
+      } catch (error) {
+        console.error('Error initializing dashboard:', error);
+      }
+    }
+    
+    // Execute the initialization function
+    initializeDashboard();
+    
+    // Set up refresh interval that also validates token first
+    const interval = setInterval(async () => {
+      const tokenValid = await validateAndRefreshToken();
+      if (tokenValid) {
+        loadStudentData();
+      }
+    }, 5 * 60 * 1000);
+    
     return () => clearInterval(interval);
   }, []);
 
@@ -264,21 +365,35 @@ const StudentDashboard = () => {
   if (loading) {
     return <Loading message="Loading your dashboard..." />;
   }
-
+  // Check if this is a connection error - we'll show a more specific error
+  if (error && (error.includes('ERR_CONNECTION_REFUSED') || error.includes('Failed to fetch'))) {
+    return <ConnectionError error={error} onRetry={loadStudentData} />;
+  }
+  
+  // For other types of errors, use our general error component
   if (error) {
     return <ErrorMessage message={error} onRetry={loadStudentData} />;
   }
-
-  return (
-    <Box>
-      <Typography variant="h4" sx={{ mb: 4 }}>
-        Student Dashboard
-        {user && (
-          <Typography variant="subtitle1" color="text.secondary">
-            Welcome, {user.name || user.email}
-          </Typography>
-        )}
-      </Typography>
+  // Function to reload page content after connection recovery
+  const handleRetry = useCallback(() => {
+    loadStudentData();
+  }, [loadStudentData]);
+  
+  // Show specific connection error UI instead of generic error message
+  if (error && error.toString().includes('ERR_CONNECTION_REFUSED')) {
+    return <ConnectionError error={error} onRetry={handleRetry} />;
+  }
+    return (
+    <NetworkErrorBoundary onReset={handleRetry}>
+      <Box>
+        <Typography variant="h4" sx={{ mb: 4 }}>
+          Student Dashboard
+          {user && (
+            <Typography variant="subtitle1" color="text.secondary">
+              Welcome, {user.name || user.email}
+            </Typography>
+          )}
+        </Typography>
 
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={3}>
@@ -583,9 +698,7 @@ const StudentDashboard = () => {
             </Grid>
           </Paper>
         </Grid>
-      </Grid>
-
-      {/* Payment Dialog */}
+      </Grid>      {/* Payment Dialog */}
       {paymentDialogOpen && user && studentData.studentInfo && (
         <PaymentDialog
           open={paymentDialogOpen}
@@ -596,6 +709,7 @@ const StudentDashboard = () => {
         />
       )}
     </Box>
+    </NetworkErrorBoundary>
   );
 };
 
@@ -613,21 +727,51 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const loadStats = async () => {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log("📊 Loading dashboard statistics...");
+      
+      // Check if token is valid before making API calls
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
 
-      const [students, teachers, courses] = await Promise.all([
-        studentService.getAll(),
-        teacherService.getAll(),
-        courseService.getAll(),
-      ]);
-
-      const studentsData = Array.isArray(students) ? students : [];
-      const teachersData = Array.isArray(teachers) ? teachers : [];
-      const coursesData = Array.isArray(courses) ? courses : [];
+      console.log('Loading admin dashboard statistics...');
+        // Use individual try-catch blocks for each service to be more resilient
+      let studentsData = [];
+      let teachersData = [];
+      let coursesData = [];
+      
+      try {
+        const students = await studentService.getAll();
+        studentsData = Array.isArray(students) ? students : [];
+        console.log(`✅ Loaded ${studentsData.length} students`);
+      } catch (error) {
+        console.error('Error loading students:', error);
+        // Continue with empty array, don't block the whole dashboard
+      }
+      
+      try {
+        const teachers = await teacherService.getAll();
+        teachersData = Array.isArray(teachers) ? teachers : [];
+        console.log(`✅ Loaded ${teachersData.length} teachers`);
+      } catch (error) {
+        console.error('Error loading teachers:', error);
+      }
+      
+      try {
+        const courses = await courseService.getAll();
+        coursesData = Array.isArray(courses) ? courses : [];
+        console.log(`✅ Loaded ${coursesData.length} courses`);
+      } catch (error) {
+        console.error('Error loading courses:', error);
+      }
+      
+      // No need to reassign these variables since we already assigned them in the try blocks
 
       const totalEnrollments = coursesData.reduce(
         (sum: number, course: Course) => sum + (course.enrolled || 0),
@@ -674,25 +818,43 @@ const AdminDashboard = () => {
         averageClassSize: Math.round(avgClassSize * 10) / 10,
         coursesAtCapacity,
         recentActivity,
-      });
-    } catch (error) {
+      });    } catch (error) {
       console.error('Error loading dashboard stats:', error);
-      setError(
-        'Failed to load dashboard statistics. Please ensure the backend server is running and the database is properly configured.'
-      );
+      // Check if this is a connection error
+      if (error.message && error.message.includes('Network Error')) {
+        setError('Cannot connect to the server. Please check if the backend service is running.');
+      } else {
+        setError('Failed to load dashboard data. Please try again later.');
+      }
       showNotification({
         type: 'error',
-        message:
-          'Failed to load dashboard statistics from database. Please check your server connection.',
+        message: 'Failed to load dashboard statistics. Please try refreshing the page.',
       });
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
-    loadStats();
-    const interval = setInterval(loadStats, 5 * 60 * 1000);
+    const checkHealthAndLoadStats = async () => {
+      try {
+        // Import the health check function
+        const { checkServerHealth } = await import('../services/api');
+        const isHealthy = await checkServerHealth();
+        
+        if (isHealthy) {
+          loadStats();
+        } else {
+          setError('Cannot connect to backend server. Please ensure the server is running.');
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error checking server health:', error);
+        loadStats(); // Fall back to regular loading if health check itself fails
+      }
+    };
+    
+    checkHealthAndLoadStats();
+    const interval = setInterval(checkHealthAndLoadStats, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -823,15 +985,74 @@ const AdminDashboard = () => {
 
 // Main Dashboard component that renders the appropriate dashboard based on user role
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  // Debug logging to help troubleshoot role-based rendering issues
+  console.log('🏠 Dashboard component rendering with:', {
+    userFromContext: user, 
+    currentUser: currentUser,
+    userRole: user?.role,
+    userRoles: user?.roles || [],
+    isAdmin: user?.role === ROLES.ADMIN,
+    isTeacher: user?.role === ROLES.TEACHER,
+    isStudent: user?.role === ROLES.STUDENT,
+    isStaff: user?.role === ROLES.STAFF
+  });
+    // Token validation on component mount using our dedicated token validation service
+  useEffect(() => {
+    const validateTokenAndProceed = async () => {
+      try {
+        // Import the token validation service
+        const { validateAdminToken } = await import('../services/tokenValidationService');
+        
+        console.log('Validating admin token before dashboard rendering...');
+        const validation = await validateAdminToken();
+        
+        if (!validation.valid) {
+          console.error('Token validation failed:', validation.message);
+          logout();
+          return;
+        }
+        
+        console.log('✅ Token successfully validated:', {
+          username: validation.username,
+          roles: validation.roles,
+          expiresAt: validation.expiresAt
+        });
+      } catch (err) {
+        console.error('Error during token validation:', err);
+        // Don't log out immediately on error - it might be a network issue
+        // The API interceptor will handle 401 errors if they occur during API calls
+      }
+    };
+    
+    validateTokenAndProceed();
+  }, [logout]);
 
-  if (user && user.role === ROLES.STUDENT) {
+  // Enhanced role-based dashboard rendering with better fallback
+  const userRole = user?.role?.toUpperCase();
+  const userRoles = Array.isArray(user?.roles) ? user?.roles.map(r => r.toUpperCase()) : 
+                   (userRole ? [userRole] : []);
+  
+  if (userRole === ROLES.STUDENT || userRoles.includes(ROLES.STUDENT)) {
+    console.log('🎓 Rendering Student Dashboard');
     return <StudentDashboard />;
-  } else if (user && user.role === ROLES.TEACHER) {
+  } else if (userRole === ROLES.TEACHER || userRoles.includes(ROLES.TEACHER)) {
+    console.log('👨‍🏫 Rendering Teacher Dashboard');
     return <AdminDashboard />;
-  } else if (user && (user.role === ROLES.ADMIN || user.role === ROLES.STAFF)) {
+  } else if (
+    userRole === ROLES.ADMIN || 
+    userRole === ROLES.STAFF || 
+    userRole === ROLES.PRINCIPAL || 
+    userRoles.includes(ROLES.ADMIN) || 
+    userRoles.includes(ROLES.STAFF) || 
+    userRoles.includes(ROLES.PRINCIPAL)
+  ) {
+    console.log('👑 Rendering Admin Dashboard');
     return <AdminDashboard />;
   } else {
+    console.warn('⚠️ No matching dashboard for user role:', userRole);
     return (
       <Box sx={{ textAlign: 'center', py: 5 }}>
         <Typography variant="h5" color="text.secondary">
@@ -840,6 +1061,9 @@ const Dashboard = () => {
         <Typography variant="body1" sx={{ mt: 2 }}>
           Please contact the system administrator if you believe this is an
           error.
+        </Typography>
+        <Typography variant="body2" color="text.disabled" sx={{ mt: 1 }}>
+          Role: {userRole || 'Unknown'} | Available Roles: {userRoles.join(', ') || 'None'}
         </Typography>
       </Box>
     );

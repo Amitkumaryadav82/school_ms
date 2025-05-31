@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from '../config/environment';
+// We'll import the token refresh service dynamically to avoid circular dependencies
 
 // Create a simple API client with sensible defaults
 const apiClient = axios.create({
@@ -10,6 +11,37 @@ const apiClient = axios.create({
   },
   withCredentials: true  // Enable sending cookies with cross-origin requests
 });
+
+/**
+ * Health check function to verify if the backend server is running
+ * @returns Promise that resolves with true if server is accessible, false otherwise
+ */
+export const checkServerHealth = async (): Promise<boolean> => {
+  try {
+    const response = await apiClient.get('/api/auth/health', { 
+      timeout: 3000, // Short timeout for quick health check
+      headers: { 'Cache-Control': 'no-cache' } 
+    });
+    return response.status === 200;
+  } catch (error) {
+    console.error('Health check failed:', error);
+    return false;
+  }
+};
+
+// Add refresh token functionality (imported dynamically to avoid circular imports)
+const setupTokenRefresh = async () => {
+  try {
+    const { setupRefreshInterceptor } = await import('./tokenRefreshService');
+    setupRefreshInterceptor(apiClient);
+    console.log('✅ Token refresh interceptor set up successfully');
+  } catch (error) {
+    console.error('❌ Failed to set up token refresh interceptor:', error);
+  }
+};
+
+// Initialize token refresh interceptor
+setupTokenRefresh();
 
 // Add authentication token to all requests
 apiClient.interceptors.request.use(async config => {
@@ -166,13 +198,80 @@ apiClient.interceptors.response.use(
       } catch (e) {
         console.log('Request payload (could not parse):', error.config?.data);
       }
-    }
-
-    // Handle authentication errors
+    }    // Handle authentication errors with more nuanced approach
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      console.error('401 Unauthorized error details:', {
+        endpoint: error.config?.url,
+        method: error.config?.method,
+        responseMessage: error.response?.data?.message || 'No specific error message',
+        timestamp: new Date().toISOString()
+      });
+
+      // Skip token handling if this is a refresh attempt or already being handled
+      // This is managed by the token refresh interceptor now
+      if (error.config?.url?.includes('/auth/refresh') || error.config?._retry) {
+        console.log('⚠️ Refresh token request failed or request already retried');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login?reason=expired';
+        return Promise.reject(error);
+      }
+
+      // Helper function to check if token is actually expired
+      const isTokenExpired = () => {
+        const token = localStorage.getItem('token');
+        if (!token) return true;
+        
+        try {
+          // Parse the JWT token
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const payload = JSON.parse(window.atob(base64));
+          
+          // Check if token is expired (exp is in seconds, Date.now() is in milliseconds)
+          const expiryTime = payload.exp * 1000; 
+          const currentTime = Date.now();
+          const isExpired = currentTime > expiryTime;
+          const timeToExpiry = Math.round((expiryTime - currentTime) / 1000 / 60);
+          
+          console.log('Token validation:', {
+            expired: isExpired,
+            expiresAt: new Date(expiryTime).toLocaleString(),
+            currentTime: new Date(currentTime).toLocaleString(),
+            timeLeft: isExpired ? 'Expired' : `${timeToExpiry} minutes`
+          });
+          
+          // If token will expire in less than 5 minutes, try refreshing it
+          if (!isExpired && timeToExpiry < 5) {
+            console.log('⚠️ Token will expire soon, should consider refreshing');
+            // We'll let the refresh interceptor handle this case
+          }
+          
+          return isExpired;
+        } catch (err) {
+          console.error('Error parsing JWT token:', err);
+          return true; // If we can't parse the token, assume it's invalid
+        }
+      };
+      
+      // Only log out for fatal authentication errors
+      // The refresh interceptor should handle normal token expiry
+      if (error.response?.data?.message?.includes('invalid token') || 
+          error.response?.data?.error === 'invalid_token' ||
+          error.response?.data?.error === 'invalid_grant') {
+        
+        console.log('⚠️ Authentication token is invalid, logging out user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login?reason=invalid';
+      } else if (error.response?.data?.message?.includes('permission') || 
+                error.response?.data?.error === 'insufficient_scope') {
+        console.log('⚠️ Permission error, not logging out but redirecting');
+        window.location.href = '/login?reason=permission';
+      } else {
+        console.log('⚠️ 401 error possibly due to token expiry, letting refresh interceptor handle it');
+        // Don't log out - let the refresh interceptor try to fix it
+      }
     }
     
     // Format error messages consistently
@@ -197,8 +296,9 @@ export const api = {
   get: <T>(endpoint: string, params?: any) => 
     apiClient.get<T>(ensureEndpoint(endpoint), { params }).then(res => res.data),
   
-  post: <T>(endpoint: string, data?: any) => 
-    apiClient.post<T>(ensureEndpoint(endpoint), data).then(res => res.data),
+  post: <T>(endpoint: string, data?: any, config?: any) => 
+    config ? apiClient.post<T>(ensureEndpoint(endpoint), data, config).then(res => res.data)
+          : apiClient.post<T>(ensureEndpoint(endpoint), data).then(res => res.data),
   
   put: <T>(endpoint: string, data?: any) => 
     apiClient.put<T>(ensureEndpoint(endpoint), data).then(res => res.data),

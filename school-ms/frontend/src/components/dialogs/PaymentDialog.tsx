@@ -319,12 +319,11 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
             
             {/* Payment Date */}
             <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
+              <LocalizationProvider dateAdapter={AdapterDateFns}>                <DatePicker
                   label="Payment Date"
                   value={formik.values.paymentDate ? (typeof formik.values.paymentDate === 'string' ? parseISO(formik.values.paymentDate) : formik.values.paymentDate) : null}
                   onChange={(date) => {
-                    formik.setFieldValue('paymentDate', date);
+                    formik.setFieldValue('paymentDate', date as Date | null);
                   }}
                   slotProps={{
                     textField: {

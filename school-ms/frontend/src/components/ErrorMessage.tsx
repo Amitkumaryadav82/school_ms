@@ -15,13 +15,29 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({ error, message, title, rese
   const [countdown, setCountdown] = useState<number>(0);
   const [isRetrying, setIsRetrying] = useState<boolean>(false);
   const [backupServerStatus, setBackupServerStatus] = useState<'unknown' | 'available' | 'unavailable'>('unknown');
-  
-  // If direct message is provided, use that instead of error processing
+    // If direct message is provided, use that instead of error processing
   if (message) {
     return (
       <div className={`error-message ${className}`}>
         {title && <h4>{title}</h4>}
         <p>{message}</p>
+        {onRetry && (
+          <button 
+            onClick={() => onRetry()} 
+            className="retry-button"
+            style={{
+              marginTop: '15px',
+              padding: '8px 16px',
+              backgroundColor: '#4a6da7',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Try Again
+          </button>
+        )}
       </div>
     );
   }

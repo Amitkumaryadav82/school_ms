@@ -69,6 +69,25 @@ export const authFetch = async <T>(endpoint: string, data: any): Promise<T> => {
   const authClient = createAuthRequest();
   
   try {
+    // Import the connectivity checker dynamically
+    let connectivityChecker = null;
+    try {
+      connectivityChecker = await import('../utils/connectivityCheck');
+      
+      // Try to detect working backend URL if needed
+      const status = await connectivityChecker.testBackendConnectivity();
+      if (!status.isConnected && status.workingUrl) {
+        console.log(`🔄 AuthHelper: Updating API URL from ${config.apiUrl} to ${status.workingUrl}`);
+        config.apiUrl = status.workingUrl;
+        
+        // Recreate auth client with new URL
+        const newAuthClient = createAuthRequest();
+        authClient.defaults.baseURL = status.workingUrl;
+      }
+    } catch (e) {
+      console.error('Failed to import connectivity checker', e);
+    }
+    
     // Ensure endpoint has proper format
     let url = endpoint;
     if (!url.startsWith('/') && !url.startsWith('http')) {
@@ -77,11 +96,27 @@ export const authFetch = async <T>(endpoint: string, data: any): Promise<T> => {
       url = `/api${url}`;
     }
     
+    console.log(`📡 AuthFetch: Attempting request to ${config.apiUrl}${url}`);
+    
     // Make the request with all necessary headers
     const response = await authClient.post<T>(url, data);
     return response.data;
   } catch (error) {
     console.error('Auth fetch failed:', error);
+    
+    // Enhanced error handling
+    if (error.message?.includes('Network Error') || error.message?.includes('ECONNREFUSED')) {
+      console.error('🔌 Network connection error. Backend may be unavailable.');
+      
+      // Try to suggest port changes if needed
+      try {
+        const currentPort = new URL(config.apiUrl).port;
+        const alternatePorts = ['8080', '8081', '8082', '5000'].filter(p => p !== currentPort);
+        console.log(`💡 Try using one of these ports instead: ${alternatePorts.join(', ')}`);
+      } catch (e) {
+        // URL parsing failed, just continue
+      }
+    }
     throw error;
   }
 };

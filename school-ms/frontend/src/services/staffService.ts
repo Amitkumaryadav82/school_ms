@@ -301,9 +301,25 @@ export const staffService = {
         throw error;
       });
   },
+    // Delete a staff member
+  delete: (id: number) => api.delete(`staff/${id}`),
   
-  // Delete a staff member
-  delete: (id: number) => api.delete(`staff/${id}`)
+  // Get active teachers (for attendance module)
+  getActiveTeachers: async () => {
+    try {      const response = await api.get('staff', {
+        params: {
+          employmentStatus: 'ACTIVE',
+          roleFilter: 'Teacher'
+        }
+      });
+      // Apply type assertion to safely access response data
+      const typedResponse = response as any;
+      return typedResponse.data || [];
+    } catch (error) {
+      console.error('Error fetching active teachers:', error);
+      return [];
+    }
+  }
 };
 
 export default staffService;

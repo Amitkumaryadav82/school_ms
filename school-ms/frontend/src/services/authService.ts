@@ -1,4 +1,5 @@
 import api from './api';
+import config from '../config/environment';
 
 // Custom JWT decode function to avoid needing the jwt-decode package
 export function parseJwt(token: string) {
@@ -77,6 +78,19 @@ const storageWithTTL = {
   }
 };
 
+// Import the connectivity checker dynamically to avoid circular imports
+let connectivityChecker: any = null;
+const importConnectivityChecker = async () => {
+  if (!connectivityChecker) {
+    try {
+      connectivityChecker = await import('../utils/connectivityCheck');
+    } catch (e) {
+      console.error('Failed to import connectivity checker', e);
+    }
+  }
+  return connectivityChecker;
+};
+
 export const authService = {
   /**
    * Attempt to login with provided credentials
@@ -88,6 +102,24 @@ export const authService = {
     });
 
     try {
+      // Check backend connectivity first
+      const checker = await importConnectivityChecker();
+      if (checker) {
+        const status = await checker.testBackendConnectivity();
+        
+        if (!status.isConnected) {
+          console.warn('🔌 AuthService: Backend connectivity issue detected');
+          console.log('🔍 Connection diagnosis:', status);
+          
+          // If we found a working URL, update the configuration
+          if (status.workingUrl) {
+            console.log(`🔄 AuthService: Updating API URL to ${status.workingUrl}`);
+            config.apiUrl = status.workingUrl;
+            sessionStorage.setItem('detectedApiUrl', status.workingUrl);
+          }
+        }
+      }
+      
       // Check if we have a locally cached recent session for offline mode
       const isOffline = !navigator.onLine;
       if (isOffline) {

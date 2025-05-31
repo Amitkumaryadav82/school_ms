@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, CssBaseline } from '@mui/material';
+import { ThemeProvider, CssBaseline, Snackbar, Alert } from '@mui/material';
 import Layout from './components/Layout';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import Dashboard from './pages/Dashboard';
@@ -8,12 +8,15 @@ import Courses from './pages/Courses';
 import Reports from './pages/Reports';
 import Admissions from './pages/Admissions';
 import FeeManagement from './pages/FeeManagement'; // Import the FeeManagement page
+import TeacherAttendance from './pages/TeacherAttendance'; // Import the TeacherAttendance page
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Landing from './pages/Landing';
 import Staff from './pages/Staff';
 import theme from './theme';
 import React, { useState, useEffect, useContext } from 'react';
+// Import the connectivity checker
+import { autoDetectApiUrl } from './utils/connectivityCheck';
 
 import { NotificationProvider } from './context/NotificationContext';
 import { AuthContext, AuthProvider } from './context/AuthContext';
@@ -78,24 +81,24 @@ const ROLES = {
   STAFF: 'STAFF',
   PARENT: 'PARENT',
   STUDENT: 'STUDENT',
+  PRINCIPAL: 'PRINCIPAL',
 };
 
 // AppRoutes component now uses the ProtectedRoute directly
 function AppRoutes() {
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
+      {/* Public routes */}      <Route path="/" element={<Landing />} />      <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       
-      {/* Protected routes */}
-      <Route
+      {/* Protected routes */}<Route
         path="/dashboard"
         element={
           <ProtectedRoute>
             <Layout>
-              <Dashboard />
+              <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.STUDENT, ROLES.PARENT, ROLES.PRINCIPAL]}>
+                <Dashboard />
+              </RoleBasedRoute>
             </Layout>
           </ProtectedRoute>
         }
@@ -119,6 +122,18 @@ function AppRoutes() {
             <Layout>
               <RoleBasedRoute allowedRoles={[ROLES.ADMIN]}>
                 <Staff />
+              </RoleBasedRoute>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher-attendance"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.TEACHER]}>
+                <TeacherAttendance />
               </RoleBasedRoute>
             </Layout>
           </ProtectedRoute>
@@ -179,11 +194,56 @@ function AppRoutes() {
 
 function App() {
   const [authFailed, setAuthFailed] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState({
+    checking: true,
+    connected: false,
+    message: '',
+    showNotification: false
+  });
   
+  // Check API connectivity on startup
   useEffect(() => {
     console.log('🏁 App component mounted');
+    
+    // Run the API connectivity check
+    autoDetectApiUrl()
+      .then(isConnected => {
+        setConnectionStatus({
+          checking: false,
+          connected: isConnected,
+          message: isConnected 
+            ? 'Successfully connected to backend server' 
+            : 'Could not connect to backend server. Some features may not work.',
+          showNotification: true
+        });
+        
+        // If no connection, we may want to retry periodically
+        if (!isConnected) {
+          const retryInterval = setInterval(() => {
+            console.log('🔄 Retrying backend connection...');
+            autoDetectApiUrl().then(newStatus => {
+              if (newStatus) {
+                clearInterval(retryInterval);
+                setConnectionStatus({
+                  checking: false,
+                  connected: true,
+                  message: 'Successfully connected to backend server',
+                  showNotification: true
+                });
+              }
+            });
+          }, 30000); // Retry every 30 seconds
+          
+          return () => clearInterval(retryInterval);
+        }
+      });
   }, []);
 
+  // Handle notification close
+  const handleCloseNotification = () => {
+    setConnectionStatus(prev => ({ ...prev, showNotification: false }));
+  };
+  
   return (
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
@@ -191,6 +251,22 @@ function App() {
         <NotificationProvider>
           <Router>
             <ErrorBoundary>
+              {/* Backend connection notification */}
+              <Snackbar 
+                open={connectionStatus.showNotification} 
+                autoHideDuration={6000} 
+                onClose={handleCloseNotification}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              >
+                <Alert 
+                  onClose={handleCloseNotification} 
+                  severity={connectionStatus.connected ? "success" : "warning"} 
+                  sx={{ width: '100%' }}
+                >
+                  {connectionStatus.message}
+                </Alert>
+              </Snackbar>
+            
               {authFailed ? (
                 <Routes>
                   <Route path="*" element={<Landing />} />
