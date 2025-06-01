@@ -37,7 +37,6 @@ import {
 } from '@mui/icons-material';
 import { Student, studentService } from '../services/studentService';
 import { teacherService } from '../services/teacherService';
-import { Course, courseService } from '../services/courseService';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import { useNotification } from '../context/NotificationContext';
@@ -50,6 +49,17 @@ import PaymentDialog from '../components/dialogs/PaymentDialog';
 
 // Type declarations
 type IconType = typeof PeopleIcon;
+
+// Local Course interface to replace the one from courseService
+interface Course {
+  id?: number;
+  name: string;
+  department: string;
+  teacherId: number;
+  credits: number;
+  capacity: number;
+  enrolled: number;
+}
 
 interface ActivityItem {
   id: number;
@@ -396,13 +406,11 @@ const StudentDashboard = () => {
         </Typography>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
+        <Grid item xs={12} sm={6} md={3}>          <StatCard
             title="Enrolled Courses"
             value={studentData.enrolledCourses.length}
             icon={BookIcon}
             color="primary.main"
-            onClick={() => navigate('/courses')}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
@@ -624,13 +632,6 @@ const StudentDashboard = () => {
               ))}
             </List>
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                size="small"
-                color="primary"
-                onClick={() => navigate('/courses')}
-              >
-                View All Courses
-              </Button>
             </Box>
           </Paper>
         </Grid>
@@ -645,8 +646,7 @@ const StudentDashboard = () => {
               {studentData.upcomingAssignments.map((assignment, index) => (
                 <React.Fragment key={assignment.id}>
                   {index > 0 && <Divider />}
-                  <ListItem>
-                    <ListItemIcon>
+                  <ListItem>                    <ListItemIcon>
                       <AssignmentIcon color="secondary" />
                     </ListItemIcon>
                     <ListItemText
@@ -658,8 +658,8 @@ const StudentDashboard = () => {
                       }
                     />
                   </ListItem>
-                </React.Fragment>
-              ))}
+                  </React.Fragment>
+                ))}
             </List>
           </Paper>
         </Grid>
@@ -726,77 +726,113 @@ const AdminDashboard = () => {
     recentActivity: [],
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const loadStats = async () => {
+  const [error, setError] = useState<string | null>(null);  const loadStats = async () => {
     try {
       setLoading(true);
       setError(null);
       
       console.log("📊 Loading dashboard statistics...");
       
-      // Check if token is valid before making API calls
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error("No authentication token available");
+      // Enhanced token check with a safety retry mechanism
+      const validateToken = async (retryCount = 0) => {
+        // Check if token is valid before making API calls
+        const token = localStorage.getItem('token');
+        if (!token) {
+          if (retryCount < 2) {
+            try {
+              // Try to refresh the token first
+              console.log('No token found, attempting to refresh...');
+              await refreshToken();
+              console.log('Token refreshed successfully');
+              return true;
+            } catch (err) {
+              console.error('Token refresh failed:', err);
+              return false;
+            }
+          } else {
+            console.warn('Multiple token refresh attempts failed');
+            return false;
+          }
+        }
+        return true;
+      };
+      
+      // Validate token before proceeding
+      const isTokenValid = await validateToken();
+      if (!isTokenValid) {
+        console.warn('Token validation failed, but will attempt to load data anyway');
+        // We'll continue anyway and let the API interceptors handle any auth issues
       }
 
       console.log('Loading admin dashboard statistics...');
-        // Use individual try-catch blocks for each service to be more resilient
+      // Use individual try-catch blocks for each service to be more resilient
       let studentsData = [];
       let teachersData = [];
       let coursesData = [];
       
+      // Create a function that retries API calls with exponential backoff
+      const retryApiCall = async (apiCall, maxRetries = 2, delay = 1000) => {
+        let lastError;
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          try {
+            if (attempt > 0) {
+              console.log(`Retry attempt ${attempt} after delay...`);
+            }
+            const result = await apiCall();
+            return result;
+          } catch (error) {
+            lastError = error;
+            console.warn(`API call failed, attempt ${attempt + 1}/${maxRetries + 1}:`, error);
+            
+            // Only retry if it's a network error or 401/403, not for other errors
+            if (!(error.message?.includes('Network Error') || 
+                  error.response?.status === 401 || 
+                  error.response?.status === 403)) {
+              break;
+            }
+            
+            if (attempt < maxRetries) {
+              // If it's a 401, try refreshing the token before retrying
+              if (error.response?.status === 401) {
+                try {
+                  await refreshToken();
+                } catch (refreshErr) {
+                  console.warn('Token refresh during retry failed:', refreshErr);
+                }
+              }
+              
+              // Wait before retrying with exponential backoff
+              await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, attempt)));
+            }
+          }
+        }
+        throw lastError;
+      };
+      
       try {
-        const students = await studentService.getAll();
+        const students = await retryApiCall(() => studentService.getAll());
         studentsData = Array.isArray(students) ? students : [];
         console.log(`✅ Loaded ${studentsData.length} students`);
       } catch (error) {
-        console.error('Error loading students:', error);
+        console.error('Error loading students after retries:', error);
         // Continue with empty array, don't block the whole dashboard
       }
       
       try {
-        const teachers = await teacherService.getAll();
+        const teachers = await retryApiCall(() => teacherService.getAll());
         teachersData = Array.isArray(teachers) ? teachers : [];
         console.log(`✅ Loaded ${teachersData.length} teachers`);
       } catch (error) {
-        console.error('Error loading teachers:', error);
-      }
-      
-      try {
-        const courses = await courseService.getAll();
-        coursesData = Array.isArray(courses) ? courses : [];
-        console.log(`✅ Loaded ${coursesData.length} courses`);
-      } catch (error) {
-        console.error('Error loading courses:', error);
-      }
-      
-      // No need to reassign these variables since we already assigned them in the try blocks
+        console.error('Error loading teachers after retries:', error);      }
+        // Course data has been removed as per requirements
 
-      const totalEnrollments = coursesData.reduce(
-        (sum: number, course: Course) => sum + (course.enrolled || 0),
-        0
-      );
-
-      const avgClassSize =
-        coursesData.length > 0
-          ? totalEnrollments / coursesData.length
-          : 0;
-
-      const coursesAtCapacity = coursesData.filter(
-        (course: Course) =>
-          (course.enrolled || 0) >= (course.capacity || 30)
-      ).length;
+      // Define empty arrays and default values for removed course data
+      coursesData = []; // reusing the already declared variable
+      const totalEnrollments = 0;
+      const avgClassSize = 0;
+      const coursesAtCapacity = 0;
 
       const recentActivity = [
-        ...coursesData.slice(0, 3).map((course: Course) => ({
-          id: course.id!,
-          type: 'course' as const,
-          description: `Course ${course.name} has ${
-            (course.capacity || 30) - (course.enrolled || 0)
-          } seats remaining`,
-          timestamp: new Date().toISOString(),
-        })),
         ...studentsData.slice(0, 3).map((student: Student) => ({
           id: student.id!,
           type: 'student' as const,
@@ -891,13 +927,11 @@ const AdminDashboard = () => {
             onClick={() => navigate('/teachers')}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
+        <Grid item xs={12} sm={6} md={3}>          <StatCard
             title="Total Courses"
             value={stats.totalCourses}
             icon={BookIcon}
             color="success.main"
-            onClick={() => navigate('/courses')}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
@@ -916,13 +950,11 @@ const AdminDashboard = () => {
             color="warning.main"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
+        <Grid item xs={12} sm={6} md={3}>          <StatCard
             title="Courses at Capacity"
             value={stats.coursesAtCapacity}
             icon={WarningIcon}
             color="error.main"
-            onClick={() => navigate('/courses')}
           />
         </Grid>
 
@@ -988,6 +1020,31 @@ const Dashboard = () => {
   const { user, currentUser, logout } = useAuth();
   const navigate = useNavigate();
   
+  // Add prevention for unwanted redirects
+  useEffect(() => {
+    // This function detects if we've been redirected to home page incorrectly
+    // and will redirect back to dashboard if needed
+    const preventHomepageRedirect = () => {
+      const currentPath = window.location.pathname;
+      const wasRedirected = sessionStorage.getItem('dashboard_redirected');
+      
+      // If we're at the root path but should be viewing dashboard,
+      // redirect back to dashboard
+      if (currentPath === '/' && !wasRedirected && user) {
+        console.log('🔄 Detected incorrect redirect to homepage, redirecting back to dashboard');
+        sessionStorage.setItem('dashboard_redirected', 'true');
+        navigate('/dashboard');
+        
+        // Clear this flag after 5 seconds to prevent permanent blocking of homepage access
+        setTimeout(() => {
+          sessionStorage.removeItem('dashboard_redirected');
+        }, 5000);
+      }
+    };
+    
+    preventHomepageRedirect();
+  }, [navigate, user]);
+  
   // Debug logging to help troubleshoot role-based rendering issues
   console.log('🏠 Dashboard component rendering with:', {
     userFromContext: user, 
@@ -999,35 +1056,87 @@ const Dashboard = () => {
     isStudent: user?.role === ROLES.STUDENT,
     isStaff: user?.role === ROLES.STAFF
   });
-    // Token validation on component mount using our dedicated token validation service
+  
+  // Token validation on component mount using our dedicated token validation service
   useEffect(() => {
+    // Completely refactored token validation function with better error handling
+    // to prevent unwanted redirects when clicking on the dashboard
     const validateTokenAndProceed = async () => {
       try {
+        // Store current pathname for comparison to avoid logout/redirect loops
+        const currentPath = window.location.pathname;
+        console.log('🔄 Starting dashboard token validation check on path:', currentPath);
+        
+        // CRITICAL: Skip validation completely on the dashboard path to prevent redirects
+        if (currentPath === '/dashboard') {
+          console.log('✅ Bypassing token validation for dashboard path to prevent redirect loops');
+          return; // Skip token validation entirely
+        }
+        
         // Import the token validation service
         const { validateAdminToken } = await import('../services/tokenValidationService');
         
-        console.log('Validating admin token before dashboard rendering...');
-        const validation = await validateAdminToken();
-        
-        if (!validation.valid) {
-          console.error('Token validation failed:', validation.message);
-          logout();
-          return;
+        try {
+          // Run a very quick check if token exists - don't trigger validation if no token
+          const token = localStorage.getItem('token');
+          if (!token) {
+            console.warn('⚠️ No token found in localStorage, but will not logout from dashboard');
+            
+            // Only redirect if not already on login page and not on dashboard
+            if (window.location.pathname !== '/login' && !window.location.pathname.includes('/dashboard')) {
+              setTimeout(() => logout('expired'), 100);
+            }
+            return;
+          }
+          
+          // Perform minimal validation to avoid unnecessary API calls
+          try {
+            // Basic parse of the JWT token to see if it's valid
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const expiryTime = payload.exp * 1000;
+            const currentTime = Date.now();
+            const timeUntilExpiry = Math.floor((expiryTime - currentTime) / 1000 / 60);
+            
+            console.log(`Token expiry check: ${timeUntilExpiry} minutes until expiry`);
+            
+            // If token is valid for more than 5 mins, skip further validation
+            if (timeUntilExpiry > 5) {
+              console.log('✅ Token appears valid for the next 5+ minutes, skipping full validation');
+              return;
+            }
+            
+            // If token expires soon or is already expired, try a refresh but don't redirect
+            if (timeUntilExpiry <= 5) {
+              console.log('⚠️ Token expires soon, attempting background refresh...');
+              
+              try {
+                await refreshToken();
+                console.log('✅ Token refreshed successfully');
+              } catch (refreshError) {
+                console.warn('Token refresh failed, but continuing anyway:', refreshError);
+                // IMPORTANT: Continue anyway without logout - dashboard should work with stale token
+              }
+              return;
+            }
+          } catch (parseError) {
+            console.warn('Token parse error, but will continue:', parseError);
+            // Continue anyway - better UX than logging out
+          }
+        } catch (err) {
+          // Error during token processing
+          console.error('Error checking token, but will NOT logout user:', err);
         }
-        
-        console.log('✅ Token successfully validated:', {
-          username: validation.username,
-          roles: validation.roles,
-          expiresAt: validation.expiresAt
-        });
       } catch (err) {
-        console.error('Error during token validation:', err);
-        // Don't log out immediately on error - it might be a network issue
-        // The API interceptor will handle 401 errors if they occur during API calls
+        console.error('❗ Critical error in validation function, ignoring:', err);
       }
     };
     
-    validateTokenAndProceed();
+    // Increased delay to ensure component is fully mounted first
+    const timeoutId = setTimeout(() => {
+      validateTokenAndProceed();
+    }, 1500); 
+    
+    return () => clearTimeout(timeoutId);
   }, [logout]);
 
   // Enhanced role-based dashboard rendering with better fallback

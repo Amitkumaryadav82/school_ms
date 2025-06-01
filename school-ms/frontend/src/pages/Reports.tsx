@@ -19,6 +19,7 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
+import PaymentAnalytics from '../components/PaymentAnalytics';
 import { AxiosResponse } from 'axios';
 import {
   BarChart,
@@ -34,20 +35,26 @@ import {
   Cell,
 } from 'recharts';
 import { 
-  CloudDownload as DownloadIcon,
-  Description as DescriptionIcon,
-  GetApp as GetAppIcon
+  CloudDownload as DownloadIcon
 } from '@mui/icons-material';
-import { Course, courseService } from '../services/courseService';
 import { Student, studentService } from '../services/studentService';
 import { Teacher, teacherService } from '../services/teacherService';
-import feeService from '../services/feeService';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
-import FeeReportsTable from '../components/FeeReportsTable';
 import { useNotification } from '../context/NotificationContext';
 import { SelectChangeEvent } from '@mui/material';
 import React from 'react';
+
+// Local Course interface to replace the one from courseService
+interface Course {
+  id?: number;
+  name: string;
+  department: string;
+  teacherId: number;
+  credits: number;
+  capacity: number;
+  enrolled: number;
+}
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
@@ -95,36 +102,18 @@ const Reports = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [reportType, setReportType] = useState('enrollment');
-  
-  // For tabbed navigation
+    // For tabbed navigation
   const [tabValue, setTabValue] = useState(0);
-  
-  // For fee reports
-  const [feeReportType, setFeeReportType] = useState<'all' | 'byClass'>('all');
-  const [selectedClassGrade, setSelectedClassGrade] = useState<number | null>(null);
-  const [selectedFeeReportType, setSelectedFeeReportType] = useState<'students-with-fees-due' | 'fee-payment-status' | ''>('');
-  const [feeReportData, setFeeReportData] = useState<any[]>([]);
-  const [loadingFeeReport, setLoadingFeeReport] = useState(false);
-  const [feeReportError, setFeeReportError] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      setError(null);
-      // Each service returns data in a potentially different format, handle accordingly
-      const coursesResult = await courseService.getAll();
+      setError(null);      // Each service returns data in a potentially different format, handle accordingly
       const studentsResult = await studentService.getAll();
       const teachersResult = await teacherService.getAll();
       
-      // Process each response separately with proper type assertions
-      if (Array.isArray(coursesResult)) {
-        // Direct array response
-        setCourses(coursesResult as Course[]);
-      } else {
-        // Assume AxiosResponse with data property
-        const axiosResult = coursesResult as any;
-        setCourses(Array.isArray(axiosResult.data) ? axiosResult.data : []);
-      }
+      // Course data no longer needed as the module is removed
+      setCourses([]);
       
       if (Array.isArray(studentsResult)) {
         // Direct array response
@@ -158,98 +147,8 @@ const Reports = () => {
   useEffect(() => {
     loadData();
   }, []);
-
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };  // Fee report generation methods
-  const handleGenerateFeeReport = async (reportType: 'students-with-fees-due' | 'fee-payment-status') => {
-    setSelectedFeeReportType(reportType);
-    setLoadingFeeReport(true);
-    setFeeReportError(null);
-    
-    try {
-      // Import debug utilities for testing
-      const debugApi = (await import('../utils/debug-api')).default;
-      
-      // Log the API configuration to help debug issues
-      const apiConfig = debugApi.checkApiConfig();
-      console.log('API config check before generating report:', apiConfig);
-      
-      // Use real data from backend API
-      let data: any[];
-      if (reportType === 'students-with-fees-due') {
-        data = await feeService.generateFeesDueReport(feeReportType === 'byClass' ? selectedClassGrade : null);
-      } else {
-        // For fee-payment-status, first try with the debug utility to isolate the problem
-        try {
-          console.log('Trying debug API call first...');          data = await debugApi.testFeeStatusReport(feeReportType === 'byClass' ? selectedClassGrade : null);
-        } catch (debugError) {
-          console.error('Debug API call failed, falling back to regular service:', debugError);
-          data = await feeService.generateFeeStatusReport(feeReportType === 'byClass' ? selectedClassGrade : null);
-        }
-      }
-      
-      // Import and use the fee report debug utility
-      const feeReportDebug = await import('../utils/fee-report-debug');
-      
-      if (!data || !Array.isArray(data)) {
-        console.warn('Received non-array data:', data);
-        data = [];
-      }
-      
-      // Analyze the data for potential issues
-      const analysis = feeReportDebug.analyzeFeeReportData(
-        reportType,
-        feeReportType === 'byClass' ? selectedClassGrade : null,
-        data
-      );
-      
-      // Log diagnostic information
-      console.log('Fee report diagnostics:', analysis.diagnostics.join('\n'));
-      
-      if (analysis.hasIssues) {
-        console.warn('⚠️ Issues detected in fee report data. Check console for details.');
-      }
-      
-      setFeeReportData(data);
-    } catch (error) {
-      console.error('Error generating fee report:', error);
-      setFeeReportError('Failed to generate report. Please try again. Check console for details.');
-      showNotification({
-        type: 'error',
-        message: 'Failed to generate fee report. Check browser console for details.',
-      });
-    } finally {
-      setLoadingFeeReport(false);
-    }
-  };
-    const handleDownloadFeeReport = async () => {
-    if (!selectedFeeReportType) {
-      showNotification({
-        type: 'error',
-        message: 'Please select a report type first',
-      });
-      return;
-    }
-    
-    try {
-      // Use the downloadFeeReport service method to get real data
-      await feeService.downloadFeeReport(
-        selectedFeeReportType, 
-        feeReportType === 'byClass' ? selectedClassGrade : null
-      );
-      
-      showNotification({
-        type: 'success',
-        message: 'Report downloaded successfully',
-      });
-    } catch (error) {
-      console.error('Error downloading fee report:', error);
-      showNotification({
-        type: 'error',
-        message: 'Error downloading report',
-      });
-    }
   };
   const enrollmentData: EnrollmentData[] = courses.map((course: Course) => ({
     courseName: course.name,
@@ -329,12 +228,10 @@ const Reports = () => {
             Export Report
           </Button>
         )}
-      </Box>
-
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      </Box>      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs value={tabValue} onChange={handleTabChange} aria-label="reports tabs">
           <Tab label="Academic Reports" />
-          <Tab label="Fee Reports" />
+          <Tab label="Payment Reports" />
         </Tabs>
       </Box>
 
@@ -449,140 +346,11 @@ const Reports = () => {
               </Table>
             </TableContainer>
           </Grid>
-        </Grid>      )}
-      </TabPanel>
-        <TabPanel value={tabValue} index={1}>
+        </Grid>      )}      </TabPanel>
+      <TabPanel value={tabValue} index={1}>
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#1565C0' }}>Fee Reports</Typography>
-          <Paper sx={{ p: 3, backgroundColor: '#f5f9ff', boxShadow: '0 4px 8px rgba(0,0,0,0.05)' }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'medium', mb: 2 }}>
-                  Report Filters
-                </Typography>
-                <Grid container spacing={3} alignItems="center">
-                  <Grid item>
-                    <FormControl sx={{ minWidth: 200 }} variant="outlined">
-                      <InputLabel>Filter By</InputLabel>
-                      <Select
-                        value={feeReportType}
-                        label="Filter By"
-                        onChange={(e) => setFeeReportType(e.target.value as 'all' | 'byClass')}
-                        sx={{ backgroundColor: 'white' }}
-                      >
-                        <MenuItem value="all">All Classes</MenuItem>
-                        <MenuItem value="byClass">Specific Class</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  {feeReportType === 'byClass' && (
-                    <Grid item>
-                      <FormControl sx={{ minWidth: 150 }} variant="outlined">
-                        <InputLabel>Class Grade</InputLabel>
-                        <Select
-                          value={selectedClassGrade ?? ''}
-                          label="Class Grade"
-                          onChange={(e) => setSelectedClassGrade(e.target.value ? Number(e.target.value) : null)}
-                          sx={{ backgroundColor: 'white' }}
-                        >
-                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
-                            <MenuItem key={grade} value={grade}>Grade {grade}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  )}
-                </Grid>
-              </Grid>
-
-              <Grid item xs={12} sx={{ mt: 1 }}>
-                <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'medium', mb: 2 }}>
-                  Report Types
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleGenerateFeeReport('students-with-fees-due')}
-                      disabled={(feeReportType === 'byClass' && !selectedClassGrade)}
-                      startIcon={<DescriptionIcon />}
-                      sx={{ 
-                        borderRadius: '4px', 
-                        textTransform: 'none',
-                        backgroundColor: selectedFeeReportType === 'students-with-fees-due' ? '#1565C0' : '#e0e0e0',
-                        color: selectedFeeReportType === 'students-with-fees-due' ? 'white' : 'rgba(0, 0, 0, 0.87)',
-                        '&:hover': {
-                          backgroundColor: selectedFeeReportType === 'students-with-fees-due' ? '#1976D2' : '#d5d5d5',
-                        }
-                      }}
-                    >
-                      Students with Fees Due
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleGenerateFeeReport('fee-payment-status')}
-                      disabled={(feeReportType === 'byClass' && !selectedClassGrade)}
-                      startIcon={<DescriptionIcon />}
-                      sx={{ 
-                        borderRadius: '4px', 
-                        textTransform: 'none',
-                        backgroundColor: selectedFeeReportType === 'fee-payment-status' ? '#1565C0' : '#e0e0e0',
-                        color: selectedFeeReportType === 'fee-payment-status' ? 'white' : 'rgba(0, 0, 0, 0.87)',
-                        '&:hover': {
-                          backgroundColor: selectedFeeReportType === 'fee-payment-status' ? '#1976D2' : '#d5d5d5',
-                        }
-                      }}
-                    >
-                      Fee Payment Status
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item xs={12} sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={handleDownloadFeeReport}
-                  disabled={(feeReportType === 'byClass' && !selectedClassGrade) || !selectedFeeReportType}
-                  startIcon={<GetAppIcon />}
-                  sx={{ 
-                    borderRadius: '4px', 
-                    textTransform: 'none',
-                    fontWeight: 'medium',
-                    boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  Download Report
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Box>
-        
-        <Box sx={{ mt: 4 }}>
-          {loadingFeeReport ? (
-            <Loading message="Generating report, please wait..." />
-          ) : feeReportError ? (
-            <ErrorMessage message={feeReportError} />
-          ) : feeReportData && feeReportData.length > 0 ? (
-            <FeeReportsTable 
-              reportType={selectedFeeReportType}
-              classGrade={feeReportType === 'byClass' ? selectedClassGrade : null}
-              onDownload={handleDownloadFeeReport}
-            />
-          ) : (
-            <Paper sx={{ p: 4, textAlign: 'center', backgroundColor: '#f9f9f9' }}>
-              <Typography variant="subtitle1" color="textSecondary">
-                No report data to display. Select a report type and generate a report to view results.
-              </Typography>
-            </Paper>
-          )}
-        </Box>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#1565C0' }}>Payment Reports</Typography>
+          <PaymentAnalytics />        </Box>
       </TabPanel>
     </Box>
   );

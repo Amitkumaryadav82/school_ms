@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   IconButton, 
   Badge, 
@@ -10,49 +10,14 @@ import {
   Box
 } from '@mui/material';
 import { WifiOff, Wifi, Settings, Refresh, OpenInNew } from '@mui/icons-material';
-import { testBackendConnectivity } from '../utils/connectivityCheck';
 import ConnectionSettings from './ConnectionSettings';
+import { useConnection } from '../context/ConnectionContext';
 import config from '../config/environment';
 
 const ConnectionStatusIndicator: React.FC = () => {
-  const [connected, setConnected] = useState<boolean | null>(null);
-  const [checking, setChecking] = useState(false);
+  const { connectionState, checkConnection, setShowConnectionSettings } = useConnection();
+  const { connected, checking, lastChecked } = connectionState;
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [lastChecked, setLastChecked] = useState<Date | null>(null);
-  
-  const checkConnection = async () => {
-    if (checking) return;
-    
-    setChecking(true);
-    try {
-      const result = await testBackendConnectivity();
-      setConnected(result.isConnected);
-      setLastChecked(new Date());
-      
-      // Update config if a working URL was found
-      if (result.workingUrl && result.workingUrl !== config.apiUrl) {
-        console.log(`🔄 Updating API URL to ${result.workingUrl}`);
-        config.apiUrl = result.workingUrl;
-        sessionStorage.setItem('detectedApiUrl', result.workingUrl);
-      }
-    } catch (error) {
-      console.error('Error checking connection:', error);
-      setConnected(false);
-    } finally {
-      setChecking(false);
-    }
-  };
-  
-  useEffect(() => {
-    checkConnection();
-    
-    const intervalId = setInterval(() => {
-      checkConnection();
-    }, 60000); // Check every minute
-    
-    return () => clearInterval(intervalId);
-  }, []);
   
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchor(event.currentTarget);
@@ -68,7 +33,7 @@ const ConnectionStatusIndicator: React.FC = () => {
   };
   
   const handleOpenSettings = () => {
-    setShowSettings(true);
+    setShowConnectionSettings(true);
     handleClose();
   };
   
@@ -78,8 +43,7 @@ const ConnectionStatusIndicator: React.FC = () => {
     return { label: 'Backend connection issues', color: 'error' };
   };
   
-  const statusInfo = getStatusInfo();
-  
+  const statusInfo = getStatusInfo();  
   return (
     <>
       <Tooltip title={statusInfo.label}>
@@ -143,11 +107,6 @@ const ConnectionStatusIndicator: React.FC = () => {
           View API docs
         </MenuItem>
       </Menu>
-      
-      <ConnectionSettings 
-        open={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
     </>
   );
 };

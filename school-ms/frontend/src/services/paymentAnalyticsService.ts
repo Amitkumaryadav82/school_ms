@@ -49,15 +49,20 @@ export interface OverduePayment {
   lastReminder?: string;
 }
 
-const paymentAnalyticsService = {
-  // Get analytics summary
+const paymentAnalyticsService = {  // Get analytics summary
   getAnalyticsSummary: async (dateRange?: DateRange): Promise<AnalyticsSummary> => {
-    const params = dateRange ? { 
-      startDate: dateRange.startDate, 
-      endDate: dateRange.endDate 
-    } : {};
+    // Create URL with query parameters directly to avoid nesting
+    let url = '/api/fees/analytics/summary';
     
-    return await api.get<AnalyticsSummary>('/api/fees/analytics/summary', { params });
+    if (dateRange) {
+      url += `?startDate=${encodeURIComponent(dateRange.startDate)}&endDate=${encodeURIComponent(dateRange.endDate)}`;
+      console.log("Using URL with query params:", url);
+    }
+    
+    // Debug the call
+    console.log("Calling analytics summary with URL:", url);
+    
+    return await api.get<AnalyticsSummary>(url);
   },
 
   // Get detailed analytics for a specific month

@@ -1,6 +1,5 @@
 import { Student } from '../services/studentService';
 import { Teacher } from '../services/teacherService';
-import { Course } from '../services/courseService';
 import { AdmissionApplication } from '../services/admissionService';
 import { LeaveRequest } from '../services/leaveService';
 import { Message } from '../services/messageService';
@@ -148,30 +147,7 @@ export const validateTeacher = (teacher: Teacher) => {
 };
 
 // Course validation
-export const validateCourse = (course: Course) => {
-  const errors: Record<string, string> = {};
-
-  if (!course.name || course.name.length < 3) {
-    errors.name = 'Course name must be at least 3 characters';
-  }
-  if (!course.department) {
-    errors.department = 'Department is required';
-  }
-  if (!course.teacherId) {
-    errors.teacherId = 'Teacher is required';
-  }
-  if (!isPositiveNumber(course.credits)) {
-    errors.credits = 'Credits must be a positive number';
-  }
-  if (!isPositiveNumber(course.capacity)) {
-    errors.capacity = 'Capacity must be a positive number';
-  }
-  if (course.enrolled > course.capacity) {
-    errors.enrolled = 'Enrolled students cannot exceed capacity';
-  }
-
-  return errors;
-};
+// Course validation has been removed as part of removing the courses module
 
 // Admission validation
 export const validateAdmission = (admission: AdmissionApplication) => {

@@ -42,12 +42,15 @@ export interface Payment {
   paymentStatus: string;
   academicYear: string;
   academicTerm: string;
-  // Additional fields required by backend
-  payerName?: string;
+  // Additional fields required by backend  payerName?: string;
   payerContactInfo?: string;
   payerRelationToStudent?: string;
   receiptNumber?: string;
   feeBreakdown?: FeeBreakdownItem[];
+  // Additional fields for filtering
+  studentName?: string;
+  studentGrade?: string;
+  studentSection?: string;
   [key: string]: any; // Allow additional properties for compatibility
 }
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Box,
+import {  Box,
   Tab,
   Tabs,
   Typography,
@@ -17,16 +16,34 @@ import {
   DialogContent,
   DialogActions,
   Alert,
-  Snackbar
+  Snackbar,
+  MenuItem,
+  Chip,
+  Card,
+  CardContent,
+  Collapse,
+  Stack,
+  Divider,
+  Badge
 } from '@mui/material';
 import {
   Add as AddIcon,
   Search as SearchIcon,
   Receipt as ReceiptIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  FilterList as FilterListIcon,
+  DateRange as DateRangeIcon,
+  Close as CloseIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  Person as PersonIcon,
+  Class as ClassIcon,
+  School as SchoolIcon,
+  Article as ArticleIcon
 } from '@mui/icons-material';
 import { useApi } from '../hooks/useApi';
 import feeService from '../services/feeService';
+import api from '../services/api';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import { Student, studentService } from '../services/studentService';
@@ -46,6 +63,7 @@ import StudentFeeDetails from '../components/StudentFeeDetails';
 import { useAuth } from '../context/AuthContext';
 import ReceiptDialog from '../components/dialogs/ReceiptDialog';
 import Permission from '../components/Permission';
+import PaymentFilters from '../components/PaymentFilters';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -74,11 +92,32 @@ const FeeManagement: React.FC = () => {
   const [transportRouteDialogOpen, setTransportRouteDialogOpen] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
-  const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);  const [studentIdOrName, setStudentIdOrName] = useState('');
+  const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
+  const [studentIdOrName, setStudentIdOrName] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [studentFeeDetails, setStudentFeeDetails] = useState<StudentFeeDetailsType | null>(null);
   const [studentPayments, setStudentPayments] = useState<Payment[]>([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+    // Enhanced states for modern filtering
+  const [selectedClass, setSelectedClass] = useState<string>('');
+  const [selectedSection, setSelectedSection] = useState<string>('');
+  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
+  const [availableSections, setAvailableSections] = useState<string[]>([]);
+  const [allPayments, setAllPayments] = useState<Payment[]>([]);
+  const [isViewingAllPayments, setIsViewingAllPayments] = useState(false);
+  const [filterStudentName, setFilterStudentName] = useState('');
+  const [isFilteringByClass, setIsFilteringByClass] = useState(false);
+  const [isLoadingAllPayments, setIsLoadingAllPayments] = useState(false);
+  
+  // New states for modern filter UI
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [paymentStatus, setPaymentStatus] = useState<string>('');
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [minAmount, setMinAmount] = useState<string>('');
+  const [maxAmount, setMaxAmount] = useState<string>('');
   
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'ACCOUNTS';  const { 
@@ -173,6 +212,203 @@ const FeeManagement: React.FC = () => {
       });
     }
   };
+  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+    setSnackbar({
+      open: true,
+      message,
+      severity
+    });
+  };
+  
+  // New methods for enhanced filtering
+  const fetchAllPayments = useCallback(async () => {
+    setIsLoadingAllPayments(true);
+    try {
+      const filters = {
+        grade: selectedClass,
+        section: selectedSection,
+        studentName: filterStudentName
+      };
+      
+      const response = await feeService.getFilteredPayments(
+        Object.values(filters).some(val => val) ? filters : undefined
+      );
+      
+      setAllPayments(response);
+      setIsViewingAllPayments(true);
+      
+      // Extract unique classes and sections from the payments data
+      const classes = new Set<string>();
+      const sections = new Set<string>();
+      
+      response.forEach(payment => {
+        if (payment.studentGrade) classes.add(payment.studentGrade);
+        if (payment.studentSection) sections.add(payment.studentSection);
+      });
+      
+      setAvailableClasses(Array.from(classes).sort());
+      setAvailableSections(Array.from(sections).sort());
+    } catch (error) {
+      console.error('Error fetching all payments:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to load all payments',
+        severity: 'error'
+      });
+    } finally {
+      setIsLoadingAllPayments(false);
+    }
+  }, []);
+    const handleClassFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSelectedClass(value);
+    updateActiveFilters('class', value);
+    // Reset section when class changes
+    setSelectedSection('');
+    updateActiveFilters('section', '');
+  };
+  
+  const handleSectionFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSelectedSection(value);
+    updateActiveFilters('section', value);
+  };
+  
+  const handleStudentNameFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setFilterStudentName(value);
+    updateActiveFilters('student', value);
+  };
+  
+  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setStartDate(value);
+    updateDateRangeFilter(value, endDate);
+  };
+  
+  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setEndDate(value);
+    updateDateRangeFilter(startDate, value);
+  };
+  
+  const updateDateRangeFilter = (start: string, end: string) => {
+    if (start || end) {
+      const label = `${start || 'Any'} to ${end || 'Latest'}`;
+      updateActiveFilters('dateRange', label);
+    } else {
+      updateActiveFilters('dateRange', '');
+    }
+  };
+  
+  const handlePaymentStatusChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setPaymentStatus(value);
+    updateActiveFilters('status', value);
+  };
+  
+  const handlePaymentMethodChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setPaymentMethod(value);
+    updateActiveFilters('method', value);
+  };
+  
+  const handleMinAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setMinAmount(value);
+    updateAmountFilter(value, maxAmount);
+  };
+  
+  const handleMaxAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setMaxAmount(value);
+    updateAmountFilter(minAmount, value);
+  };
+  
+  const updateAmountFilter = (min: string, max: string) => {
+    if (min || max) {
+      const label = `${min || '0'} - ${max || 'Any'}`;
+      updateActiveFilters('amount', label);
+    } else {
+      updateActiveFilters('amount', '');
+    }
+  };
+  
+  const toggleFilters = () => {
+    setFiltersExpanded(!filtersExpanded);
+  };
+
+  const handleClearFilter = (filterType: string) => {
+    switch (filterType) {
+      case 'class':
+        setSelectedClass('');
+        updateActiveFilters('class', '');
+        break;
+      case 'section':
+        setSelectedSection('');
+        updateActiveFilters('section', '');
+        break;
+      case 'student':
+        setFilterStudentName('');
+        updateActiveFilters('student', '');
+        break;
+      case 'dateRange':
+        setStartDate('');
+        setEndDate('');
+        updateActiveFilters('dateRange', '');
+        break;
+      case 'amount':
+        setMinAmount('');
+        setMaxAmount('');
+        updateActiveFilters('amount', '');
+        break;
+      case 'status':
+        setPaymentStatus('');
+        updateActiveFilters('status', '');
+        break;
+      case 'method':
+        setPaymentMethod('');
+        updateActiveFilters('method', '');
+        break;
+      default:
+        break;
+    }
+    
+    // Re-fetch payments with updated filters after a small delay
+    setTimeout(() => fetchAllPayments(), 0);
+  };
+
+  const updateActiveFilters = (filterType: string, value: string) => {
+    if (!value) {
+      setActiveFilters(prev => prev.filter(filter => !filter.startsWith(filterType)));
+    } else {
+      const filterLabel = `${filterType}:${value}`;
+      if (!activeFilters.includes(filterLabel)) {
+        setActiveFilters(prev => [...prev.filter(filter => !filter.startsWith(filterType)), filterLabel]);
+      }
+    }
+  };
+  const switchToStudentView = () => {
+    setIsViewingAllPayments(false);
+    resetFilters();
+    // Reset all data related to all payments
+    setAllPayments([]);
+    setAvailableClasses([]);
+    setAvailableSections([]);
+  };
+
+  const handleViewAllPayments = async () => {
+    resetStudentData();
+    // Expanded filter UI should be initially shown
+    setFiltersExpanded(true);
+    await fetchAllPayments();
+    
+    setSnackbar({
+      open: true,
+      message: 'Showing all payments. Use filters to narrow results.',
+      severity: 'success'
+    });
+  };
 
   const handlePaymentSuccess = async () => {
     setPaymentDialogOpen(false);
@@ -242,6 +478,26 @@ const FeeManagement: React.FC = () => {
     setStudentPayments([]);
   };
 
+  // New resetFilters method
+  const resetFilters = () => {
+    setSelectedClass('');
+    setSelectedSection('');
+    setFilterStudentName('');
+    setActiveFilters([]);
+    setStartDate('');
+    setEndDate('');
+    setPaymentStatus('');
+    setPaymentMethod('');
+    setMinAmount('');
+    setMaxAmount('');
+    setIsFilteringByClass(false);
+    
+    // Refresh to get unfiltered payments
+    if (isViewingAllPayments) {
+      // Small delay to ensure state is updated before the API call
+      setTimeout(() => fetchAllPayments(), 0);
+    }  };
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -304,66 +560,105 @@ const FeeManagement: React.FC = () => {
             onRefresh={refetchRoutes}
           />
         ) : null}
-      </TabPanel>
-
-      {/* Payments Tab */}
+      </TabPanel>      {/* Payments Tab */}
       <TabPanel value={tabValue} index={2}>
         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" gutterBottom>Student Fee Management</Typography>
+          <Typography variant="h6" gutterBottom>
+            {isViewingAllPayments ? "All Payments" : "Student Fee Management"}
+          </Typography>
           <Paper sx={{ p: 2 }}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} sm={6} md={4}>
-                <Autocomplete
-                  options={studentOptions || []}
-                  getOptionLabel={(option) => `${option.name} (${option.id})`}
-                  value={selectedStudent}
-                  onChange={(event, newValue) => {
-                    setSelectedStudent(newValue);
-                    if (newValue?.id) {
-                      fetchStudentFeeDetails(newValue.id);
-                      fetchStudentPayments(newValue.id);
-                    }
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Search Student"
-                      variant="outlined"
-                      fullWidth
-                      onChange={(e) => setStudentIdOrName(e.target.value)}
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {loadingStudentOptions ? (
-                              <Loading size={20} />
-                            ) : (
-                              params.InputProps.endAdornment
-                            )}
-                          </>
-                        ),
-                      }}
-                    />
-                  )}
-                />
+            {!isViewingAllPayments ? (
+              // Individual student search
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} sm={6} md={4}>
+                  <Autocomplete
+                    options={studentOptions || []}
+                    getOptionLabel={(option) => `${option.name} (${option.id})`}
+                    value={selectedStudent}
+                    onChange={(event, newValue) => {
+                      setSelectedStudent(newValue);
+                      if (newValue?.id) {
+                        fetchStudentFeeDetails(newValue.id);
+                        fetchStudentPayments(newValue.id);
+                      }
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search Student"
+                        variant="outlined"
+                        fullWidth
+                        onChange={(e) => setStudentIdOrName(e.target.value)}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loadingStudentOptions ? (
+                                <Loading size={20} />
+                              ) : (
+                                params.InputProps.endAdornment
+                              )}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    startIcon={<SearchIcon />}
+                    onClick={handleSearchStudent}
+                  >
+                    Search
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Tooltip title="Reset">
+                    <IconButton onClick={resetStudentData}>
+                      <RefreshIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+                <Grid item>
+                  <Button 
+                    variant="outlined" 
+                    color="primary" 
+                    onClick={handleViewAllPayments}
+                  >
+                    View All Payments
+                  </Button>                </Grid>
               </Grid>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  startIcon={<SearchIcon />}
-                  onClick={handleSearchStudent}
-                >
-                  Search
-                </Button>
-              </Grid>
-              <Grid item>
-                <Tooltip title="Reset">
-                  <IconButton onClick={resetStudentData}>
-                    <RefreshIcon />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
-            </Grid>
+            ) : (
+              // Use our reusable PaymentFilters component for a modern UI
+              <PaymentFilters 
+                selectedClass={selectedClass}
+                selectedSection={selectedSection}
+                filterStudentName={filterStudentName}
+                availableClasses={availableClasses}
+                availableSections={availableSections}
+                startDate={startDate}
+                endDate={endDate}
+                paymentStatus={paymentStatus}
+                paymentMethod={paymentMethod}
+                minAmount={minAmount}
+                maxAmount={maxAmount}
+                activeFilters={activeFilters}
+                onClassChange={handleClassFilterChange}
+                onSectionChange={handleSectionFilterChange}
+                onStudentNameChange={handleStudentNameFilterChange}
+                onStartDateChange={handleStartDateChange}
+                onEndDateChange={handleEndDateChange}
+                onPaymentStatusChange={handlePaymentStatusChange}
+                onPaymentMethodChange={handlePaymentMethodChange}
+                onMinAmountChange={handleMinAmountChange}
+                onMaxAmountChange={handleMaxAmountChange}
+                onClearFilter={handleClearFilter}
+                onResetFilters={resetFilters}
+                onApplyFilters={fetchAllPayments}                onSwitchToStudentView={switchToStudentView}
+              />
+            )}
           </Paper>
         </Box>
 
@@ -374,7 +669,8 @@ const FeeManagement: React.FC = () => {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Typography variant="h6">
                     {selectedStudent.name}'s Fee Details
-                  </Typography>                  <Permission permissions={['MANAGE_FEES']}>
+                  </Typography>
+                  <Permission permissions={['MANAGE_FEES']}>
                     <Button
                       variant="contained"
                       startIcon={<ReceiptIcon />}
@@ -384,7 +680,8 @@ const FeeManagement: React.FC = () => {
                       Record Payment
                     </Button>
                   </Permission>
-                </Box>                {studentFeeDetails ? (
+                </Box>
+                {studentFeeDetails ? (
                   <StudentFeeDetails feeDetails={studentFeeDetails} />
                 ) : (
                   <Typography>No fee details available for this student</Typography>
@@ -403,6 +700,18 @@ const FeeManagement: React.FC = () => {
               />
             </Box>
           </>
+        )}        {isViewingAllPayments && (
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="h6" gutterBottom>All Payments</Typography>
+            <PaymentHistory 
+              payments={allPayments}
+              onViewReceipt={handleViewReceipt}
+              onDownloadReceipt={handleDownloadReceipt}
+              onVoidPayment={isAdmin ? handleVoidPayment : undefined}
+              isAdmin={isAdmin}
+              showStudentDetails={true}
+            />
+          </Box>
         )}
       </TabPanel>      {/* Fee Structure Dialog */}      {feeStructureDialogOpen && (
         <FeeStructureDialog 

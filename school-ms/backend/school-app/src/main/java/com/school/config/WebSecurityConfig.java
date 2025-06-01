@@ -1,18 +1,29 @@
 package com.school.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 
 /**
- * This class previously contained duplicate CORS configuration.
- * CORS settings have been consolidated in CorsConfig.java.
- * 
- * This class is kept as a placeholder in case we need to add additional
- * security
- * configurations that are not directly related to CORS in the future.
+ * WebSecurity configuration to handle CORS preflight requests.
+ * This ensures OPTIONS requests can bypass the security filter chain.
  */
 @Configuration
 @Order(1)
 public class WebSecurityConfig {
-    // All CORS configuration moved to CorsConfig.java
+
+    /**
+     * This customizer ensures that OPTIONS preflight requests bypass Spring
+     * Security entirely.
+     * This is needed because preflight requests don't include authentication
+     * credentials.
+     */
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers(HttpMethod.OPTIONS, "/**");
+    }
 }

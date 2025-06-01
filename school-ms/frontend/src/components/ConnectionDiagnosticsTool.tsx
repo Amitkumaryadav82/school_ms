@@ -21,9 +21,9 @@ import ErrorIcon from '@mui/icons-material/Error';
 import WarningIcon from '@mui/icons-material/Warning';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HelpIcon from '@mui/icons-material/Help';
-import ConnectionSettings from './ConnectionSettings';
 import { testBackendConnectivity } from '../utils/connectivityCheck';
 import { runAuthDiagnostics } from '../utils/authDiagnostic';
+import { useConnection } from '../context/ConnectionContext';
 import config from '../config/environment';
 
 interface DiagnosticsResult {
@@ -35,7 +35,7 @@ interface DiagnosticsResult {
 const ConnectionDiagnosticsTool: React.FC = () => {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<Record<string, DiagnosticsResult>>({});
-  const [showSettings, setShowSettings] = useState(false);
+  const { setShowConnectionSettings } = useConnection();
 
   const runDiagnostics = async () => {
     setRunning(true);
@@ -248,13 +248,12 @@ const ConnectionDiagnosticsTool: React.FC = () => {
 
   return (
     <Paper sx={{ p: 3, mb: 3 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Connection Diagnostics</Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>        <Typography variant="h5">Connection Diagnostics</Typography>
         <Box>
           <Button 
             variant="outlined" 
             color="primary" 
-            onClick={() => setShowSettings(true)}
+            onClick={() => setShowConnectionSettings(true)}
             sx={{ mr: 1 }}
           >
             Connection Settings
@@ -350,11 +349,6 @@ const ConnectionDiagnosticsTool: React.FC = () => {
           </AccordionDetails>
         </Accordion>
       )}
-
-      <ConnectionSettings 
-        open={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
     </Paper>
   );
 };

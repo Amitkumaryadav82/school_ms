@@ -73,13 +73,15 @@ public class FeeService {
     public Fee getFee(Long id) {
         return feeRepository.findById(id)
                 .orElseThrow(() -> new FeeNotFoundException("Fee not found with id: " + id));
-    }    public List<Fee> getFeesByGrade(Integer grade) {
+    }
+
+    public List<Fee> getFeesByGrade(Integer grade) {
         List<Fee> fees = feeRepository.findByGrade(grade);
-        
+
         // If no fees found for the grade, log this for debugging
         if (fees.isEmpty() && grade != null) {
             System.out.println("No fees found for grade: " + grade);
-            
+
             // Create default fee for any grade if none exists
             System.out.println("Creating default fee for Grade " + grade);
             // Check if any default fees exist that we can use as template
@@ -94,7 +96,7 @@ public class FeeService {
                 defaultFee.setFeeType(Fee.FeeType.TUITION);
                 defaultFee.setFrequency(Fee.FeeFrequency.MONTHLY);
                 defaultFee.setDescription("Default tuition fee for Grade " + grade);
-                
+
                 Fee savedFee = feeRepository.save(defaultFee);
                 fees = List.of(savedFee);
             }
@@ -289,6 +291,7 @@ public class FeeService {
 
     /**
      * Generates a report of students with fees due
+     * 
      * @param classGrade Optional filter by class grade
      * @return List of FeePaymentSummary objects
      */
@@ -299,72 +302,76 @@ public class FeeService {
         } else {
             students = studentService.getAllStudents();
         }
-        
+
         List<FeePaymentSummary> result = new ArrayList<>();
-        
+
         for (Student student : students) {
             List<Fee> applicableFees = getFeesByGrade(student.getGrade());
             double totalDue = applicableFees.stream().mapToDouble(Fee::getAmount).sum();
-            
+
             List<Payment> studentPayments = getStudentPayments(student.getId());
             double totalPaid = studentPayments.stream()
-                .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
-                .mapToDouble(Payment::getAmount).sum();
-            
+                    .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
+                    .mapToDouble(Payment::getAmount).sum();
+
             double balance = totalDue - totalPaid;
-            
+
             // Only include students with unpaid fees
             if (balance > 0) {
                 FeePaymentSummary summary = createReportSummary(student, totalDue, totalPaid, balance);
                 result.add(summary);
             }
         }
-        
+
         return result;
     }
-      /**
+
+    /**
      * Generates a report of fee payment status for all students
+     * 
      * @param classGrade Optional filter by class grade
      * @return List of FeePaymentSummary objects
-     */    public List<FeePaymentSummary> getFeeStatusReport(Integer classGrade) {
+     */
+    public List<FeePaymentSummary> getFeeStatusReport(Integer classGrade) {
         List<Student> students;
-        
+
         // Add detailed logging for debugging
         System.out.println("Generating fee status report for class grade: " + classGrade);
-          if (classGrade != null) {
+        if (classGrade != null) {
             students = studentService.getStudentsByGradeAndSection(classGrade, null);
             System.out.println("Found " + students.size() + " students in grade " + classGrade);
-            
+
             // Generic handling for all grades when no students found directly
             if (students.isEmpty()) {
                 System.out.println("No students found for Grade " + classGrade + ". Checking for alternatives...");
                 List<Student> allStudents = studentService.getAllStudents();
-                
+
                 // Check for students with null grades that could be included in this grade
                 List<Student> studentsWithoutGrade = allStudents.stream()
-                    .filter(s -> s.getGrade() == null)
-                    .collect(Collectors.toList());
-                
+                        .filter(s -> s.getGrade() == null)
+                        .collect(Collectors.toList());
+
                 if (!studentsWithoutGrade.isEmpty()) {
-                    System.out.println("Found " + studentsWithoutGrade.size() + 
-                        " students with null grade. Including these in Grade " + classGrade + ".");
+                    System.out.println("Found " + studentsWithoutGrade.size() +
+                            " students with null grade. Including these in Grade " + classGrade + ".");
                     students = studentsWithoutGrade;
                 }
-                
+
                 // If still empty, look for students whose grade might be incorrectly set
-                // Consider students from adjacent grades (grade-1, grade+1) as potential matches
+                // Consider students from adjacent grades (grade-1, grade+1) as potential
+                // matches
                 if (students.isEmpty()) {
                     List<Student> potentialGradeStudents = allStudents.stream()
-                        .filter(s -> s.getGrade() != null && 
-                            (s.getGrade() == classGrade || 
-                             s.getGrade() == classGrade - 1 || 
-                             s.getGrade() == classGrade + 1))
-                        .collect(Collectors.toList());
-                    
+                            .filter(s -> s.getGrade() != null &&
+                                    (s.getGrade() == classGrade ||
+                                            s.getGrade() == classGrade - 1 ||
+                                            s.getGrade() == classGrade + 1))
+                            .collect(Collectors.toList());
+
                     if (!potentialGradeStudents.isEmpty()) {
-                        System.out.println("Found " + potentialGradeStudents.size() + 
-                            " students that could potentially be in Grade " + classGrade + 
-                            ". Including these in the report.");
+                        System.out.println("Found " + potentialGradeStudents.size() +
+                                " students that could potentially be in Grade " + classGrade +
+                                ". Including these in the report.");
                         students = potentialGradeStudents;
                     }
                 }
@@ -373,39 +380,42 @@ public class FeeService {
             students = studentService.getAllStudents();
             System.out.println("Fetched all students: " + students.size());
         }
-        
+
         // If no students found for specified grade, log the issue
         if (students.isEmpty() && classGrade != null) {
             System.out.println("WARNING: No students found for grade " + classGrade);
         }
-        
+
         List<FeePaymentSummary> result = new ArrayList<>();
-          for (Student student : students) {            // Handle the case where a student's grade might be null
+        for (Student student : students) { // Handle the case where a student's grade might be null
             Integer studentGrade = student.getGrade();
-              // If student's grade is null, handle according to requested classGrade
+            // If student's grade is null, handle according to requested classGrade
             // or default to what makes sense for the student
             if (studentGrade == null) {
                 if (classGrade != null) {
                     // If we're looking for a specific grade and the student's grade is null,
                     // treat them as being in the requested grade for this report
                     studentGrade = classGrade;
-                    System.out.println("Student " + student.getId() + " has null grade, treating as Grade " + 
-                                      classGrade + " as requested in the report filter");
+                    System.out.println("Student " + student.getId() + " has null grade, treating as Grade " +
+                            classGrade + " as requested in the report filter");
                 } else {
                     // Default logic - use a sensible default grade or estimate based on age
                     // For now we'll calculate based on average age for each grade
                     // This could be enhanced with more sophisticated logic
                     int estimatedGrade = estimateGradeFromStudentAge(student);
                     studentGrade = estimatedGrade;
-                    System.out.println("Student " + student.getId() + " has null grade, estimating as Grade " + studentGrade + " based on available data");
+                    System.out.println("Student " + student.getId() + " has null grade, estimating as Grade "
+                            + studentGrade + " based on available data");
                 }
             }
-            
-            System.out.println("Processing student: " + student.getId() + " - " + student.getFirstName() + " " + student.getLastName() + " (Grade: " + studentGrade + ")");
-            
+
+            System.out.println("Processing student: " + student.getId() + " - " + student.getFirstName() + " "
+                    + student.getLastName() + " (Grade: " + studentGrade + ")");
+
             List<Fee> applicableFees = getFeesByGrade(studentGrade);
             System.out.println("Found " + applicableFees.size() + " applicable fees for grade " + studentGrade);
-              // If no fees found for the student's grade, try to create default fees for any grade
+            // If no fees found for the student's grade, try to create default fees for any
+            // grade
             if (applicableFees.isEmpty() && studentGrade != null) {
                 System.out.println("No fees found for Grade " + classGrade + ", attempting to use default fees");
                 List<Fee> allFees = feeRepository.findAll();
@@ -419,36 +429,39 @@ public class FeeService {
                     defaultFee.setFeeType(Fee.FeeType.TUITION);
                     defaultFee.setFrequency(Fee.FeeFrequency.MONTHLY);
                     defaultFee.setDescription("Default tuition fee for Grade " + classGrade);
-                    
+
                     Fee savedFee = feeRepository.save(defaultFee);
                     applicableFees = List.of(savedFee);
                     System.out.println("Created default fee for Grade " + classGrade + ": " + savedFee.getId());
                 }
             }
-            
+
             double totalDue = applicableFees.stream().mapToDouble(Fee::getAmount).sum();
             System.out.println("Total due amount: " + totalDue);
-            
+
             List<Payment> studentPayments = getStudentPayments(student.getId());
             double totalPaid = studentPayments.stream()
-                .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
-                .mapToDouble(Payment::getAmount).sum();
-            
+                    .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
+                    .mapToDouble(Payment::getAmount).sum();
+
             double balance = totalDue - totalPaid;
-            System.out.println("Balance: " + balance + " (Total due: " + totalDue + " - Total paid: " + totalPaid + ")");
-            
+            System.out
+                    .println("Balance: " + balance + " (Total due: " + totalDue + " - Total paid: " + totalPaid + ")");
+
             FeePaymentSummary summary = createReportSummary(student, totalDue, totalPaid, balance);
             result.add(summary);
         }
-        
+
         System.out.println("Returning " + result.size() + " fee payment summaries");
         return result;
     }
-      /**
+
+    /**
      * Helper method to create a FeePaymentSummary object for reports
-     */    private FeePaymentSummary createReportSummary(Student student, double totalDue, double totalPaid, double balance) {
+     */
+    private FeePaymentSummary createReportSummary(Student student, double totalDue, double totalPaid, double balance) {
         Payment.PaymentStatus paymentStatus;
-        
+
         // Determine payment status based on balance and payments
         if (balance <= 0) {
             paymentStatus = Payment.PaymentStatus.COMPLETED;
@@ -457,33 +470,33 @@ public class FeeService {
         } else {
             paymentStatus = Payment.PaymentStatus.PENDING; // Not paid at all
         }
-        
+
         // Check if payment is overdue
         List<Fee> overdueFees = feeRepository.findByGradeAndDueDateBefore(
                 student.getGrade(), LocalDate.now());
-        
+
         boolean isOverdue = !overdueFees.isEmpty() && balance > 0;
-                
+
         if (isOverdue) {
             // We'll keep using PENDING status for overdue payments
             // Consider adding an OVERDUE status to the PaymentStatus enum if needed
             paymentStatus = Payment.PaymentStatus.PENDING;
         }
-          // Get last payment date and next due date
+        // Get last payment date and next due date
         List<Payment> studentPayments = getStudentPayments(student.getId());
         String lastPaymentDate = studentPayments.stream()
-            .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
-            .max(Comparator.comparing(Payment::getPaymentDate))
-            .map(p -> p.getPaymentDate().toString())
-            .orElse(null);
-        
+                .filter(p -> p.getStatus() == Payment.PaymentStatus.COMPLETED)
+                .max(Comparator.comparing(Payment::getPaymentDate))
+                .map(p -> p.getPaymentDate().toString())
+                .orElse(null);
+
         List<Fee> upcomingFees = feeRepository.findByGradeAndDueDateAfterOrderByDueDate(
                 student.getGrade(), LocalDate.now());
         String nextDueDate = upcomingFees.stream()
-            .findFirst()
-            .map(f -> f.getDueDate().toString())
-            .orElse(null);
-        
+                .findFirst()
+                .map(f -> f.getDueDate().toString())
+                .orElse(null);
+
         // Explicitly construct student name, ensuring no null values
         String firstName = student.getFirstName() != null ? student.getFirstName() : "";
         String lastName = student.getLastName() != null ? student.getLastName() : "";
@@ -491,11 +504,11 @@ public class FeeService {
         if (studentFullName.isEmpty()) {
             studentFullName = "Student #" + student.getId();
         }
-        
+
         return FeePaymentSummary.builder()
                 .studentId(student.getId())
                 .studentName(studentFullName) // Use the dedicated studentName field
-                .feeName(studentFullName)     // Keep feeName for backward compatibility
+                .feeName(studentFullName) // Keep feeName for backward compatibility
                 .totalAmount(totalDue)
                 .paidAmount(totalPaid)
                 .remainingAmount(balance)
@@ -506,16 +519,17 @@ public class FeeService {
                 .isOverdue(isOverdue)
                 .build();
     }
-    
+
     /**
      * Generates an Excel report for fee data
+     * 
      * @param reportType The type of report to generate
      * @param classGrade Optional filter by class grade
      * @return Byte array containing the Excel file data
      */
     public byte[] generateReportExcel(String reportType, Integer classGrade) {
         List<FeePaymentSummary> data;
-        
+
         if ("students-with-fees-due".equals(reportType)) {
             data = getFeesDueReport(classGrade);
         } else if ("fee-payment-status".equals(reportType)) {
@@ -523,27 +537,27 @@ public class FeeService {
         } else {
             throw new IllegalArgumentException("Invalid report type: " + reportType);
         }
-        
-        // In a real implementation, you would use a library like Apache POI to generate Excel
+
+        // In a real implementation, you would use a library like Apache POI to generate
+        // Excel
         // This is a simplified version that just returns sample data
         String reportContent = "Report Type: " + reportType + "\n";
         if (classGrade != null) {
             reportContent += "Class Grade: " + classGrade + "\n";
         }
         reportContent += "Generated at: " + LocalDateTime.now() + "\n\n";
-        
+
         for (FeePaymentSummary summary : data) {
             reportContent += String.format(
-                "Student: %s (ID: %d), Total Due: $%.2f, Total Paid: $%.2f, Balance: $%.2f, Status: %s\n",
-                summary.getFeeName(),
-                summary.getStudentId(),
-                summary.getTotalAmount(),
-                summary.getPaidAmount(),
-                summary.getRemainingAmount(),
-                summary.getStatus()
-            );
+                    "Student: %s (ID: %d), Total Due: $%.2f, Total Paid: $%.2f, Balance: $%.2f, Status: %s\n",
+                    summary.getFeeName(),
+                    summary.getStudentId(),
+                    summary.getTotalAmount(),
+                    summary.getPaidAmount(),
+                    summary.getRemainingAmount(),
+                    summary.getStatus());
         }
-        
+
         return reportContent.getBytes();
     }
 
@@ -714,7 +728,9 @@ public class FeeService {
                 student.getEmail(),
                 "Payment Confirmation - " + payment.getFee().getName(),
                 message);
-    }    private int getCurrentFinancialYear() {
+    }
+
+    private int getCurrentFinancialYear() {
         LocalDate today = LocalDate.now();
         if (today.getMonthValue() >= Month.APRIL.getValue()) {
             return today.getYear();
@@ -722,39 +738,42 @@ public class FeeService {
             return today.getYear() - 1;
         }
     }
-    
+
     /**
-     * Estimates a student's grade based on available data such as age, enrollment date, etc.
+     * Estimates a student's grade based on available data such as age, enrollment
+     * date, etc.
      * This is a fallback method when grade data is missing
+     * 
      * @param student The student to estimate grade for
      * @return The estimated grade level (1-12 typically)
      */
     private int estimateGradeFromStudentAge(Student student) {
         // Default to Grade 1 if we can't make a better estimate
         int estimatedGrade = 1;
-        
+
         try {
             // If we have date of birth, we can estimate based on age
             if (student.getDateOfBirth() != null) {
                 LocalDate today = LocalDate.now();
                 int age = Period.between(student.getDateOfBirth(), today).getYears();
-                
+
                 // Roughly estimate grade by age: most 6-year-olds are in Grade 1,
                 // 7-year-olds in Grade 2, etc.
                 estimatedGrade = Math.max(1, age - 5);
-                
+
                 // Cap at reasonable maximum grade
                 estimatedGrade = Math.min(estimatedGrade, 12);
             }
-              // If we have admission date, we can refine the estimate
+            // If we have admission date, we can refine the estimate
             if (student.getAdmissionDate() != null) {
                 LocalDate admissionDate = student.getAdmissionDate();
                 long yearsEnrolled = ChronoUnit.YEARS.between(admissionDate, LocalDate.now());
-                
-                // If the student was enrolled in Grade 1, add years enrolled to get current grade
+
+                // If the student was enrolled in Grade 1, add years enrolled to get current
+                // grade
                 // This assumes no grade repetition
-                int enrollmentBasedGrade = (int)yearsEnrolled + 1;
-                
+                int enrollmentBasedGrade = (int) yearsEnrolled + 1;
+
                 // If we have both age and enrollment estimates, use the more conservative one
                 if (student.getDateOfBirth() != null) {
                     estimatedGrade = Math.min(estimatedGrade, enrollmentBasedGrade);
@@ -767,7 +786,24 @@ public class FeeService {
             System.out.println("Error estimating grade for student " + student.getId() + ": " + e.getMessage());
             estimatedGrade = 1;
         }
-        
+
         return estimatedGrade;
+    }
+
+    /**
+     * Gets a filtered list of payments based on grade, section, and/or student name
+     * 
+     * @param grade       The grade to filter by (optional)
+     * @param section     The section to filter by (optional)
+     * @param studentName The student name to filter by (optional)
+     * @return A filtered list of payments
+     */
+    public List<Payment> getFilteredPayments(Integer grade, String section, String studentName) {
+        // Log the filter parameters for debugging
+        System.out.println(
+                "Filtering payments - Grade: " + grade + ", Section: " + section + ", Student Name: " + studentName);
+
+        // Use the custom repository method for filtering
+        return paymentRepository.findFilteredPayments(grade, section, studentName);
     }
 }

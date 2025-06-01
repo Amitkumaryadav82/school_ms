@@ -197,11 +197,35 @@ const feeService = {
 
     deleteTransportRoute: async (id: number): Promise<void> => {
         return await api.delete(`/api/fees/transport-routes/${id}`);
-    },
-
-    // Payment endpoints
+    },    // Payment endpoints
     getAllPayments: async (): Promise<Payment[]> => {
         return await api.get<Payment[]>('/api/fees/payments');
+    },
+    
+    getFilteredPayments: async (filters?: { 
+        grade?: string, 
+        section?: string, 
+        studentName?: string 
+    }): Promise<Payment[]> => {
+        let url = '/api/fees/payments/filtered';
+        const queryParams = new URLSearchParams();
+        
+        if (filters) {
+            if (filters.grade) queryParams.append('grade', filters.grade);
+            if (filters.section) queryParams.append('section', filters.section);
+            if (filters.studentName) queryParams.append('studentName', filters.studentName);
+        }
+        
+        if (queryParams.toString()) {
+            url += `?${queryParams.toString()}`;
+        }
+        
+        try {
+            return await api.get<Payment[]>(url);
+        } catch (error) {
+            console.error('Error fetching filtered payments:', error);
+            return []; // Return empty array if API fails
+        }
     },
 
     getPaymentById: async (id: number): Promise<Payment> => {

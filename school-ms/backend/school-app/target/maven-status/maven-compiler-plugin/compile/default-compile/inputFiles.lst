@@ -11,6 +11,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exception\DuplicateAttendanceException.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeeRequest.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\config\StaffRoleInitializer.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\controller\CorsTestController.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\admission\dto\AdmissionResponse.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\SchoolHolidayRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\config\WebServerCustomizer.java
@@ -18,6 +19,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\StaffController.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionService.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\timetable\model\TimeSlot.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\RevenueTrendItem.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeeRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\admission\exception\AdmissionExceptionHandler.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exception\AttendanceNotFoundException.java
@@ -25,6 +27,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceAlert.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\course\controller\CourseController.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\student\service\StudentService.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\filter\SimpleCorsFilter.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\EmployeeDTO.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\SchoolApplication.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamRepository.java
@@ -43,6 +46,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\communication\model\MessageType.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\config\JpaAuditingConfig.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffDesignation.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentAnalytics.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\config\CorsConfig.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\exception\LeaveNotFoundException.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\LeaveRepository.java
@@ -75,7 +79,9 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\exception\DuplicateUsernameException.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\communication\repository\NotificationRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exam\service\ExamService.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeAnalyticsController.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeStructureController.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\ClassWiseCollection.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\admission\service\AdmissionService.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamResultRepository.java
@@ -107,6 +113,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\AuthCorsFilter.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\service\StaffService.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\StudentFeeAssignmentDTO.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\OverdueAnalytics.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\repository\PaymentScheduleRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\communication\controller\MessageController.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\communication\exception\MessageNotFoundException.java
@@ -133,6 +140,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeeStructureDTO.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\repository\PaymentRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\example\schoolms\repository\TeacherDetailsRepository.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\AnalyticsSummary.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\SecurityConfig.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffServiceAdapter.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\StaffDTO.java
@@ -169,6 +177,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\config\ApplicationConfig.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\student\repository\StudentRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\service\SchoolHolidayService.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentMethodDistribution.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\attendance\aspect\AttendanceLoggingAspect.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\JwtTokenProvider.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\admission\OpenApiConfig.java
@@ -184,17 +193,20 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\service\impl\SchoolHolidayServiceImpl.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exam\model\Exam.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\communication\service\NotificationService.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\config\CorsFilterConfig.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\example\schoolms\model\TeacherDetails.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\ClassAttendanceRequest.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\model\StudentFeeAssignment.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\model\SchoolHoliday.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\communication\service\NotificationServiceImpl.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\UserRole.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentDistribution.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\model\EmploymentStatus.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\SemesterFeeReport.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\exception\EmployeeNotFoundException.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\attendance\service\AttendanceService.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\MonthlyTrend.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\communication\config\EmailConfig.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionApplication.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\TeacherDetailsDTO.java
@@ -205,6 +217,7 @@ C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\exception\FeeNotFoundException.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\exception\StudentNotFoundException.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\monitoring\RequestTracingFilter.java
+C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentSummary.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\security\exception\DuplicateEmailException.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\dto\TransportRouteDTO.java
 C:\Users\617062057\OneDrive - BT Plc\Desktop\School_MS\school-ms\backend\school-app\src\main\java\com\school\fee\service\FeeStructureService.java

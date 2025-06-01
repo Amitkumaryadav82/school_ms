@@ -15,6 +15,8 @@ com\school\hrm\dto\EmployeeDTO$EmployeeDTOBuilder.class
 com\school\student\dto\StudentDTO$StudentDTOBuilder.class
 com\school\exam\model\Exam$ExamType.class
 com\school\fee\model\FeeStructure$FeeStructureBuilder.class
+com\school\fee\controller\CorsTestController.class
+com\school\fee\dto\MonthlyTrend.class
 com\school\communication\service\NotificationServiceImpl$1.class
 com\school\communication\model\NotificationStatus.class
 com\school\fee\dto\TransportRouteDTO$TransportRouteDTOBuilder.class
@@ -40,11 +42,13 @@ com\school\fee\model\PaymentSchedule$ScheduleType.class
 com\school\fee\model\Payment$PaymentStatus.class
 com\school\attendance\aspect\AttendanceLoggingAspect.class
 com\school\security\User.class
+com\school\fee\dto\PaymentSummary.class
 com\school\fee\model\TransportRoute.class
 com\example\schoolms\model\Staff.class
 com\school\exception\DuplicateStudentException.class
 com\school\hrm\dto\LeaveDTO.class
 com\school\student\controller\StudentController.class
+com\school\fee\dto\AnalyticsSummary.class
 com\example\schoolms\dto\BulkStaffRequest.class
 com\school\fee\model\Fee$FeeType.class
 com\school\security\AuthController.class
@@ -87,6 +91,7 @@ com\school\hrm\dto\BulkAttendanceRequestDTO$SingleAttendanceDTO.class
 com\school\fee\dto\SemesterFeeReport.class
 com\school\exception\ResourceNotFoundException.class
 com\school\fee\dto\FeePaymentDTO$FeePaymentDTOBuilder.class
+com\school\fee\dto\PaymentDistribution.class
 com\school\security\SecurityConfig.class
 com\school\hrm\repository\SchoolHolidayRepository.class
 com\school\fee\dto\LateFeeDTO$LateFeeDTOBuilder.class
@@ -100,11 +105,13 @@ com\school\fee\service\FeePaymentScheduleService.class
 com\school\security\dto\RegisterRequest$RegisterRequestBuilder.class
 com\school\attendance\validation\AttendanceValidator.class
 com\school\attendance\dto\AttendanceDTO$AttendanceDTOBuilder.class
+com\school\fee\dto\OverdueAnalytics.class
 com\school\config\WebMvcConfig.class
 com\school\hrm\model\SchoolHoliday.class
 com\school\exam\exception\ExamNotFoundException.class
 com\school\attendance\dto\BulkAttendanceRequest.class
 com\school\staff\controller\StaffBulkController.class
+com\school\fee\dto\PaymentAnalytics.class
 com\school\fee\model\LateFee$LateFeeBuilder.class
 com\school\fee\repository\PaymentRepository.class
 com\school\attendance\dto\MonthlyAttendanceReport$MonthlyAttendanceReportBuilder.class
@@ -115,6 +122,7 @@ com\school\hrm\entity\StaffDesignation.class
 com\school\hrm\model\Leave.class
 com\school\hrm\repository\StaffDesignationMappingRepository.class
 com\school\fee\dto\ClassSectionFeeReport.class
+com\school\fee\dto\RevenueTrendItem.class
 com\school\fee\repository\FeePaymentRepository.class
 com\school\fee\model\StudentFeeAssignment$StudentFeeAssignmentBuilder.class
 com\example\schoolms\repository\StaffRepository.class
@@ -230,6 +238,7 @@ com\school\hrm\exception\ResourceNotFoundException.class
 com\school\hrm\model\Leave$LeaveBuilder.class
 com\school\staff\service\StaffServiceAdapter.class
 com\school\timetable\model\ClassRoom.class
+com\school\config\CorsFilterConfig.class
 com\school\communication\controller\MessageController.class
 com\school\hrm\dto\TeacherDetailsDTO$TeacherDetailsDTOBuilder.class
 com\school\student\repository\StudentRepository.class
@@ -237,6 +246,7 @@ com\school\student\exception\DuplicateStudentException.class
 com\school\fee\model\StudentFeeAssignment.class
 com\school\fee\dto\SemesterFeeReport$SemesterFeeReportBuilder.class
 com\school\hrm\entity\StaffDesignation$StaffDesignationBuilder.class
+com\school\fee\dto\ClassWiseCollection.class
 com\school\attendance\model\Attendance.class
 com\school\fee\dto\FeeRequest.class
 com\school\hrm\dto\EmployeeDTO.class
@@ -246,6 +256,7 @@ com\school\fee\model\Payment$PaymentBuilder.class
 com\school\hrm\model\HolidayType.class
 com\school\config\AuditConfig.class
 com\example\schoolms\dto\BulkUploadResponse.class
+com\school\filter\SimpleCorsFilter.class
 com\school\config\JpaAuditingConfig.class
 com\school\exam\service\ExamService.class
 com\school\exception\InvalidAttendanceException.class
@@ -264,11 +275,13 @@ com\school\communication\repository\NotificationRepository.class
 com\school\fee\model\TransportRoute$TransportRouteBuilder.class
 com\school\config\WebServerCustomizer.class
 com\school\exception\GlobalExceptionHandler.class
+com\school\fee\dto\PaymentMethodDistribution.class
 com\school\hrm\model\LeaveStatus.class
 com\school\admission\exception\AdmissionNotFoundException.class
 com\school\security\AuthenticationException.class
 com\school\exam\dto\ExamSummary$ExamSummaryBuilder.class
 com\school\hrm\model\TeacherAttendance.class
+com\school\fee\controller\FeeAnalyticsController.class
 com\school\hrm\dto\TeacherDetailsDTO.class
 com\school\attendance\dto\StudentAttendanceSummary$StudentAttendanceSummaryBuilder.class
 com\school\course\model\Course.class

@@ -9,8 +9,7 @@ import {
   Collapse
 } from '@mui/material';
 import { WifiOff, Settings as SettingsIcon, Refresh as RefreshIcon } from '@mui/icons-material';
-import ConnectionSettings from './ConnectionSettings';
-import { testBackendConnectivity } from '../utils/connectivityCheck';
+import { useConnection } from '../context/ConnectionContext';
 
 interface ConnectionErrorProps {
   error?: Error | string;
@@ -27,14 +26,14 @@ const ConnectionError: React.FC<ConnectionErrorProps> = ({
   onRetry,
   showFallbackUI = true
 }) => {
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { checkConnection, setShowConnectionSettings } = useConnection();
   const [showDetails, setShowDetails] = useState(false);
   
   const handleRetry = async () => {
     try {
-      const result = await testBackendConnectivity();
+      const isConnected = await checkConnection();
       
-      if (result.isConnected) {
+      if (isConnected) {
         if (onRetry) onRetry();
       } else {
         alert('Backend server is still unreachable. Please check your connection settings.');
@@ -43,8 +42,7 @@ const ConnectionError: React.FC<ConnectionErrorProps> = ({
       console.error('Error testing connectivity:', err);
     }
   };
-  
-  if (!showFallbackUI) {
+    if (!showFallbackUI) {
     return null;
   }
 
@@ -99,7 +97,7 @@ const ConnectionError: React.FC<ConnectionErrorProps> = ({
             variant="outlined" 
             color="primary" 
             startIcon={<SettingsIcon />}
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => setShowConnectionSettings(true)}
           >
             Connection Settings
           </Button>
@@ -125,11 +123,6 @@ const ConnectionError: React.FC<ConnectionErrorProps> = ({
           </Collapse>
         )}
       </Paper>
-      
-      <ConnectionSettings 
-        open={settingsOpen} 
-        onClose={() => setSettingsOpen(false)} 
-      />
     </Box>
   );
 };

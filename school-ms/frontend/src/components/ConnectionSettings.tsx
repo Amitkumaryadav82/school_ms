@@ -18,14 +18,19 @@ import {
   MenuItem
 } from '@mui/material';
 import config from '../config/environment';
+import { useConnection } from '../context/ConnectionContext';
 import { testBackendConnectivity } from '../utils/connectivityCheck';
 
-interface ConnectionSettingsProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({ open, onClose }) => {
+const ConnectionSettings: React.FC = () => {
+  const { 
+    connectionState, 
+    checkConnection,
+    updateApiUrl,
+    resetToDefaultUrl,
+    showConnectionSettings,
+    setShowConnectionSettings 
+  } = useConnection();
+  
   const [apiUrl, setApiUrl] = useState(config.apiUrl);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{
@@ -35,6 +40,9 @@ const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({ open, onClose }
   } | null>(null);
   const [recommendedPorts, setRecommendedPorts] = useState<string[]>([]);
   const [selectedPort, setSelectedPort] = useState<string>("");
+  
+  const open = showConnectionSettings;
+  const onClose = () => setShowConnectionSettings(false);
   
   useEffect(() => {
     if (open) {
@@ -72,7 +80,7 @@ const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({ open, onClose }
           details: result
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       setTestResult({
         success: false,
         message: `Error: ${error.message}`,
@@ -83,11 +91,11 @@ const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({ open, onClose }
     }
   };
   
-  const handleApply = () => {
+  const handleApply = async () => {
     if (apiUrl !== config.apiUrl) {
-      config.apiUrl = apiUrl;
-      sessionStorage.setItem('detectedApiUrl', apiUrl);
-      console.log(`✅ API URL updated to: ${apiUrl}`);
+      setTesting(true);
+      const success = await updateApiUrl(apiUrl);
+      setTesting(false);
       
       // Show confirmation
       setTestResult({
@@ -104,7 +112,11 @@ const ConnectionSettings: React.FC<ConnectionSettingsProps> = ({ open, onClose }
     }
   };
   
-  const handleReset = () => {
+  const handleReset = async () => {
+    setTesting(true);
+    await resetToDefaultUrl();
+    setTesting(false);
+    
     const defaultUrl = import.meta.env.MODE !== 'production' 
       ? 'http://localhost:8080' 
       : window.location.origin;

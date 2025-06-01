@@ -4,7 +4,6 @@ import Layout from './components/Layout';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import Dashboard from './pages/Dashboard';
 import Students from './pages/Students';
-import Courses from './pages/Courses';
 import Reports from './pages/Reports';
 import Admissions from './pages/Admissions';
 import FeeManagement from './pages/FeeManagement'; // Import the FeeManagement page
@@ -20,6 +19,8 @@ import { autoDetectApiUrl } from './utils/connectivityCheck';
 
 import { NotificationProvider } from './context/NotificationContext';
 import { AuthContext, AuthProvider } from './context/AuthContext';
+import { ConnectionProvider } from './context/ConnectionContext';
+import GlobalConnectionSettings from './components/GlobalConnectionSettings';
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
@@ -140,18 +141,6 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/courses"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]}>
-                <Courses />
-              </RoleBasedRoute>
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/reports"
         element={
           <ProtectedRoute>
@@ -243,8 +232,7 @@ function App() {
   const handleCloseNotification = () => {
     setConnectionStatus(prev => ({ ...prev, showNotification: false }));
   };
-  
-  return (
+    return (
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -272,9 +260,13 @@ function App() {
                   <Route path="*" element={<Landing />} />
                 </Routes>
               ) : (
-                <React.Suspense fallback={<div>Loading...</div>}>
-                  <AuthProvider>
-                    <AppRoutes />
+                <React.Suspense fallback={<div>Loading...</div>}>                  <AuthProvider>
+                    {/* Add ConnectionProvider to make connection management available throughout the app */}
+                    <ConnectionProvider>
+                      <AppRoutes />
+                      {/* Render ConnectionSettings globally so it can be accessed from anywhere */}
+                      <GlobalConnectionSettings />
+                    </ConnectionProvider>
                   </AuthProvider>
                 </React.Suspense>
               )}

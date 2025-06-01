@@ -1,35 +1,42 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode, useContext } from 'react';
 import { Box, Button, Typography, Paper, Alert, AlertTitle } from '@mui/material';
 import { Refresh as RefreshIcon, Settings as SettingsIcon } from '@mui/icons-material';
-import ConnectionSettings from './ConnectionSettings';
-import { testBackendConnectivity } from '../utils/connectivityCheck';
+import ConnectionContext from '../context/ConnectionContext';
 
 interface Props {
   children: ReactNode;
   fallbackComponent?: ReactNode;
   onReset?: () => void;
+  connectionContext?: React.ContextType<typeof ConnectionContext>;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
-  showSettings: boolean;
   isConnectionError: boolean;
+}
+
+// Create a context consumer component to access ConnectionContext from a class component
+class NetworkErrorBoundaryWithContext extends React.Component<Props> {
+  static contextType = ConnectionContext;
+  context!: React.ContextType<typeof ConnectionContext>;
+  
+  render() {
+    return <NetworkErrorBoundary {...this.props} connectionContext={this.context} />;
+  }
 }
 
 /**
  * NetworkErrorBoundary component that catches errors related to network connectivity
  * and provides options to retry or adjust connection settings.
  */
-class NetworkErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+class NetworkErrorBoundary extends Component<Props, State> {  constructor(props: Props) {
     super(props);
     this.state = {
       hasError: false,
       error: null,
       errorInfo: null,
-      showSettings: false,
       isConnectionError: false,
     };
   }
@@ -72,12 +79,15 @@ class NetworkErrorBoundary extends Component<Props, State> {
     
     return networkErrorKeywords.some(keyword => errorString.includes(keyword));
   }
-
   handleReset = async (): Promise<void> => {
     // Test connectivity before resetting
     try {
-      const result = await testBackendConnectivity();
-      if (result.isConnected) {
+      let isConnected = false;
+      if (this.props.connectionContext) {
+        isConnected = await this.props.connectionContext.checkConnection();
+      }
+      
+      if (isConnected) {
         // If connection is restored, reset the error state
         this.setState({ hasError: false, error: null, errorInfo: null });
         if (this.props.onReset) {
@@ -91,10 +101,6 @@ class NetworkErrorBoundary extends Component<Props, State> {
       console.error('Error testing connectivity:', error);
       alert('Could not test connectivity. Please try again.');
     }
-  }
-
-  toggleSettings = (): void => {
-    this.setState(prevState => ({ showSettings: !prevState.showSettings }));
   }
 
   render(): ReactNode {
@@ -145,25 +151,18 @@ class NetworkErrorBoundary extends Component<Props, State> {
               >
                 Retry
               </Button>
-              
-              {this.state.isConnectionError && (
+                {this.state.isConnectionError && this.props.connectionContext && (
                 <Button 
                   variant="outlined" 
                   color="primary" 
                   startIcon={<SettingsIcon />}
-                  onClick={this.toggleSettings}
+                  onClick={() => this.props.connectionContext?.setShowConnectionSettings(true)}
                 >
                   Connection Settings
                 </Button>
               )}
             </Box>
           </Paper>
-
-          {/* Connection settings dialog */}
-          <ConnectionSettings 
-            open={this.state.showSettings} 
-            onClose={this.toggleSettings}
-          />
         </Box>
       );
     }
@@ -172,4 +171,4 @@ class NetworkErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default NetworkErrorBoundary;
+export default NetworkErrorBoundaryWithContext;

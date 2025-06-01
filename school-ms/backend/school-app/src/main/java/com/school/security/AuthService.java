@@ -124,7 +124,8 @@ public class AuthService {
                 .message("Token refreshed successfully")
                 .build();
     }
-      /**
+
+    /**
      * Validates if a JWT token is valid
      * 
      * @param token The JWT token to validate
@@ -136,7 +137,7 @@ public class AuthService {
             log.warn("Token validation failed: Token is null or empty");
             return false;
         }
-        
+
         try {
             boolean isValid = tokenProvider.validateToken(token);
             if (isValid) {

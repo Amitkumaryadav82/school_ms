@@ -2,9 +2,10 @@ import React from 'react';
 import { Container, Typography, Paper, Box, Button } from '@mui/material';
 import ConnectionDiagnosticsTool from '../components/ConnectionDiagnosticsTool';
 import ConnectionSettings from '../components/ConnectionSettings';
+import { useConnection } from '../context/ConnectionContext';
 
 const ConnectionDiagnosticsPage: React.FC = () => {
-  const [showSettings, setShowSettings] = React.useState(false);
+  const { setShowConnectionSettings } = useConnection();
   
   return (
     <Container maxWidth="md">
@@ -22,7 +23,7 @@ const ConnectionDiagnosticsPage: React.FC = () => {
           <Button 
             variant="outlined" 
             color="primary"
-            onClick={() => setShowSettings(true)}
+            onClick={() => setShowConnectionSettings(true)}
             sx={{ mr: 2 }}
           >
             Connection Settings
@@ -42,10 +43,7 @@ const ConnectionDiagnosticsPage: React.FC = () => {
         </Box>
       </Paper>
       
-      <ConnectionSettings
-        open={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
+      <ConnectionSettings />
     </Container>
   );
 };

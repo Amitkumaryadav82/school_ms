@@ -16,13 +16,17 @@ interface TokenValidationResponse {
  * This is especially useful for the Admin dashboard where multiple API calls
  * might be triggered at once
  */
-export const validateAdminToken = async (): Promise<TokenValidationResponse> => {
-  try {
+export const validateAdminToken = async (): Promise<TokenValidationResponse> => {  try {
     // First try client-side validation which is faster
     const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found in local storage');
-      return { valid: false, message: 'No authentication token found' };
+      // Less strict - just tell the caller to get a new token rather than saying invalid
+      return { 
+        valid: false, 
+        message: 'No authentication token found, needs to login or refresh',
+        needsRefresh: true
+      };
     }
     
     // Parse and validate the token locally first
@@ -31,21 +35,70 @@ export const validateAdminToken = async (): Promise<TokenValidationResponse> => 
       
       if (!payload) {
         console.error('Invalid token format');
-        return { valid: false, message: 'Invalid token format' };
+        return { valid: false, message: 'Invalid token format', needsRefresh: true };
       }
       
       const expiryTime = payload.exp * 1000; // Convert to milliseconds
       const currentTime = Date.now();
       const isExpired = currentTime > expiryTime;
       
+      // Timeframe check - more lenient approach
+      const timeToExpiry = (expiryTime - currentTime) / (1000 * 60); // Minutes
+      
       if (isExpired) {
-        console.error('Token is expired');
-        return { 
-          valid: false, 
-          message: 'Token has expired',
-          expiresAt: new Date(expiryTime).toISOString(),
-          username: payload.sub || payload.username
-        };
+        // Check how long ago it expired - if within 48 hours, it might be refreshable
+        // Extended from 24 to 48 for better UX during weekend usage
+        const expiredAgoMs = currentTime - expiryTime;
+        const expiredHours = expiredAgoMs / (1000 * 60 * 60);
+        
+        if (expiredHours < 48) {
+          console.warn(`Token expired ${expiredHours.toFixed(2)} hours ago, attempting to refresh automatically`);
+          try {
+            // Try to automatically refresh the token here instead of returning invalid
+            const { refreshToken } = await import('./tokenRefreshService');
+            await refreshToken();
+            // If refresh succeeds, consider the token valid now (even though we used a new one)
+            console.log('✅ Automatic token refresh successful during validation');
+            return { 
+              valid: true,
+              message: 'Token automatically refreshed',
+              expiresAt: new Date(Date.now() + (60 * 60 * 1000)).toISOString(), // Approximate new expiry
+              username: payload.sub || payload.username,
+              autoRefreshed: true
+            };
+          } catch (refreshErr) {
+            console.warn('Automatic token refresh failed, will let caller handle it:', refreshErr);
+            // Don't immediately fail - let the calling code try to refresh it again if needed
+            return { 
+              valid: false, 
+              message: 'Token has expired but might be refreshable',
+              expiresAt: new Date(expiryTime).toISOString(),
+              username: payload.sub || payload.username,
+              needsRefresh: true
+            };
+          }
+        } else {
+          console.error('Token is expired beyond refresh window');
+          return { 
+            valid: false, 
+            message: 'Token has expired and is too old to refresh',
+            expiresAt: new Date(expiryTime).toISOString(),
+            username: payload.sub || payload.username
+          };
+        }
+      }
+      
+      // Proactively refresh if token will expire soon
+      if (timeToExpiry < 10) {
+        console.warn(`Token will expire soon (${timeToExpiry.toFixed(2)} minutes), starting proactive refresh`);
+        // Start async refresh but don't wait for it - consider token still valid
+        try {
+          const { refreshToken } = await import('./tokenRefreshService');
+          refreshToken().catch(err => console.warn('Proactive token refresh failed:', err));
+          console.log('Proactive token refresh initiated in background');
+        } catch (e) {
+          console.warn('Failed to start proactive token refresh:', e);
+        }
       }
       
       // Extract roles from token

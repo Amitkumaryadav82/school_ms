@@ -100,7 +100,9 @@ public class FeeController {
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'PARENT')")
     public ResponseEntity<List<FeePaymentSummary>> getStudentFeeSummary(@PathVariable Long studentId) {
         return ResponseEntity.ok(feeService.getStudentFeeSummary(studentId));
-    }    @Operation(summary = "Generate semester report", description = "Generates a detailed fee report for a semester")
+    }
+
+    @Operation(summary = "Generate semester report", description = "Generates a detailed fee report for a semester")
     @ApiResponse(responseCode = "200", description = "Report generated successfully")
     @GetMapping("/report/semester")
     @PreAuthorize("hasRole('ADMIN')")
@@ -117,22 +119,24 @@ public class FeeController {
     public ResponseEntity<List<FeePaymentSummary>> getFeesDueReport(
             @RequestParam(required = false) Integer classGrade) {
         return ResponseEntity.ok(feeService.getFeesDueReport(classGrade));
-    }    @Operation(summary = "Generate fee status report", description = "Generates a report of fee payment status")
-    @ApiResponse(responseCode = "200", description = "Report generated successfully") 
+    }
+
+    @Operation(summary = "Generate fee status report", description = "Generates a report of fee payment status")
+    @ApiResponse(responseCode = "200", description = "Report generated successfully")
     @GetMapping("/reports/fee-status")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER') or hasRole('ADMIN') or hasRole('TEACHER')")
     public ResponseEntity<List<FeePaymentSummary>> getFeeStatusReport(
             @RequestParam(required = false) Integer classGrade) {
         // Log the current authentication for debugging
-        org.springframework.security.core.Authentication auth = 
-            org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
         if (auth != null) {
             System.out.println("Current authentication: " + auth);
             System.out.println("Authorities: " + auth.getAuthorities());
         } else {
             System.out.println("No authentication found in context");
         }
-        
+
         return ResponseEntity.ok(feeService.getFeeStatusReport(classGrade));
     }
 
@@ -149,5 +153,16 @@ public class FeeController {
                 .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 .header("Content-Disposition", "attachment; filename=fee-report-" + reportType + ".xlsx")
                 .body(reportData);
+    }
+
+    @Operation(summary = "Get filtered payments", description = "Retrieves payments filtered by grade, section, and/or student name")
+    @ApiResponse(responseCode = "200", description = "Payments retrieved successfully")
+    @GetMapping("/payments/filtered")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'PARENT')")
+    public ResponseEntity<List<Payment>> getFilteredPayments(
+            @RequestParam(required = false) Integer grade,
+            @RequestParam(required = false) String section,
+            @RequestParam(required = false) String studentName) {
+        return ResponseEntity.ok(feeService.getFilteredPayments(grade, section, studentName));
     }
 }

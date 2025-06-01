@@ -16,7 +16,6 @@ import {
 } from '@mui/material';
 import { useApi } from '../../hooks/useApi';
 import { studentService } from '../../services/studentService';
-import { courseService } from '../../services/courseService';
 import { validateEnrollment } from '../../utils/validation';
 import { SelectChangeEvent } from '@mui/material';
 
@@ -42,14 +41,12 @@ const EnrollmentDialog: React.FC<EnrollmentDialogProps> = ({
     status: 'ACTIVE',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
   const { data: students } = useApi(() => studentService.getAllStudents(), {
     cacheKey: 'students',
   });
 
-  const { data: courses } = useApi(() => courseService.getAllCourses(), {
-    cacheKey: 'courses',
-  });
+  // Courses service removed
+  const courses = [];
 
   useEffect(() => {
     if (initialData) {
@@ -109,18 +106,18 @@ const EnrollmentDialog: React.FC<EnrollmentDialogProps> = ({
               {errors.studentId && (
                 <FormHelperText>{errors.studentId}</FormHelperText>
               )}
-            </FormControl>
-
-            <FormControl fullWidth error={!!errors.courseId}>
-              <InputLabel>Course</InputLabel>              <Select
+            </FormControl>            <FormControl fullWidth error={!!errors.courseId}>
+              <InputLabel>Course</InputLabel>
+              <Select
                 name="courseId"
                 value={formData.courseId}
                 onChange={handleSelectChange}
-                label="Course"              >                {courses && Array.isArray(courses) ? courses.map(course => (
-                  <MenuItem key={course.id} value={course.id}>
-                    {course.name}
-                  </MenuItem>
-                )) : null}
+                label="Course"
+                disabled
+              >
+                <MenuItem value="">
+                  <em>Courses module has been removed</em>
+                </MenuItem>
               </Select>
               {errors.courseId && (
                 <FormHelperText>{errors.courseId}</FormHelperText>

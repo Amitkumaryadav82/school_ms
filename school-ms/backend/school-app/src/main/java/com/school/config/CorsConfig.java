@@ -40,32 +40,39 @@ public class CorsConfig {
 
         // Parse allowed origins from properties file
         List<String> allowedOrigins = Arrays.asList(allowedOriginsStr.split(","));
-        allowedOrigins.forEach(config::addAllowedOrigin); // Parse allowed methods from properties file
+        allowedOrigins.forEach(origin -> {
+            // Trim any whitespace from the origin
+            config.addAllowedOrigin(origin.trim());
+            System.out.println("CORS: Added allowed origin: " + origin.trim());
+        });
+
+        // Parse allowed methods from properties file
         List<String> allowedMethods = Arrays.asList(allowedMethodsStr.split(","));
         config.setAllowedMethods(allowedMethods);
+        System.out.println("CORS: Configured methods: " + allowedMethods);
 
-        // Allow common headers - include all variations of cache-control with different
-        // cases
-        config.setAllowedHeaders(Arrays.asList(
-                "Authorization", "Content-Type", "Accept",
-                "X-Requested-With", "X-User-Role", "Origin",
-                "Access-Control-Request-Method", "Access-Control-Request-Headers",
-                "Cache-Control", "cache-control", "CACHE-CONTROL",
-                "Pragma", "pragma", "PRAGMA",
-                "Expires", "expires", "EXPIRES"));
+        // Allow common headers and any additional headers that might be needed
+        config.addAllowedHeader("*"); // This allows all headers for simplicity
 
         // Expose headers that frontend might need
         config.setExposedHeaders(Arrays.asList(
                 "Access-Control-Allow-Origin",
                 "Access-Control-Allow-Credentials",
                 "Access-Control-Allow-Headers",
+                "Access-Control-Allow-Methods",
                 "Content-Disposition",
                 "Authorization"));
 
+        // Allow credentials (cookies, authorization headers, TLS client certs)
         config.setAllowCredentials(true);
+
+        // Set max age for preflight requests
         config.setMaxAge(maxAge);
 
+        // Register the configuration for all paths
         source.registerCorsConfiguration("/**", config);
+        System.out.println("CORS filter configured successfully with " + allowedOrigins.size() + " origins");
+
         return new CorsFilter(source);
     }
 }

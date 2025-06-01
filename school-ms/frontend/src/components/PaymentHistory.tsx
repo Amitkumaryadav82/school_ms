@@ -31,6 +31,7 @@ interface PaymentHistoryProps {
   onDownloadReceipt: (paymentId: number) => void;
   onVoidPayment?: (paymentId: number) => void;
   isAdmin?: boolean;
+  showStudentDetails?: boolean;
 }
 
 const PaymentHistory: React.FC<PaymentHistoryProps> = ({
@@ -38,7 +39,8 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
   onViewReceipt,
   onDownloadReceipt,
   onVoidPayment,
-  isAdmin = false
+  isAdmin = false,
+  showStudentDetails = false
 }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -85,10 +87,16 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
   return (
     <>
       <TableContainer component={Paper} elevation={1}>
-        <Table size="small">
-          <TableHead>
+        <Table size="small">          <TableHead>
             <TableRow>
               <TableCell>Receipt #</TableCell>
+              {showStudentDetails && (
+                <>
+                  <TableCell>Student</TableCell>
+                  <TableCell>Class</TableCell>
+                  <TableCell>Section</TableCell>
+                </>
+              )}
               <TableCell>Date</TableCell>
               <TableCell>Amount</TableCell>
               <TableCell>Method</TableCell>
@@ -97,9 +105,8 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {payments.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} align="center">
+            {payments.length === 0 ? (              <TableRow>
+                <TableCell colSpan={showStudentDetails ? 9 : 6} align="center">
                   <Typography variant="body2" color="textSecondary">
                     No payment records found
                   </Typography>
@@ -108,9 +115,15 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
             ) : (
               payments
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((payment) => (
-                  <TableRow key={payment.id}>
+                .map((payment) => (                  <TableRow key={payment.id}>
                     <TableCell>{payment.receiptNumber || '-'}</TableCell>
+                    {showStudentDetails && (
+                      <>
+                        <TableCell>{payment.studentName || '-'}</TableCell>
+                        <TableCell>{payment.studentGrade || '-'}</TableCell>
+                        <TableCell>{payment.studentSection || '-'}</TableCell>
+                      </>
+                    )}
                     <TableCell>
                       {payment.paymentDate 
                         ? format(new Date(payment.paymentDate), 'dd MMM yyyy')
