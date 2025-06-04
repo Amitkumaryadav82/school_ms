@@ -12,6 +12,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Landing from './pages/Landing';
 import Staff from './pages/Staff';
+import ExaminationManagement from './pages/ExaminationManagement';
+import BlueprintForm from './pages/BlueprintForm';
+import MarksEntry from './pages/MarksEntry';
 import theme from './theme';
 import React, { useState, useEffect, useContext } from 'react';
 // Import the connectivity checker
@@ -139,8 +142,7 @@ function AppRoutes() {
             </Layout>
           </ProtectedRoute>
         }
-      />
-      <Route
+      />      <Route
         path="/reports"
         element={
           <ProtectedRoute>
@@ -149,6 +151,46 @@ function AppRoutes() {
                 <Reports />
               </RoleBasedRoute>
             </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <ExaminationManagement />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams/blueprint/new"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <BlueprintForm mode="create" />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams/blueprint/edit/:id"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <BlueprintForm mode="edit" />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams/marks/entry"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <MarksEntry />
+            </RoleBasedRoute>
           </ProtectedRoute>
         }
       />
