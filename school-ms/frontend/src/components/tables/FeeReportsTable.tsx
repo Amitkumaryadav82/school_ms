@@ -92,12 +92,11 @@ const FeeReportsTable: React.FC<FeeReportsTableProps> = ({
           size="medium"
         >
           <TableHead>
-            <TableRow>
-              <TableCell>Student ID</TableCell>
+            <TableRow>              <TableCell>Student ID</TableCell>
               <TableCell>Student Name</TableCell>
-              <TableCell align="right">Total Due ($)</TableCell>
-              <TableCell align="right">Total Paid ($)</TableCell>
-              <TableCell align="right">Balance ($)</TableCell>
+              <TableCell align="right">Total Due (₹)</TableCell>
+              <TableCell align="right">Total Paid (₹)</TableCell>
+              <TableCell align="right">Balance (₹)</TableCell>
               <TableCell>Payment Status</TableCell>
               <TableCell>Last Payment Date</TableCell>
               <TableCell>Next Due Date</TableCell>
@@ -107,10 +106,9 @@ const FeeReportsTable: React.FC<FeeReportsTableProps> = ({
             {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
               <TableRow key={row.studentId} hover>
                 <TableCell>{row.studentId}</TableCell>
-                <TableCell>{row.studentName}</TableCell>
-                <TableCell align="right">${row.totalDue.toFixed(2)}</TableCell>
-                <TableCell align="right">${row.totalPaid.toFixed(2)}</TableCell>
-                <TableCell align="right">${row.balance.toFixed(2)}</TableCell>
+                <TableCell>{row.studentName}</TableCell>                <TableCell align="right">₹{row.totalDue.toFixed(2)}</TableCell>
+                <TableCell align="right">₹{row.totalPaid.toFixed(2)}</TableCell>
+                <TableCell align="right">₹{row.balance.toFixed(2)}</TableCell>
                 <TableCell>
                   <Chip 
                     label={row.paymentStatus.replace('_', ' ')} 

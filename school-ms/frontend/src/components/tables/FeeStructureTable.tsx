@@ -69,13 +69,12 @@ const FeeStructureTable: React.FC<FeeStructureTableProps> = ({
           </TableHead>
           <TableBody>
             {feeStructures.map((feeStructure) => (
-              <TableRow key={feeStructure.id}>
-                <TableCell>{feeStructure.id}</TableCell>
+              <TableRow key={feeStructure.id}>                <TableCell>{feeStructure.id}</TableCell>
                 <TableCell>{feeStructure.classGrade}</TableCell>
-                <TableCell>${feeStructure.annualFees?.toFixed(2)}</TableCell>
-                <TableCell>${feeStructure.buildingFees?.toFixed(2)}</TableCell>
-                <TableCell>${feeStructure.labFees?.toFixed(2)}</TableCell>
-                <TableCell>${feeStructure.totalFees?.toFixed(2)}</TableCell>
+                <TableCell>₹{feeStructure.annualFees?.toFixed(2)}</TableCell>
+                <TableCell>₹{feeStructure.buildingFees?.toFixed(2)}</TableCell>
+                <TableCell>₹{feeStructure.labFees?.toFixed(2)}</TableCell>
+                <TableCell>₹{feeStructure.totalFees?.toFixed(2)}</TableCell>
                 <TableCell>
                   <Tooltip title="Edit">
                     <IconButton 
