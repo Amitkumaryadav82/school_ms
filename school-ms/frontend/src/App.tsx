@@ -1,26 +1,29 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, Snackbar, Alert } from '@mui/material';
+import { Alert, CssBaseline, Snackbar, ThemeProvider } from '@mui/material';
+import React, { useContext, useEffect, useState } from 'react';
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import RoleBasedRoute from './components/RoleBasedRoute';
-import Dashboard from './pages/Dashboard';
-import Students from './pages/Students';
-import Reports from './pages/Reports';
 import Admissions from './pages/Admissions';
+import BlueprintForm from './pages/BlueprintForm';
+import Dashboard from './pages/Dashboard';
+import ExaminationManagement from './pages/ExaminationManagement';
 import FeeManagement from './pages/FeeManagement'; // Import the FeeManagement page
-import TeacherAttendance from './pages/TeacherAttendance'; // Import the TeacherAttendance page
-import Login from './pages/Login';
-import Register from './pages/Register';
 import Landing from './pages/Landing';
+import Login from './pages/Login';
+import MarksEntry from './pages/MarksEntry';
+import Register from './pages/Register';
+import Reports from './pages/Reports';
 import Staff from './pages/Staff';
+import Students from './pages/Students';
+import TeacherAttendance from './pages/TeacherAttendance'; // Import the TeacherAttendance page
 import theme from './theme';
-import React, { useState, useEffect, useContext } from 'react';
 // Import the connectivity checker
 import { autoDetectApiUrl } from './utils/connectivityCheck';
 
-import { NotificationProvider } from './context/NotificationContext';
+import GlobalConnectionSettings from './components/GlobalConnectionSettings';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import { ConnectionProvider } from './context/ConnectionContext';
-import GlobalConnectionSettings from './components/GlobalConnectionSettings';
+import { NotificationProvider } from './context/NotificationContext';
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
@@ -139,8 +142,7 @@ function AppRoutes() {
             </Layout>
           </ProtectedRoute>
         }
-      />
-      <Route
+      />      <Route
         path="/reports"
         element={
           <ProtectedRoute>
@@ -149,6 +151,46 @@ function AppRoutes() {
                 <Reports />
               </RoleBasedRoute>
             </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <ExaminationManagement />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams/blueprint/new"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <BlueprintForm mode="create" />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams/blueprint/edit/:id"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <BlueprintForm mode="edit" />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams/marks/entry"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <MarksEntry />
+            </RoleBasedRoute>
           </ProtectedRoute>
         }
       />

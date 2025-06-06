@@ -98,57 +98,49 @@ public class SecurityConfig {
 
                                 // Set up exception handlers
                                 .exceptionHandling(exceptions -> exceptions
-                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint))
-
-                                // Configure authorization rules
+                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint))                                // Configure authorization rules
                                 .authorizeHttpRequests(auth -> {
                                         // First, explicitly permit all static resources with very specific patterns
-                                        auth.requestMatchers(
-                                                        AntPathRequestMatcher.antMatcher("/"),
-                                                        AntPathRequestMatcher.antMatcher("/index.html"),
-                                                        AntPathRequestMatcher.antMatcher("/*.js"),
-                                                        AntPathRequestMatcher.antMatcher("/*.css"),
-                                                        AntPathRequestMatcher.antMatcher("/*.json"),
-                                                        AntPathRequestMatcher.antMatcher("/*.ico"),
-                                                        AntPathRequestMatcher.antMatcher("/*.png"),
-                                                        AntPathRequestMatcher.antMatcher("/assets/**"),
-                                                        AntPathRequestMatcher.antMatcher("/static/**"),
-                                                        AntPathRequestMatcher.antMatcher("/css/**"),
-                                                        AntPathRequestMatcher.antMatcher("/js/**"),
-                                                        AntPathRequestMatcher.antMatcher("/images/**"),
-                                                        AntPathRequestMatcher.antMatcher("/favicon.ico"),
-                                                        AntPathRequestMatcher.antMatcher("/manifest.json"),
-                                                        AntPathRequestMatcher.antMatcher("/robots.txt")).permitAll();
-
-                                        // Auth endpoints - explicitly list all public endpoints for clarity
-                                        auth.requestMatchers(
+                                        auth.antMatchers(
+                                                        "/",
+                                                        "/index.html",
+                                                        "/*.js",
+                                                        "/*.css",
+                                                        "/*.json",
+                                                        "/*.ico",
+                                                        "/*.png",
+                                                        "/assets/**",
+                                                        "/static/**",
+                                                        "/css/**",
+                                                        "/js/**",
+                                                        "/images/**",
+                                                        "/favicon.ico",
+                                                        "/manifest.json",
+                                                        "/robots.txt").permitAll();                                        // Auth endpoints - explicitly list all public endpoints for clarity
+                                        auth.antMatchers(
                                                         "/api/auth/login",
                                                         "/api/auth/register",
                                                         "/api/auth/health",
                                                         "/api/auth/refresh",
                                                         "/api/auth/validate-token").permitAll();
 
-                                        auth.requestMatchers("/h2-console/**").permitAll();
-                                        auth.requestMatchers("/actuator/**").permitAll();
-
-                                        // IMPORTANT: Override the method-level security for fee report endpoints
+                                        auth.antMatchers("/h2-console/**").permitAll();
+                                        auth.antMatchers("/actuator/**").permitAll();                                        // IMPORTANT: Override the method-level security for fee report endpoints
                                         // to ensure they are accessible by both ADMIN and TEACHER roles
-                                        auth.requestMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
+                                        auth.antMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
                                                         .authenticated();
-                                        auth.requestMatchers("/api/fees/reports/download/**").authenticated();
+                                        auth.antMatchers("/api/fees/reports/download/**").authenticated();
 
                                         // Swagger/OpenAPI documentation
-                                        auth.requestMatchers(
+                                        auth.antMatchers(
                                                         "/v3/api-docs/**",
                                                         "/v3/api-docs.yaml",
                                                         "/swagger-ui/**",
                                                         "/swagger-ui.html",
                                                         "/swagger-resources/**",
                                                         "/webjars/**",
-                                                        "/api-docs/**").permitAll();
-
-                                        // SPA frontend routes
-                                        auth.requestMatchers(
+                                                        "/api-docs/**").permitAll();                                        // SPA frontend routes
+                                        auth.antMatchers(
                                                         "/login",
                                                         "/register",
                                                         "/dashboard",
@@ -187,32 +179,30 @@ public class SecurityConfig {
 
                                 // Set up exception handlers - this was missing in dev config
                                 .exceptionHandling(exceptions -> exceptions
-                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint))
-
-                                .authorizeHttpRequests(auth -> { // All static resources
-                                        auth.requestMatchers(AntPathRequestMatcher.antMatcher("/**/*.js"),
-                                                        AntPathRequestMatcher.antMatcher("/**/*.css"),
-                                                        AntPathRequestMatcher.antMatcher("/**/*.html"),
-                                                        AntPathRequestMatcher.antMatcher("/**/*.json"),
-                                                        AntPathRequestMatcher.antMatcher("/**/*.ico"),
-                                                        AntPathRequestMatcher.antMatcher("/**/*.png"),
-                                                        AntPathRequestMatcher.antMatcher("/"),
-                                                        AntPathRequestMatcher.antMatcher("/index.html"),
-                                                        AntPathRequestMatcher.antMatcher("/static/**"),
-                                                        AntPathRequestMatcher.antMatcher("/assets/**"),
-                                                        AntPathRequestMatcher.antMatcher("/css/**"),
-                                                        AntPathRequestMatcher.antMatcher("/js/**"),
-                                                        AntPathRequestMatcher.antMatcher("/images/**"),
-                                                        AntPathRequestMatcher.antMatcher("/favicon.ico"),
-                                                        AntPathRequestMatcher.antMatcher("/manifest.json"),
-                                                        AntPathRequestMatcher.antMatcher("/robots.txt")).permitAll();
+                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint))                                .authorizeHttpRequests(auth -> { // All static resources
+                                        auth.antMatchers("/**/*.js",
+                                                        "/**/*.css",
+                                                        "/**/*.html",
+                                                        "/**/*.json",
+                                                        "/**/*.ico",
+                                                        "/**/*.png",
+                                                        "/",
+                                                        "/index.html",
+                                                        "/static/**",
+                                                        "/assets/**",
+                                                        "/css/**",
+                                                        "/js/**",
+                                                        "/images/**",
+                                                        "/favicon.ico",
+                                                        "/manifest.json",
+                                                        "/robots.txt").permitAll();
 
                                         // Allow access to H2 console in dev mode
-                                        auth.requestMatchers("/h2-console/**").permitAll();
-                                        auth.requestMatchers("/actuator/**").permitAll();
+                                        auth.antMatchers("/h2-console/**").permitAll();
+                                        auth.antMatchers("/actuator/**").permitAll();
 
                                         // Auth endpoints - explicitly list all public endpoints for clarity
-                                        auth.requestMatchers(
+                                        auth.antMatchers(
                                                         "/api/auth/login",
                                                         "/api/auth/register",
                                                         "/api/auth/health",
@@ -220,12 +210,12 @@ public class SecurityConfig {
                                                         "/api/auth/validate-token").permitAll();
 
                                         // Fee reports endpoints - ensure consistency with main config
-                                        auth.requestMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
+                                        auth.antMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
                                                         .authenticated();
-                                        auth.requestMatchers("/api/fees/reports/download/**").authenticated();
+                                        auth.antMatchers("/api/fees/reports/download/**").authenticated();
 
                                         // API docs - expanded to match main config
-                                        auth.requestMatchers(
+                                        auth.antMatchers(
                                                         "/v3/api-docs/**",
                                                         "/v3/api-docs.yaml",
                                                         "/swagger-ui/**",
@@ -235,7 +225,7 @@ public class SecurityConfig {
                                                         "/api-docs/**").permitAll();
 
                                         // SPA routes - expanded to match main config
-                                        auth.requestMatchers(
+                                        auth.antMatchers(
                                                         "/login",
                                                         "/register",
                                                         "/dashboard",

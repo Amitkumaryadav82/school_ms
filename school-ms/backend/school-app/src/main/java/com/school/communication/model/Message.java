@@ -2,7 +2,7 @@ package com.school.communication.model;
 
 import com.school.common.model.BaseEntity;
 import com.school.hrm.model.Employee;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

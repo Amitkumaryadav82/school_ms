@@ -1,9 +1,9 @@
 package com.school.exam.model;
 
 import com.school.common.model.BaseEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -54,7 +54,29 @@ public class ExamConfiguration extends BaseEntity {
     @NotNull
     private Integer academicYear;
 
+    @ManyToOne
+    @JoinColumn(name = "exam_id")
+    private Exam exam;
+
     public enum ApprovalStatus {
         PENDING, APPROVED, REJECTED
     }
+
+    /**
+     * Returns this instance, used as a convenience method to avoid null checks in code that expects 
+     * a nested structure but is working directly with this class
+     * @return this ExamConfiguration instance
+     */
+    public ExamConfiguration getExamConfiguration() {
+        return this;
+    }
+    
+    /**
+     * Get the ID of the associated exam
+     * @return ID of the exam or null if no exam is associated
+     */
+    public Long getExamId() {
+        return exam != null ? exam.getId() : null;
+    }
 }
+

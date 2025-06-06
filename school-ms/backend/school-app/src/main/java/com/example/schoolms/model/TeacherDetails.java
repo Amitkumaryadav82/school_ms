@@ -1,6 +1,6 @@
 package com.example.schoolms.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

@@ -1,9 +1,9 @@
 package com.school.course.model;
 
 import com.school.common.model.BaseEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -37,4 +37,13 @@ public class Chapter extends BaseEntity {
     private Integer academicYear;
     
     private Boolean isActive = true;
+
+    /**
+     * Get the name of the chapter
+     * @return the chapter name
+     */
+    public String getName() {
+        return this.name;
+    }
 }
+

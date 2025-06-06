@@ -1,7 +1,7 @@
 package com.school.fee.dto;
 
 import com.school.fee.model.Payment.PaymentMethod;
-import jakarta.validation.constraints.*;
+import javax.validation.constraints.*;
 import lombok.Data;
 
 @Data

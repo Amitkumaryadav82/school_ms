@@ -3,8 +3,8 @@ package com.school.fee.service;
 import com.school.fee.dto.TransportRouteDTO;
 import com.school.fee.model.TransportRoute;
 import com.school.fee.repository.TransportRouteRepository;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -88,3 +88,4 @@ public class TransportRouteService {
                 .build();
     }
 }
+

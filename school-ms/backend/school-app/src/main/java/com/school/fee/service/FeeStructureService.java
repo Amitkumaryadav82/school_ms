@@ -9,8 +9,8 @@ import com.school.fee.model.PaymentSchedule;
 import com.school.fee.repository.FeeStructureRepository;
 import com.school.fee.repository.LateFeeRepository;
 import com.school.fee.repository.PaymentScheduleRepository;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -196,3 +196,4 @@ public class FeeStructureService {
         return dto;
     }
 }
+

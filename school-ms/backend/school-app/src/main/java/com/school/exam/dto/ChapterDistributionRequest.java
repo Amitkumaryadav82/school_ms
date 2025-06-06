@@ -1,7 +1,7 @@
 package com.school.exam.dto;
 
 import com.school.exam.model.QuestionSection;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -21,3 +21,4 @@ public class ChapterDistributionRequest {
     @NotNull
     private Double weightagePercentage;
 }
+

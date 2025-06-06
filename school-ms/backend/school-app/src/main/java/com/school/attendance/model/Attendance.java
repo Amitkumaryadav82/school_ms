@@ -2,8 +2,8 @@ package com.school.attendance.model;
 
 import com.school.common.model.Auditable;
 import com.school.student.model.Student;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalTime;

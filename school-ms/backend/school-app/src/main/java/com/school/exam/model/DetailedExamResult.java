@@ -2,8 +2,8 @@ package com.school.exam.model;
 
 import com.school.common.model.BaseEntity;
 import com.school.student.model.Student;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -52,3 +52,4 @@ public class DetailedExamResult extends BaseEntity {
 
     private java.time.LocalDateTime reviewedAt;
 }
+
