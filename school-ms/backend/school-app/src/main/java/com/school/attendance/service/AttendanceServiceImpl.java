@@ -12,6 +12,7 @@ import com.school.attendance.dto.MonthlyAttendanceReport;
 import com.school.attendance.dto.MonthlyAttendanceStats;
 import com.school.attendance.dto.AttendanceSummary;
 import com.school.attendance.dto.AttendanceAlert;
+import com.school.attendance.dto.StudentAttendanceSummaryDTO;
 import com.school.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -148,10 +149,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public List<Attendance> getSectionAttendance(Integer grade, String section, LocalDate date) {
         return attendanceRepository.findByStudentGradeAndStudentSectionAndDate(grade, section, date);
-    }
-
-    @Override
-    public AttendanceSummary getStudentAttendanceSummary(Long studentId, LocalDate startDate, LocalDate endDate) {
+    }    @Override
+    public StudentAttendanceSummaryDTO getStudentAttendanceSummary(Long studentId, LocalDate startDate, LocalDate endDate) {
         if (!studentRepository.existsById(studentId)) {
             throw new StudentNotFoundException("Student not found");
         }
@@ -168,7 +167,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         double attendancePercentage = totalDays > 0 ? (presentDays * 100.0) / totalDays : 0;
 
-        return AttendanceSummary.builder()
+        return StudentAttendanceSummaryDTO.builder()
                 .studentId(studentId)
                 .startDate(startDate)
                 .endDate(endDate)
@@ -391,5 +390,17 @@ public class AttendanceServiceImpl implements AttendanceService {
     private int countTotalAbsences(Long studentId, LocalDate startDate, LocalDate endDate) {
         return (int) attendanceRepository.countByStudentIdAndStatusAndDateBetween(
                 studentId, AttendanceStatus.ABSENT, startDate, endDate);
+    }
+
+    @Override
+    public double getStudentAttendancePercentage(Long studentId, LocalDate startDate, LocalDate endDate) {
+        if (!studentRepository.existsById(studentId)) {
+            throw new StudentNotFoundException("Student not found");
+        }
+        if (startDate.isAfter(endDate)) {
+            throw new InvalidDateRangeException("Start date cannot be after end date");
+        }
+        
+        return calculateAttendancePercentage(studentId, startDate, endDate);
     }
 }

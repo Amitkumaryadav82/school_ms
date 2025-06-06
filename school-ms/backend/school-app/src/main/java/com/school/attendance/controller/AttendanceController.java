@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -173,16 +173,14 @@ public class AttendanceController {
             @PathVariable String section,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return ResponseEntity.ok(attendanceService.getSectionAttendance(grade, section, date));
-    }
-
-    @Operation(summary = "Get student attendance summary", description = "Retrieves attendance summary statistics for a student within a date range")
+    }    @Operation(summary = "Get student attendance summary", description = "Retrieves attendance summary statistics for a student within a date range")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Attendance summary retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "Student not found")
     })
     @GetMapping("/student/{studentId}/summary")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
-    public ResponseEntity<AttendanceSummary> getStudentAttendanceSummary(
+    public ResponseEntity<StudentAttendanceSummaryDTO> getStudentAttendanceSummary(
             @PathVariable Long studentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {

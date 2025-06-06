@@ -1,7 +1,7 @@
 package com.school.fee.model;
 
 import com.school.common.model.Auditable;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

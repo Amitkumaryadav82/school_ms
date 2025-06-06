@@ -2,8 +2,8 @@ package com.school.exam.dto;
 
 import com.school.exam.model.Exam;
 import com.school.exam.model.ExamConfiguration;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import java.util.List;
 
@@ -42,3 +42,4 @@ public class ExamConfigurationRequest {
 
     private QuestionPaperStructureRequest paperStructure;
 }
+

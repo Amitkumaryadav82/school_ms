@@ -2,7 +2,7 @@ package com.school.student.dto;
 
 import com.school.student.model.Student;
 import lombok.Data;
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 import java.util.List;
 
 @Data

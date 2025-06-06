@@ -69,19 +69,20 @@ public class BlueprintService {
         }
 
         return blueprintRepository.save(savedBlueprint);
-    }
-
-    private ChapterDistribution createChapterDistribution(ChapterDistributionRequest request, ExamBlueprint blueprint) {
+    }    private ChapterDistribution createChapterDistribution(ChapterDistributionRequest request, ExamBlueprint blueprint) {
         Chapter chapter = chapterService.getChapter(request.getChapterId());
 
-        return ChapterDistribution.builder()
+        ChapterDistribution distribution = ChapterDistribution.builder()
                 .blueprint(blueprint)
-                .chapter(chapter)
+                .chapterName(chapter.getName())
                 .questionType(request.getQuestionType())
                 .questionCount(request.getQuestionCount())
                 .totalMarks(request.getTotalMarks())
                 .weightagePercentage(request.getWeightagePercentage())
                 .build();
+        
+        distribution.setChapter(chapter);
+        return distribution;
     }
 
     public ExamBlueprint updateBlueprint(Long id, ExamBlueprintRequest request) {
@@ -98,10 +99,9 @@ public class BlueprintService {
         // Update chapter distributions if provided
         if (request.getChapterDistributions() != null) {
             // Remove existing distributions not in the request
-            if (blueprint.getChapterDistributions() != null) {
-                List<ChapterDistribution> distributionsToRemove = blueprint.getChapterDistributions().stream()
+            if (blueprint.getChapterDistributions() != null) {                List<ChapterDistribution> distributionsToRemove = blueprint.getChapterDistributions().stream()
                         .filter(dist -> !request.getChapterDistributions().stream()
-                                .filter(req -> req.getChapterId().equals(dist.getChapter().getId()) &&
+                                .filter(req -> req.getChapterId().equals(chapterService.getChapterByName(dist.getChapterName()).getId()) &&
                                         req.getQuestionType().equals(dist.getQuestionType()))
                                 .findAny()
                                 .isPresent())
@@ -114,9 +114,9 @@ public class BlueprintService {
 
                 // Update existing distributions
                 for (ChapterDistributionRequest distRequest : request.getChapterDistributions()) {
-                    boolean distExists = false;
-                    for (ChapterDistribution existingDist : blueprint.getChapterDistributions()) {
-                        if (existingDist.getChapter().getId().equals(distRequest.getChapterId()) &&
+                    boolean distExists = false;                    for (ChapterDistribution existingDist : blueprint.getChapterDistributions()) {
+                        Chapter chapter = chapterService.getChapterByName(existingDist.getChapterName());
+                        if (chapter != null && chapter.getId().equals(distRequest.getChapterId()) &&
                                 existingDist.getQuestionType().equals(distRequest.getQuestionType())) {
                             existingDist.setQuestionCount(distRequest.getQuestionCount());
                             existingDist.setTotalMarks(distRequest.getTotalMarks());

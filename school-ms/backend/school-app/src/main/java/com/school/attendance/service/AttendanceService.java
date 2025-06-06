@@ -7,6 +7,7 @@ import com.school.attendance.model.AttendanceStatus;
 import com.school.attendance.dto.MonthlyAttendanceReport;
 import com.school.attendance.dto.MonthlyAttendanceStats;
 import com.school.attendance.dto.AttendanceSummary;
+import com.school.attendance.dto.StudentAttendanceSummaryDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,18 +37,15 @@ public interface AttendanceService {
 
     List<Attendance> getSectionAttendance(Integer grade, String section, LocalDate date);
 
-    AttendanceSummary getStudentAttendanceSummary(Long studentId, LocalDate startDate, LocalDate endDate);
+    StudentAttendanceSummaryDTO getStudentAttendanceSummary(Long studentId, LocalDate startDate, LocalDate endDate);
 
     List<Attendance> markClassAttendance(Integer grade, String section, LocalDate date, AttendanceStatus defaultStatus,
             String remarks);
 
     MonthlyAttendanceReport generateMonthlyReport(Integer grade, String section, Integer year, Integer month);
 
-    MonthlyAttendanceStats generateMonthlyStats(Integer grade, String section, Integer year, Integer month);
+    MonthlyAttendanceStats generateMonthlyStats(Integer grade, String section, Integer year, Integer month);    void deleteAttendance(Long id);
 
-    void deleteAttendance(Long id);
-
-    int deleteAttendanceOlderThan(LocalDate date);
-
-    List<AttendanceAlert> generateAttendanceAlerts();
+    int deleteAttendanceOlderThan(LocalDate date);    List<AttendanceAlert> generateAttendanceAlerts();
+      double getStudentAttendancePercentage(Long studentId, LocalDate startDate, LocalDate endDate);
 }

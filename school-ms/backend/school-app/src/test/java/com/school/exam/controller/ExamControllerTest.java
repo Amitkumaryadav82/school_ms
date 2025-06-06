@@ -7,6 +7,7 @@ import com.school.exam.dto.ExamRequest;
 import com.school.exam.dto.ExamResultRequest;
 import com.school.exam.dto.ExamSummary;
 import com.school.student.model.Student;
+import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,12 +118,10 @@ class ExamControllerTest {
                 .scoreDistribution(scoreDistribution)
                 .sectionWiseAverage(sectionWiseAverage)
                 .build();
-    }
-
-    // Helper method to set id using reflection since it's managed by BaseEntity
+    }    // Helper method to set id using reflection since it's managed by BaseEntity
     private void setId(Object entity, Long id) {
         try {
-            var field = entity.getClass().getSuperclass().getDeclaredField("id");
+            Field field = entity.getClass().getSuperclass().getDeclaredField("id");
             field.setAccessible(true);
             field.set(entity, id);
         } catch (Exception e) {

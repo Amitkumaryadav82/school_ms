@@ -37,10 +37,16 @@ public class ChapterService {
 
     public List<Chapter> getChaptersByGrade(Integer grade) {
         return chapterRepository.findByGrade(grade);
+    }    public List<Chapter> getChaptersBySubjectAndGrade(String subject, Integer grade) {
+        return chapterRepository.findBySubjectAndGrade(subject, grade);
     }
 
-    public List<Chapter> getChaptersBySubjectAndGrade(String subject, Integer grade) {
-        return chapterRepository.findBySubjectAndGrade(subject, grade);
+    public Chapter getChapterByName(String name) {
+        Chapter chapter = chapterRepository.findByName(name);
+        if (chapter == null) {
+            throw new RuntimeException("Chapter not found with name: " + name);
+        }
+        return chapter;
     }
 
     public void deleteChapter(Long id) {

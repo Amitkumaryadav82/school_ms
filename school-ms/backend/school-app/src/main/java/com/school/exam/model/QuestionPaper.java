@@ -1,8 +1,8 @@
 package com.school.exam.model;
 
 import com.school.common.model.BaseEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -47,3 +47,4 @@ public class QuestionPaper extends BaseEntity {
         PENDING, APPROVED, REJECTED
     }
 }
+

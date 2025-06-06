@@ -24,6 +24,5 @@ public class BulkUploadResponse {
     public BulkUploadResponse(int created, int updated) {
         this.created = created;
         this.updated = updated;
-        this.errors = new ArrayList<>();
     }
 }

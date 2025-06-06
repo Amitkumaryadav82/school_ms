@@ -1,38 +1,35 @@
-import React from 'react';
-import { useState, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  AppBar,
-  Box,
-  Drawer,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Typography,
-  Menu,
-  MenuItem,
-  Avatar,
-  Chip,
-  CssBaseline,
-  Tooltip,
-} from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Dashboard,
-  People,
-  School,
-  Book,
-  Assessment as AssessmentIcon,
-  HowToReg as AdmissionsIcon,
-  AccountCircle,
-  EventAvailable,
-  ExitToApp as LogoutIcon,
-  AttachMoney as FeeIcon,
-  Refresh as RefreshIcon,
+    AccountCircle,
+    HowToReg as AdmissionsIcon,
+    Assessment as AssessmentIcon,
+    Book,
+    Dashboard,
+    EventAvailable,
+    AttachMoney as FeeIcon,
+    ExitToApp as LogoutIcon,
+    Menu as MenuIcon,
+    People
 } from '@mui/icons-material';
+import {
+    AppBar,
+    Avatar,
+    Box,
+    Chip,
+    CssBaseline,
+    Drawer,
+    IconButton,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+    Toolbar,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import React, { ReactNode, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ConnectionStatusIndicator from './ConnectionStatusIndicator';
 

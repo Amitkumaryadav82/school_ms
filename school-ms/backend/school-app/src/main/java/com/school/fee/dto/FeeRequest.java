@@ -2,7 +2,7 @@ package com.school.fee.dto;
 
 import com.school.fee.model.Fee.FeeType;
 import com.school.fee.model.Fee.FeeFrequency;
-import jakarta.validation.constraints.*;
+import javax.validation.constraints.*;
 import lombok.Data;
 import java.time.LocalDate;
 

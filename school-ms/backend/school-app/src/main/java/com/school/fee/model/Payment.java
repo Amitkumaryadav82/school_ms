@@ -2,9 +2,9 @@ package com.school.fee.model;
 
 import com.school.common.model.BaseEntity;
 import com.school.student.model.Student;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import lombok.*;
 import java.time.LocalDateTime;
 

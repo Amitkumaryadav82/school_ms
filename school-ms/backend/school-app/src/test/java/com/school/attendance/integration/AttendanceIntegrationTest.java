@@ -6,6 +6,7 @@ import com.school.attendance.service.AttendanceService;
 import com.school.attendance.dto.AttendanceDTO;
 import com.school.attendance.dto.MonthlyAttendanceReport;
 import com.school.attendance.dto.MonthlyAttendanceStats;
+import com.school.attendance.dto.StudentAttendanceSummaryDTO;
 import com.school.student.model.Student;
 import com.school.student.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -114,11 +115,9 @@ class AttendanceIntegrationTest {
                                 .date(today)
                                 .status(AttendanceStatus.PRESENT)
                                 .remarks("Present")
-                                .build();
+                                .build();                attendanceService.markAttendance(dto);
 
-                attendanceService.markAttendance(dto);
-
-                var summary = attendanceService.getStudentAttendanceSummary(
+                StudentAttendanceSummaryDTO summary = attendanceService.getStudentAttendanceSummary(
                                 student1.getId(), today.minusDays(30), today);
 
                 assertNotNull(summary);

@@ -1,7 +1,7 @@
 package com.school.exam.dto;
 
 import com.school.exam.model.QuestionSection;
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import java.util.List;
 
@@ -24,3 +24,4 @@ public class QuestionPaperStructureRequest {
 
     private List<QuestionSectionRequest> sections;
 }
+

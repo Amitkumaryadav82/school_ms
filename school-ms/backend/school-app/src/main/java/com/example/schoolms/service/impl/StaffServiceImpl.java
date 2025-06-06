@@ -180,22 +180,30 @@ public class StaffServiceImpl implements StaffService {
         if (newStaff.getDepartment() != null) {
             existingStaff.setDepartment(newStaff.getDepartment());
         }
-    }
-
-    // Generate role-specific prefix for staff ID
+    }    // Generate role-specific prefix for staff ID
     private String getRolePrefix(String role) {
         if (role == null) {
             return "STF";
         }
 
-        return switch (role.toUpperCase()) {
-            case "TEACHER" -> "TCH";
-            case "PRINCIPAL" -> "PRI";
-            case "ADMIN" -> "ADM";
-            case "ADMIN OFFICER", "ADMINISTRATION" -> "ADO";
-            case "LIBRARIAN" -> "LIB";
-            case "ACCOUNTANT", "ACCOUNT OFFICER" -> "ACC";
-            default -> "STF";
-        };
+        String upperRole = role.toUpperCase();
+        switch (upperRole) {
+            case "TEACHER":
+                return "TCH";
+            case "PRINCIPAL":
+                return "PRI";
+            case "ADMIN":
+                return "ADM";
+            case "ADMIN OFFICER":
+            case "ADMINISTRATION":
+                return "ADO";
+            case "LIBRARIAN":
+                return "LIB";
+            case "ACCOUNTANT":
+            case "ACCOUNT OFFICER":
+                return "ACC";
+            default:
+                return "STF";
+        }
     }
 }

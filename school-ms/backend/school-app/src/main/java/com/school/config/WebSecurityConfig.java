@@ -20,10 +20,9 @@ public class WebSecurityConfig {
      * Security entirely.
      * This is needed because preflight requests don't include authentication
      * credentials.
-     */
-    @Bean
+     */    @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers(HttpMethod.OPTIONS, "/**");
+                .antMatchers(HttpMethod.OPTIONS, "/**");
     }
 }

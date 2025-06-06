@@ -1,5 +1,6 @@
 package com.school.exam.service;
 
+import com.school.exam.model.Exam;
 import com.school.exam.model.ExamConfiguration;
 import com.school.exam.model.QuestionPaperStructure;
 import com.school.exam.model.QuestionSection;
@@ -195,9 +196,7 @@ public class ExamConfigurationService {
         return examConfigurationRepository.findByGrade(grade);
     }    public List<ExamConfiguration> getExamConfigurationsBySubject(String subject) {
         return examConfigurationRepository.findBySubject(subject);
-    }
-
-    public List<ExamConfiguration> getExamConfigurationsByExamType(Exam.ExamType examType) {
+    }    public List<ExamConfiguration> getExamConfigurationsByExamType(Exam.ExamType examType) {
         return examConfigurationRepository.findByExamType(examType);
     }
 

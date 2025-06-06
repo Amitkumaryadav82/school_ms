@@ -170,12 +170,11 @@ public class ExamBlueprintServiceImpl implements ExamBlueprintService {
             
             // Check if question type exists for this chapter
             Map<QuestionSection.QuestionType, List<Question>> typeMap = questionsByChapterAndType.get(chapterName);
-            if (!typeMap.containsKey(questionType)) {
-                issues.add(new ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue(
+            if (!typeMap.containsKey(questionType)) {                issues.add(new ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue(
                     chapterName,
                     questionType.name(),
                     "No questions of type " + questionType + " for chapter " + chapterName,
-                    ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue.ValidationIssue.ValidationSeverity.ERROR
+                    ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue.ValidationSeverity.ERROR
                 ));
                 continue;
             }

@@ -1,6 +1,6 @@
 package com.school.timetable.model;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import com.school.common.model.BaseEntity;

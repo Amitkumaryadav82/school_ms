@@ -14,4 +14,6 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
     List<Chapter> findBySubjectAndGrade(String subject, Integer grade);
     
     List<Chapter> findByIsActive(Boolean isActive);
+    
+    Chapter findByName(String name);
 }

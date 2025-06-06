@@ -1,0 +1,64 @@
+{
+  "folders": [
+    {
+      "name": "Root",
+      "path": "."
+    },
+    {
+      "name": "Backend",
+      "path": "./backend/school-app"
+    },
+    {
+      "name": "Frontend",
+      "path": "./frontend"
+    }
+  ],
+  "settings": {
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "java.compile.nullAnalysis.mode": "automatic",
+    "typescript.tsdk": "Frontend/node_modules/typescript/lib",
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/node_modules": false,
+      "**/target": false
+    }
+  },
+  "launch": {
+    "configurations": [
+      {
+        "type": "java",
+        "name": "Spring Boot App (backend)",
+        "request": "launch",
+        "mainClass": "com.school.SchoolApplication",
+        "projectName": "school-app"
+      },
+      {
+        "type": "chrome",
+        "request": "launch",
+        "name": "Launch Chrome against localhost",
+        "url": "http://localhost:5173",
+        "webRoot": "${workspaceFolder:Frontend}"
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Full Stack",
+        "configurations": ["Spring Boot App (backend)", "Launch Chrome against localhost"]
+      }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-pack",
+      "vmware.vscode-spring-boot",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "ms-azuretools.vscode-docker"
+    ]
+  }
+}

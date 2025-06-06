@@ -1,7 +1,7 @@
 package com.school.hrm.model;
 
 import com.school.common.model.BaseEntity;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,3 +32,4 @@ public class SchoolHoliday extends BaseEntity {
     @Column(nullable = false)
     private HolidayType type;
 }
+

@@ -8,14 +8,56 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
     />
-    <script type="module" crossorigin src="/assets/index-c302092e.js"></script>
+    <script type="module" crossorigin src="/assets/index-ddc52869.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-vendor-c0a3892c.js">
-    <link rel="modulepreload" crossorigin href="/assets/mui-vendor-2642d531.js">
-    <link rel="modulepreload" crossorigin href="/assets/chart-vendor-22102d3f.js">
-    <link rel="stylesheet" href="/assets/index-c1abdb85.css">
+    <link rel="modulepreload" crossorigin href="/assets/mui-vendor-247f22ba.js">
+    <link rel="modulepreload" crossorigin href="/assets/chart-vendor-2e616ed8.js">
+    <link rel="stylesheet" href="/assets/index-3e7c49bb.css">
+    <style>
+      .fallback-container {
+        display: none;
+        text-align: center;
+        padding: 40px;
+        font-family: Arial, sans-serif;
+      }
+      .error-message {
+        color: red;
+        white-space: pre-wrap;
+        text-align: left;
+        background: #f8f8f8;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 20px;
+        overflow: auto;
+        max-height: 300px;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <div id="fallback" class="fallback-container">
+      <h2>School Management System</h2>
+      <p>The application is having trouble loading. Please check the browser console for errors.</p>
+      <div id="error-details" class="error-message"></div>
+    </div>
     
+    <script>
+      // Show fallback content if React app doesn't load within 3 seconds
+      setTimeout(function() {
+        if (document.getElementById('root').children.length === 0) {
+          document.getElementById('fallback').style.display = 'block';
+          
+          // Collect errors from console
+          const errors = [];
+          const originalConsoleError = console.error;
+          console.error = function() {
+            errors.push(Array.from(arguments).join(' '));
+            document.getElementById('error-details').textContent = errors.join('\n\n');
+            originalConsoleError.apply(console, arguments);
+          };
+        }
+      }, 3000);
+    </script>
   </body>
 </html>

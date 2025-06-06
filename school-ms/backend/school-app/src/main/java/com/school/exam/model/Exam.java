@@ -1,9 +1,9 @@
 package com.school.exam.model;
 
 import com.school.common.model.BaseEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -42,5 +42,22 @@ public class Exam extends BaseEntity {
     
     public enum ExamType {
         MIDTERM, FINAL, QUIZ, ASSIGNMENT
+    }
+    
+    /**
+     * Get the passing marks for the exam
+     * @return the passing marks
+     */
+    public Double getPassingMarks() {
+        return this.passingMarks;
+    }
+    
+    /**
+     * Get the ID of the exam
+     * @return the exam ID
+     */
+    @Override
+    public Long getId() {
+        return super.getId();
     }
 }

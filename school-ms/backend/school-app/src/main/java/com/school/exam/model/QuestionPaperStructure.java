@@ -1,8 +1,8 @@
 package com.school.exam.model;
 
 import com.school.common.model.BaseEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -37,3 +37,4 @@ public class QuestionPaperStructure extends BaseEntity {
     @OneToMany(mappedBy = "questionPaperStructure", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<QuestionSection> sections;
 }
+

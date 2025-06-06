@@ -1,6 +1,6 @@
 package com.school.admission.dto;
 
-import jakarta.validation.constraints.*;
+import javax.validation.constraints.*;
 import lombok.Data;
 import java.time.LocalDate;
 

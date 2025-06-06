@@ -99,14 +99,14 @@ public class ExamAnalysisService {
 
         private Map<String, Double> calculateChapterWisePerformance(List<DetailedExamResult> detailedResults) {
                 // Group by chapter and calculate average percentage score
-                Map<Long, List<DetailedExamResult>> resultsByChapter = detailedResults.stream()
+                Map<String, List<DetailedExamResult>> resultsByChapter = detailedResults.stream()
                                 .filter(result -> result.getQuestion().getChapter() != null)
-                                .collect(Collectors.groupingBy(result -> result.getQuestion().getChapter().getId()));
+                                .collect(Collectors.groupingBy(result -> result.getQuestion().getChapter()));
 
                 Map<String, Double> chapterPerformance = new HashMap<>();
 
-                for (Map.Entry<Long, List<DetailedExamResult>> entry : resultsByChapter.entrySet()) {
-                        String chapterName = entry.getValue().get(0).getQuestion().getChapter().getName();
+                for (Map.Entry<String, List<DetailedExamResult>> entry : resultsByChapter.entrySet()) {
+                        String chapterName = entry.getKey();
 
                         double totalMarks = entry.getValue().stream()
                                         .mapToDouble(result -> result.getQuestion().getMarks())
@@ -227,15 +227,13 @@ public class ExamAnalysisService {
                         List<DetailedExamResult> studentResults = detailedResultsByStudent.get(student.getId());
                         Map<String, Double> chapterPerformance = new HashMap<>();
 
-                        if (studentResults != null) {
-                                Map<Long, List<DetailedExamResult>> resultsByChapter = studentResults.stream()
+                        if (studentResults != null) {                                Map<String, List<DetailedExamResult>> resultsByChapter = studentResults.stream()
                                                 .filter(res -> res.getQuestion().getChapter() != null)
                                                 .collect(Collectors.groupingBy(
-                                                                res -> res.getQuestion().getChapter().getId()));
+                                                                res -> res.getQuestion().getChapter()));
 
-                                for (Map.Entry<Long, List<DetailedExamResult>> entry : resultsByChapter.entrySet()) {
-                                        String chapterName = entry.getValue().get(0).getQuestion().getChapter()
-                                                        .getName();
+                                for (Map.Entry<String, List<DetailedExamResult>> entry : resultsByChapter.entrySet()) {
+                                        String chapterName = entry.getKey();
 
                                         double chapterMaxMarks = entry.getValue().stream()
                                                         .mapToDouble(res -> res.getQuestion().getMarks())
