@@ -27,9 +27,7 @@ public interface DetailedExamResultRepository extends JpaRepository<DetailedExam
 
        @Query("SELECT der FROM DetailedExamResult der JOIN der.examResult er JOIN er.exam e " +
                      "WHERE e.id = :examId")
-       List<DetailedExamResult> findByExamId(Long examId);
-
-       @Query("SELECT der FROM DetailedExamResult der JOIN der.question q JOIN q.chapter c " +
-                     "WHERE c.id = :chapterId")
+       List<DetailedExamResult> findByExamId(Long examId);       @Query("SELECT der FROM DetailedExamResult der JOIN der.question q " +
+              "WHERE q.chapterName IN (SELECT c.name FROM com.school.course.model.Chapter c WHERE c.id = :chapterId)")
        List<DetailedExamResult> findByChapterId(Long chapterId);
 }

@@ -1,6 +1,7 @@
 package com.school.exam.model;
 
 import com.school.common.model.BaseEntity;
+import com.school.student.model.Student;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import lombok.*;
@@ -15,11 +16,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuestionWiseMarks extends BaseEntity {
-
-    @ManyToOne
+public class QuestionWiseMarks extends BaseEntity {    @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
-    private Long studentId;
+    private Student student;
 
     @ManyToOne
     @JoinColumn(name = "exam_id", nullable = false)
