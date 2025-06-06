@@ -1,484 +1,988 @@
--- DDL Queries for Student Service
-CREATE TABLE students (
-    id SERIAL PRIMARY KEY,
-    student_id VARCHAR(100) NOT NULL UNIQUE,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    date_of_birth DATE NOT NULL,
-    grade INTEGER NOT NULL,
-    section VARCHAR(10) NOT NULL,
-    contact_number VARCHAR(20) NOT NULL,
-    address TEXT,
-    gender VARCHAR(10),
-    guardian_name VARCHAR(100) NOT NULL,
-    guardian_contact VARCHAR(20) NOT NULL,
-    guardian_email VARCHAR(100),
-    status VARCHAR(20) DEFAULT 'ACTIVE',
-    admission_date DATE NOT NULL,
-    photo_url VARCHAR(255),
-    blood_group VARCHAR(10),
-    medical_conditions TEXT,
-    admission_id BIGINT UNIQUE REFERENCES admissions(id),
-    guardian_occupation VARCHAR(100),
-    guardian_office_address TEXT,
-    aadhar_number VARCHAR(20),
-    udise_number VARCHAR(20),
-    house_alloted VARCHAR(50),
-    guardian_annual_income DECIMAL(15,2),
-    previous_school VARCHAR(100),
-    tc_number VARCHAR(50),
-    tc_reason TEXT,
-    tc_date DATE,
-    whatsapp_number VARCHAR(20),
-    subjects TEXT,
-    transport_mode VARCHAR(10),
-    bus_route_number VARCHAR(20),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by VARCHAR(100),
-    modified_by VARCHAR(100)
-);
+-- Table: public.admissions
 
--- DDL Queries for Admission Service
-CREATE TABLE admissions (
-    id SERIAL PRIMARY KEY,
-    application_date DATE NOT NULL,
-    applicant_name VARCHAR(100) NOT NULL,
-    date_of_birth DATE NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    contact_number VARCHAR(20) NOT NULL,
-    guardian_name VARCHAR(100) NOT NULL,
-    guardian_contact VARCHAR(20) NOT NULL,
-    guardian_email VARCHAR(100),
-    grade_applying INTEGER NOT NULL,
-    previous_school VARCHAR(100),
-    previous_grade VARCHAR(20),
-    previous_percentage DECIMAL(5,2),
-    documents BYTEA,
-    documents_format VARCHAR(50),
-    status VARCHAR(20) DEFAULT 'PENDING',
-    rejection_reason TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by VARCHAR(100),
-    modified_by VARCHAR(100)
-);
+-- DROP TABLE IF EXISTS public.admissions;
 
--- DDL Queries for Attendance Service
-CREATE TABLE attendance (
-    id SERIAL PRIMARY KEY,
-    student_id INT NOT NULL,
-    date DATE NOT NULL,
-    status VARCHAR(50) NOT NULL
-);
+CREATE TABLE IF NOT EXISTS public.admissions
+(
+    id bigint NOT NULL DEFAULT nextval('admissions_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    updated_at timestamp(6) without time zone NOT NULL,
+    applicant_name character varying(255) COLLATE pg_catalog."default",
+    application_date date,
+    contact_number character varying(255) COLLATE pg_catalog."default",
+    date_of_birth date,
+    documents oid,
+    documents_format character varying(255) COLLATE pg_catalog."default",
+    email character varying(255) COLLATE pg_catalog."default",
+    grade_applying integer,
+    guardian_contact character varying(255) COLLATE pg_catalog."default",
+    guardian_email character varying(255) COLLATE pg_catalog."default",
+    guardian_name character varying(255) COLLATE pg_catalog."default",
+    previous_grade character varying(255) COLLATE pg_catalog."default",
+    previous_percentage double precision,
+    previous_school character varying(255) COLLATE pg_catalog."default",
+    rejection_reason character varying(255) COLLATE pg_catalog."default",
+    status character varying(255) COLLATE pg_catalog."default",
+    address character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT admissions_pkey PRIMARY KEY (id),
+    CONSTRAINT admissions_status_check CHECK (status::text = ANY (ARRAY['PENDING'::character varying, 'UNDER_REVIEW'::character varying, 'APPROVED'::character varying, 'REJECTED'::character varying, 'WAITLISTED'::character varying, 'CANCELLED'::character varying, 'ENROLLED'::character varying]::text[]))
+)
 
--- DDL Queries for Communication Service
-CREATE TABLE messages (
-    id SERIAL PRIMARY KEY,
-    sender_id INT NOT NULL,
-    receiver_id INT NOT NULL,
-    content TEXT NOT NULL,
-    sent_date DATE NOT NULL
-);
+TABLESPACE pg_default;
 
--- DDL Queries for Exam Service
-CREATE TABLE exams (
-    id SERIAL PRIMARY KEY,
-    subject VARCHAR(100) NOT NULL,
-    date DATE NOT NULL,
-    total_marks INT NOT NULL
-);
+ALTER TABLE IF EXISTS public.admissions
+    OWNER to postgres;
 
--- DDL Queries for Fee Service
-CREATE TABLE fees (
-    id SERIAL PRIMARY KEY,
-    student_id INT NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    due_date DATE NOT NULL,
-    status VARCHAR(50) NOT NULL
-);
+    -- Table: public.attendance
 
--- DDL Queries for HRM Service
-CREATE TABLE employees (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    role VARCHAR(50) NOT NULL,
-    hire_date DATE NOT NULL
-);
+-- DROP TABLE IF EXISTS public.attendance;
 
--- DDL Queries for Timetable Service
-CREATE TABLE timetable (
-    id SERIAL PRIMARY KEY,
-    class VARCHAR(50) NOT NULL,
-    subject VARCHAR(100) NOT NULL,
-    teacher_id INT NOT NULL,
-    schedule TIMESTAMP NOT NULL
-);
+CREATE TABLE IF NOT EXISTS public.attendance
+(
+    id bigint NOT NULL DEFAULT nextval('attendance_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    date date NOT NULL,
+    remarks character varying(255) COLLATE pg_catalog."default",
+    status character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    student_id bigint NOT NULL,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    check_in_time time(6) without time zone,
+    check_out_time time(6) without time zone,
+    CONSTRAINT attendance_pkey PRIMARY KEY (id),
+    CONSTRAINT ukfh0r5sfdt16udyw5quf5syvwh UNIQUE (student_id, date),
+    CONSTRAINT fk7121lveuhtmu9wa6m90ayd5yg FOREIGN KEY (student_id)
+        REFERENCES public.students (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
 
--- DML Queries for Admission Service
-INSERT INTO admissions (id, student_id, admission_date, status) VALUES (1, 101, '2025-04-01', 'approved');
+TABLESPACE pg_default;
 
--- DML Queries for Attendance Service
-INSERT INTO attendance (id, student_id, date, status) VALUES (1, 101, '2025-04-26', 'present');
+ALTER TABLE IF EXISTS public.attendance
+    OWNER to postgres;
 
--- DML Queries for Communication Service
-INSERT INTO messages (id, sender_id, receiver_id, content, sent_date) VALUES (1, 201, 301, 'Welcome to the school!', '2025-04-01');
+    -- Table: public.class_room
 
--- DML Queries for Exam Service
-INSERT INTO exams (id, subject, date, total_marks) VALUES (1, 'Mathematics', '2025-05-01', 100);
+-- DROP TABLE IF EXISTS public.class_room;
 
--- DML Queries for Fee Service
-INSERT INTO fees (id, student_id, amount, due_date, status) VALUES (1, 101, 5000, '2025-05-10', 'unpaid');
+CREATE TABLE IF NOT EXISTS public.class_room
+(
+    id bigint NOT NULL DEFAULT nextval('class_room_id_seq'::regclass),
+    building character varying(255) COLLATE pg_catalog."default",
+    capacity integer NOT NULL,
+    is_active boolean NOT NULL,
+    room_number character varying(255) COLLATE pg_catalog."default",
+    room_type character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT class_room_pkey PRIMARY KEY (id)
+)
 
--- DML Queries for HRM Service
-INSERT INTO employees (id, name, role, hire_date) VALUES (1, 'John Doe', 'Teacher', '2025-03-15');
+TABLESPACE pg_default;
 
--- DML Queries for Student Service
-INSERT INTO students (id, name, grade, enrollment_date) VALUES (101, 'Jane Smith', 'Grade 10', '2025-04-01');
+ALTER TABLE IF EXISTS public.class_room
+    OWNER to postgres;
 
--- DML Queries for Timetable Service
-INSERT INTO timetable (id, class, subject, teacher_id, schedule) VALUES (1, 'Grade 10', 'Mathematics', 1, '2025-04-28 10:00:00');
+    -- Table: public.courses
 
--- Transport Management Tables
-CREATE TABLE IF NOT EXISTS vehicles (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    vehicle_number VARCHAR(20) NOT NULL UNIQUE,
-    vehicle_type VARCHAR(50) NOT NULL,
-    capacity INT NOT NULL,
-    driver_name VARCHAR(100),
-    driver_license VARCHAR(50),
-    driver_contact VARCHAR(20),
-    insurance_expiry DATE,
-    last_maintenance_date DATE,
-    status VARCHAR(20) DEFAULT 'ACTIVE',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- DROP TABLE IF EXISTS public.courses;
 
-CREATE TABLE IF NOT EXISTS routes (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    route_name VARCHAR(100) NOT NULL,
-    route_description TEXT,
-    start_location VARCHAR(200) NOT NULL,
-    end_location VARCHAR(200) NOT NULL,
-    total_stops INT,
-    distance DECIMAL(10,2),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+CREATE TABLE IF NOT EXISTS public.courses
+(
+    id integer NOT NULL DEFAULT nextval('courses_id_seq'::regclass),
+    name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    department character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    teacher_id bigint,
+    credits integer NOT NULL DEFAULT 3,
+    capacity integer NOT NULL DEFAULT 30,
+    enrolled integer NOT NULL DEFAULT 0,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT courses_pkey PRIMARY KEY (id)
+)
 
-CREATE TABLE IF NOT EXISTS route_stops (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    route_id BIGINT,
-    stop_name VARCHAR(100) NOT NULL,
-    stop_order INT NOT NULL,
-    arrival_time TIME,
-    departure_time TIME,
-    FOREIGN KEY (route_id) REFERENCES routes(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+TABLESPACE pg_default;
 
-CREATE TABLE IF NOT EXISTS transport_assignments (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    vehicle_id BIGINT,
-    route_id BIGINT,
-    driver_id BIGINT,
-    active BOOLEAN DEFAULT true,
-    FOREIGN KEY (vehicle_id) REFERENCES vehicles(id),
-    FOREIGN KEY (route_id) REFERENCES routes(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+ALTER TABLE IF EXISTS public.courses
+    OWNER to postgres;
 
-CREATE TABLE IF NOT EXISTS student_transport (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    student_id BIGINT,
-    route_id BIGINT,
-    stop_id BIGINT,
-    start_date DATE,
-    end_date DATE,
-    status VARCHAR(20) DEFAULT 'ACTIVE',
-    FOREIGN KEY (student_id) REFERENCES students(id),
-    FOREIGN KEY (route_id) REFERENCES routes(id),
-    FOREIGN KEY (stop_id) REFERENCES route_stops(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+    -- Table: public.employee_leaves
 
-CREATE TABLE IF NOT EXISTS transport_fees (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    route_id BIGINT,
-    fee_amount DECIMAL(10,2) NOT NULL,
-    fee_period VARCHAR(20),
-    effective_from DATE,
-    effective_to DATE,
-    FOREIGN KEY (route_id) REFERENCES routes(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- DROP TABLE IF EXISTS public.employee_leaves;
 
--- Staff Management Tables
+CREATE TABLE IF NOT EXISTS public.employee_leaves
+(
+    id bigint NOT NULL DEFAULT nextval('employee_leaves_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    approval_date date,
+    comments character varying(255) COLLATE pg_catalog."default",
+    end_date date NOT NULL,
+    reason character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    start_date date NOT NULL,
+    status character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    type character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    approved_by bigint,
+    employee_id bigint NOT NULL,
+    CONSTRAINT employee_leaves_pkey PRIMARY KEY (id),
+    CONSTRAINT fk49gewuj53lf7foeyfpvcharf6 FOREIGN KEY (employee_id)
+        REFERENCES public.employees (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fkqjv7o45ughkfoxqawskrfj46m FOREIGN KEY (approved_by)
+        REFERENCES public.employees (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT employee_leaves_status_check CHECK (status::text = ANY (ARRAY['PENDING'::character varying, 'APPROVED'::character varying, 'REJECTED'::character varying, 'CANCELLED'::character varying]::text[])),
+    CONSTRAINT employee_leaves_type_check CHECK (type::text = ANY (ARRAY['ANNUAL'::character varying, 'SICK'::character varying, 'MATERNITY'::character varying, 'PATERNITY'::character varying, 'UNPAID'::character varying, 'STUDY'::character varying, 'BEREAVEMENT'::character varying, 'EMERGENCY'::character varying]::text[]))
+)
 
--- Staff Role Types
-CREATE TABLE IF NOT EXISTS staff_roles (
-    id SERIAL PRIMARY KEY,
-    role_name VARCHAR(50) NOT NULL UNIQUE,
-    description VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+TABLESPACE pg_default;
 
--- Staff Table (Base table for all staff members)
-CREATE TABLE IF NOT EXISTS staff (
-    id SERIAL PRIMARY KEY,
-    staff_id VARCHAR(20) NOT NULL UNIQUE,
-    first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    phone_number VARCHAR(20),
-    address TEXT,
-    date_of_birth DATE,
-    gender VARCHAR(10),
-    join_date DATE NOT NULL,
-    role_id INT NOT NULL REFERENCES staff_roles(id),
-    user_id INT REFERENCES users(id),
-    is_active BOOLEAN DEFAULT TRUE,
-    qualifications TEXT,
-    emergency_contact VARCHAR(100),
-    blood_group VARCHAR(5),
-    profile_image VARCHAR(255),
-    pf_uan VARCHAR(50),              -- PF UAN (alphanumeric)
-    gratuity VARCHAR(50),            -- Gratuity (alphanumeric)
-    service_end_date DATE,           -- Service End Date (optional)
-    basic_salary DECIMAL(12,2),      -- Basic salary amount
-    hra DECIMAL(12,2),               -- House Rent Allowance
-    da DECIMAL(12,2),                -- Dearness Allowance
-    ta DECIMAL(12,2),                -- Travel Allowance
-    other_allowances DECIMAL(12,2),  -- Other allowances
-    pf_contribution DECIMAL(12,2),   -- PF contribution
-    tax_deduction DECIMAL(12,2),     -- Tax deduction
-    net_salary DECIMAL(12,2),        -- Net salary after all deductions
-    salary_account_number VARCHAR(50), -- Bank account number for salary
-    bank_name VARCHAR(100),          -- Bank name
-    ifsc_code VARCHAR(20),           -- IFSC code for bank transfers
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+ALTER TABLE IF EXISTS public.employee_leaves
+    OWNER to postgres;
 
--- Teacher-specific information
-CREATE TABLE IF NOT EXISTS teachers (
-    id SERIAL PRIMARY KEY,
-    staff_id INT NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
-    department VARCHAR(100),
-    specialization VARCHAR(100),
-    subjects TEXT,
-    teaching_experience INT,
-    is_class_teacher BOOLEAN DEFAULT FALSE,
-    class_assigned_id INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    -- Table: public.employees
 
--- Special Designations for Staff
-CREATE TABLE IF NOT EXISTS staff_designations (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- DROP TABLE IF EXISTS public.employees;
 
--- Many-to-Many relationship between Staff and Designations
-CREATE TABLE IF NOT EXISTS staff_designation_mappings (
-    id SERIAL PRIMARY KEY,
-    staff_id INT NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
-    designation_id INT NOT NULL REFERENCES staff_designations(id) ON DELETE CASCADE,
-    assigned_date DATE NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(staff_id, designation_id)
-);
+CREATE TABLE IF NOT EXISTS public.employees
+(
+    id bigint NOT NULL DEFAULT nextval('employees_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    department character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    email character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    first_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    joining_date date NOT NULL,
+    last_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    phone_number character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    role character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    salary double precision NOT NULL,
+    status character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    termination_date date,
+    CONSTRAINT employees_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_j9xgmd0ya5jmus09o0b8pqrpb UNIQUE (email),
+    CONSTRAINT employees_role_check CHECK (role::text = ANY (ARRAY['TEACHER'::character varying, 'ADMIN'::character varying, 'PRINCIPAL'::character varying, 'LIBRARIAN'::character varying, 'ACCOUNTANT'::character varying, 'COUNSELOR'::character varying, 'SUPPORT_STAFF'::character varying, 'HR_MANAGER'::character varying, 'DEPARTMENT_HEAD'::character varying]::text[])),
+    CONSTRAINT employees_status_check CHECK (status::text = ANY (ARRAY['ACTIVE'::character varying, 'ON_LEAVE'::character varying, 'SUSPENDED'::character varying, 'TERMINATED'::character varying, 'RETIRED'::character varying]::text[]))
+)
 
--- Insert default staff roles
-INSERT INTO staff_roles (role_name, description)
-VALUES 
-    ('Principal', 'School head responsible for overall management'),
-    ('Admin Officer', 'Handles administrative tasks'),
-    ('Management', 'Responsible for school operations and management'),
-    ('Account Officer', 'Manages school finances and accounts'),
-    ('Librarian', 'Manages library resources'),
-    ('Teacher', 'Responsible for teaching and student development')
-ON CONFLICT (role_name) DO NOTHING;
+TABLESPACE pg_default;
 
--- Insert default staff designations
-INSERT INTO staff_designations (name, description)
-VALUES 
-    ('Timetable Incharge', 'Teacher responsible for creating and managing school timetables'),
-    ('Exam Cell Member', 'Teacher who is part of examination management team')
-ON CONFLICT (name) DO NOTHING;
+ALTER TABLE IF EXISTS public.employees
+    OWNER to postgres;
 
--- Course Management Tables
-DROP TABLE IF EXISTS enrollments;
-DROP TABLE IF EXISTS courses;
+    -- Table: public.exam_results
 
-CREATE TABLE courses (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    department VARCHAR(50) NOT NULL,
-    teacher_id BIGINT,
-    credits INT NOT NULL DEFAULT 3,
-    capacity INT NOT NULL DEFAULT 30,
-    enrolled INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- DROP TABLE IF EXISTS public.exam_results;
 
--- Student-Course Enrollment table for many-to-many relationship
-CREATE TABLE enrollments (
-    student_id BIGINT NOT NULL,
-    course_id BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (student_id, course_id)
-);
+CREATE TABLE IF NOT EXISTS public.exam_results
+(
+    id bigint NOT NULL DEFAULT nextval('exam_results_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    marks_obtained double precision NOT NULL,
+    remarks character varying(255) COLLATE pg_catalog."default",
+    status character varying(255) COLLATE pg_catalog."default",
+    exam_id bigint NOT NULL,
+    student_id bigint NOT NULL,
+    CONSTRAINT exam_results_pkey PRIMARY KEY (id),
+    CONSTRAINT fkr7qgl670f47u65kkdm8ex5119 FOREIGN KEY (student_id)
+        REFERENCES public.students (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fktf85ht7yquiorwjx2xbdx3fxw FOREIGN KEY (exam_id)
+        REFERENCES public.exams (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
 
--- Insert some sample courses
-INSERT INTO courses (name, department, teacher_id, credits, capacity, enrolled)
-VALUES 
-    ('Mathematics 101', 'Mathematics', 1, 4, 30, 0),
-    ('English Literature', 'Languages', 2, 3, 25, 0),
-    ('Computer Science Basics', 'Computer Science', 3, 4, 20, 0),
-    ('Physics Fundamentals', 'Science', 4, 4, 30, 0),
-    ('World History', 'Social Studies', 5, 3, 35, 0);
+TABLESPACE pg_default;
 
--- Fee Management Tables
+ALTER TABLE IF EXISTS public.exam_results
+    OWNER to postgres;
 
--- Fee Structure table - defines fee structure for a class
-CREATE TABLE IF NOT EXISTS fee_structures (
-    id SERIAL PRIMARY KEY,
-    class_grade INT NOT NULL,
-    annual_fees DECIMAL(12,2) NOT NULL,
-    building_fees DECIMAL(12,2) NOT NULL DEFAULT 0,
-    lab_fees DECIMAL(12,2) NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by VARCHAR(100),
-    modified_by VARCHAR(100),
-    UNIQUE(class_grade)
-);
+    -- Table: public.example_staff
 
--- Payment Schedule Options table - defines available payment schedules for each class
-CREATE TABLE IF NOT EXISTS payment_schedules (
-    id SERIAL PRIMARY KEY,
-    fee_structure_id BIGINT NOT NULL,
-    schedule_type VARCHAR(20) NOT NULL, -- 'MONTHLY', 'QUARTERLY', 'YEARLY'
-    amount DECIMAL(12,2) NOT NULL,
-    is_enabled BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id) ON DELETE CASCADE,
-    UNIQUE(fee_structure_id, schedule_type)
-);
+-- DROP TABLE IF EXISTS public.example_staff;
 
--- Late Fees and Fines table - defines late fees for each month if applicable
-CREATE TABLE IF NOT EXISTS late_fees (
-    id SERIAL PRIMARY KEY,
-    fee_structure_id BIGINT NOT NULL,
-    month INT NOT NULL, -- 1-12 for Jan-Dec
-    late_fee_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
-    late_fee_description TEXT,
-    fine_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
-    fine_description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id) ON DELETE CASCADE,
-    UNIQUE(fee_structure_id, month)
-);
+CREATE TABLE IF NOT EXISTS public.example_staff
+(
+    id bigint NOT NULL DEFAULT nextval('example_staff_id_seq'::regclass),
+    active boolean NOT NULL,
+    address character varying(255) COLLATE pg_catalog."default",
+    date_of_birth date,
+    department character varying(255) COLLATE pg_catalog."default",
+    email character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    first_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    joining_date date,
+    last_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    middle_name character varying(255) COLLATE pg_catalog."default",
+    phone character varying(255) COLLATE pg_catalog."default",
+    phone_number character varying(255) COLLATE pg_catalog."default",
+    role character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    staff_id character varying(255) COLLATE pg_catalog."default",
+    teacher_details_id bigint,
+    CONSTRAINT example_staff_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_8pgw37s69jcvrnx5moktx2549 UNIQUE (email),
+    CONSTRAINT uk_fpij795n79je2jws8w3cyh3hx UNIQUE (staff_id),
+    CONSTRAINT uk_jsty3x2y9oeu1bc4dnqkp6cmw UNIQUE (teacher_details_id),
+    CONSTRAINT fkpi6pd2hed329qmcp1nuh7qs3o FOREIGN KEY (teacher_details_id)
+        REFERENCES public.teacher_details (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
 
--- Transport Routes table with fees
-CREATE TABLE IF NOT EXISTS transport_routes (
-    id SERIAL PRIMARY KEY,
-    route_name VARCHAR(100) NOT NULL,
-    route_description TEXT,
-    fee_amount DECIMAL(12,2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(route_name)
-);
+TABLESPACE pg_default;
 
--- Student Fee Assignments - links students to their fee structures and payment options
-CREATE TABLE IF NOT EXISTS student_fee_assignments (
-    id SERIAL PRIMARY KEY,
-    student_id BIGINT NOT NULL,
-    fee_structure_id BIGINT NOT NULL,
-    payment_schedule_id BIGINT NOT NULL,
-    transport_route_id BIGINT,
-    effective_from DATE NOT NULL,
-    effective_to DATE,
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id),
-    FOREIGN KEY (payment_schedule_id) REFERENCES payment_schedules(id),
-    FOREIGN KEY (transport_route_id) REFERENCES transport_routes(id)
-);
+ALTER TABLE IF EXISTS public.example_staff
+    OWNER to postgres;
 
--- Fee Payments - records actual payments made by students
-CREATE TABLE IF NOT EXISTS fee_payments (
-    id SERIAL PRIMARY KEY,
-    student_id BIGINT NOT NULL,
-    fee_structure_id BIGINT NOT NULL,
-    payment_schedule_id BIGINT NOT NULL,
-    amount_paid DECIMAL(12,2) NOT NULL,
-    payment_date DATE NOT NULL,
-    payment_mode VARCHAR(50) NOT NULL,
-    transaction_reference VARCHAR(100),
-    remarks TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES students(id),
-    FOREIGN KEY (fee_structure_id) REFERENCES fee_structures(id),
-    FOREIGN KEY (payment_schedule_id) REFERENCES payment_schedules(id)
-);
+    -- Table: public.exams
 
--- Insert some sample data for fee structures
-INSERT INTO fee_structures (class_grade, annual_fees, building_fees, lab_fees)
-VALUES 
-    (1, 50000.00, 5000.00, 0.00),
-    (2, 55000.00, 5000.00, 0.00),
-    (3, 60000.00, 5000.00, 0.00),
-    (4, 65000.00, 5000.00, 0.00),
-    (5, 70000.00, 5000.00, 2000.00),
-    (6, 75000.00, 5000.00, 2000.00),
-    (7, 80000.00, 5000.00, 3000.00),
-    (8, 85000.00, 5000.00, 3000.00),
-    (9, 90000.00, 5000.00, 5000.00),
-    (10, 95000.00, 5000.00, 5000.00),
-    (11, 100000.00, 5000.00, 8000.00),
-    (12, 100000.00, 5000.00, 8000.00);
+-- DROP TABLE IF EXISTS public.exams;
 
--- Insert sample payment schedules for class 1
-INSERT INTO payment_schedules (fee_structure_id, schedule_type, amount, is_enabled)
-VALUES 
-    (1, 'MONTHLY', 4583.33, TRUE),
-    (1, 'QUARTERLY', 13750.00, TRUE),
-    (1, 'YEARLY', 50000.00, TRUE);
+CREATE TABLE IF NOT EXISTS public.exams
+(
+    id bigint NOT NULL DEFAULT nextval('exams_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    description character varying(255) COLLATE pg_catalog."default",
+    exam_date timestamp(6) without time zone NOT NULL,
+    exam_type character varying(255) COLLATE pg_catalog."default",
+    grade integer NOT NULL,
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    passing_marks double precision NOT NULL,
+    subject character varying(255) COLLATE pg_catalog."default",
+    total_marks double precision NOT NULL,
+    CONSTRAINT exams_pkey PRIMARY KEY (id)
+)
 
--- Insert sample transport routes
-INSERT INTO transport_routes (route_name, route_description, fee_amount)
-VALUES 
-    ('Route A', 'City Center to School', 5000.00),
-    ('Route B', 'North Suburb to School', 6000.00),
-    ('Route C', 'East Suburb to School', 7000.00),
-    ('Route D', 'South Suburb to School', 6500.00),
-    ('Route E', 'West Suburb to School', 6000.00);
+TABLESPACE pg_default;
 
--- Insert sample late fees for class 1
-INSERT INTO late_fees (fee_structure_id, month, late_fee_amount, late_fee_description, fine_amount, fine_description)
-VALUES
-    (1, 7, 500.00, 'Late payment fee for July', 200.00, 'Additional fine for delayed payment after July 15th'),
-    (1, 10, 500.00, 'Late payment fee for October', 200.00, 'Additional fine for delayed payment after October 15th'),
-    (1, 1, 500.00, 'Late payment fee for January', 200.00, 'Additional fine for delayed payment after January 15th');
+ALTER TABLE IF EXISTS public.exams
+    OWNER to postgres;
+
+    -- Table: public.fee_payment_schedules
+
+-- DROP TABLE IF EXISTS public.fee_payment_schedules;
+
+CREATE TABLE IF NOT EXISTS public.fee_payment_schedules
+(
+    id bigint NOT NULL DEFAULT nextval('fee_payment_schedules_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    academic_year integer NOT NULL,
+    change_reason character varying(255) COLLATE pg_catalog."default",
+    effective_from date NOT NULL,
+    effective_until date,
+    frequency_change_count integer NOT NULL,
+    is_active boolean NOT NULL,
+    payment_frequency character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    student_id bigint NOT NULL,
+    CONSTRAINT fee_payment_schedules_pkey PRIMARY KEY (id),
+    CONSTRAINT fkkq3igjix8m97icd5k1r8hi0hv FOREIGN KEY (student_id)
+        REFERENCES public.students (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fee_payment_schedules_payment_frequency_check CHECK (payment_frequency::text = ANY (ARRAY['MONTHLY'::character varying, 'QUARTERLY'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.fee_payment_schedules
+    OWNER to postgres;
+
+    -- Table: public.fee_payments
+
+-- DROP TABLE IF EXISTS public.fee_payments;
+
+CREATE TABLE IF NOT EXISTS public.fee_payments
+(
+    id bigint NOT NULL DEFAULT nextval('fee_payments_id_seq'::regclass),
+    amount_paid numeric(38,2) NOT NULL,
+    created_at timestamp(6) without time zone,
+    payment_date date NOT NULL,
+    payment_mode character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    remarks character varying(255) COLLATE pg_catalog."default",
+    transaction_reference character varying(255) COLLATE pg_catalog."default",
+    updated_at timestamp(6) without time zone,
+    fee_structure_id bigint NOT NULL,
+    payment_schedule_id bigint NOT NULL,
+    student_id bigint NOT NULL,
+    CONSTRAINT fee_payments_pkey PRIMARY KEY (id),
+    CONSTRAINT fk6k0lkod8mk082lnbapghhrx0j FOREIGN KEY (student_id)
+        REFERENCES public.students (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fkbuph2wfjvdo27ax7oltp5n5sq FOREIGN KEY (payment_schedule_id)
+        REFERENCES public.payment_schedules (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fkm0gdar1j14en6am9pe6dlmt7w FOREIGN KEY (fee_structure_id)
+        REFERENCES public.fee_structures (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.fee_payments
+    OWNER to postgres;
+
+    -- Table: public.fee_structures
+
+-- DROP TABLE IF EXISTS public.fee_structures;
+
+CREATE TABLE IF NOT EXISTS public.fee_structures
+(
+    id bigint NOT NULL DEFAULT nextval('fee_structures_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    updated_at timestamp(6) without time zone NOT NULL,
+    annual_fees numeric(38,2) NOT NULL,
+    building_fees numeric(38,2) NOT NULL,
+    class_grade integer NOT NULL,
+    lab_fees numeric(38,2) NOT NULL,
+    CONSTRAINT fee_structures_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_aah48ovq4we0avcmdfofdxa8 UNIQUE (class_grade)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.fee_structures
+    OWNER to postgres;
+
+    -- Table: public.fees
+
+-- DROP TABLE IF EXISTS public.fees;
+
+CREATE TABLE IF NOT EXISTS public.fees
+(
+    id bigint NOT NULL DEFAULT nextval('fees_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    amount double precision NOT NULL,
+    description character varying(255) COLLATE pg_catalog."default",
+    due_date date NOT NULL,
+    fee_type character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    frequency character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    grade integer NOT NULL,
+    name character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT fees_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.fees
+    OWNER to postgres;
+
+    -- Table: public.in_app_notifications
+
+-- DROP TABLE IF EXISTS public.in_app_notifications;
+
+CREATE TABLE IF NOT EXISTS public.in_app_notifications
+(
+    id bigint NOT NULL DEFAULT nextval('in_app_notifications_id_seq'::regclass),
+    content text COLLATE pg_catalog."default",
+    created_at timestamp(6) without time zone,
+    read_at timestamp(6) without time zone,
+    recipient character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    status character varying(255) COLLATE pg_catalog."default",
+    subject character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT in_app_notifications_pkey PRIMARY KEY (id),
+    CONSTRAINT in_app_notifications_status_check CHECK (status::text = ANY (ARRAY['UNREAD'::character varying, 'READ'::character varying, 'ARCHIVED'::character varying, 'DELETED'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.in_app_notifications
+    OWNER to postgres;
+
+    -- Table: public.late_fees
+
+-- DROP TABLE IF EXISTS public.late_fees;
+
+CREATE TABLE IF NOT EXISTS public.late_fees
+(
+    id bigint NOT NULL DEFAULT nextval('late_fees_id_seq'::regclass),
+    created_at timestamp(6) without time zone,
+    fine_amount numeric(38,2) NOT NULL,
+    fine_description character varying(255) COLLATE pg_catalog."default",
+    late_fee_amount numeric(38,2) NOT NULL,
+    late_fee_description character varying(255) COLLATE pg_catalog."default",
+    month integer NOT NULL,
+    updated_at timestamp(6) without time zone,
+    fee_structure_id bigint NOT NULL,
+    CONSTRAINT late_fees_pkey PRIMARY KEY (id),
+    CONSTRAINT fkfmcbtxnvq92uoy8hh0vwp805i FOREIGN KEY (fee_structure_id)
+        REFERENCES public.fee_structures (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.late_fees
+    OWNER to postgres;
+
+    -- Table: public.message_read_status
+
+-- DROP TABLE IF EXISTS public.message_read_status;
+
+CREATE TABLE IF NOT EXISTS public.message_read_status
+(
+    message_id bigint NOT NULL,
+    read_by character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT fk6v2gsesvjkhu2n73ye3qig78 FOREIGN KEY (message_id)
+        REFERENCES public.messages (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.message_read_status
+    OWNER to postgres;
+
+    -- Table: public.message_recipients
+
+-- DROP TABLE IF EXISTS public.message_recipients;
+
+CREATE TABLE IF NOT EXISTS public.message_recipients
+(
+    message_id bigint NOT NULL,
+    recipients character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT fk1v4eg8ytqvjrfbfw63mwpmtf5 FOREIGN KEY (message_id)
+        REFERENCES public.messages (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.message_recipients
+    OWNER to postgres;
+
+    -- Table: public.messages
+
+-- DROP TABLE IF EXISTS public.messages;
+
+CREATE TABLE IF NOT EXISTS public.messages
+(
+    id bigint NOT NULL DEFAULT nextval('messages_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    content text COLLATE pg_catalog."default" NOT NULL,
+    message_type character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    priority character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    send_time timestamp(6) without time zone NOT NULL,
+    subject character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    sender_id bigint NOT NULL,
+    CONSTRAINT messages_pkey PRIMARY KEY (id),
+    CONSTRAINT fki616yg0cf7kyvc0ydknq3f5hn FOREIGN KEY (sender_id)
+        REFERENCES public.employees (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT messages_message_type_check CHECK (message_type::text = ANY (ARRAY['ANNOUNCEMENT'::character varying, 'STAFF_NOTICE'::character varying, 'EMERGENCY_ALERT'::character varying, 'GENERAL_MESSAGE'::character varying, 'EVENT_NOTIFICATION'::character varying, 'ACADEMIC_UPDATE'::character varying]::text[])),
+    CONSTRAINT messages_priority_check CHECK (priority::text = ANY (ARRAY['LOW'::character varying, 'MEDIUM'::character varying, 'HIGH'::character varying, 'URGENT'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.messages
+    OWNER to postgres;
+
+    -- Table: public.payment_schedules
+
+-- DROP TABLE IF EXISTS public.payment_schedules;
+
+CREATE TABLE IF NOT EXISTS public.payment_schedules
+(
+    id bigint NOT NULL DEFAULT nextval('payment_schedules_id_seq'::regclass),
+    amount numeric(38,2) NOT NULL,
+    created_at timestamp(6) without time zone,
+    is_enabled boolean NOT NULL,
+    schedule_type character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    updated_at timestamp(6) without time zone,
+    fee_structure_id bigint NOT NULL,
+    CONSTRAINT payment_schedules_pkey PRIMARY KEY (id),
+    CONSTRAINT fko4ulejegle1cuvm40fa3903yp FOREIGN KEY (fee_structure_id)
+        REFERENCES public.fee_structures (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT payment_schedules_schedule_type_check CHECK (schedule_type::text = ANY (ARRAY['MONTHLY'::character varying, 'QUARTERLY'::character varying, 'YEARLY'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.payment_schedules
+    OWNER to postgres;
+
+    -- Table: public.payments
+
+-- DROP TABLE IF EXISTS public.payments;
+
+CREATE TABLE IF NOT EXISTS public.payments
+(
+    id bigint NOT NULL DEFAULT nextval('payments_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    amount double precision NOT NULL,
+    payment_date timestamp(6) without time zone NOT NULL,
+    payment_method character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    remarks character varying(255) COLLATE pg_catalog."default",
+    status character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    transaction_reference character varying(255) COLLATE pg_catalog."default",
+    fee_id bigint NOT NULL,
+    student_id bigint NOT NULL,
+    payer_contact_info character varying(255) COLLATE pg_catalog."default",
+    payer_name character varying(255) COLLATE pg_catalog."default",
+    payer_relation_to_student character varying(255) COLLATE pg_catalog."default",
+    receipt_number character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT payments_pkey PRIMARY KEY (id),
+    CONSTRAINT fk6ooq278k2bs5xi8t5o6oort1v FOREIGN KEY (student_id)
+        REFERENCES public.students (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fkmnudkcsqmeel6ig92115cl6pm FOREIGN KEY (fee_id)
+        REFERENCES public.fees (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.payments
+    OWNER to postgres;
+
+    -- Table: public.school_holidays
+
+-- DROP TABLE IF EXISTS public.school_holidays;
+
+CREATE TABLE IF NOT EXISTS public.school_holidays
+(
+    id bigint NOT NULL DEFAULT nextval('school_holidays_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    date date NOT NULL,
+    description character varying(255) COLLATE pg_catalog."default",
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    type character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT school_holidays_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_noyvhjro0yfn870lydrpkaouy UNIQUE (date),
+    CONSTRAINT school_holidays_type_check CHECK (type::text = ANY (ARRAY['NATIONAL_HOLIDAY'::character varying, 'RELIGIOUS_HOLIDAY'::character varying, 'SCHOOL_FUNCTION'::character varying, 'OTHER'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.school_holidays
+    OWNER to postgres;
+
+    -- Table: public.staff
+
+-- DROP TABLE IF EXISTS public.staff;
+
+CREATE TABLE IF NOT EXISTS public.staff
+(
+    id bigint NOT NULL DEFAULT nextval('staff_id_seq'::regclass),
+    address text COLLATE pg_catalog."default",
+    blood_group character varying(255) COLLATE pg_catalog."default",
+    created_at timestamp(6) without time zone,
+    date_of_birth date,
+    email character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    emergency_contact character varying(255) COLLATE pg_catalog."default",
+    first_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    gender character varying(255) COLLATE pg_catalog."default",
+    is_active boolean,
+    join_date date NOT NULL,
+    last_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    phone_number character varying(255) COLLATE pg_catalog."default",
+    profile_image character varying(255) COLLATE pg_catalog."default",
+    qualifications text COLLATE pg_catalog."default",
+    staff_id character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    updated_at timestamp(6) without time zone,
+    user_id bigint,
+    role_id bigint NOT NULL,
+    employment_status character varying(255) COLLATE pg_catalog."default",
+    termination_date date,
+    pf_uan character varying(50) COLLATE pg_catalog."default",
+    gratuity character varying(50) COLLATE pg_catalog."default",
+    service_end_date date,
+    basic_salary double precision,
+    hra double precision,
+    da double precision,
+    ta double precision,
+    other_allowances double precision,
+    pf_contribution double precision,
+    tax_deduction double precision,
+    net_salary double precision,
+    salary_account_number character varying(50) COLLATE pg_catalog."default",
+    bank_name character varying(100) COLLATE pg_catalog."default",
+    ifsc_code character varying(20) COLLATE pg_catalog."default",
+    CONSTRAINT staff_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_mk0g966eihj1xyrbh0bpe4und UNIQUE (staff_id),
+    CONSTRAINT uk_pvctx4dbua9qh4p4s3gm3scrh UNIQUE (email),
+    CONSTRAINT fk8m0hnisnt7i5lcfixu2i6e3dk FOREIGN KEY (role_id)
+        REFERENCES public.staff_roles (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT staff_employment_status_check CHECK (employment_status::text = ANY (ARRAY['ACTIVE'::character varying, 'ON_LEAVE'::character varying, 'SUSPENDED'::character varying, 'TERMINATED'::character varying, 'RETIRED'::character varying, 'RESIGNED'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.staff
+    OWNER to postgres;
+
+    -- Table: public.staff_designation_mappings
+
+-- DROP TABLE IF EXISTS public.staff_designation_mappings;
+
+CREATE TABLE IF NOT EXISTS public.staff_designation_mappings
+(
+    id bigint NOT NULL DEFAULT nextval('staff_designation_mappings_id_seq'::regclass),
+    assigned_date date NOT NULL,
+    created_at timestamp(6) without time zone,
+    is_active boolean,
+    updated_at timestamp(6) without time zone,
+    designation_id bigint NOT NULL,
+    staff_id bigint NOT NULL,
+    CONSTRAINT staff_designation_mappings_pkey PRIMARY KEY (id),
+    CONSTRAINT uk4l2y19tagll1kyvoo0qpm35ir UNIQUE (staff_id, designation_id),
+    CONSTRAINT fkccl8pm9q9rh31vpt4mvmlt4y3 FOREIGN KEY (designation_id)
+        REFERENCES public.staff_designations (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fklyycng76wfc10sbqwr1e243ao FOREIGN KEY (staff_id)
+        REFERENCES public.staff (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.staff_designation_mappings
+    OWNER to postgres;
+
+    -- Table: public.staff_designations
+
+-- DROP TABLE IF EXISTS public.staff_designations;
+
+CREATE TABLE IF NOT EXISTS public.staff_designations
+(
+    id bigint NOT NULL DEFAULT nextval('staff_designations_id_seq'::regclass),
+    created_at timestamp(6) without time zone,
+    description text COLLATE pg_catalog."default",
+    name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    updated_at timestamp(6) without time zone,
+    CONSTRAINT staff_designations_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_toqsfxqk51s0f5s8111o1rdy0 UNIQUE (name)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.staff_designations
+    OWNER to postgres;
+
+    -- Table: public.staff_roles
+
+-- DROP TABLE IF EXISTS public.staff_roles;
+
+CREATE TABLE IF NOT EXISTS public.staff_roles
+(
+    id bigint NOT NULL DEFAULT nextval('staff_roles_id_seq'::regclass),
+    created_at timestamp(6) without time zone,
+    description character varying(255) COLLATE pg_catalog."default",
+    role_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    updated_at timestamp(6) without time zone,
+    CONSTRAINT staff_roles_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_gt1y183lcaf8tq7sr2uqvlcp5 UNIQUE (role_name)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.staff_roles
+    OWNER to postgres;
+
+    -- Table: public.student_fee_assignments
+
+-- DROP TABLE IF EXISTS public.student_fee_assignments;
+
+CREATE TABLE IF NOT EXISTS public.student_fee_assignments
+(
+    id bigint NOT NULL DEFAULT nextval('student_fee_assignments_id_seq'::regclass),
+    created_at timestamp(6) without time zone,
+    effective_from date NOT NULL,
+    effective_to date,
+    is_active boolean NOT NULL,
+    updated_at timestamp(6) without time zone,
+    fee_structure_id bigint NOT NULL,
+    payment_schedule_id bigint NOT NULL,
+    student_id bigint NOT NULL,
+    transport_route_id bigint,
+    CONSTRAINT student_fee_assignments_pkey PRIMARY KEY (id),
+    CONSTRAINT fk6jbnej4moqp2w2wew59m2i0p2 FOREIGN KEY (fee_structure_id)
+        REFERENCES public.fee_structures (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fk9i10wgfs8su5ui9drgna5wyyk FOREIGN KEY (student_id)
+        REFERENCES public.students (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fkk91vy0gf649dq7een4cicbkr8 FOREIGN KEY (transport_route_id)
+        REFERENCES public.transport_routes (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT fkq0bfesw88nt3x1bm25ld1hhpu FOREIGN KEY (payment_schedule_id)
+        REFERENCES public.payment_schedules (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.student_fee_assignments
+    OWNER to postgres;
+
+    -- Table: public.students
+
+-- DROP TABLE IF EXISTS public.students;
+
+CREATE TABLE IF NOT EXISTS public.students
+(
+    id bigint NOT NULL DEFAULT nextval('students_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    address character varying(255) COLLATE pg_catalog."default",
+    date_of_birth date NOT NULL,
+    email character varying(255) COLLATE pg_catalog."default",
+    first_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    gender character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    grade integer NOT NULL,
+    guardian_email character varying(255) COLLATE pg_catalog."default",
+    guardian_name character varying(255) COLLATE pg_catalog."default",
+    guardian_phone character varying(255) COLLATE pg_catalog."default",
+    last_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    phone_number character varying(255) COLLATE pg_catalog."default",
+    status character varying(255) COLLATE pg_catalog."default",
+    student_id character varying(255) COLLATE pg_catalog."default",
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    admission_date date,
+    blood_group character varying(255) COLLATE pg_catalog."default",
+    contact_number character varying(255) COLLATE pg_catalog."default",
+    guardian_contact character varying(255) COLLATE pg_catalog."default",
+    medical_conditions character varying(255) COLLATE pg_catalog."default",
+    photo_url character varying(255) COLLATE pg_catalog."default",
+    section character varying(255) COLLATE pg_catalog."default",
+    admission_id bigint,
+    aadhar_number character varying(255) COLLATE pg_catalog."default",
+    bus_route_number character varying(255) COLLATE pg_catalog."default",
+    guardian_annual_income numeric(38,2),
+    guardian_occupation character varying(255) COLLATE pg_catalog."default",
+    guardian_office_address character varying(255) COLLATE pg_catalog."default",
+    house_alloted character varying(255) COLLATE pg_catalog."default",
+    previous_school character varying(255) COLLATE pg_catalog."default",
+    subjects text COLLATE pg_catalog."default",
+    tc_date date,
+    tc_number character varying(255) COLLATE pg_catalog."default",
+    tc_reason character varying(255) COLLATE pg_catalog."default",
+    transport_mode character varying(255) COLLATE pg_catalog."default",
+    udise_number character varying(255) COLLATE pg_catalog."default",
+    whatsapp_number character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT students_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_5mbus2m1tm2acucrp6t627jmx UNIQUE (student_id),
+    CONSTRAINT uk_e2rndfrsx22acpq2ty1caeuyw UNIQUE (email),
+    CONSTRAINT uk_jvirspxovaelu0hxqkeb1fwtd UNIQUE (admission_id),
+    CONSTRAINT fk91agi1kr1u3d6jhvrlb9tgop0 FOREIGN KEY (admission_id)
+        REFERENCES public.admissions (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.students
+    OWNER to postgres;
+
+    -- Table: public.teacher_attendance
+
+-- DROP TABLE IF EXISTS public.teacher_attendance;
+
+CREATE TABLE IF NOT EXISTS public.teacher_attendance
+(
+    id bigint NOT NULL DEFAULT nextval('teacher_attendance_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    attendance_date date NOT NULL,
+    attendance_status character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    last_modified_by character varying(255) COLLATE pg_catalog."default",
+    marked_by character varying(255) COLLATE pg_catalog."default",
+    reason character varying(255) COLLATE pg_catalog."default",
+    remarks character varying(255) COLLATE pg_catalog."default",
+    employee_id bigint NOT NULL,
+    CONSTRAINT teacher_attendance_pkey PRIMARY KEY (id),
+    CONSTRAINT uk44t7oovq7wqo3edm8el46epvr UNIQUE (employee_id, attendance_date),
+    CONSTRAINT fks1mqt0nyxf3m6cjcs0u36f8kk FOREIGN KEY (employee_id)
+        REFERENCES public.employees (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT teacher_attendance_attendance_status_check CHECK (attendance_status::text = ANY (ARRAY['PRESENT'::character varying, 'ABSENT'::character varying, 'HALF_DAY'::character varying, 'ON_LEAVE'::character varying, 'HOLIDAY'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.teacher_attendance
+    OWNER to postgres;
+
+    -- Table: public.teacher_details
+
+-- DROP TABLE IF EXISTS public.teacher_details;
+
+CREATE TABLE IF NOT EXISTS public.teacher_details
+(
+    id bigint NOT NULL DEFAULT nextval('teacher_details_id_seq'::regclass),
+    created_at timestamp(6) without time zone,
+    department character varying(255) COLLATE pg_catalog."default",
+    qualification character varying(255) COLLATE pg_catalog."default",
+    specialization character varying(255) COLLATE pg_catalog."default",
+    subjects character varying(255) COLLATE pg_catalog."default",
+    updated_at timestamp(6) without time zone,
+    years_of_experience integer,
+    CONSTRAINT teacher_details_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.teacher_details
+    OWNER to postgres;
+
+    -- Table: public.teachers
+
+-- DROP TABLE IF EXISTS public.teachers;
+
+CREATE TABLE IF NOT EXISTS public.teachers
+(
+    id bigint NOT NULL DEFAULT nextval('teachers_id_seq'::regclass),
+    class_assigned_id bigint,
+    created_at timestamp(6) without time zone,
+    department character varying(255) COLLATE pg_catalog."default",
+    is_class_teacher boolean,
+    specialization character varying(255) COLLATE pg_catalog."default",
+    subjects text COLLATE pg_catalog."default",
+    teaching_experience integer,
+    updated_at timestamp(6) without time zone,
+    staff_id bigint NOT NULL,
+    CONSTRAINT teachers_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_hwllts0elb03lqv7yenjhk3dt UNIQUE (staff_id),
+    CONSTRAINT fkc2t5p13sjs1us651b576915dw FOREIGN KEY (staff_id)
+        REFERENCES public.staff (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.teachers
+    OWNER to postgres;
+
+    -- Table: public.time_slots
+
+-- DROP TABLE IF EXISTS public.time_slots;
+
+CREATE TABLE IF NOT EXISTS public.time_slots
+(
+    id bigint NOT NULL DEFAULT nextval('time_slots_id_seq'::regclass),
+    day_of_week character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    end_time time(6) without time zone NOT NULL,
+    is_break boolean NOT NULL,
+    slot_name character varying(255) COLLATE pg_catalog."default",
+    start_time time(6) without time zone NOT NULL,
+    CONSTRAINT time_slots_pkey PRIMARY KEY (id),
+    CONSTRAINT time_slots_day_of_week_check CHECK (day_of_week::text = ANY (ARRAY['MONDAY'::character varying, 'TUESDAY'::character varying, 'WEDNESDAY'::character varying, 'THURSDAY'::character varying, 'FRIDAY'::character varying, 'SATURDAY'::character varying, 'SUNDAY'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.time_slots
+    OWNER to postgres;
+
+    -- Table: public.timetable
+
+-- DROP TABLE IF EXISTS public.timetable;
+
+CREATE TABLE IF NOT EXISTS public.timetable
+(
+    id bigint NOT NULL DEFAULT nextval('timetable_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    academic_year character varying(255) COLLATE pg_catalog."default",
+    class_name character varying(255) COLLATE pg_catalog."default",
+    is_active boolean NOT NULL,
+    section character varying(255) COLLATE pg_catalog."default",
+    valid_from date,
+    valid_to date,
+    CONSTRAINT timetable_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.timetable
+    OWNER to postgres;
+
+    -- Table: public.transport_routes
+
+-- DROP TABLE IF EXISTS public.transport_routes;
+
+CREATE TABLE IF NOT EXISTS public.transport_routes
+(
+    id bigint NOT NULL DEFAULT nextval('transport_routes_id_seq'::regclass),
+    created_at timestamp(6) without time zone,
+    fee_amount numeric(38,2) NOT NULL,
+    route_description character varying(255) COLLATE pg_catalog."default",
+    route_name character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    updated_at timestamp(6) without time zone,
+    CONSTRAINT transport_routes_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_jrsd5niovubpy5y00a4flxjse UNIQUE (route_name)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.transport_routes
+    OWNER to postgres;
+
+
+    -- Table: public.users
+
+-- DROP TABLE IF EXISTS public.users;
+
+CREATE TABLE IF NOT EXISTS public.users
+(
+    id bigint NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+    created_at timestamp(6) without time zone NOT NULL,
+    created_by character varying(255) COLLATE pg_catalog."default",
+    modified_by character varying(255) COLLATE pg_catalog."default",
+    updated_at timestamp(6) without time zone NOT NULL,
+    account_non_expired boolean NOT NULL,
+    account_non_locked boolean NOT NULL,
+    credentials_non_expired boolean NOT NULL,
+    email character varying(255) COLLATE pg_catalog."default",
+    enabled boolean NOT NULL,
+    password character varying(255) COLLATE pg_catalog."default",
+    role character varying(255) COLLATE pg_catalog."default",
+    username character varying(255) COLLATE pg_catalog."default",
+    full_name character varying(255) COLLATE pg_catalog."default",
+    CONSTRAINT users_pkey PRIMARY KEY (id),
+    CONSTRAINT uk_6dotkott2kjsp8vw4d0m25fb7 UNIQUE (email),
+    CONSTRAINT uk_r43af9ap4edm43mmtq01oddj6 UNIQUE (username),
+    CONSTRAINT users_role_check CHECK (role::text = ANY (ARRAY['ADMIN'::character varying, 'TEACHER'::character varying, 'STUDENT'::character varying, 'STAFF'::character varying, 'PARENT'::character varying, 'SYSTEM'::character varying]::text[]))
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users
+    OWNER to postgres;
