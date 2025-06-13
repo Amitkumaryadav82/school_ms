@@ -88,6 +88,14 @@ public class Staff {
     }
 
     /**
+     * Set the staff's first name
+     * @param firstName the first name to set
+     */
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    /**
      * Get the staff's last name
      * @return the last name
      */
@@ -96,11 +104,27 @@ public class Staff {
     }
 
     /**
+     * Set the staff's last name
+     * @param lastName the last name to set
+     */
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    /**
      * Get the staff's email
      * @return the email
      */
     public String getEmail() {
         return this.email;
+    }
+
+    /**
+     * Set the staff's email
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     /**
@@ -144,6 +168,14 @@ public class Staff {
     }
 
     /**
+     * Set the staff's role
+     * @param role the role to set
+     */
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    /**
      * Get the staff's address
      * @return the address
      */
@@ -152,11 +184,27 @@ public class Staff {
     }
 
     /**
+     * Set the staff's address
+     * @param address the address to set
+     */
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    /**
      * Get the staff's date of birth
      * @return the date of birth
      */
     public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
+    }
+
+    /**
+     * Set the staff's date of birth
+     * @param dateOfBirth the date of birth to set
+     */
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     /**
@@ -184,10 +232,26 @@ public class Staff {
     }
 
     /**
+     * Set the staff's department
+     * @param department the department to set
+     */
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    /**
      * Check if the staff is active
      * @return true if active, false otherwise
      */
     public boolean isActive() {
         return this.active;
+    }
+
+    /**
+     * Set whether the staff is active
+     * @param active true if active, false otherwise
+     */
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

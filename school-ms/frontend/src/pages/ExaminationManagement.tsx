@@ -17,8 +17,10 @@ import { useNavigate } from 'react-router-dom';
 import ErrorMessage from '../components/ErrorMessage';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
+import ApiTester from '../components/ApiTester';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { examService, ExamTypeDTO } from '../services/examService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -57,27 +59,31 @@ const ExaminationManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [grades, setGrades] = useState<number[]>([]);
   const [selectedGrade, setSelectedGrade] = useState<number>(0);
-  const [examTypes, setExamTypes] = useState<any[]>([]);
+  const [examTypes, setExamTypes] = useState<ExamTypeDTO[]>([]);
   const navigate = useNavigate();
   const { user } = useAuth();
+  // Load exam types function extracted for reuse
+  const fetchExamTypes = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      // Use the examService method to get exam types
+      const examTypesData = await examService.getExamTypes();
+      console.log('Exam types loaded successfully:', examTypesData);
+      setExamTypes(examTypesData);
+    } catch (err: any) {
+      console.error('Failed to load exam types:', err);
+      setError(err.message || 'Failed to load exam types');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Load grades (classes) for selection
     setGrades([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     
-    // Load exam types
-    const fetchExamTypes = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/api/exams/types');
-        setExamTypes(response.data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load exam types');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
+    // Load exam types on component mount
     fetchExamTypes();
   }, []);
 
@@ -98,6 +104,63 @@ const ExaminationManagement: React.FC = () => {
         <Typography variant="h4" gutterBottom>
           Examination Management
         </Typography>
+        
+        {/* Debug Section */}
+        <Paper sx={{ mb: 3, p: 2 }}>
+          <Typography variant="h6" color="primary" gutterBottom>Debug Section</Typography>
+          <Typography variant="body2" paragraph>
+            This section is for debugging the exam types API issue. The component below will test if the API endpoint is accessible.
+          </Typography>
+          <ApiTester />
+          
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>Exam Types Testing</Typography>
+            <Button 
+              variant="outlined" 
+              color="primary" 
+              onClick={() => {
+                fetchExamTypes();
+              }}
+              sx={{ mr: 1 }}
+            >
+              Refresh Exam Types
+            </Button>
+            <Button 
+              variant="outlined" 
+              onClick={async () => {
+                try {
+                  const data = await examService.getExamTypes();
+                  console.log('Direct service call result:', data);
+                  alert(`Direct service call successful! Found ${data.length} exam types.`);
+                } catch (err) {
+                  console.error('Direct service call failed:', err);
+                  alert(`Direct service call failed: ${(err as Error).message}`);
+                }
+              }}
+            >
+              Test Direct Service Call
+            </Button>
+          </Box>
+            <Typography variant="body2" sx={{ mt: 2 }}>
+            Current examTypes state: {examTypes.length ? `${examTypes.length} items loaded` : 'No items loaded'}
+          </Typography>
+          {examTypes.length > 0 && (
+            <Box sx={{ mt: 1, p: 2, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
+              <Typography variant="subtitle2">Available Exam Types:</Typography>
+              <ul>
+                {examTypes.map((type, index) => (
+                  <li key={index}>{type.name}</li>
+                ))}
+              </ul>
+            </Box>
+          )}
+          {error && (
+            <Box sx={{ mt: 2, p: 2, bgcolor: '#ffeeee', borderRadius: 1 }}>
+              <Typography color="error" variant="subtitle2">Error loading exam types:</Typography>
+              <Typography color="error" variant="body2">{error}</Typography>
+            </Box>
+          )}
+        </Paper>
 
         <Paper sx={{ width: '100%', mb: 3 }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider', p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -247,6 +310,8 @@ const ExaminationManagement: React.FC = () => {
             </Grid>
           </TabPanel>
         </Paper>
+
+        
       </Box>
     </Layout>
   );

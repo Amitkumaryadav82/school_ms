@@ -39,9 +39,7 @@ public class MessageService {
                 .build();
 
         Message savedMessage = messageRepository.save(message);
-        MessageDTO savedMessageDTO = convertToDTO(savedMessage);
-
-        // Send notifications based on message type
+        MessageDTO savedMessageDTO = convertToDTO(savedMessage);        // Send notifications based on message type
         switch (messageDTO.getMessageType()) {
             case EMERGENCY_ALERT:
                 // For emergency alerts, send all types of notifications
@@ -51,8 +49,7 @@ public class MessageService {
                     notificationService.sendNotification(recipient, message.getSubject(), message.getContent(),
                             NotificationType.SMS);
                     notificationService.sendNotification(recipient, message.getSubject(), message.getContent(),
-                            NotificationType.PUSH_NOTIFICATION);
-                }
+                            NotificationType.PUSH_NOTIFICATION);                }
                 break;
             case ANNOUNCEMENT:
             case STAFF_NOTICE:
@@ -116,6 +113,12 @@ public class MessageService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Convert a Message entity to a MessageDTO
+     *
+     * @param message the Message entity to convert
+     * @return the MessageDTO
+     */
     private MessageDTO convertToDTO(Message message) {
         return MessageDTO.builder()
                 .id(message.getId())

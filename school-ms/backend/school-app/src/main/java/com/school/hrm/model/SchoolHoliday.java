@@ -31,5 +31,44 @@ public class SchoolHoliday extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private HolidayType type;
+
+    // Explicit getter methods to ensure compilation works even if Lombok fails
+    @Override
+    public Long getId() {
+        return super.getId();
+    }
+    
+    public LocalDate getDate() {
+        return this.date;
+    }
+    
+    public String getName() {
+        return this.name;
+    }
+    
+    public String getDescription() {
+        return this.description;
+    }
+    
+    public HolidayType getType() {
+        return this.type;
+    }
+    
+    // Explicit setter methods to ensure compilation works even if Lombok fails
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public void setType(HolidayType type) {
+        this.type = type;
+    }
 }
 

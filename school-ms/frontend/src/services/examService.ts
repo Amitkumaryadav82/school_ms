@@ -26,6 +26,11 @@ export enum ApprovalStatus {
   REJECTED = 'REJECTED'
 }
 
+// Add ExamTypeDTO interface to match backend
+export interface ExamTypeDTO {
+  name: string;
+}
+
 export interface ExamResult {
   examId: number;
   studentId: string;
@@ -325,7 +330,11 @@ export const examService = {
     api.get(`/exam-reports/${examId}/student/${studentId}/report-card`, {
       responseType: 'blob',
       headers: {
-        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        'Accept': 'application/pdf'
       }
-    })
+    }),
+    
+  // Get all available exam types
+  getExamTypes: () => 
+    api.get<ExamTypeDTO[]>('/exams/types')
 };

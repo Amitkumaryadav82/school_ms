@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Exam extends BaseEntity {
     
     @NotBlank
@@ -50,13 +51,10 @@ public class Exam extends BaseEntity {
      */
     public Double getPassingMarks() {
         return this.passingMarks;
-    }
-    
-    /**
+    }    /**
      * Get the ID of the exam
      * @return the exam ID
      */
-    @Override
     public Long getId() {
         return super.getId();
     }

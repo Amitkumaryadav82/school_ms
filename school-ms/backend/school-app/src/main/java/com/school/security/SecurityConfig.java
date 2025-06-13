@@ -123,9 +123,12 @@ public class SecurityConfig {
                                                         "/api/auth/health",
                                                         "/api/auth/refresh",
                                                         "/api/auth/validate-token").permitAll();
+                                                        
+                                        // Exam types endpoint - should be accessible without authentication
+                                        auth.antMatchers("/api/exams/types").permitAll();
 
                                         auth.antMatchers("/h2-console/**").permitAll();
-                                        auth.antMatchers("/actuator/**").permitAll();                                        // IMPORTANT: Override the method-level security for fee report endpoints
+                                        auth.antMatchers("/actuator/**").permitAll();// IMPORTANT: Override the method-level security for fee report endpoints
                                         // to ensure they are accessible by both ADMIN and TEACHER roles
                                         auth.antMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
                                                         .authenticated();
@@ -199,15 +202,16 @@ public class SecurityConfig {
 
                                         // Allow access to H2 console in dev mode
                                         auth.antMatchers("/h2-console/**").permitAll();
-                                        auth.antMatchers("/actuator/**").permitAll();
-
-                                        // Auth endpoints - explicitly list all public endpoints for clarity
+                                        auth.antMatchers("/actuator/**").permitAll();                                        // Auth endpoints - explicitly list all public endpoints for clarity
                                         auth.antMatchers(
                                                         "/api/auth/login",
                                                         "/api/auth/register",
                                                         "/api/auth/health",
                                                         "/api/auth/refresh",
                                                         "/api/auth/validate-token").permitAll();
+                                                        
+                                        // Exam types endpoint - should be accessible without authentication
+                                        auth.antMatchers("/api/exams/types").permitAll();
 
                                         // Fee reports endpoints - ensure consistency with main config
                                         auth.antMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")

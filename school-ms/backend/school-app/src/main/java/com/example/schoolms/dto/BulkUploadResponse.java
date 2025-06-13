@@ -20,9 +20,34 @@ public class BulkUploadResponse {
 
     /**
      * Constructor with created and updated counts, empty errors list
-     */
-    public BulkUploadResponse(int created, int updated) {
+     */    public BulkUploadResponse(int created, int updated) {
         this.created = created;
+        this.updated = updated;
+        this.errors = new ArrayList<>();
+    }
+    
+    // Explicit setters/getters in case Lombok fails
+    public void setErrors(List<String> errors) {
+        this.errors = errors;
+    }
+    
+    public List<String> getErrors() {
+        return this.errors;
+    }
+    
+    public int getCreated() {
+        return this.created;
+    }
+    
+    public int getUpdated() {
+        return this.updated;
+    }
+    
+    public void setCreated(int created) {
+        this.created = created;
+    }
+    
+    public void setUpdated(int updated) {
         this.updated = updated;
     }
 }

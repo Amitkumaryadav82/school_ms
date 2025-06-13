@@ -6,6 +6,7 @@ import com.school.exam.service.ExamService;
 import com.school.exam.dto.ExamRequest;
 import com.school.exam.dto.ExamResultRequest;
 import com.school.exam.dto.ExamSummary;
+import com.school.exam.dto.ExamTypeDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,7 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/exams")
@@ -119,9 +122,7 @@ public class ExamController {
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'PARENT')")
     public ResponseEntity<List<ExamResult>> getStudentResults(@PathVariable Long studentId) {
         return ResponseEntity.ok(examService.getStudentResults(studentId));
-    }
-
-    @Operation(summary = "Get exam summary", description = "Generates a summary report for an exam")
+    }    @Operation(summary = "Get exam summary", description = "Generates a summary report for an exam")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Summary generated successfully"),
             @ApiResponse(responseCode = "404", description = "Exam not found")
@@ -130,5 +131,14 @@ public class ExamController {
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public ResponseEntity<ExamSummary> getExamSummary(@PathVariable Long id) {
         return ResponseEntity.ok(examService.generateExamSummary(id));
+    }
+      @Operation(summary = "Get exam types", description = "Retrieves all available exam types")
+    @ApiResponse(responseCode = "200", description = "Exam types retrieved successfully")
+    @GetMapping("/types")
+    public ResponseEntity<List<ExamTypeDTO>> getExamTypes() {
+        List<ExamTypeDTO> examTypes = Arrays.stream(Exam.ExamType.values())
+                .map(type -> new ExamTypeDTO(type.name()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(examTypes);
     }
 }
