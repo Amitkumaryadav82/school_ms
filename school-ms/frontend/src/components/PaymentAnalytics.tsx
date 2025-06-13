@@ -190,8 +190,9 @@ const PaymentAnalytics: React.FC = () => {
             <Grid container spacing={3} sx={{ mb: 4 }}>
               <Grid item xs={6} md={3}>
                 <Card>
-                  <CardContent>                    <Typography color="textSecondary" gutterBottom>Total Revenue</Typography>
-                    <Typography variant="h4">₹{analytics.totalRevenue.toLocaleString()}</Typography>
+                  <CardContent>
+                    <Typography color="textSecondary" gutterBottom>Total Revenue</Typography>
+                    <Typography variant="h4">${analytics.totalRevenue.toLocaleString()}</Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -199,7 +200,7 @@ const PaymentAnalytics: React.FC = () => {
                 <Card>
                   <CardContent>
                     <Typography color="textSecondary" gutterBottom>Outstanding</Typography>
-                    <Typography variant="h4">₹{analytics.outstandingAmount.toLocaleString()}</Typography>
+                    <Typography variant="h4">${analytics.outstandingAmount.toLocaleString()}</Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -213,8 +214,9 @@ const PaymentAnalytics: React.FC = () => {
               </Grid>
               <Grid item xs={6} md={3}>
                 <Card>
-                  <CardContent>                    <Typography color="textSecondary" gutterBottom>Late Fees</Typography>
-                    <Typography variant="h4">₹{analytics.lateFeesCollected.toLocaleString()}</Typography>
+                  <CardContent>
+                    <Typography color="textSecondary" gutterBottom>Late Fees</Typography>
+                    <Typography variant="h4">${analytics.lateFeesCollected.toLocaleString()}</Typography>
                   </CardContent>
                 </Card>
               </Grid>
@@ -260,7 +262,8 @@ const PaymentAnalytics: React.FC = () => {
                         {analytics.paymentMethodDistribution.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
-                      </Pie>                      <RechartsTooltip formatter={(value, name) => [`₹${value.toLocaleString()}`, name]} />
+                      </Pie>
+                      <RechartsTooltip formatter={(value, name) => [`$${value.toLocaleString()}`, name]} />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
@@ -324,9 +327,10 @@ const PaymentAnalytics: React.FC = () => {
                   </Grid>
                   <Grid item xs={6} md={3}>
                     <Card>
-                      <CardContent>                        <Typography color="textSecondary" gutterBottom>Amount Collected</Typography>
+                      <CardContent>
+                        <Typography color="textSecondary" gutterBottom>Amount Collected</Typography>
                         <Typography variant="h4">
-                          ₹{analytics.classWiseCollection.find(c => c.grade === selectedClass)?.collected.toLocaleString() || 0}
+                          ${analytics.classWiseCollection.find(c => c.grade === selectedClass)?.collected.toLocaleString() || 0}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -336,7 +340,7 @@ const PaymentAnalytics: React.FC = () => {
                       <CardContent>
                         <Typography color="textSecondary" gutterBottom>Amount Due</Typography>
                         <Typography variant="h4">
-                          ₹{analytics.classWiseCollection.find(c => c.grade === selectedClass)?.due.toLocaleString() || 0}
+                          ${analytics.classWiseCollection.find(c => c.grade === selectedClass)?.due.toLocaleString() || 0}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -368,8 +372,8 @@ const PaymentAnalytics: React.FC = () => {
               <DataTable
                 columns={[                  { id: 'grade', label: 'Grade', format: (value: number) => `Grade ${value}` },
                   { id: 'studentCount', label: 'Students' },
-                  { id: 'collected', label: 'Collected', format: (value: number) => `₹${value.toLocaleString()}` },
-                  { id: 'due', label: 'Outstanding', format: (value: number) => `₹${value.toLocaleString()}` },
+                  { id: 'collected', label: 'Collected', format: (value: number) => `$${value.toLocaleString()}` },
+                  { id: 'due', label: 'Outstanding', format: (value: number) => `$${value.toLocaleString()}` },
                   { id: 'collectionRate', label: 'Collection %', format: (value: number) => `${(value * 100).toFixed(1)}%` },
                 ]}
                 data={analytics.classWiseCollection || []}

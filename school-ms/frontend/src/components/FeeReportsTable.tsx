@@ -171,10 +171,11 @@ const FeeReportsTable: React.FC<FeeReportsTableProps> = ({ reportType, classGrad
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString();
   };
-    const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('en-IN', {
+  
+  const formatCurrency = (amount: number) => {
+    return amount.toLocaleString('en-US', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
