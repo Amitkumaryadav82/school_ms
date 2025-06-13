@@ -48,10 +48,11 @@ public class Exam extends BaseEntity {
     /**
      * Get the passing marks for the exam
      * @return the passing marks
-     */
-    public Double getPassingMarks() {
+     */    public Double getPassingMarks() {
         return this.passingMarks;
-    }    /**
+    }
+    
+    /**
      * Get the ID of the exam
      * @return the exam ID
      */

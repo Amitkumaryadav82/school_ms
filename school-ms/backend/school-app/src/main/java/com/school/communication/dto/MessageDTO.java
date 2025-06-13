@@ -7,11 +7,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-@Getter
-@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class MessageDTO {
     private Long id;
     private String subject;

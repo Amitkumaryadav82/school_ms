@@ -106,7 +106,9 @@ public class StaffServiceImpl implements StaffService {
             }
         }
 
-        return new BulkUploadResponse(created, updated, errors);
+        BulkUploadResponse response = new BulkUploadResponse(created, updated);
+        response.setErrors(errors);
+        return response;
     }
 
     // Update existing staff with new data
