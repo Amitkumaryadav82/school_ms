@@ -59,16 +59,16 @@ public class BookIssueServiceImpl implements BookIssueService {
         if (bookIssue.getStatus() == null || bookIssue.getStatus().isEmpty()) {
             bookIssue.setStatus("Issued");
         }
-        
+
         if (bookIssue.getIssueDate() == null) {
             bookIssue.setIssueDate(LocalDate.now());
         }
-        
+
         // Set due date if not provided (default to 14 days from issue date)
         if (bookIssue.getDueDate() == null) {
             bookIssue.setDueDate(bookIssue.getIssueDate().plusDays(14));
         }
-        
+
         // Check if book is available
         Optional<Book> bookOpt = bookRepository.getBookById(bookIssue.getBookId());
         if (bookOpt.isPresent()) {
@@ -76,10 +76,10 @@ public class BookIssueServiceImpl implements BookIssueService {
             if (!"Available".equals(book.getStatus())) {
                 throw new IllegalStateException("Book is not available for issue. Current status: " + book.getStatus());
             }
-            
+
             // Set the book title in the issue record for convenience
             bookIssue.setBookTitle(book.getTitle());
-            
+
             return bookIssueRepository.createBookIssue(bookIssue);
         } else {
             throw new IllegalArgumentException("Book not found with ID: " + bookIssue.getBookId());
@@ -92,15 +92,15 @@ public class BookIssueServiceImpl implements BookIssueService {
         Optional<BookIssue> bookIssueOpt = bookIssueRepository.getBookIssueById(issueId);
         if (bookIssueOpt.isPresent()) {
             BookIssue bookIssue = bookIssueOpt.get();
-            
+
             if (!"Issued".equals(bookIssue.getStatus())) {
                 throw new IllegalStateException("Book is not currently issued. Status: " + bookIssue.getStatus());
             }
-            
+
             // Update status and return date
             bookIssue.setStatus("Returned");
             bookIssue.setReturnDate(LocalDate.now());
-            
+
             return bookIssueRepository.updateBookIssue(bookIssue);
         } else {
             throw new IllegalArgumentException("Book issue record not found with ID: " + issueId);
@@ -121,45 +121,42 @@ public class BookIssueServiceImpl implements BookIssueService {
     @Override
     public Map<String, Long> getInventorySummary() {
         Map<String, Long> summary = new HashMap<>();
-        
+
         List<Book> allBooks = bookRepository.getAllBooks();
         long totalBooks = allBooks.size();
-        
+
         // Count books by status
         Map<String, Long> countByStatus = allBooks.stream()
                 .collect(Collectors.groupingBy(
                         Book::getStatus,
-                        Collectors.counting()
-                ));
-        
+                        Collectors.counting()));
+
         summary.put("Total", totalBooks);
         summary.put("Available", countByStatus.getOrDefault("Available", 0L));
         summary.put("Issued", countByStatus.getOrDefault("Issued", 0L));
         summary.put("Lost", countByStatus.getOrDefault("Lost", 0L));
         summary.put("Damaged", countByStatus.getOrDefault("Damaged", 0L));
-        
+
         return summary;
     }
 
     @Override
     public Map<String, Long> getIssuedBooksCountByCategory() {
         List<Book> issuedBooks = bookRepository.getBooksByStatus("Issued");
-        
+
         return issuedBooks.stream()
                 .collect(Collectors.groupingBy(
                         Book::getCategory,
-                        Collectors.counting()
-                ));
+                        Collectors.counting()));
     }
 
     @Override
     public Map<LocalDate, Long> getIssueCountByDateRange(LocalDate startDate, LocalDate endDate) {
         List<BookIssue> issuesInRange = bookIssueRepository.getBookIssuesByDateRange(startDate, endDate);
-        
+
         return issuesInRange.stream()
                 .collect(Collectors.groupingBy(
                         BookIssue::getIssueDate,
-                        Collectors.counting()
-                ));
+                        Collectors.counting()));
     }
 }

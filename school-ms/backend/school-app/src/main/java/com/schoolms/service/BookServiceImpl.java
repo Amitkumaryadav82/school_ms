@@ -73,13 +73,13 @@ public class BookServiceImpl implements BookService {
     public List<String> getAllCategories() {
         List<Book> books = bookRepository.getAllBooks();
         Set<String> uniqueCategories = new HashSet<>();
-        
+
         for (Book book : books) {
             if (book.getCategory() != null && !book.getCategory().isEmpty()) {
                 uniqueCategories.add(book.getCategory());
             }
         }
-        
+
         return new ArrayList<>(uniqueCategories);
     }
 
@@ -87,13 +87,13 @@ public class BookServiceImpl implements BookService {
     public List<String> getAllAuthors() {
         List<Book> books = bookRepository.getAllBooks();
         Set<String> uniqueAuthors = new HashSet<>();
-        
+
         for (Book book : books) {
             if (book.getAuthor() != null && !book.getAuthor().isEmpty()) {
                 uniqueAuthors.add(book.getAuthor());
             }
         }
-        
+
         return new ArrayList<>(uniqueAuthors);
     }
 

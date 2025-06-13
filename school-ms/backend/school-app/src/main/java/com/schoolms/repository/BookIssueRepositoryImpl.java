@@ -97,10 +97,10 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
         String sql = "INSERT INTO book_issues (book_id, issued_to, issue_type, issuee_name, " +
                 "issue_date, due_date, status, created_at, updated_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+
         KeyHolder keyHolder = new GeneratedKeyHolder();
         LocalDateTime now = LocalDateTime.now();
-        
+
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, bookIssue.getBookId());
@@ -114,15 +114,15 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
             ps.setObject(9, now);
             return ps;
         }, keyHolder);
-        
+
         bookIssue.setId(keyHolder.getKey().longValue());
         bookIssue.setCreatedAt(now);
         bookIssue.setUpdatedAt(now);
-        
+
         // Update book status to "Issued"
-        jdbcTemplate.update("UPDATE books SET status = 'Issued', updated_at = ? WHERE id = ?", 
+        jdbcTemplate.update("UPDATE books SET status = 'Issued', updated_at = ? WHERE id = ?",
                 now, bookIssue.getBookId());
-        
+
         return bookIssue;
     }
 
@@ -131,9 +131,9 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
         String sql = "UPDATE book_issues SET issued_to = ?, issue_type = ?, issuee_name = ?, " +
                 "issue_date = ?, due_date = ?, return_date = ?, status = ?, updated_at = ? " +
                 "WHERE id = ?";
-        
+
         LocalDateTime now = LocalDateTime.now();
-        
+
         jdbcTemplate.update(sql,
                 bookIssue.getIssuedTo(),
                 bookIssue.getIssueType(),
@@ -144,13 +144,13 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
                 bookIssue.getStatus(),
                 now,
                 bookIssue.getId());
-        
+
         // If the book has been returned, update its status
         if ("Returned".equals(bookIssue.getStatus())) {
-            jdbcTemplate.update("UPDATE books SET status = 'Available', updated_at = ? WHERE id = ?", 
+            jdbcTemplate.update("UPDATE books SET status = 'Available', updated_at = ? WHERE id = ?",
                     now, bookIssue.getBookId());
         }
-        
+
         bookIssue.setUpdatedAt(now);
         return bookIssue;
     }
@@ -161,10 +161,10 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
         Optional<BookIssue> bookIssue = getBookIssueById(id);
         if (bookIssue.isPresent() && "Issued".equals(bookIssue.get().getStatus())) {
             // Update book status to Available
-            jdbcTemplate.update("UPDATE books SET status = 'Available', updated_at = ? WHERE id = ?", 
+            jdbcTemplate.update("UPDATE books SET status = 'Available', updated_at = ? WHERE id = ?",
                     LocalDateTime.now(), bookIssue.get().getBookId());
         }
-        
+
         String sql = "DELETE FROM book_issues WHERE id = ?";
         return jdbcTemplate.update(sql, id) > 0;
     }

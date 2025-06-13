@@ -39,7 +39,8 @@ public class BookIssueController {
     public ResponseEntity<BookIssue> getBookIssueById(@PathVariable Long id) {
         return bookIssueService.getBookIssueById(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book issue record not found with ID: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Book issue record not found with ID: " + id));
     }
 
     @GetMapping("/user/{userId}")

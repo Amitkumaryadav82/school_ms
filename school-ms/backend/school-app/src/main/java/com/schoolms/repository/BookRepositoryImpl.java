@@ -77,10 +77,10 @@ public class BookRepositoryImpl implements BookRepository {
     @Override
     public Book createBook(Book book) {
         String sql = "INSERT INTO books (title, author, category, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)";
-        
+
         KeyHolder keyHolder = new GeneratedKeyHolder();
         LocalDateTime now = LocalDateTime.now();
-        
+
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, book.getTitle());
@@ -91,20 +91,20 @@ public class BookRepositoryImpl implements BookRepository {
             ps.setObject(6, now);
             return ps;
         }, keyHolder);
-        
+
         book.setId(keyHolder.getKey().longValue());
         book.setCreatedAt(now);
         book.setUpdatedAt(now);
-        
+
         return book;
     }
 
     @Override
     public Book updateBook(Book book) {
         String sql = "UPDATE books SET title = ?, author = ?, category = ?, status = ?, updated_at = ? WHERE id = ?";
-        
+
         LocalDateTime now = LocalDateTime.now();
-        
+
         jdbcTemplate.update(sql,
                 book.getTitle(),
                 book.getAuthor(),
@@ -112,7 +112,7 @@ public class BookRepositoryImpl implements BookRepository {
                 book.getStatus(),
                 now,
                 book.getId());
-        
+
         book.setUpdatedAt(now);
         return book;
     }

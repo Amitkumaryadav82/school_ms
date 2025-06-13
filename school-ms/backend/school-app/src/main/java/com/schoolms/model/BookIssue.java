@@ -21,8 +21,8 @@ public class BookIssue {
     public BookIssue() {
     }
 
-    public BookIssue(Long id, Long bookId, String bookTitle, String issuedTo, String issueType, 
-                    LocalDate issueDate, LocalDate dueDate, String status) {
+    public BookIssue(Long id, Long bookId, String bookTitle, String issuedTo, String issueType,
+            LocalDate issueDate, LocalDate dueDate, String status) {
         this.id = id;
         this.bookId = bookId;
         this.bookTitle = bookTitle;
