@@ -15,7 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service("exampleSchoolmsStaffServiceImpl") // Added a unique bean name here
+/**
+ * @deprecated This implementation is deprecated in favor of com.example.schoolms.service.StaffServiceImpl.
+ * DO NOT USE THIS CLASS.
+ * This class exists only for backward compatibility and will be removed in a future update.
+ * See QUALIFIER-STANDARDIZATION.md for more information about the standardization effort. */
+@Deprecated
+@Service("exampleSchoolmsStaffServiceImplDeprecated") // Changed to avoid bean definition conflicts
 public class StaffServiceImpl implements StaffService {
 
     private static final Logger logger = LoggerFactory.getLogger(StaffServiceImpl.class);
@@ -137,8 +143,10 @@ public class StaffServiceImpl implements StaffService {
                         + " - " + e.getMessage();
                 logger.error(errorMsg, e);
                 errors.add(errorMsg);
-            }        }        BulkUploadResponse response = new BulkUploadResponse(created, updated);
-        response.setErrors(errors);
+            }
+        }        BulkUploadResponse response = new BulkUploadResponse(created, updated);
+        // Use the errors list that's already initialized in the BulkUploadResponse
+        response.getErrors().addAll(errors);
         return response;
     }
 

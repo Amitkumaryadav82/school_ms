@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class Exam extends BaseEntity {
     
     @NotBlank
@@ -48,15 +47,9 @@ public class Exam extends BaseEntity {
     /**
      * Get the passing marks for the exam
      * @return the passing marks
-     */    public Double getPassingMarks() {
+     */
+    public Double getPassingMarks() {
         return this.passingMarks;
     }
-    
-    /**
-     * Get the ID of the exam
-     * @return the exam ID
-     */
-    public Long getId() {
-        return super.getId();
-    }
+      // ID field is inherited from BaseEntity and accessible via getId()/setId() from BaseEntity
 }

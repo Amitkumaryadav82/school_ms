@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@RestController("schoolCourseController")
-@RequestMapping("/api/courses")
+// This controller is deprecated and replaced by ConsolidatedCourseController
+// Changed to Component to keep the bean but avoid request mapping conflicts
+@org.springframework.stereotype.Component("schoolCourseController")
+@Deprecated
+@RequestMapping("/api/legacy-courses")
 public class CourseController {
 
     private final CourseService courseService;

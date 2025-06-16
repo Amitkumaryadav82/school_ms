@@ -4,6 +4,10 @@ A comprehensive, monolithic school management solution designed to streamline ad
 
 ![School Management System](https://via.placeholder.com/800x400?text=School+Management+System)
 
+## Recent Updates
+
+**June 14, 2025**: Completed package migration and consolidation. All code has been moved from the legacy `com.example.schoolms` namespace to the standardized `com.school` namespace. See [MIGRATION-COMPLETION-SUMMARY.md](MIGRATION-COMPLETION-SUMMARY.md) for details.
+
 ## Key Features
 
 - **Single Unified Application** - Complete school management in one integrated platform
@@ -50,6 +54,9 @@ See our [Deployment Guide](DEPLOYMENT.md) for detailed installation instructions
 - [API Documentation](http://localhost:8080/swagger-ui.html) (available after startup)
 - [Database Schema](backend/schema.sql)
 - [Deployment Guide](DEPLOYMENT.md)
+- [Qualifier Standardization Guide](backend/QUALIFIER-STANDARDIZATION.md)
+- [Package Scanning Fix](PACKAGE-SCANNING-FIX.md)
+- [Package Migration Plan](PACKAGE-MIGRATION-PLAN.md)
 
 ## Security Features
 

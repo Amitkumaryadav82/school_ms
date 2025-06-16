@@ -16,6 +16,9 @@ import Reports from './pages/Reports';
 import Staff from './pages/Staff';
 import Students from './pages/Students';
 import TeacherAttendance from './pages/TeacherAttendance'; // Import the TeacherAttendance page
+// Import new consolidated views
+import ConsolidatedCourseView from './pages/ConsolidatedCourseView';
+import ConsolidatedStaffView from './pages/ConsolidatedStaffView';
 import theme from './theme';
 // Import the connectivity checker
 import { autoDetectApiUrl } from './utils/connectivityCheck';
@@ -118,14 +121,37 @@ function AppRoutes() {
             </Layout>
           </ProtectedRoute>
         }
-      />
-      <Route
+      />      <Route
         path="/staff"
         element={
           <ProtectedRoute>
             <Layout>
               <RoleBasedRoute allowedRoles={[ROLES.ADMIN]}>
                 <Staff />
+              </RoleBasedRoute>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/consolidated-staff"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <RoleBasedRoute allowedRoles={[ROLES.ADMIN]}>
+                <ConsolidatedStaffView />
+              </RoleBasedRoute>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/consolidated-courses"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER]}>
+                <ConsolidatedCourseView />
               </RoleBasedRoute>
             </Layout>
           </ProtectedRoute>

@@ -28,14 +28,12 @@ public class OpenApiConfig {
                                                                 .type(SecurityScheme.Type.HTTP)
                                                                 .scheme("bearer")
                                                                 .bearerFormat("JWT")));
-        }
-
-        // This bean ensures all API groups are included in the Swagger documentation
+        }        // This bean ensures all API groups are included in the Swagger documentation
         @Bean
         public GroupedOpenApi allApisGroup() {
                 return GroupedOpenApi.builder()
                                 .group("all-apis")
-                                .packagesToScan("com.school", "com.example.schoolms")
+                                .packagesToScan("com.school")
                                 .pathsToMatch("/api/**")
                                 .build();
         }
@@ -45,8 +43,18 @@ public class OpenApiConfig {
         public GroupedOpenApi staffManagementGroup() {
                 return GroupedOpenApi.builder()
                                 .group("staff-management")
-                                .packagesToScan("com.example.schoolms.controller", "com.school.staff")
-                                .pathsToMatch("/api/staff/**")
+                                .packagesToScan("com.school.staff.controller", "com.school.hrm.controller")
+                                .pathsToMatch("/api/staff/**", "/api/hrm/staff/**")
+                                .build();
+        }
+        
+        // Specific API group for course management
+        @Bean
+        public GroupedOpenApi courseManagementGroup() {
+                return GroupedOpenApi.builder()
+                                .group("course-management")
+                                .packagesToScan("com.school.course.controller")
+                                .pathsToMatch("/api/courses/**")
                                 .build();
         }
 }

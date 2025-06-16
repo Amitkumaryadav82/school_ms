@@ -22,11 +22,7 @@ public interface TeacherRepository extends JpaRepository<Teacher, Long> {
 
     List<Teacher> findByIsClassTeacher(Boolean isClassTeacher);
 
-    List<Teacher> findByClassAssignedId(Long classId);
-
-    @Query("SELECT t FROM Teacher t WHERE t.staff.id = :staffId")
-    Optional<Teacher> findByStaffId(@Param("staffId") Long staffId);
-
-    @Query("SELECT t FROM Teacher t WHERE t.subjects LIKE %:subject%")
+    List<Teacher> findByClassAssignedId(Long classId);    @Query("SELECT t FROM HrmTeacher t WHERE t.staff.id = :staffId")
+    Optional<Teacher> findByStaffId(@Param("staffId") Long staffId);@Query("SELECT t FROM HrmTeacher t WHERE t.subjects LIKE CONCAT('%', :subject, '%')")
     List<Teacher> findBySubject(@Param("subject") String subject);
 }

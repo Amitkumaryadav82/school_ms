@@ -1,0 +1,289 @@
+package com.school.core.service;
+
+import com.school.common.dto.BulkUploadResponse;
+import com.school.core.model.Staff;
+import com.school.core.repository.StaffRepository;
+import com.school.staff.dto.BulkStaffRequest;
+import com.school.core.adapter.EntityAdapter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Main implementation of StaffService interface.
+ * Consolidated implementation that replaces multiple legacy services.
+ */
+@Service("coreStaffServiceImpl")
+public class StaffServiceImpl implements StaffService {
+
+    private static final Logger logger = LoggerFactory.getLogger(StaffServiceImpl.class);
+
+    private final StaffRepository staffRepository;
+    
+    @Autowired
+    private EntityAdapter entityAdapter;
+
+    @Autowired
+    public StaffServiceImpl(StaffRepository staffRepository) {
+        this.staffRepository = staffRepository;
+    }
+
+    @Override
+    public List<Staff> getAllStaff() {
+        return staffRepository.findAll();
+    }
+
+    @Override
+    public Optional<Staff> getStaffById(Long id) {
+        return staffRepository.findById(id);
+    }
+    
+    @Override
+    public Optional<Staff> getStaffByStaffId(String staffId) {
+        return staffRepository.findByStaffId(staffId);
+    }
+    
+    @Override
+    public Optional<Staff> getStaffByEmail(String email) {
+        return staffRepository.findByEmail(email);
+    }
+
+    @Override
+    @Transactional
+    public Staff createStaff(Staff staff) {
+        logger.info("Creating new staff member: {}", staff.getEmail());
+        
+        // Validate required fields
+        validateStaffFields(staff);
+        
+        // Check if staff with same email already exists
+        if (staff.getEmail() != null && !staff.getEmail().isEmpty()) {
+            Optional<Staff> existingStaff = staffRepository.findByEmail(staff.getEmail());
+            if (existingStaff.isPresent()) {
+                throw new IllegalArgumentException("Staff with email " + staff.getEmail() + " already exists");
+            }
+        }
+        
+        // Check if staff with same staffId already exists
+        if (staff.getStaffId() != null && !staff.getStaffId().isEmpty()) {
+            Optional<Staff> existingStaff = staffRepository.findByStaffId(staff.getStaffId());
+            if (existingStaff.isPresent()) {
+                throw new IllegalArgumentException("Staff with ID " + staff.getStaffId() + " already exists");
+            }
+        }
+        
+        return staffRepository.save(staff);
+    }
+    
+    @Override
+    public Staff saveStaff(Staff staff) {
+        return staffRepository.save(staff);
+    }
+
+    @Override
+    @Transactional
+    public Optional<Staff> updateStaff(Staff staff) {
+        if (staff.getId() == null) {
+            throw new IllegalArgumentException("Staff ID cannot be null for update operation");
+        }
+        return updateStaff(staff.getId(), staff);
+    }
+
+    @Override
+    @Transactional
+    public Optional<Staff> updateStaff(Long id, Staff staffDetails) {
+        logger.info("Updating staff with ID: {}", id);
+        
+        return staffRepository.findById(id)
+                .map(existingStaff -> {
+                    // Update non-null fields from staffDetails to existingStaff
+                    if (staffDetails.getStaffId() != null) {
+                        existingStaff.setStaffId(staffDetails.getStaffId());
+                    }
+                    if (staffDetails.getFirstName() != null) {
+                        existingStaff.setFirstName(staffDetails.getFirstName());
+                    }
+                    if (staffDetails.getMiddleName() != null) {
+                        existingStaff.setMiddleName(staffDetails.getMiddleName());
+                    }
+                    if (staffDetails.getLastName() != null) {
+                        existingStaff.setLastName(staffDetails.getLastName());
+                    }
+                    if (staffDetails.getEmail() != null) {
+                        existingStaff.setEmail(staffDetails.getEmail());
+                    }
+                    if (staffDetails.getPhone() != null) {
+                        existingStaff.setPhone(staffDetails.getPhone());
+                    }
+                    if (staffDetails.getDateOfBirth() != null) {
+                        existingStaff.setDateOfBirth(staffDetails.getDateOfBirth());
+                    }
+                    if (staffDetails.getAddress() != null) {
+                        existingStaff.setAddress(staffDetails.getAddress());
+                    }
+                    if (staffDetails.getRole() != null) {
+                        existingStaff.setRole(staffDetails.getRole());
+                    }
+                    if (staffDetails.getEmploymentStatus() != null) {
+                        existingStaff.setEmploymentStatus(staffDetails.getEmploymentStatus());
+                    }                    // Use isActive instead of getActive (boolean vs Boolean)
+                    existingStaff.setActive(staffDetails.isActive());
+
+                    if (staffDetails.getJoiningDate() != null) {
+                        existingStaff.setJoiningDate(staffDetails.getJoiningDate());
+                    }
+                    if (staffDetails.getTeacherDetails() != null) {
+                        existingStaff.setTeacherDetails(staffDetails.getTeacherDetails());
+                    }
+
+                    return staffRepository.save(existingStaff);
+                });
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteStaff(Long id) {
+        if (staffRepository.existsById(id)) {
+            staffRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<Staff> findByRole(String role) {
+        return staffRepository.findByRole(role);
+    }
+    
+    @Override
+    public List<Staff> findByIsActive(boolean active) {
+        return staffRepository.findByActive(active);
+    }
+    
+    @Override
+    public List<Staff> findAllTeachers() {
+        return staffRepository.findByRole("TEACHER");
+    }
+    
+    @Override
+    public BulkUploadResponse bulkUploadStaff(BulkStaffRequest request) {
+        if (request == null || request.getStaffList() == null || request.getStaffList().isEmpty()) {
+            BulkUploadResponse emptyResponse = new BulkUploadResponse();
+            emptyResponse.setCreated(0);
+            emptyResponse.setUpdated(0);
+            emptyResponse.setErrors(new ArrayList<>());
+            return emptyResponse;
+        }
+        
+        List<Staff> staffList = new ArrayList<>();
+        for (com.school.staff.dto.StaffDTO staffDTO : request.getStaffList()) {
+            Staff staff = entityAdapter.convertStaffDtoToCore(staffDTO);
+            staffList.add(staff);
+        }
+        
+        return bulkUploadStaffList(staffList);
+    }
+    
+    @Override
+    public BulkUploadResponse bulkUploadStaffList(List<Staff> staffList) {
+        return bulkCreateOrUpdateStaff(staffList);
+    }
+    
+    @Override
+    @Transactional
+    public BulkUploadResponse bulkCreateOrUpdateStaff(List<Staff> staffList) {
+        logger.info("Processing bulk staff upload with {} records", staffList.size());
+        
+        int created = 0;
+        int updated = 0;
+        List<String> errors = new ArrayList<>();
+        
+        for (Staff staff : staffList) {
+            try {
+                if (staff.getId() != null) {
+                    // This is an update
+                    Optional<Staff> existingStaffOpt = staffRepository.findById(staff.getId());
+                    if (existingStaffOpt.isPresent()) {
+                        updateStaff(staff.getId(), staff);
+                        updated++;
+                    } else {
+                        errors.add("Staff with ID " + staff.getId() + " not found for update");
+                    }
+                } else if (staff.getStaffId() != null && !staff.getStaffId().isEmpty()) {
+                    // Check by staffId
+                    Optional<Staff> existingStaffOpt = staffRepository.findByStaffId(staff.getStaffId());
+                    if (existingStaffOpt.isPresent()) {
+                        Staff existingStaff = existingStaffOpt.get();
+                        updateStaff(existingStaff.getId(), staff);
+                        updated++;
+                    } else {
+                        staffRepository.save(staff);
+                        created++;
+                    }
+                } else if (staff.getEmail() != null && !staff.getEmail().isEmpty()) {
+                    // Check by email
+                    Optional<Staff> existingStaffOpt = staffRepository.findByEmail(staff.getEmail());
+                    if (existingStaffOpt.isPresent()) {
+                        Staff existingStaff = existingStaffOpt.get();
+                        updateStaff(existingStaff.getId(), staff);
+                        updated++;
+                    } else {
+                        staffRepository.save(staff);
+                        created++;
+                    }
+                } else {
+                    // No identifier, create new
+                    staffRepository.save(staff);
+                    created++;
+                }
+            } catch (Exception e) {
+                String error = "Error processing staff record: " + e.getMessage();
+                logger.error(error, e);
+                errors.add(error);
+            }
+        }
+        
+        logger.info("Bulk upload complete: {} created, {} updated, {} errors", created, updated, errors.size());
+        
+        BulkUploadResponse response = new BulkUploadResponse();
+        response.setCreated(created);
+        response.setUpdated(updated);
+        response.setErrors(errors);
+        
+        String message = String.format("Processed %d records: %d created, %d updated, %d errors",
+                staffList.size(), created, updated, errors.size());
+
+        return response;
+    }
+    
+    /**
+     * Validate required staff fields
+     */
+    private void validateStaffFields(Staff staff) {
+        List<String> errors = new ArrayList<>();
+        
+        if (staff.getFirstName() == null || staff.getFirstName().trim().isEmpty()) {
+            errors.add("First name is required");
+        }
+        
+        if (staff.getLastName() == null || staff.getLastName().trim().isEmpty()) {
+            errors.add("Last name is required");
+        }
+        
+        if (staff.getEmail() == null || staff.getEmail().trim().isEmpty()) {
+            errors.add("Email is required");
+        }
+        
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException("Staff validation errors: " + String.join(", ", errors));
+        }
+    }
+}

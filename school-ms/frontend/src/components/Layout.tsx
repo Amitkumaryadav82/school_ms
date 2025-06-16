@@ -78,7 +78,19 @@ const menuItems: MenuItem[] = [
     icon: <People />, 
     path: '/staff',
     allowedRoles: [ROLES.ADMIN]
-  },  { 
+  },
+  { 
+    text: 'Staff (New)', 
+    icon: <People />, 
+    path: '/consolidated-staff',
+    allowedRoles: [ROLES.ADMIN]
+  },
+  { 
+    text: 'Courses', 
+    icon: <Book />, 
+    path: '/consolidated-courses',
+    allowedRoles: [ROLES.ADMIN, ROLES.TEACHER]
+  },{ 
     text: 'Teacher Attendance', 
     icon: <EventAvailable />, 
     path: '/teacher-attendance',

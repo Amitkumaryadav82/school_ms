@@ -1,10 +1,15 @@
 package com.example.schoolms.model;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 
-@Entity
-@Table(name = "teacher_details")
+/**
+ * @deprecated This class is deprecated in favor of com.school.staff.model.TeacherDetails.
+ * Please use the new class as part of the entity consolidation effort.
+ */
+@Entity(name = "ExampleTeacherDetails")
+@Table(name = "example_teacher_details")
+@Deprecated
 public class TeacherDetails {
 
     @Id
@@ -17,29 +22,27 @@ public class TeacherDetails {
 
     private String specialization;
 
-    private String subjects;
-
-    @Column(name = "years_of_experience")
+    private String subjects;    @Column(name = "years_of_experience")
     private Integer yearsOfExperience;
-
+    
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
+    private Date updatedAt;
+    
     @OneToOne(mappedBy = "teacherDetails")
     private Staff staff;
-
+    
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        createdAt = new Date();
+        updatedAt = new Date();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = new Date();
     }
 
     // Getters and Setters
@@ -89,21 +92,19 @@ public class TeacherDetails {
 
     public void setYearsOfExperience(Integer yearsOfExperience) {
         this.yearsOfExperience = yearsOfExperience;
-    }
-
-    public LocalDateTime getCreatedAt() {
+    }    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 

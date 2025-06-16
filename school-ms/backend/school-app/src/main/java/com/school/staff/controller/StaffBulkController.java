@@ -10,9 +10,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.schoolms.dto.BulkStaffRequest;
-import com.example.schoolms.dto.BulkUploadResponse;
-import com.example.schoolms.model.Staff;
+import com.school.staff.dto.BulkStaffRequest;
+import com.school.common.dto.BulkUploadResponse;
+import com.school.common.util.DateConverter;
+import com.school.core.model.legacy.LegacyStaff;
+import com.school.core.model.legacy.LegacyTeacherDetails;
+import com.school.staff.model.Staff;
+import com.school.staff.model.TeacherDetails;
 import com.school.staff.service.StaffServiceAdapter;
 import com.school.staff.util.CsvXlsParserAdapter;
 
@@ -32,10 +36,12 @@ import java.util.List;
 
 /**
  * Controller dedicated to Staff Bulk Operations
+ * Note: This controller is deprecated and replaced by com.school.core.controller.StaffController
  */
-@RestController
-@RequestMapping("/api/staff")
-@Tag(name = "Staff Bulk Operations", description = "APIs for bulk management of staff records")
+@org.springframework.stereotype.Component("staffBulkController")
+@Deprecated
+@RequestMapping("/api/legacy-staff-bulk")
+@Tag(name = "Staff Bulk Operations (Legacy)", description = "Legacy APIs for bulk management of staff records")
 @SecurityRequirement(name = "bearerAuth")
 public class StaffBulkController {
 
@@ -81,9 +87,8 @@ public class StaffBulkController {
             logger.error("Failed to process bulk staff creation", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new BulkUploadResponse(0, 0, List.of("Failed to process staff data: " + e.getMessage())));
-        }
-    }
-
+        }    }
+    
     /**
      * Endpoint for bulk importing staff from a CSV or Excel file
      */
@@ -99,16 +104,76 @@ public class StaffBulkController {
             @Parameter(description = "CSV or Excel file containing staff data") @RequestParam("file") MultipartFile file) {
 
         logger.info("Received bulk staff file import request");
-
+        
         try {
-            List<Staff> staffList = csvXlsParser.parseStaffFromFile(file);
-            BulkUploadResponse response = staffService.bulkCreateOrUpdateStaff(staffList);
+            // Parse legacy staff from file
+            List<LegacyStaff> legacyStaffList = csvXlsParser.parseLegacyStaffFromFile(file);
+            
+            // Convert legacy staff list to new model staff list
+            List<Staff> newStaffList = new ArrayList<>();
+            for (LegacyStaff legacyStaff : legacyStaffList) {
+                Staff newStaff = convertToNewStaff(legacyStaff);
+                newStaffList.add(newStaff);
+            }
+            
+            BulkUploadResponse response = staffService.bulkCreateOrUpdateStaff(newStaffList);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Failed to process staff file", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new BulkUploadResponse(0, 0, List.of("Failed to process file: " + e.getMessage())));
+                    .body(new BulkUploadResponse(0, 0, List.of("Failed to process file: " + e.getMessage())));        }
+    }
+    
+    /**
+     * Converts a legacy Staff model to the new Staff model
+     * 
+     * @param legacyStaff The legacy model staff object
+     * @return A new model staff object with copied properties
+     */
+    private Staff convertToNewStaff(LegacyStaff legacyStaff) {
+        Staff newStaff = new Staff();
+        
+        newStaff.setId(legacyStaff.getId());
+        newStaff.setStaffId(legacyStaff.getStaffId());
+        newStaff.setFirstName(legacyStaff.getFirstName());
+        newStaff.setMiddleName(legacyStaff.getMiddleName());
+        newStaff.setLastName(legacyStaff.getLastName());
+        newStaff.setEmail(legacyStaff.getEmail());
+        newStaff.setPhone(legacyStaff.getPhone());
+        newStaff.setPhoneNumber(legacyStaff.getPhoneNumber());
+        newStaff.setAddress(legacyStaff.getAddress());        newStaff.setRole(legacyStaff.getRole());
+        
+        // Convert Date to LocalDate
+        if (legacyStaff.getDateOfBirth() != null) {
+            newStaff.setDateOfBirth(DateConverter.toLocalDate(legacyStaff.getDateOfBirth()));
         }
+        
+        if (legacyStaff.getJoiningDate() != null) {
+            newStaff.setJoiningDate(DateConverter.toLocalDate(legacyStaff.getJoiningDate()));
+        }
+        
+        newStaff.setDepartment(legacyStaff.getDepartment());
+        newStaff.setActive(legacyStaff.isActive());
+        
+        // Handle TeacherDetails if present
+        if (legacyStaff.getTeacherDetails() != null) {
+            LegacyTeacherDetails legacyTeacherDetails = legacyStaff.getTeacherDetails();
+            TeacherDetails newTeacherDetails = new TeacherDetails();
+            
+            // Copy TeacherDetails properties
+            newTeacherDetails.setId(legacyTeacherDetails.getId());
+            newTeacherDetails.setDepartment(legacyTeacherDetails.getDepartment());
+            newTeacherDetails.setQualification(legacyTeacherDetails.getQualification());
+            newTeacherDetails.setSpecialization(legacyTeacherDetails.getSpecialization());
+            newTeacherDetails.setSubjects(legacyTeacherDetails.getSubjects());
+            newTeacherDetails.setYearsOfExperience(legacyTeacherDetails.getYearsOfExperience());
+            newTeacherDetails.setCreatedAt(DateConverter.toLocalDateTime(legacyTeacherDetails.getCreatedAt()));
+            newTeacherDetails.setUpdatedAt(DateConverter.toLocalDateTime(legacyTeacherDetails.getUpdatedAt()));
+            
+            newStaff.setTeacherDetails(newTeacherDetails);
+        }
+        
+        return newStaff;
     }
 
     /**
@@ -211,10 +276,15 @@ public class StaffBulkController {
                 return ResponseEntity.badRequest().body(
                         new BulkUploadResponse(0, 0,
                                 errors.isEmpty() ? List.of("No valid staff entries found") : errors));
+            }            // Process the valid staff entries
+            // Convert to the new Staff model
+            List<Staff> newProcessedStaffList = new ArrayList<>();
+            for (Staff processedStaff : processedStaffList) {
+                // No conversion needed here as processedStaffList already contains new Staff objects
+                newProcessedStaffList.add(processedStaff);
             }
-
-            // Process the valid staff entries
-            BulkUploadResponse response = staffService.bulkCreateOrUpdateStaff(processedStaffList);
+            
+            BulkUploadResponse response = staffService.bulkCreateOrUpdateStaff(newProcessedStaffList);
 
             // Combine service errors with parsing errors
             if (!errors.isEmpty()) {

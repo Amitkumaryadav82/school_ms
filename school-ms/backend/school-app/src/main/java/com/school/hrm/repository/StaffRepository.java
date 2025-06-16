@@ -23,21 +23,21 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
 
     List<Staff> findByIsActive(Boolean isActive);
 
-    @Query("SELECT s FROM Staff s JOIN s.role r WHERE r.roleName = 'Teacher'")
+    @Query("SELECT s FROM HrmStaff s JOIN s.role r WHERE r.roleName = 'Teacher'")
     List<Staff> findAllTeachers();
 
-    @Query("SELECT s FROM Staff s JOIN s.role r WHERE r.roleName = 'Principal'")
+    @Query("SELECT s FROM HrmStaff s JOIN s.role r WHERE r.roleName = 'Principal'")
     List<Staff> findAllPrincipals();
 
-    @Query("SELECT s FROM Staff s JOIN s.role r WHERE r.roleName = 'Admin Officer'")
+    @Query("SELECT s FROM HrmStaff s JOIN s.role r WHERE r.roleName = 'Admin Officer'")
     List<Staff> findAllAdminOfficers();
 
-    @Query("SELECT s FROM Staff s JOIN s.role r WHERE r.roleName = 'Management'")
+    @Query("SELECT s FROM HrmStaff s JOIN s.role r WHERE r.roleName = 'Management'")
     List<Staff> findAllManagementStaff();
 
-    @Query("SELECT s FROM Staff s JOIN s.role r WHERE r.roleName = 'Account Officer'")
+    @Query("SELECT s FROM HrmStaff s JOIN s.role r WHERE r.roleName = 'Account Officer'")
     List<Staff> findAllAccountOfficers();
 
-    @Query("SELECT s FROM Staff s JOIN s.role r WHERE r.roleName = 'Librarian'")
+    @Query("SELECT s FROM HrmStaff s JOIN s.role r WHERE r.roleName = 'Librarian'")
     List<Staff> findAllLibrarians();
 }

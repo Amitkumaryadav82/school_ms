@@ -16,12 +16,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class AuthService {
-
-    // Define a logger since @Slf4j might not be processed
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuthService.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -35,7 +34,8 @@ public class AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @Transactional    public AuthResponse register(RegisterRequest request) {
+    @Transactional
+    public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new DuplicateUsernameException("Username is already taken");
         }
@@ -49,7 +49,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
                 .fullName(request.getFullName())
-                .role(convertToUserRole(request.getRole()))
+                .role(request.getRole())
                 .build();
 
         user = userRepository.save(user);
@@ -57,10 +57,12 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-        String jwt = tokenProvider.generateToken(authentication);        return AuthResponse.builder()
+        String jwt = tokenProvider.generateToken(authentication);
+
+        return AuthResponse.builder()
                 .token(jwt)
                 .username(user.getUsername())
-                .role(user.getRole() != null ? user.getRole().name() : null)
+                .role(user.getRole())
                 .message("User registered successfully")
                 .build();
     }
@@ -74,10 +76,12 @@ public class AuthService {
             String jwt = tokenProvider.generateToken(authentication);
             User user = (User) authentication.getPrincipal();
 
-            log.info("User logged in successfully: {}", user.getUsername());            return AuthResponse.builder()
+            log.info("User logged in successfully: {}", user.getUsername());
+
+            return AuthResponse.builder()
                     .token(jwt)
                     .username(user.getUsername())
-                    .role(user.getRole() != null ? user.getRole().name() : null)
+                    .role(user.getRole())
                     .message("Login successful")
                     .build();
         } catch (AuthenticationException e) {
@@ -111,10 +115,12 @@ public class AuthService {
         // Generate a new token
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user, null, user.getAuthorities());
-        String newToken = tokenProvider.generateToken(authentication);        return AuthResponse.builder()
+        String newToken = tokenProvider.generateToken(authentication);
+
+        return AuthResponse.builder()
                 .token(newToken)
                 .username(user.getUsername())
-                .role(user.getRole() != null ? user.getRole().name() : null)
+                .role(user.getRole())
                 .message("Token refreshed successfully")
                 .build();
     }
@@ -143,18 +149,6 @@ public class AuthService {
         } catch (Exception e) {
             log.error("Error validating token", e);
             return false;
-        }
-    }
-
-    /**
-     * Helper method to convert a string role to UserRole enum
-     */
-    private UserRole convertToUserRole(String roleStr) {
-        if (roleStr == null) return UserRole.STUDENT;
-        try {
-            return UserRole.valueOf(roleStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return UserRole.STUDENT;
         }
     }
 }

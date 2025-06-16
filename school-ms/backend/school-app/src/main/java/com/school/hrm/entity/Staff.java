@@ -20,12 +20,20 @@ import lombok.NoArgsConstructor;
 
 import com.school.hrm.model.EmploymentStatus;
 
-@Entity
-@Table(name = "staff")
+/**
+ * Entity representing a staff member in the HRM module.
+ * 
+ * @deprecated This class is deprecated in favor of com.school.core.model.Staff.
+ * Please use the consolidated entity as part of the entity consolidation effort.
+ * See PACKAGE-MIGRATION-PLAN.md for more details.
+ */
+@Entity(name = "HrmStaff")
+@Table(name = "hrm_staff")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Deprecated
 public class Staff {
 
     @Id
@@ -48,9 +56,7 @@ public class Staff {
     private String phoneNumber;
 
     @Column(columnDefinition = "TEXT")
-    private String address;
-
-    @Column(name = "date_of_birth")
+    private String address;    @Column(name = "hrm_date_of_birth")
     private LocalDate dateOfBirth;
 
     private String gender;
