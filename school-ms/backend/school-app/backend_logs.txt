@@ -21,127 +21,615 @@
 [INFO] 
 [INFO] --- compiler:3.10.1:compile (default-compile) @ school-app ---
 [INFO] Changes detected - recompiling the module!
-[INFO] Compiling 356 source files to C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\target\classes
+[INFO] Compiling 349 source files to C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\target\classes
+[INFO] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/repository/StaffRepository.java: Some input files use or override a deprecated API.
+[INFO] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/repository/StaffRepository.java: Recompile with -Xlint:deprecation for details.
 [INFO] -------------------------------------------------------------
 [ERROR] COMPILATION ERROR : 
 [INFO] -------------------------------------------------------------
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[151,9] illegal start of type
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[151,39] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[151,41] ';' expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[155,31] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[155,57] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[156,27] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[156,48] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[159,9] illegal start of type
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[159,42] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[159,44] ';' expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[176,9] illegal start of type
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[176,24] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[190,12] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[190,81] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[193,9] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[195,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[198,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[198,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[198,55] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[201,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[204,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[206,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[209,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[211,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[213,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[215,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[217,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[221,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[223,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[225,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[227,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[231,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[234,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[236,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[242,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[244,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[251,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[253,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[257,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[263,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[264,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[268,17] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[270,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[271,17] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[279,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[282,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[285,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[290,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[292,17] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[293,17] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[294,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[298,9] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[300,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[302,9] class, interface, enum, or record expected
-[INFO] 54 errors 
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/ExamTypeDTO.java:[13,8] class ExamTypeDto is public, should be declared in a file named ExamTypeDto.java
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/ExamTypeDtoTemp.java:[13,8] class ExamTypeDto is public, should be declared in a file named ExamTypeDto.java
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/ExamConfiguration.java:[79,35] cannot find symbol
+  symbol:   method getId()
+  location: variable exam of type com.school.exam.model.Exam
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[27,65] cannot find symbol
+  symbol:   method getSenderId()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[30,34] cannot find symbol
+  symbol:   method builder()
+  location: class com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[31,36] cannot find symbol
+  symbol:   method getSubject()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[32,36] cannot find symbol
+  symbol:   method getContent()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[34,40] cannot find symbol
+  symbol:   method getMessageType()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[35,37] cannot find symbol
+  symbol:   method getPriority()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[37,39] cannot find symbol
+  symbol:   method getRecipients()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[38,35] cannot find symbol
+  symbol:   method getReadBy()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[43,27] cannot find symbol
+  symbol:   method getMessageType()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[44,18] cannot find symbol
+  symbol:   variable EMERGENCY_ALERT
+  location: class com.school.communication.service.MessageService
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[46,51] cannot find symbol
+  symbol:   method getRecipients()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[47,76] cannot find symbol
+  symbol:   method getSubject()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[47,98] cannot find symbol
+  symbol:   method getContent()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[49,76] cannot find symbol
+  symbol:   method getSubject()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[49,98] cannot find symbol
+  symbol:   method getContent()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[51,76] cannot find symbol
+  symbol:   method getSubject()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[51,98] cannot find symbol
+  symbol:   method getContent()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[55,18] cannot find symbol
+  symbol:   variable ANNOUNCEMENT
+  location: class com.school.communication.service.MessageService
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[56,18] cannot find symbol
+  symbol:   variable STAFF_NOTICE
+  location: class com.school.communication.service.MessageService
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[58,51] cannot find symbol
+  symbol:   method getRecipients()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[59,76] cannot find symbol
+  symbol:   method getSubject()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[59,98] cannot find symbol
+  symbol:   method getContent()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[61,76] cannot find symbol
+  symbol:   method getSubject()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[61,98] cannot find symbol
+  symbol:   method getContent()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[67,51] cannot find symbol
+  symbol:   method getRecipients()
+  location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[68,76] cannot find symbol
+  symbol:   method getSubject()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[68,98] cannot find symbol
+  symbol:   method getContent()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[80,20] cannot find symbol
+  symbol:   method getRecipients()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[80,67] cannot find symbol
+  symbol:   method getReadBy()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[81,20] cannot find symbol
+  symbol:   method getReadBy()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[99,40] cannot find symbol
+  symbol:   method getReadBy()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[123,36] cannot find symbol
+  symbol:   method getSender()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[123,79] cannot find symbol
+  symbol:   method getSender()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[118,26] cannot find symbol
+  symbol:   method builder()
+  location: class com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[119,28] cannot find symbol
+  symbol:   method getId()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[120,33] cannot find symbol
+  symbol:   method getSubject()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[121,33] cannot find symbol
+  symbol:   method getContent()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[122,34] cannot find symbol
+  symbol:   method getSender()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[124,37] cannot find symbol
+  symbol:   method getMessageType()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[125,34] cannot find symbol
+  symbol:   method getPriority()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[126,34] cannot find symbol
+  symbol:   method getSendTime()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[127,36] cannot find symbol
+  symbol:   method getRecipients()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[128,32] cannot find symbol
+  symbol:   method getReadBy()
+  location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[36,54] cannot find symbol
+  symbol:   method getDate()
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[53,29] cannot find symbol
+  symbol:   method getDate()
+  location: variable existingHoliday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[53,57] cannot find symbol
+  symbol:   method getDate()
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[54,58] cannot find symbol
+  symbol:   method getDate()
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[58,43] cannot find symbol
+  symbol:   method getDate()
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[59,43] cannot find symbol
+  symbol:   method getName()
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[60,50] cannot find symbol
+  symbol:   method getDescription()
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[61,43] cannot find symbol
+  symbol:   method getType()
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[131,41] cannot find symbol
+  symbol:   method getId()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[132,43] cannot find symbol
+  symbol:   method getDate()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[133,43] cannot find symbol
+  symbol:   method getName()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[134,43] cannot find symbol
+  symbol:   method getType()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[136,38] cannot find symbol
+  symbol:   method getDate()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[182,23] cannot find symbol
+  symbol:   method setName(java.lang.String)
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[183,23] cannot find symbol
+  symbol:   method setDate(java.time.LocalDate)
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[184,23] cannot find symbol
+  symbol:   method setType(com.school.hrm.model.HolidayType)
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[185,23] cannot find symbol
+  symbol:   method setDescription(java.lang.String)
+  location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[200,32] cannot find symbol
+  symbol:   method builder()
+  location: class com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[201,28] cannot find symbol
+  symbol:   method getId()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[202,30] cannot find symbol
+  symbol:   method getDate()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[203,30] cannot find symbol
+  symbol:   method getName()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[204,37] cannot find symbol
+  symbol:   method getDescription()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[205,30] cannot find symbol
+  symbol:   method getType()
+  location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[210,29] cannot find symbol
+  symbol:   method builder()
+  location: class com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[211,26] cannot find symbol
+  symbol:   method getDate()
+  location: variable dto of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[212,26] cannot find symbol
+  symbol:   method getName()
+  location: variable dto of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[213,33] cannot find symbol
+  symbol:   method getDescription()
+  location: variable dto of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[214,26] cannot find symbol
+  symbol:   method getType()
+  location: variable dto of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[23,16] cannot find symbol
+  symbol:   method setAdmissionDate(java.time.LocalDate)
+  location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[32,16] cannot find symbol
+  symbol:   method setId(java.lang.Long)
+  location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[84,16] cannot find symbol
+  symbol:   method setStatus(com.school.student.model.StudentStatus)
+  location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[106,20] cannot find symbol
+  symbol:   method setAdmissionDate(java.time.LocalDate)
+  location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[109,24] cannot find symbol
+  symbol:   method setStatus(com.school.student.model.StudentStatus)
+  location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[118,56] cannot find symbol
+  symbol:   method getStudentId()
+  location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[127,50] cannot find symbol
+  symbol:   method getStudentId()
+  location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[123,37] cannot find symbol
+  symbol:   method getPhone()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[124,60] cannot find symbol
+  symbol:   method getPhone()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[126,37] cannot find symbol
+  symbol:   method getDateOfBirth()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[127,66] cannot find symbol
+  symbol:   method getDateOfBirth()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[129,37] cannot find symbol
+  symbol:   method getAddress()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[130,62] cannot find symbol
+  symbol:   method getAddress()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[132,37] cannot find symbol
+  symbol:   method getRole()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[133,59] cannot find symbol
+  symbol:   method getRole()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[135,37] cannot find symbol
+  symbol:   method getEmploymentStatus()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[136,71] cannot find symbol
+  symbol:   method getEmploymentStatus()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[143,37] cannot find symbol
+  symbol:   method getTeacherDetails()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[144,69] cannot find symbol
+  symbol:   method getTeacherDetails()
+  location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[179,76] cannot find symbol
+  symbol:   method getStaff()
+  location: variable request of type com.school.staff.dto.BulkStaffRequest
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[181,69] cannot find symbol
+  symbol:   method getStaff()
+  location: variable request of type com.school.staff.dto.BulkStaffRequest
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[250,39] constructor BulkUploadResponse in class com.school.common.dto.BulkUploadResponse cannot be applied to given types;
+  required: int,int
+  found:    no arguments
+  reason: actual and formal argument lists differ in length
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[251,17] cannot find symbol
+  symbol:   method setCreated(int)
+  location: variable response of type com.school.common.dto.BulkUploadResponse
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[252,17] cannot find symbol
+  symbol:   method setUpdated(int)
+  location: variable response of type com.school.common.dto.BulkUploadResponse
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[253,17] cannot find symbol
+  symbol:   method setErrors(java.util.List<java.lang.String>)
+  location: variable response of type com.school.common.dto.BulkUploadResponse
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/adapter/EntityAdapter.java:[31,32] cannot find symbol
+  symbol:   method getId()
+  location: variable legacyStaff of type com.school.staff.model.Staff
+[INFO] 100 errors 
 [INFO] -------------------------------------------------------------
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  4.239 s
-[INFO] Finished at: 2025-06-16T18:44:45+05:30
+[INFO] Total time:  8.422 s
+[INFO] Finished at: 2025-06-16T19:41:44+05:30
 [INFO] ------------------------------------------------------------------------
 [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.10.1:compile (default-compile) on project school-app: Compilation failure: Compilation failure: 
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[151,9] illegal start of type
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[151,39] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[151,41] ';' expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[155,31] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[155,57] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[156,27] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[156,48] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[159,9] illegal start of type
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[159,42] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[159,44] ';' expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[176,9] illegal start of type
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[176,24] <identifier> expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[190,12] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[190,81] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[193,9] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[195,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[198,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[198,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[198,55] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[201,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[204,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[206,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[209,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[211,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[213,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[215,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[217,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[221,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[223,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[225,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[227,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[231,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[234,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[236,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[242,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[244,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[251,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[253,29] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[257,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[263,25] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[264,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[268,17] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[270,21] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[271,17] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[279,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[282,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[285,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[290,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[292,17] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[293,17] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[294,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[298,9] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[300,13] class, interface, enum, or record expected
-[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java:[302,9] class, interface, enum, or record expected
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/ExamTypeDTO.java:[13,8] class ExamTypeDto is public, should be declared in a file named ExamTypeDto.java
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/ExamTypeDtoTemp.java:[13,8] class ExamTypeDto is public, should be declared in a file named ExamTypeDto.java
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/ExamConfiguration.java:[79,35] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable exam of type com.school.exam.model.Exam
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[27,65] cannot find symbol
+[ERROR]   symbol:   method getSenderId()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[30,34] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[31,36] cannot find symbol
+[ERROR]   symbol:   method getSubject()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[32,36] cannot find symbol
+[ERROR]   symbol:   method getContent()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[34,40] cannot find symbol
+[ERROR]   symbol:   method getMessageType()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[35,37] cannot find symbol
+[ERROR]   symbol:   method getPriority()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[37,39] cannot find symbol
+[ERROR]   symbol:   method getRecipients()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[38,35] cannot find symbol
+[ERROR]   symbol:   method getReadBy()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[43,27] cannot find symbol
+[ERROR]   symbol:   method getMessageType()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[44,18] cannot find symbol
+[ERROR]   symbol:   variable EMERGENCY_ALERT
+[ERROR]   location: class com.school.communication.service.MessageService
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[46,51] cannot find symbol
+[ERROR]   symbol:   method getRecipients()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[47,76] cannot find symbol
+[ERROR]   symbol:   method getSubject()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[47,98] cannot find symbol
+[ERROR]   symbol:   method getContent()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[49,76] cannot find symbol
+[ERROR]   symbol:   method getSubject()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[49,98] cannot find symbol
+[ERROR]   symbol:   method getContent()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[51,76] cannot find symbol
+[ERROR]   symbol:   method getSubject()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[51,98] cannot find symbol
+[ERROR]   symbol:   method getContent()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[55,18] cannot find symbol
+[ERROR]   symbol:   variable ANNOUNCEMENT
+[ERROR]   location: class com.school.communication.service.MessageService
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[56,18] cannot find symbol
+[ERROR]   symbol:   variable STAFF_NOTICE
+[ERROR]   location: class com.school.communication.service.MessageService
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[58,51] cannot find symbol
+[ERROR]   symbol:   method getRecipients()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[59,76] cannot find symbol
+[ERROR]   symbol:   method getSubject()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[59,98] cannot find symbol
+[ERROR]   symbol:   method getContent()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[61,76] cannot find symbol
+[ERROR]   symbol:   method getSubject()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[61,98] cannot find symbol
+[ERROR]   symbol:   method getContent()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[67,51] cannot find symbol
+[ERROR]   symbol:   method getRecipients()
+[ERROR]   location: variable messageDTO of type com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[68,76] cannot find symbol
+[ERROR]   symbol:   method getSubject()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[68,98] cannot find symbol
+[ERROR]   symbol:   method getContent()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[80,20] cannot find symbol
+[ERROR]   symbol:   method getRecipients()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[80,67] cannot find symbol
+[ERROR]   symbol:   method getReadBy()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[81,20] cannot find symbol
+[ERROR]   symbol:   method getReadBy()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[99,40] cannot find symbol
+[ERROR]   symbol:   method getReadBy()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[123,36] cannot find symbol
+[ERROR]   symbol:   method getSender()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[123,79] cannot find symbol
+[ERROR]   symbol:   method getSender()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[118,26] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.school.communication.dto.MessageDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[119,28] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[120,33] cannot find symbol
+[ERROR]   symbol:   method getSubject()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[121,33] cannot find symbol
+[ERROR]   symbol:   method getContent()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[122,34] cannot find symbol
+[ERROR]   symbol:   method getSender()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[124,37] cannot find symbol
+[ERROR]   symbol:   method getMessageType()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[125,34] cannot find symbol
+[ERROR]   symbol:   method getPriority()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[126,34] cannot find symbol
+[ERROR]   symbol:   method getSendTime()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[127,36] cannot find symbol
+[ERROR]   symbol:   method getRecipients()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/service/MessageService.java:[128,32] cannot find symbol
+[ERROR]   symbol:   method getReadBy()
+[ERROR]   location: variable message of type com.school.communication.model.Message
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[36,54] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[53,29] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable existingHoliday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[53,57] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[54,58] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[58,43] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[59,43] cannot find symbol
+[ERROR]   symbol:   method getName()
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[60,50] cannot find symbol
+[ERROR]   symbol:   method getDescription()
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[61,43] cannot find symbol
+[ERROR]   symbol:   method getType()
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[131,41] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[132,43] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[133,43] cannot find symbol
+[ERROR]   symbol:   method getName()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[134,43] cannot find symbol
+[ERROR]   symbol:   method getType()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[136,38] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[182,23] cannot find symbol
+[ERROR]   symbol:   method setName(java.lang.String)
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[183,23] cannot find symbol
+[ERROR]   symbol:   method setDate(java.time.LocalDate)
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[184,23] cannot find symbol
+[ERROR]   symbol:   method setType(com.school.hrm.model.HolidayType)
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[185,23] cannot find symbol
+[ERROR]   symbol:   method setDescription(java.lang.String)
+[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[200,32] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[201,28] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[202,30] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[203,30] cannot find symbol
+[ERROR]   symbol:   method getName()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[204,37] cannot find symbol
+[ERROR]   symbol:   method getDescription()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[205,30] cannot find symbol
+[ERROR]   symbol:   method getType()
+[ERROR]   location: variable holiday of type com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[210,29] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.school.hrm.model.SchoolHoliday
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[211,26] cannot find symbol
+[ERROR]   symbol:   method getDate()
+[ERROR]   location: variable dto of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[212,26] cannot find symbol
+[ERROR]   symbol:   method getName()
+[ERROR]   location: variable dto of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[213,33] cannot find symbol
+[ERROR]   symbol:   method getDescription()
+[ERROR]   location: variable dto of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/SchoolHolidayServiceImpl.java:[214,26] cannot find symbol
+[ERROR]   symbol:   method getType()
+[ERROR]   location: variable dto of type com.school.hrm.dto.SchoolHolidayDTO
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[23,16] cannot find symbol
+[ERROR]   symbol:   method setAdmissionDate(java.time.LocalDate)
+[ERROR]   location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[32,16] cannot find symbol
+[ERROR]   symbol:   method setId(java.lang.Long)
+[ERROR]   location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[84,16] cannot find symbol
+[ERROR]   symbol:   method setStatus(com.school.student.model.StudentStatus)
+[ERROR]   location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[106,20] cannot find symbol
+[ERROR]   symbol:   method setAdmissionDate(java.time.LocalDate)
+[ERROR]   location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[109,24] cannot find symbol
+[ERROR]   symbol:   method setStatus(com.school.student.model.StudentStatus)
+[ERROR]   location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[118,56] cannot find symbol
+[ERROR]   symbol:   method getStudentId()
+[ERROR]   location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[127,50] cannot find symbol
+[ERROR]   symbol:   method getStudentId()
+[ERROR]   location: variable student of type com.school.student.model.Student
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[123,37] cannot find symbol
+[ERROR]   symbol:   method getPhone()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[124,60] cannot find symbol
+[ERROR]   symbol:   method getPhone()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[126,37] cannot find symbol
+[ERROR]   symbol:   method getDateOfBirth()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[127,66] cannot find symbol
+[ERROR]   symbol:   method getDateOfBirth()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[129,37] cannot find symbol
+[ERROR]   symbol:   method getAddress()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[130,62] cannot find symbol
+[ERROR]   symbol:   method getAddress()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[132,37] cannot find symbol
+[ERROR]   symbol:   method getRole()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[133,59] cannot find symbol
+[ERROR]   symbol:   method getRole()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[135,37] cannot find symbol
+[ERROR]   symbol:   method getEmploymentStatus()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[136,71] cannot find symbol
+[ERROR]   symbol:   method getEmploymentStatus()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[143,37] cannot find symbol
+[ERROR]   symbol:   method getTeacherDetails()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[144,69] cannot find symbol
+[ERROR]   symbol:   method getTeacherDetails()
+[ERROR]   location: variable staffDetails of type com.school.core.model.Staff
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[179,76] cannot find symbol
+[ERROR]   symbol:   method getStaff()
+[ERROR]   location: variable request of type com.school.staff.dto.BulkStaffRequest
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[181,69] cannot find symbol
+[ERROR]   symbol:   method getStaff()
+[ERROR]   location: variable request of type com.school.staff.dto.BulkStaffRequest
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[250,39] constructor BulkUploadResponse in class com.school.common.dto.BulkUploadResponse cannot be applied to given types;
+[ERROR]   required: int,int
+[ERROR]   found:    no arguments
+[ERROR]   reason: actual and formal argument lists differ in length
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[251,17] cannot find symbol
+[ERROR]   symbol:   method setCreated(int)
+[ERROR]   location: variable response of type com.school.common.dto.BulkUploadResponse
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[252,17] cannot find symbol
+[ERROR]   symbol:   method setUpdated(int)
+[ERROR]   location: variable response of type com.school.common.dto.BulkUploadResponse
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java:[253,17] cannot find symbol
+[ERROR]   symbol:   method setErrors(java.util.List<java.lang.String>)
+[ERROR]   location: variable response of type com.school.common.dto.BulkUploadResponse
+[ERROR] /C:/Users/amitk/Documents/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/adapter/EntityAdapter.java:[31,32] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable legacyStaff of type com.school.staff.model.Staff
 [ERROR] -> [Help 1]
 [ERROR] 
 [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.

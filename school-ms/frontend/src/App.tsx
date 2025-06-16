@@ -6,6 +6,7 @@ import RoleBasedRoute from './components/RoleBasedRoute';
 import Admissions from './pages/Admissions';
 import BlueprintForm from './pages/BlueprintForm';
 import Dashboard from './pages/Dashboard';
+import ExamConfigurationForm from './pages/ExamConfigurationForm';
 import ExaminationManagement from './pages/ExaminationManagement';
 import FeeManagement from './pages/FeeManagement'; // Import the FeeManagement page
 import Landing from './pages/Landing';
@@ -18,7 +19,7 @@ import Students from './pages/Students';
 import TeacherAttendance from './pages/TeacherAttendance'; // Import the TeacherAttendance page
 // Import new consolidated views
 import ConsolidatedCourseView from './pages/ConsolidatedCourseView';
-import ConsolidatedStaffView from './pages/ConsolidatedStaffView';
+// ConsolidatedStaffView removed as we're now using the main Staff component
 import theme from './theme';
 // Import the connectivity checker
 import { autoDetectApiUrl } from './utils/connectivityCheck';
@@ -132,19 +133,7 @@ function AppRoutes() {
             </Layout>
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="/consolidated-staff"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <RoleBasedRoute allowedRoles={[ROLES.ADMIN]}>
-                <ConsolidatedStaffView />
-              </RoleBasedRoute>
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
+      />      {/* Consolidated staff route removed - now using core staff controller */}
       <Route
         path="/consolidated-courses"
         element={
@@ -206,6 +195,25 @@ function AppRoutes() {
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
               <BlueprintForm mode="edit" />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />      <Route
+        path="/exams/configuration/new"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <ExamConfigurationForm />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/exams/configuration/edit/:id"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+              <ExamConfigurationForm />
             </RoleBasedRoute>
           </ProtectedRoute>
         }

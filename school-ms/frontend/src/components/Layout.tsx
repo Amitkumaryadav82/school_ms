@@ -80,12 +80,6 @@ const menuItems: MenuItem[] = [
     allowedRoles: [ROLES.ADMIN]
   },
   { 
-    text: 'Staff (New)', 
-    icon: <People />, 
-    path: '/consolidated-staff',
-    allowedRoles: [ROLES.ADMIN]
-  },
-  { 
     text: 'Courses', 
     icon: <Book />, 
     path: '/consolidated-courses',

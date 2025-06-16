@@ -16,6 +16,12 @@ import java.time.LocalDateTime;
 @Builder
 public class Exam extends BaseEntity {
     
+    // Explicitly define getId to ensure it's visible
+    @Override
+    public Long getId() {
+        return super.getId();
+    }
+    
     @NotBlank
     @Column(nullable = false)
     private String name;

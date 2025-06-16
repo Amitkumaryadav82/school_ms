@@ -6,6 +6,7 @@ import com.school.exam.service.ExamService;
 import com.school.exam.dto.ExamRequest;
 import com.school.exam.dto.ExamResultRequest;
 import com.school.exam.dto.ExamSummary;
+import com.school.exam.dto.ExamTypeDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -130,5 +132,18 @@ public class ExamController {
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public ResponseEntity<ExamSummary> getExamSummary(@PathVariable Long id) {
         return ResponseEntity.ok(examService.generateExamSummary(id));
+    }    @Operation(summary = "Get exam types", description = "Retrieves all available exam types")
+    @ApiResponse(responseCode = "200", description = "Exam types retrieved successfully")
+    @GetMapping("/types")
+    public ResponseEntity<List<ExamTypeDto>> getExamTypes() {
+        List<ExamTypeDto> examTypeDtos = Arrays.stream(Exam.ExamType.values())
+            .map(type -> new ExamTypeDto(type.name(), formatEnumDisplayName(type.name())))
+            .collect(java.util.stream.Collectors.toList());
+        
+        return ResponseEntity.ok(examTypeDtos);
+    }
+    
+    private String formatEnumDisplayName(String enumName) {
+        return enumName.substring(0, 1) + enumName.substring(1).toLowerCase().replace("_", " ");
     }
 }

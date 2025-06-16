@@ -21,4 +21,32 @@ public class MessageDTO {
     private Set<String> recipients;
     private Set<String> readBy;
     private boolean isRead;
+    
+    public Long getSenderId() {
+        return this.senderId;
+    }
+    
+    public String getSubject() {
+        return this.subject;
+    }
+    
+    public String getContent() {
+        return this.content;
+    }
+    
+    public MessageType getMessageType() {
+        return this.messageType;
+    }
+    
+    public MessagePriority getPriority() {
+        return this.priority;
+    }
+    
+    public Set<String> getRecipients() {
+        return this.recipients;
+    }
+    
+    public Set<String> getReadBy() {
+        return this.readBy;
+    }
 }
