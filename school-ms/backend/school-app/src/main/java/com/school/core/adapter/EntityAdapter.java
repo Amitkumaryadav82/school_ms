@@ -5,113 +5,42 @@ import com.school.core.model.Staff;
 import com.school.core.model.TeacherDetails;
 import com.school.core.model.legacy.LegacyStaff;
 import com.school.core.model.legacy.LegacyTeacherDetails;
-import com.school.hrm.entity.StaffRole;
-import com.school.hrm.model.EmploymentStatus;
+import com.school.core.model.StaffRole;
+import com.school.core.model.EmploymentStatus;
 import com.school.common.util.DateConverter;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 
 /**
  * Adapter class to convert between different Staff and TeacherDetails entity types.
- * This class helps with the migration from legacy entities to the consolidated core entities.
  */
 @Component
 public class EntityAdapter {
-
-    /**
-     * Convert from legacy staff model to core model
-     *
-     * @param legacyStaff Staff from com.school.staff.model.Staff
-     * @return Consolidated Staff entity
-     */
-    public Staff convertStaffModelToCore(com.school.staff.model.Staff legacyStaff) {
-        if (legacyStaff == null) return null;
-
-        Staff staff = new Staff();
-        staff.setId(legacyStaff.getId());
-        staff.setStaffId(legacyStaff.getStaffId());
-        staff.setFirstName(legacyStaff.getFirstName());
-        staff.setMiddleName(legacyStaff.getMiddleName());
-        staff.setLastName(legacyStaff.getLastName());
-        staff.setEmail(legacyStaff.getEmail());
-        staff.setPhone(legacyStaff.getPhone());
-        
-        // No conversion needed as both use LocalDate
-        staff.setDateOfBirth(legacyStaff.getDateOfBirth());
-        staff.setAddress(legacyStaff.getAddress());
-        staff.setActive(legacyStaff.isActive());
-        
-        // Convert teacher details if present
-        if (legacyStaff.getTeacherDetails() != null) {
-            staff.setTeacherDetails(convertTeacherDetailsModelToCore(legacyStaff.getTeacherDetails()));
-        }
-        
-        return staff;
-    }
     
     /**
-     * Convert from HRM entity to core model
+     * Convert from legacy entity to core model
      *
-     * @param hrmStaff Staff from com.school.hrm.entity.Staff
+     * @param legacyStaff Staff from com.example.schoolms.model.Staff (LegacyStaff)
      * @return Consolidated Staff entity
      */
-    public Staff convertHrmEntityToCore(com.school.hrm.entity.Staff hrmStaff) {
-        if (hrmStaff == null) return null;
-
-        Staff staff = new Staff();
-        staff.setId(hrmStaff.getId());
-        staff.setStaffId(hrmStaff.getStaffId());
-        staff.setFirstName(hrmStaff.getFirstName());
-        staff.setLastName(hrmStaff.getLastName());        staff.setEmail(hrmStaff.getEmail());
-        // Check if phone method exists in hrm staff
-        if (hrmStaff.getPhoneNumber() != null) {
-            staff.setPhone(hrmStaff.getPhoneNumber());
-        }
-        staff.setDateOfBirth(hrmStaff.getDateOfBirth());
-        staff.setAddress(hrmStaff.getAddress());        // Convert StaffRole to string if necessary
-        if (hrmStaff.getRole() != null) {
-            staff.setRole(hrmStaff.getRole().getRoleName());
-        }
-        staff.setEmploymentStatus(hrmStaff.getEmploymentStatus());
-        staff.setActive(hrmStaff.getIsActive());
-        // Check if the method exists or use joinDate
-        if (hrmStaff.getJoinDate() != null) {
-            staff.setJoinDate(hrmStaff.getJoinDate());
-            staff.setJoiningDate(hrmStaff.getJoinDate());
-        }
-        
-        return staff;
-    }
-      /**
-     * Convert from legacy staff model to core model
-     *
-     * @param legacyStaff Staff from legacy model
-     * @return Consolidated Staff entity
-     */
-    public Staff convertLegacyStaffToCore(LegacyStaff legacyStaff) {
+    public Staff convertLegacyToCore(LegacyStaff legacyStaff) {
         if (legacyStaff == null) return null;
         
         Staff staff = new Staff();
-        staff.setId(legacyStaff.getId());
+        
         staff.setStaffId(legacyStaff.getStaffId());
         staff.setFirstName(legacyStaff.getFirstName());
-        staff.setMiddleName(legacyStaff.getMiddleName());
         staff.setLastName(legacyStaff.getLastName());
         staff.setEmail(legacyStaff.getEmail());
         staff.setPhone(legacyStaff.getPhone());
         
-        // Handle null dates with null check
-        if (legacyStaff.getDateOfBirth() != null) {
-            staff.setDateOfBirth(DateConverter.toLocalDate(legacyStaff.getDateOfBirth()));
-        }
+        // Convert dates
+        staff.setDateOfJoining(DateConverter.convertToLocalDate(legacyStaff.getJoiningDate()));
+        staff.setDateOfBirth(DateConverter.convertToLocalDate(legacyStaff.getDateOfBirth()));
         
+        // Set other fields from legacy model
         staff.setAddress(legacyStaff.getAddress());
-        
-        // Convert teacher details if present
-        if (legacyStaff.getTeacherDetails() != null) {
-            TeacherDetails teacherDetails = convertLegacyTeacherDetailsToCore(legacyStaff.getTeacherDetails());
-            staff.setTeacherDetails(teacherDetails);
-        }
+        staff.setGender(legacyStaff.getGender());
         
         return staff;
     }
@@ -119,56 +48,49 @@ public class EntityAdapter {
     /**
      * Convert from legacy TeacherDetails to core TeacherDetails
      *
-     * @param legacyTeacherDetails TeacherDetails from com.school.staff.model
+     * @param legacyDetails TeacherDetails from com.example.schoolms.model.TeacherDetails
      * @return Consolidated TeacherDetails entity
-     */    public TeacherDetails convertTeacherDetailsModelToCore(com.school.staff.model.TeacherDetails legacyTeacherDetails) {
-        if (legacyTeacherDetails == null) return null;
-
-        TeacherDetails teacherDetails = new TeacherDetails();
-        teacherDetails.setId(legacyTeacherDetails.getId());
-        teacherDetails.setDepartment(legacyTeacherDetails.getDepartment());
-        teacherDetails.setQualification(legacyTeacherDetails.getQualification());
-        teacherDetails.setSpecialization(legacyTeacherDetails.getSpecialization());
-        teacherDetails.setSubjects(legacyTeacherDetails.getSubjects());
-        teacherDetails.setYearsOfExperience(legacyTeacherDetails.getYearsOfExperience());
+     */    public TeacherDetails convertLegacyToCore(LegacyTeacherDetails legacyDetails) {
+        if (legacyDetails == null) return null;
         
-        // Handle null dates with null check
-        if (legacyTeacherDetails.getCreatedAt() != null) {
-            teacherDetails.setCreatedAt(legacyTeacherDetails.getCreatedAt());
-        }
+        TeacherDetails details = new TeacherDetails();
         
-        if (legacyTeacherDetails.getUpdatedAt() != null) {
-            teacherDetails.setUpdatedAt(legacyTeacherDetails.getUpdatedAt());
-        }
+        // Set fields from legacy model
+        details.setSubjectsTaught(legacyDetails.getSubjectsTaught());
+        details.setQualification(legacyDetails.getQualification());
+        details.setYearsOfExperience(legacyDetails.getYearsOfExperience());
+        details.setSpecialization(legacyDetails.getSpecialization());
         
-        return teacherDetails;
+        return details;
     }
-      /**
-     * Convert from legacy TeacherDetails to core TeacherDetails
-     *
-     * @param legacyTeacherDetails TeacherDetails from legacy model
-     * @return Consolidated TeacherDetails entity
+    
+    /**
+     * Convert from Staff Module model to Core model
+     * 
+     * @param staffModuleStaff Staff from com.school.staff.model.Staff
+     * @return Consolidated Staff entity
      */
-    public TeacherDetails convertLegacyTeacherDetailsToCore(LegacyTeacherDetails legacyTeacherDetails) {
-        if (legacyTeacherDetails == null) return null;
-
-        TeacherDetails teacherDetails = new TeacherDetails();
-        teacherDetails.setId(legacyTeacherDetails.getId());
-        teacherDetails.setDepartment(legacyTeacherDetails.getDepartment());
-        teacherDetails.setQualification(legacyTeacherDetails.getQualification());
-        teacherDetails.setSpecialization(legacyTeacherDetails.getSpecialization());
-        teacherDetails.setSubjects(legacyTeacherDetails.getSubjects());
-        teacherDetails.setYearsOfExperience(legacyTeacherDetails.getYearsOfExperience());
+    public Staff convertStaffModelToCore(com.school.staff.model.Staff staffModuleStaff) {
+        if (staffModuleStaff == null) return null;
         
-        // Handle null dates with null check
-        if (legacyTeacherDetails.getCreatedAt() != null) {
-            teacherDetails.setCreatedAt(DateConverter.toLocalDateTime(legacyTeacherDetails.getCreatedAt()));
+        Staff staff = new Staff();
+        
+        // Core fields
+        staff.setStaffId(staffModuleStaff.getStaffId());
+        staff.setFirstName(staffModuleStaff.getFirstName());
+        staff.setLastName(staffModuleStaff.getLastName());
+        staff.setEmail(staffModuleStaff.getEmail());
+        staff.setPhone(staffModuleStaff.getPhone());
+        
+        // Additional fields if available
+        if (staffModuleStaff.getAddress() != null) {
+            staff.setAddress(staffModuleStaff.getAddress());
         }
         
-        if (legacyTeacherDetails.getUpdatedAt() != null) {
-            teacherDetails.setUpdatedAt(DateConverter.toLocalDateTime(legacyTeacherDetails.getUpdatedAt()));
+        if (staffModuleStaff.getDepartment() != null) {
+            staff.setDepartment(staffModuleStaff.getDepartment());
         }
         
-        return teacherDetails;
+        return staff;
     }
 }

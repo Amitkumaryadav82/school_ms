@@ -16,13 +16,13 @@ public class LegacyStaff {
     private String lastName;
     private String email;
     private String phone;
-    private String phoneNumber;
-    private String address;
+    private String phoneNumber;    private String address;
     private String role;
     private Date dateOfBirth;
     private Date joiningDate;
     private String department;
     private boolean active;
+    private String gender;
     
     // Reference to teacher details
     private LegacyTeacherDetails teacherDetails;

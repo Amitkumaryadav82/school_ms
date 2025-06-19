@@ -15,12 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Exam extends BaseEntity {
-    
-    // Explicitly define getId to ensure it's visible
-    @Override
-    public Long getId() {
-        return super.getId();
-    }
+      // We no longer need to override the getId method since it's properly inherited from BaseEntity
     
     @NotBlank
     @Column(nullable = false)

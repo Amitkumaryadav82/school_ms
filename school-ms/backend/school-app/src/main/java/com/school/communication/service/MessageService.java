@@ -5,8 +5,8 @@ import com.school.communication.model.MessageType;
 import com.school.communication.model.NotificationType;
 import com.school.communication.repository.MessageRepository;
 import com.school.communication.dto.MessageDTO;
-import com.school.hrm.model.Employee;
-import com.school.hrm.repository.EmployeeRepository;
+import com.school.core.model.Employee;
+import com.school.core.repository.EmployeeRepository;
 import com.school.communication.exception.MessageNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,10 +36,10 @@ public class MessageService {
                 .sendTime(LocalDateTime.now())
                 .recipients(messageDTO.getRecipients())
                 .readBy(messageDTO.getReadBy())
-                .build();
-
-        Message savedMessage = messageRepository.save(message);
-        MessageDTO savedMessageDTO = convertToDTO(savedMessage);        // Send notifications based on message type
+                .build();        Message savedMessage = messageRepository.save(message);
+        MessageDTO savedMessageDTO = convertToDTO(savedMessage);
+        
+        // Send notifications based on message type
         switch (messageDTO.getMessageType()) {
             case EMERGENCY_ALERT:
                 // For emergency alerts, send all types of notifications

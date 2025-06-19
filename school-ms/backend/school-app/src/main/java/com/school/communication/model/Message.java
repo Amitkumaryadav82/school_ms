@@ -1,7 +1,7 @@
 package com.school.communication.model;
 
 import com.school.common.model.BaseEntity;
-import com.school.hrm.model.Employee;
+import com.school.core.model.Employee;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,17 +15,13 @@ import java.util.Set;
 
 @Data
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "messages")
-@Builder(toBuilder = true)
 public class Message extends BaseEntity {
-    
-    // Explicit builder method to ensure it's recognized
-    public static MessageBuilder builder() {
-        return new MessageBuilder();
-    }    @Column(nullable = false)
+    @Column(nullable = false)
     private String subject;
     
     public String getSubject() {
@@ -45,11 +41,19 @@ public class Message extends BaseEntity {
     
     public void setContent(String content) {
         this.content = content;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    }    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
-    private Employee sender;    @Column(nullable = false)
+    private Employee sender;
+    
+    public Employee getSender() {
+        return this.sender;
+    }
+    
+    public void setSender(Employee sender) {
+        this.sender = sender;
+    }
+    
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
     
@@ -71,10 +75,18 @@ public class Message extends BaseEntity {
     
     public void setPriority(MessagePriority priority) {
         this.priority = priority;
+    }    @Column(nullable = false)
+    private LocalDateTime sendTime;
+    
+    public LocalDateTime getSendTime() {
+        return this.sendTime;
     }
-
-    @Column(nullable = false)
-    private LocalDateTime sendTime;    @ElementCollection
+    
+    public void setSendTime(LocalDateTime sendTime) {
+        this.sendTime = sendTime;
+    }
+    
+    @ElementCollection
     @CollectionTable(name = "message_recipients", joinColumns = @JoinColumn(name = "message_id"))
     @Builder.Default
     private Set<String> recipients = new HashSet<>();

@@ -21,8 +21,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import com.school.hrm.model.EmploymentStatus;
-import com.school.hrm.entity.StaffRole;
+import com.school.core.model.EmploymentStatus;
+import com.school.core.model.StaffRole;
 import com.school.core.model.TeacherDetails;
 
 /**
@@ -38,19 +38,18 @@ import com.school.core.model.TeacherDetails;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Staff {
-
-    @Id
+public class Staff {    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     public Long getId() {
         return this.id;
     }
-    
-    public void setId(Long id) {
+      public void setId(Long id) {
         this.id = id;
-    }    @Column(name = "staff_id", unique = true, nullable = false)
+    }
+    
+    @Column(name = "staff_id", unique = true, nullable = false)
     private String staffId;
     
     public String getStaffId() {
@@ -126,10 +125,30 @@ public class Staff {
     private LocalDate joiningDate;
 
     @Column(name = "termination_date")
-    private LocalDate terminationDate;
-
-    @Column(name = "department")
+    private LocalDate terminationDate;    @Column(name = "department")
     private String department;
+    
+    @Column(name = "designation")
+    private String designation;
+    
+    @Column(name = "date_of_joining")
+    private LocalDate dateOfJoining;
+    
+    public String getDesignation() {
+        return this.designation;
+    }
+    
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+    
+    public LocalDate getDateOfJoining() {
+        return this.dateOfJoining;
+    }
+    
+    public void setDateOfJoining(LocalDate dateOfJoining) {
+        this.dateOfJoining = dateOfJoining;
+    }
 
     @Enumerated(EnumType.STRING)
     @Column(name = "employment_status")

@@ -21,15 +21,15 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class StaffMigrationService {
-    
-    @Autowired
+      @Autowired
     private StaffRepository staffRepository;
 
     @Autowired
     private StaffEntityAdapter staffAdapter;
 
-    @Autowired
-    private com.school.hrm.repository.StaffRepository hrmStaffRepository;
+    // Legacy repositories are no longer available after migration
+    // @Autowired
+    // private com.school.hrm.repository.StaffRepository hrmStaffRepository;
 
     @Autowired
     private com.school.staff.repository.StaffRepository staffModelRepository;
@@ -39,34 +39,13 @@ public class StaffMigrationService {
      * This method should be called only once during application startup or via a migration script.
      * 
      * @return The number of staff records migrated
-     */
-    @Transactional
+     */    @Transactional
     public int migrateAllStaffData() {
         log.info("Starting staff data migration from legacy entities to consolidated entity");
         int migrationCount = 0;
         
-        // Migrate from HRM Staff
-        List<com.school.hrm.entity.Staff> hrmStaffList = hrmStaffRepository.findAll();
-        for (com.school.hrm.entity.Staff hrmStaff : hrmStaffList) {
-            try {
-                Staff staff = staffAdapter.fromHrmStaff(hrmStaff);
-                Optional<Staff> existingStaff = staffRepository.findByStaffId(hrmStaff.getStaffId());
-                
-                if (existingStaff.isPresent()) {
-                    Staff updated = staffAdapter.updateFromHrmStaff(existingStaff.get(), hrmStaff);
-                    staffRepository.save(updated);
-                } else {
-                    staffRepository.save(staff);
-                }
-                
-                migrationCount++;
-            } catch (Exception e) {
-                log.error("Error migrating HRM Staff with ID {}: {}", hrmStaff.getId(), e.getMessage(), e);
-            }
-        }
-        
-        log.info("Migrated {} HRM Staff records", migrationCount);
-        
+        // HRM Staff migration is no longer needed as the package has been removed
+        log.info("Skipping HRM staff migration as the package has been removed");
         // Migrate from Staff Model
         int staffModelCount = 0;
         List<com.school.staff.model.Staff> staffModelList = staffModelRepository.findAll();
@@ -92,31 +71,29 @@ public class StaffMigrationService {
         
         return migrationCount + staffModelCount;
     }
-    
-    /**
+      /**
      * Checks if all staff data has been migrated to the consolidated Staff entity.
      * 
      * @return true if all data has been migrated, false otherwise
      */
     public boolean isMigrationComplete() {
-        long hrmStaffCount = hrmStaffRepository.count();
+        // HRM repository no longer exists
         long staffModelCount = staffModelRepository.count();
         long consolidatedCount = staffRepository.count();
         
-        return consolidatedCount >= (hrmStaffCount + staffModelCount);
+        return consolidatedCount >= staffModelCount;
     }
-    
-    /**
+      /**
      * Gets the migration status.
      * 
      * @return A string with the migration status
      */
     public String getMigrationStatus() {
-        long hrmStaffCount = hrmStaffRepository.count();
+        // HRM repository no longer exists
         long staffModelCount = staffModelRepository.count();
         long consolidatedCount = staffRepository.count();
         
-        return String.format("Migration status: %d/%d records migrated (HRM: %d, Staff Model: %d)",
-                consolidatedCount, hrmStaffCount + staffModelCount, hrmStaffCount, staffModelCount);
+        return String.format("Migration status: %d/%d records migrated (Staff Model: %d)",
+                consolidatedCount, staffModelCount, staffModelCount);
     }
 }

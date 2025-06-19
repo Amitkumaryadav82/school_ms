@@ -43,7 +43,7 @@ public class DateConverter {
      * @param date the Date to convert
      * @return LocalDate equivalent, or null if input is null
      */
-    public static LocalDate toLocalDate(Date date) {
+    public static LocalDate convertToLocalDate(Date date) {
         if (date == null) {
             return null;
         }
@@ -56,10 +56,30 @@ public class DateConverter {
      * @param date the Date to convert
      * @return LocalDateTime equivalent, or null if input is null
      */
-    public static LocalDateTime toLocalDateTime(Date date) {
+    public static LocalDateTime convertToLocalDateTime(Date date) {
         if (date == null) {
             return null;
         }
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+    
+    /**
+     * Alias for convertToLocalDate for better naming consistency
+     * 
+     * @param date the Date to convert
+     * @return LocalDate equivalent, or null if input is null
+     */
+    public static LocalDate toLocalDate(Date date) {
+        return convertToLocalDate(date);
+    }
+    
+    /**
+     * Alias for convertToLocalDateTime for better naming consistency
+     * 
+     * @param date the Date to convert
+     * @return LocalDateTime equivalent, or null if input is null
+     */
+    public static LocalDateTime toLocalDateTime(Date date) {
+        return convertToLocalDateTime(date);
     }
 }

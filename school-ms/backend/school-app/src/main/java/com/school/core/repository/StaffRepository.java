@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.school.core.model.Staff;
-import com.school.hrm.entity.StaffRole;
+import com.school.core.model.StaffRole;
 
 /**
  * Repository for accessing staff data from the database.
@@ -57,22 +57,20 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
      * @param isActive The active status
      * @return List of staff with the specified active status
      */
-    List<Staff> findByIsActive(Boolean isActive);
-      /**
+    List<Staff> findByIsActive(Boolean isActive);    /**
      * Find staff members by role name
      * 
      * @param roleName The role name
      * @return List of staff with the specified role name
      */
-    @Query("SELECT s FROM CoreStaff s WHERE s.staffRole.roleName = ?1")
+    @Query("SELECT s FROM CoreStaff s WHERE s.staffRole.name = ?1")
     List<Staff> findByRoleName(String roleName);
-    
-    /**
+      /**
      * Find staff who are teachers
      * 
      * @return List of staff who are teachers
      */
-    @Query("SELECT s FROM CoreStaff s WHERE s.staffRole.roleName = 'Teacher'")
+    @Query("SELECT s FROM CoreStaff s WHERE s.staffRole.name = 'Teacher'")
     List<Staff> findAllTeachers();
       /**
      * Find staff by their role entity ID

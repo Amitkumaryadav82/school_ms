@@ -56,9 +56,9 @@ public class Staff {
     private String role;    @Column(name = "staff_date_of_birth")
     private LocalDate dateOfBirth;
 
-    private LocalDate joiningDate;
-
-    private String department;
+    private LocalDate joiningDate;    private String department;
+    
+    private String designation;
 
     @Column(nullable = false)
     private boolean active = true;

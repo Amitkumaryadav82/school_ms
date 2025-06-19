@@ -36,15 +36,13 @@ public class OpenApiConfig {
                                 .packagesToScan("com.school")
                                 .pathsToMatch("/api/**")
                                 .build();
-        }
-
-        // Specific API group for staff management
+        }        // Specific API group for staff management
         @Bean
         public GroupedOpenApi staffManagementGroup() {
                 return GroupedOpenApi.builder()
                                 .group("staff-management")
-                                .packagesToScan("com.school.staff.controller", "com.school.hrm.controller")
-                                .pathsToMatch("/api/staff/**", "/api/hrm/staff/**")
+                                .packagesToScan("com.school.core.controller")
+                                .pathsToMatch("/api/staff/**")
                                 .build();
         }
         

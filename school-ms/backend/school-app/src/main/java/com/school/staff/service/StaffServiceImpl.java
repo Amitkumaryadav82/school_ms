@@ -39,18 +39,20 @@ public class StaffServiceImpl implements StaffService {    private static final 
     @Autowired
     public StaffServiceImpl(StaffAdapter staffAdapter) {
         this.staffAdapter = staffAdapter;
-    }
-      @Override
+    }    @Override
     public List<Staff> getAllStaff() {
-        return staffAdapter.getAllStaffLegacy();
+        List<com.school.core.dto.StaffDTO> dtoList = staffAdapter.getAllStaffLegacy();
+        return convertDTOListToStaffList(dtoList);
     }
     
     @Override
     public Optional<Staff> getStaffById(Long id) {
-        return staffAdapter.getStaffByIdLegacy(id);
-    }
-
-    @Override
+        com.school.core.dto.StaffDTO dto = staffAdapter.getStaffByIdLegacy(id);
+        if (dto == null) {
+            return Optional.empty();
+        }
+        return Optional.of(convertDTOToStaff(dto));
+    }    @Override
     public Staff createStaff(Staff staff) {
         // Generate staff ID if not provided
         if (staff.getStaffId() == null || staff.getStaffId().isEmpty()) {
@@ -64,31 +66,93 @@ public class StaffServiceImpl implements StaffService {    private static final 
             staff.setJoiningDate(LocalDate.now());
         }
         
-        return staffAdapter.createStaffLegacy(staff);
+        com.school.core.dto.StaffDTO dto = staffAdapter.createStaffLegacy(staff);
+        return convertDTOToStaff(dto);
     }    @Override
     public Optional<Staff> updateStaff(Long id, Staff staffDetails) {
-        return staffAdapter.updateStaffLegacy(id, staffDetails);
+        com.school.core.dto.StaffDTO dto = staffAdapter.updateStaffLegacy(id, staffDetails);
+        if (dto == null) {
+            return Optional.empty();
+        }
+        return Optional.of(convertDTOToStaff(dto));
     }
     
     @Override
     public boolean deleteStaff(Long id) {
-        return staffAdapter.deleteStaffLegacy(id);
+        staffAdapter.deleteStaffLegacy(id);
+        return true;
     }
     
     @Override
     public List<Staff> findByRole(String role) {
-        return staffAdapter.findByRoleLegacy(role);
+        List<com.school.core.dto.StaffDTO> dtoList = staffAdapter.findByRoleLegacy(role);
+        return convertDTOListToStaffList(dtoList);
     }
 
     @Override
     public List<Staff> findByIsActive(boolean active) {
-        return staffAdapter.findByIsActiveLegacy(active);
-    }
-
-    @Override
+        List<com.school.core.dto.StaffDTO> dtoList = staffAdapter.findByIsActiveLegacy(active);
+        return convertDTOListToStaffList(dtoList);
+    }    @Override
     @Transactional
     public BulkUploadResponse bulkCreateOrUpdateStaff(List<Staff> staffList) {
         return staffAdapter.bulkCreateOrUpdateStaffLegacy(staffList);
+    }
+    
+    /**
+     * Convert a StaffDTO to a legacy Staff model
+     * @param dto StaffDTO from core package
+     * @return Legacy Staff entity
+     */
+    private Staff convertDTOToStaff(com.school.core.dto.StaffDTO dto) {
+        if (dto == null) return null;
+        
+        Staff staff = new Staff();
+        staff.setId(dto.getId());
+        staff.setStaffId(dto.getStaffId());
+        staff.setFirstName(dto.getFirstName());
+        staff.setLastName(dto.getLastName());
+        staff.setEmail(dto.getEmail());
+        staff.setPhone(dto.getPhone());
+        
+        // Convert other fields as needed
+        if (dto.getDesignation() != null) {
+            staff.setDesignation(dto.getDesignation());
+        }
+        
+        if (dto.getDepartment() != null) {
+            staff.setDepartment(dto.getDepartment());
+        }
+        
+        if (dto.getDateOfJoining() != null) {
+            staff.setJoiningDate(dto.getDateOfJoining());
+        }
+        
+        // Convert role information
+        if (dto.getStaffRole() != null) {
+            staff.setRole(dto.getStaffRole().getName());
+        }
+        
+        return staff;
+    }
+    
+    /**
+     * Convert a list of StaffDTOs to a list of legacy Staff entities
+     * @param dtoList List of StaffDTOs
+     * @return List of legacy Staff entities
+     */
+    private List<Staff> convertDTOListToStaffList(List<com.school.core.dto.StaffDTO> dtoList) {
+        List<Staff> staffList = new ArrayList<>();
+        if (dtoList == null) return staffList;
+        
+        for (com.school.core.dto.StaffDTO dto : dtoList) {
+            Staff staff = convertDTOToStaff(dto);
+            if (staff != null) {
+                staffList.add(staff);
+            }
+        }
+        
+        return staffList;
     }
 
     /**
