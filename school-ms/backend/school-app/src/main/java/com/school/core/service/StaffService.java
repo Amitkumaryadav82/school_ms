@@ -102,7 +102,7 @@ public interface StaffService {
      * @param active The active status to search for
      * @return List of staff with the specified active status
      */
-    List<Staff> findByIsActive(boolean active);
+    List<Staff> findByIsActive(boolean isActive);
     
     /**
      * Find all teachers

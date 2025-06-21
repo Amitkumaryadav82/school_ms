@@ -164,10 +164,9 @@ public class StaffServiceImpl implements StaffService {
     public List<Staff> findByRole(String role) {
         return staffRepository.findByRoleName(role);
     }
-    
-    @Override
-    public List<Staff> findByIsActive(boolean active) {
-        return staffRepository.findByIsActive(active);
+      @Override
+    public List<Staff> findByIsActive(boolean isActive) {
+        return staffRepository.findByIsActive(isActive);
     }
     
     @Override

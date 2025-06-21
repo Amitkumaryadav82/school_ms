@@ -163,4 +163,59 @@ public class StaffEntityAdapter {
         
         return staff;
     }
+    
+    /**
+     * Convert a core Staff entity to an HRM Staff DTO
+     *
+     * @param staff Core Staff entity
+     * @return HRM Staff DTO
+     */
+    public com.school.hrm.dto.StaffDTO convertCoreStaffToHrmDTO(Staff staff) {
+        if (staff == null) return null;
+        
+        com.school.hrm.dto.StaffDTO dto = new com.school.hrm.dto.StaffDTO();
+        
+        dto.setId(staff.getId());
+        dto.setStaffId(staff.getStaffId());
+        dto.setFirstName(staff.getFirstName());
+        dto.setLastName(staff.getLastName());
+        dto.setFullName(staff.getFirstName() + " " + staff.getLastName());
+        dto.setEmail(staff.getEmail());
+        dto.setPhoneNumber(staff.getPhone());
+        dto.setAddress(staff.getAddress());
+        dto.setDateOfBirth(staff.getDateOfBirth());
+        dto.setGender(staff.getGender());
+        dto.setJoinDate(staff.getDateOfJoining());
+        dto.setDepartment(staff.getDepartment());
+        dto.setDesignation(staff.getDesignation());
+        
+        if (staff.getRole() != null) {
+            dto.setRoleId(staff.getRole().getId());
+            dto.setRoleName(staff.getRole().getName());
+            dto.setRole(staff.getRole().getName());
+        }
+        
+        dto.setIsActive(staff.isActive());
+        
+        // Convert employment status
+        if (staff.getEmploymentStatus() != null) {
+            dto.setEmploymentStatus(staff.getEmploymentStatus().name());
+        }
+        
+        return dto;
+    }
+
+    /**
+     * Convert a list of core Staff entities to a list of HRM Staff DTOs
+     *
+     * @param staffList List of core Staff entities
+     * @return List of HRM Staff DTOs
+     */
+    public List<com.school.hrm.dto.StaffDTO> convertCoreStaffListToHrmDTOList(List<Staff> staffList) {
+        if (staffList == null) return new ArrayList<>();
+        
+        return staffList.stream()
+            .map(this::convertCoreStaffToHrmDTO)
+            .collect(Collectors.toList());
+    }
 }

@@ -15,4 +15,12 @@ public class AuthResponse {
     private String username;
     private UserRole role;
     private String message;
+    
+    /**
+     * Create a new builder for AuthResponse
+     * @return a new builder instance
+     */
+    public static AuthResponseBuilder builder() {
+        return new AuthResponseBuilder();
+    }
 }

@@ -17,10 +17,8 @@ import com.school.staff.model.Staff;
 public interface StaffRepository extends JpaRepository<Staff, Long> {
 
     @Query("SELECT s FROM StaffModule s WHERE s.role = ?1")
-    List<Staff> findByRole(String role);
-
-    @Query("SELECT s FROM StaffModule s WHERE s.active = ?1")
-    List<Staff> findByActive(boolean active);
+    List<Staff> findByRole(String role);    @Query("SELECT s FROM StaffModule s WHERE s.active = ?1")
+    List<Staff> findByIsActive(boolean isActive);
 
     @Query("SELECT s FROM StaffModule s WHERE s.staffId = ?1")
     Optional<Staff> findByStaffId(String staffId);

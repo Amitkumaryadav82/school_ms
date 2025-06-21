@@ -15,7 +15,23 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Exam extends BaseEntity {
-      // We no longer need to override the getId method since it's properly inherited from BaseEntity
+    // The getId() method is inherited from BaseEntity via @Getter
+    
+    /**
+     * Explicit getId() method to ensure it's visible to the compiler
+     * @return the ID of the exam
+     */
+    public Long getId() {
+        return super.getId();
+    }
+    
+    /**
+     * Static builder method to create a new ExamBuilder instance
+     * @return a new ExamBuilder
+     */
+    public static ExamBuilder builder() {
+        return new ExamBuilder();
+    }
     
     @NotBlank
     @Column(nullable = false)
@@ -52,5 +68,7 @@ public class Exam extends BaseEntity {
     public Double getPassingMarks() {
         return this.passingMarks;
     }
+      // The getId() method is already inherited from BaseEntity
+    // No need to override it here
       // ID field is inherited from BaseEntity and accessible via getId()/setId() from BaseEntity
 }

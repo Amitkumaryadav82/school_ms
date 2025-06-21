@@ -77,4 +77,19 @@ public class Staff {
             return firstName + " " + lastName;
         }
     }
+
+    // Explicit getter methods to ensure they're visible to the compiler
+    public Long getId() { return this.id; }
+    public String getStaffId() { return this.staffId; }
+    public String getFirstName() { return this.firstName; }
+    public String getMiddleName() { return this.middleName; }
+    public String getLastName() { return this.lastName; }
+    public String getEmail() { return this.email; }
+    public String getPhone() { return this.phone; }
+    public String getPhoneNumber() { return this.phoneNumber; }
+    public String getAddress() { return this.address; }
+    public String getRole() { return this.role; }
+    public LocalDate getDateOfBirth() { return this.dateOfBirth; }
+    public LocalDate getJoiningDate() { return this.joiningDate; }
+    public String getDepartment() { return this.department; }
 }

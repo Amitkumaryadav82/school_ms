@@ -50,6 +50,8 @@ interface BackendAdmissionResponse {
   documentsFormat?: string;
   message?: string;
   studentId?: number;
+  bloodGroup?: string;     // Added missing field
+  medicalConditions?: string;  // Added missing field
 }
 
 // This interface exactly matches what the backend expects based on AdmissionRequest.java
@@ -384,8 +386,7 @@ function transformResponseToApplication(response: BackendAdmissionResponse): Adm
   const status = response.status && allowedStatuses.includes(response.status) 
     ? response.status as AdmissionApplication['status'] 
     : 'PENDING';
-  
-  // Comprehensively map fields from backend to frontend
+    // Comprehensively map fields from backend to frontend
   return {
     id: response.id,
     studentName: response.applicantName,
@@ -398,6 +399,9 @@ function transformResponseToApplication(response: BackendAdmissionResponse): Adm
     status: status,
     submissionDate: response.applicationDate,
     rejectionReason: response.rejectionReason,
+    // Additional Information fields
+    bloodGroup: response.bloodGroup || '',
+    medicalConditions: response.medicalConditions || '',
     previousSchool: response.previousSchool || '',
     previousGrade: response.previousGrade || '',
     previousPercentage: response.previousPercentage,

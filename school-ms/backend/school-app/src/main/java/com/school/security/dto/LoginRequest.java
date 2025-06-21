@@ -10,4 +10,20 @@ public class LoginRequest {
 
     @NotBlank(message = "Password is required")
     private String password;
+    
+    /**
+     * Gets the username
+     * @return the username
+     */
+    public String getUsername() {
+        return username;
+    }
+    
+    /**
+     * Gets the password
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
+    }
 }

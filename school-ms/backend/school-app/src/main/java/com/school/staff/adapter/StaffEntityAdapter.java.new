@@ -1,0 +1,94 @@
+package com.school.staff.adapter;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.Optional;
+
+import com.school.core.model.Staff;
+import com.school.core.repository.StaffRepository;
+import com.school.core.service.StaffService;
+import com.school.core.model.StaffRole;
+import com.school.core.model.EmploymentStatus;
+import com.school.core.dto.StaffDTO;
+
+/**
+ * Adapter class to facilitate migration from legacy Staff entities to the consolidated Staff entity.
+ * This class provides methods to convert between legacy Staff entities and the new consolidated Staff entity.
+ */
+@Component
+public class StaffEntityAdapter {
+    @Autowired
+    private StaffRepository staffRepository;
+
+    /**
+     * Convert consolidated Staff entity to core Staff DTO
+     * 
+     * @param staff Consolidated Staff entity
+     * @return Core Staff DTO
+     */
+    public StaffDTO convertToDTO(Staff staff) {
+        if (staff == null) return null;
+        
+        StaffDTO dto = new StaffDTO();
+        
+        dto.setId(staff.getId());
+        dto.setStaffId(staff.getStaffId());
+        dto.setFirstName(staff.getFirstName());
+        dto.setLastName(staff.getLastName());
+        dto.setEmail(staff.getEmail());
+        dto.setPhone(staff.getPhone());
+        dto.setDesignation(staff.getDesignation());
+        dto.setDepartment(staff.getDepartment());
+        dto.setEmploymentStatus(staff.getEmploymentStatus());
+        
+        return dto;
+    }
+    
+    /**
+     * Convert a list of Staff entities to a list of Staff DTOs
+     * 
+     * @param staffList List of Staff entities
+     * @return List of Staff DTOs
+     */
+    public List<StaffDTO> convertToDTOList(List<Staff> staffList) {
+        if (staffList == null) return new ArrayList<>();
+        
+        return staffList.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Convert from DTO to entity
+     * 
+     * @param dto The Staff DTO
+     * @return Staff entity
+     */
+    public Staff convertToEntity(StaffDTO dto) {
+        if (dto == null) return null;
+        
+        Staff staff = new Staff();
+        
+        staff.setId(dto.getId());
+        staff.setStaffId(dto.getStaffId());
+        staff.setFirstName(dto.getFirstName());
+        staff.setLastName(dto.getLastName());
+        staff.setEmail(dto.getEmail());
+        staff.setPhone(dto.getPhone());
+        staff.setDesignation(dto.getDesignation());
+        staff.setDepartment(dto.getDepartment());
+        staff.setEmploymentStatus(dto.getEmploymentStatus());
+        staff.setStaffRole(dto.getStaffRole());
+        staff.setDateOfJoining(dto.getDateOfJoining());
+        staff.setDateOfBirth(dto.getDateOfBirth());
+        staff.setGender(dto.getGender());
+        
+        return staff;
+    }
+}

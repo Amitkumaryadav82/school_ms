@@ -12,4 +12,20 @@ public class BulkStudentRequest {
 
     // Summary information for validation
     private Integer expectedCount;
+    
+    /**
+     * Gets the list of students
+     * @return the list of students
+     */
+    public List<Student> getStudents() {
+        return students;
+    }
+    
+    /**
+     * Gets the expected count
+     * @return the expected count
+     */
+    public Integer getExpectedCount() {
+        return expectedCount;
+    }
 }

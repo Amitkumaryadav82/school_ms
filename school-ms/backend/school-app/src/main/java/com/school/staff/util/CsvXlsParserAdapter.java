@@ -76,11 +76,11 @@ public class CsvXlsParserAdapter {
         legacyStaff.setStaffId(staff.getStaffId());
         legacyStaff.setFirstName(staff.getFirstName());
         legacyStaff.setMiddleName(staff.getMiddleName());
-        legacyStaff.setLastName(staff.getLastName());
-        legacyStaff.setEmail(staff.getEmail());
+        legacyStaff.setLastName(staff.getLastName());        legacyStaff.setEmail(staff.getEmail());
         legacyStaff.setPhone(staff.getPhone());
         legacyStaff.setPhoneNumber(staff.getPhoneNumber());
-        legacyStaff.setAddress(staff.getAddress());        legacyStaff.setRole(staff.getRole());
+        legacyStaff.setAddress(staff.getAddress());
+        legacyStaff.setRole(staff.getStaffRole() != null ? staff.getStaffRole().getName() : null);
         
         // Convert LocalDate to Date
         if (staff.getDateOfBirth() != null) {

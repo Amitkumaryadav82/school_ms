@@ -17,4 +17,9 @@ import lombok.NoArgsConstructor;
 public class BulkStaffRequest {
     private List<Staff> staff;
     private Integer expectedCount;
+    
+    // Explicit getter for staff since @Data might not be recognized correctly
+    public List<Staff> getStaff() {
+        return staff;
+    }
 }

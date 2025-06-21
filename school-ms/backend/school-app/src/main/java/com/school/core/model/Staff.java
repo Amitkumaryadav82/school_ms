@@ -100,22 +100,60 @@ public class Staff {    @Id
     
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    @Column(name = "phone")
+    }    @Column(name = "phone")
     private String phone;
+    
+    public String getPhone() {
+        return this.phone;
+    }
+    
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
     @Column(name = "phone_number")
     private String phoneNumber;
+    
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
+    
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     @Column(columnDefinition = "TEXT")
     private String address;
+    
+    public String getAddress() {
+        return this.address;
+    }
+    
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
+    
+    public LocalDate getDateOfBirth() {
+        return this.dateOfBirth;
+    }
+    
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
 
     @Column(name = "gender")
     private String gender;
+    
+    public String getGender() {
+        return this.gender;
+    }
+    
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
     @Column(name = "join_date")
     private LocalDate joinDate;
@@ -148,15 +186,29 @@ public class Staff {    @Id
     
     public void setDateOfJoining(LocalDate dateOfJoining) {
         this.dateOfJoining = dateOfJoining;
-    }
-
-    @Enumerated(EnumType.STRING)
+    }    @Enumerated(EnumType.STRING)
     @Column(name = "employment_status")
     private EmploymentStatus employmentStatus = EmploymentStatus.ACTIVE;
+    
+    public EmploymentStatus getEmploymentStatus() {
+        return this.employmentStatus;
+    }
+    
+    public void setEmploymentStatus(EmploymentStatus employmentStatus) {
+        this.employmentStatus = employmentStatus;
+    }
 
     @ManyToOne
     @JoinColumn(name = "role_id")
     private StaffRole staffRole;
+    
+    public StaffRole getRole() {
+        return this.staffRole;
+    }
+    
+    public void setRole(StaffRole staffRole) {
+        this.staffRole = staffRole;
+    }
     
     // Legacy role field maintained for backward compatibility
     @Column(name = "role")
@@ -200,10 +252,16 @@ public class Staff {    @Id
     private Double hra;
 
     @Column(name = "da")
-    private Double da;
-
-    @OneToOne(cascade = CascadeType.ALL)
+    private Double da;    @OneToOne(cascade = CascadeType.ALL)
     private TeacherDetails teacherDetails;
+    
+    public TeacherDetails getTeacherDetails() {
+        return this.teacherDetails;
+    }
+    
+    public void setTeacherDetails(TeacherDetails teacherDetails) {
+        this.teacherDetails = teacherDetails;
+    }
 
     /**
      * Get the full name of the staff member

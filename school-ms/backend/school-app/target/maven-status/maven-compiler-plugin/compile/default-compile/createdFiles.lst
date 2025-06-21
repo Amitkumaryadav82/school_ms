@@ -16,6 +16,7 @@ com\schoolms\service\BookService.class
 com\school\communication\model\NotificationStatus.class
 com\school\exam\dto\DetailedExamSummary$QuestionPerformance.class
 com\school\exam\service\ExamMarksService.class
+com\school\hrm\entity\Staff.class
 com\school\exam\dto\MarksEntryDTO$MarksEditRequest$MarksEditRequestBuilder.class
 com\school\exam\service\ExamConfigurationService.class
 com\school\fee\dto\FeePaymentDTO.class
@@ -48,6 +49,7 @@ com\school\exam\repository\ExamRepository.class
 com\schoolms\model\Course.class
 com\school\attendance\dto\StudentAttendanceSummaryDTO.class
 com\school\monitoring\ControllerMonitoringAspect.class
+com\school\hrm\entity\StaffDesignationMapping.class
 com\school\communication\model\MessagePriority.class
 com\schoolms\repository\CourseRepository.class
 com\school\admission\model\Admission.class
@@ -61,6 +63,7 @@ com\school\exam\controller\ExamController.class
 com\school\SchoolApplication.class
 com\school\core\model\TeacherDetails$TeacherDetailsBuilder.class
 com\school\exam\repository\DetailedExamResultRepository.class
+com\school\hrm\repository\StaffDesignationRepository.class
 com\school\exam\exception\ExamConfigurationNotFoundException.class
 com\school\fee\exception\FeePaymentScheduleException.class
 com\school\exception\ResourceNotFoundException.class
@@ -69,6 +72,7 @@ com\school\fee\dto\PaymentDistribution.class
 com\school\security\SecurityConfig.class
 com\school\attendance\dto\StudentAttendanceSummaryDTO$StudentAttendanceSummaryDTOBuilder.class
 com\school\fee\dto\LateFeeDTO$LateFeeDTOBuilder.class
+com\school\hrm\entity\Staff$StaffBuilder.class
 com\school\exam\controller\ExamBlueprintController.class
 com\school\admission\exception\InvalidAdmissionStateException.class
 com\school\exam\dto\ChapterWisePerformanceDTO$QuestionPerformance.class
@@ -85,6 +89,7 @@ com\school\fee\model\LateFee$LateFeeBuilder.class
 com\school\admission\dto\AdmissionResponse.class
 com\school\fee\dto\ClassSectionFeeReport$StudentFeeDetail.class
 com\school\course\repository\CourseRepositoryImpl.class
+com\school\hrm\entity\StaffDesignation.class
 com\school\exam\dto\QuestionRequest.class
 com\school\exam\dto\ExamBlueprintDTO.class
 com\school\core\repository\StaffRepository.class
@@ -115,6 +120,7 @@ com\school\config\ResilienceConfig.class
 com\school\exam\dto\TabulationSheetDTO.class
 com\school\admission\exception\AdmissionExceptionHandler.class
 com\school\attendance\service\AttendanceService.class
+com\school\staff\controller\ConsolidatedStaffController.class
 com\schoolms\repository\BookIssueRepository.class
 com\school\communication\exception\MessageNotFoundException.class
 com\school\exam\model\QuestionPaperStructure$QuestionPaperStructureBuilder.class
@@ -123,6 +129,7 @@ com\school\core\service\StaffServiceImpl.class
 com\school\exam\dto\ExamBlueprintDTO$BlueprintValidationResult$ValidationIssue.class
 com\school\exam\model\DetailedExamResult$DetailedExamResultBuilder.class
 com\school\exception\DuplicateAttendanceException.class
+com\school\hrm\dto\StaffDTO.class
 com\school\core\model\legacy\LegacyTeacherDetails.class
 com\school\core\repository\TeacherDetailsRepository.class
 com\school\exam\model\QuestionSection$QuestionType.class
@@ -156,6 +163,7 @@ com\school\course\model\Chapter.class
 com\school\exam\service\ExamBlueprintService.class
 com\school\timetable\model\ClassRoom.class
 com\school\communication\controller\MessageController.class
+com\school\hrm\dto\TeacherDetailsDTO$TeacherDetailsDTOBuilder.class
 com\school\student\exception\DuplicateStudentException.class
 com\school\fee\model\StudentFeeAssignment.class
 com\school\exam\dto\ExamBlueprintDTO$ChapterDistributionDTO$ChapterDistributionDTOBuilder.class
@@ -185,6 +193,7 @@ com\school\admission\exception\AdmissionNotFoundException.class
 com\school\security\AuthenticationException.class
 com\school\exam\service\ExamAnalysisService.class
 com\school\fee\controller\FeeAnalyticsController.class
+com\school\hrm\dto\TeacherDetailsDTO.class
 com\school\course\model\Course.class
 com\school\monitoring\MetricsConfig.class
 com\school\core\adapter\EntityAdapter.class
@@ -212,10 +221,12 @@ com\school\exam\dto\ExamSummary.class
 com\school\exam\dto\ExamRequest.class
 com\school\exam\repository\QuestionPaperRepository.class
 com\school\fee\exception\FeeNotFoundException.class
+com\school\hrm\model\EmploymentStatus.class
 com\schoolms\controller\BookIssueController.class
 com\school\exam\model\ChapterDistribution.class
 com\school\exam\dto\MarksEntryDTO$QuestionMarkEntry$QuestionMarkEntryBuilder.class
 com\school\fee\model\Payment$PaymentMethod.class
+com\school\hrm\dto\StaffDTO$StaffDTOBuilder.class
 com\school\student\dto\StudentDTO$StudentDTOBuilder.class
 com\school\fee\model\FeeStructure$FeeStructureBuilder.class
 com\school\communication\service\NotificationServiceImpl$1.class
@@ -245,6 +256,7 @@ com\school\security\AuthController.class
 com\school\fee\model\LateFee.class
 com\school\exam\dto\ExamBlueprintRequest.class
 com\school\communication\config\EmailConfig.class
+com\school\hrm\entity\Teacher.class
 com\school\exam\dto\ChapterWisePerformanceDTO$ChapterWisePerformanceDTOBuilder.class
 com\school\fee\model\PaymentSchedule.class
 com\school\fee\dto\PaymentRequest.class
@@ -280,6 +292,7 @@ com\school\attendance\dto\BulkAttendanceRequest.class
 com\school\fee\repository\PaymentRepository.class
 com\school\staff\service\StaffService.class
 com\school\attendance\dto\MonthlyAttendanceReport$MonthlyAttendanceReportBuilder.class
+com\school\hrm\repository\StaffDesignationMappingRepository.class
 com\school\fee\dto\ClassSectionFeeReport.class
 com\school\fee\dto\RevenueTrendItem.class
 com\school\staff\model\Staff.class
@@ -301,6 +314,7 @@ com\school\config\WebSecurityConfig.class
 com\school\config\CacheConfig.class
 com\school\student\model\Student$StudentBuilder.class
 com\school\fee\dto\FeePaymentScheduleRequest.class
+com\school\hrm\repository\TeacherRepository.class
 com\school\common\util\DateConverter.class
 com\school\attendance\dto\AttendanceAlert.class
 com\school\attendance\dto\ClassAttendanceRequest.class
@@ -316,7 +330,9 @@ com\school\communication\model\Message$MessageBuilder.class
 com\school\course\controller\ConsolidatedCourseController.class
 com\school\fee\model\FeePayment.class
 com\school\student\exception\StudentNotFoundException.class
+com\school\hrm\repository\StaffRepository.class
 com\school\security\JwtAuthenticationFilter.class
+com\school\hrm\entity\StaffRole.class
 com\school\exam\dto\MarksEntryDTO$QuestionMarkEntry.class
 com\schoolms\service\CourseServiceImpl.class
 com\school\core\service\StaffMigrationService.class
@@ -325,6 +341,7 @@ com\school\fee\controller\FeeStructureController.class
 com\school\exam\model\ExamConfiguration.class
 com\school\exam\dto\DetailedExamSummary.class
 com\school\security\SimplifiedSecurityConfig.class
+com\school\hrm\repository\StaffRoleRepository.class
 com\school\fee\service\FeeStructureService.class
 com\school\admission\repository\AdmissionRepository.class
 com\school\fee\controller\FeeController.class
@@ -383,6 +400,7 @@ com\school\monitoring\PerformanceMonitoringService.class
 com\school\student\model\Student.class
 com\school\exam\service\QuestionPaperService.class
 com\school\common\util\CsvXlsParser.class
+com\school\hrm\entity\Teacher$TeacherBuilder.class
 com\school\staff\repository\TeacherDetailsRepository.class
 com\school\security\User$UserBuilder.class
 com\school\staff\dto\BulkStaffRequest.class
@@ -393,7 +411,9 @@ com\school\security\dto\AuthResponse.class
 com\school\security\dto\AuthResponse$AuthResponseBuilder.class
 com\school\exam\model\ExamResult$ExamResultBuilder.class
 com\school\staff\model\ConsolidatedStaff.class
+com\school\hrm\service\impl\StaffServiceImpl.class
 com\school\exception\AttendanceNotFoundException.class
+com\school\hrm\service\StaffService.class
 com\school\attendance\model\Attendance$AttendanceBuilder.class
 com\school\fee\dto\FeePaymentSummary$FeePaymentSummaryBuilder.class
 com\school\student\util\StudentMapper.class

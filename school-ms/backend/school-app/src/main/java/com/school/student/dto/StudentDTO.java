@@ -17,15 +17,71 @@ import java.time.LocalDate;
 public class StudentDTO {
     private Long id;
 
+    /**
+     * Static builder method
+     * @return new StudentDTOBuilder instance
+     */
+    public static StudentDTOBuilder builder() {
+        return new StudentDTOBuilder();
+    }
+
+    /**
+     * Get the ID
+     * @return the ID
+     */
+    public Long getId() {
+        return this.id;
+    }
+
     private String studentId;
+
+    /**
+     * Get the student ID
+     * @return the student ID
+     */
+    public String getStudentId() {
+        return this.studentId;
+    }
 
     private String firstName;
 
+    /**
+     * Get the first name
+     * @return the first name
+     */
+    public String getFirstName() {
+        return this.firstName;
+    }
+
     private String lastName;
+
+    /**
+     * Get the last name
+     * @return the last name
+     */
+    public String getLastName() {
+        return this.lastName;
+    }
 
     private String email;
 
+    /**
+     * Get the email
+     * @return the email
+     */
+    public String getEmail() {
+        return this.email;
+    }
+
     private LocalDate dateOfBirth;
+
+    /**
+     * Get the date of birth
+     * @return the date of birth
+     */
+    public LocalDate getDateOfBirth() {
+        return this.dateOfBirth;
+    }
 
     private Integer grade;
 

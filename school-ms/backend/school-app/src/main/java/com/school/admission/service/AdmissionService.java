@@ -222,17 +222,26 @@ public class AdmissionService {
 
     private String extractLastName(String fullName) {
         return fullName.contains(" ") ? fullName.substring(fullName.indexOf(" ") + 1) : "";
-    }
-
-    private AdmissionResponse createAdmissionResponse(Admission admission, String message) {
+    }    private AdmissionResponse createAdmissionResponse(Admission admission, String message) {
         return AdmissionResponse.builder()
                 .id(admission.getId())
                 .applicantName(admission.getApplicantName())
                 .applicationDate(admission.getApplicationDate())
+                .dateOfBirth(admission.getDateOfBirth().toString())
+                .email(admission.getEmail())
+                .contactNumber(admission.getContactNumber())
+                .guardianName(admission.getGuardianName())
+                .guardianContact(admission.getGuardianContact())
+                .guardianEmail(admission.getGuardianEmail())
                 .gradeApplying(admission.getGradeApplying())
                 .status(admission.getStatus())
                 .message(message)
                 .address(admission.getAddress())
+                // Include additional information fields
+                .previousSchool(admission.getPreviousSchool())
+                .previousGrade(admission.getPreviousGrade())
+                .previousPercentage(admission.getPreviousPercentage())
+                .documentsFormat(admission.getDocumentsFormat())
                 .studentId(admission.getStudent() != null ? admission.getStudent().getId() : null)
                 .build();
     }

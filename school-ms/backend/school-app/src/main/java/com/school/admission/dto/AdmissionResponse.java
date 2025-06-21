@@ -16,4 +16,17 @@ public class AdmissionResponse {
     private String message;
     private Long studentId; // If admission is approved and student record is created
     private String address;
+    private String dateOfBirth;
+    private String email;
+    private String contactNumber;
+    private String guardianName;
+    private String guardianContact;
+    private String guardianEmail;
+    // Additional information fields
+    private String bloodGroup; // Added missing field
+    private String medicalConditions; // Added missing field
+    private String previousSchool;
+    private String previousGrade;
+    private Double previousPercentage;
+    private String documentsFormat;
 }

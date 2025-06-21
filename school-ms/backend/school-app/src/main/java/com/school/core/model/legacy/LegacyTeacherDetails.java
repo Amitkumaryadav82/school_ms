@@ -25,4 +25,17 @@ public class LegacyTeacherDetails {
     
     // Default constructor
     public LegacyTeacherDetails() {}
+    
+    // Explicit getters to ensure they're visible to the compiler
+    public String getQualification() {
+        return this.qualification;
+    }
+    
+    public Integer getYearsOfExperience() {
+        return this.yearsOfExperience;
+    }
+    
+    public String getSpecialization() {
+        return this.specialization;
+    }
 }

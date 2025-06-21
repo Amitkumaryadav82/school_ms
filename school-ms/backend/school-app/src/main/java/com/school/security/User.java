@@ -53,6 +53,31 @@ public class User extends Auditable implements UserDetails {
     @Builder.Default
     private boolean credentialsNonExpired = true;
 
+    /**
+     * Static builder method for User
+     * @return a new builder instance
+     */
+    public static UserBuilder builder() {
+        return new UserBuilder();
+    }
+
+    /**
+     * Gets the username
+     * @return the username
+     */
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * Gets the user role
+     * @return the user role
+     */
+    public UserRole getRole() {
+        return role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));

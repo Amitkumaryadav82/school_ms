@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
  * This is a consolidated version migrated from com.example.schoolms.dto.BulkUploadResponse
  */
 @Data
-@NoArgsConstructor
 public class BulkUploadResponse {
     private int created = 0;
     private int updated = 0;
@@ -20,14 +19,20 @@ public class BulkUploadResponse {
     private List<String> errors = new ArrayList<>();
     
     /**
+     * No-args constructor
+     */
+    public BulkUploadResponse() {
+        // Default values are already set above
+    }
+    
+    /**
      * Constructor with created and updated counts, empty errors list
      */
     public BulkUploadResponse(int created, int updated) {
         this.created = created;
         this.updated = updated;
     }
-    
-    /**
+      /**
      * Constructor with created, updated, and errors
      */
     public BulkUploadResponse(int created, int updated, List<String> errors) {
@@ -35,6 +40,7 @@ public class BulkUploadResponse {
         this.updated = updated;
         this.errors = errors;
     }
+      // Removed duplicate constructors that conflict with the ones above
     
     /**
      * Gets the created count

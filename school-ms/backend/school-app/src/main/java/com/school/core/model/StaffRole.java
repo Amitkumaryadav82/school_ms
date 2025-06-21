@@ -45,4 +45,12 @@ public class StaffRole {
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
+    
+    /**
+     * Get the role name - provided for backward compatibility with legacy code
+     * @return the name of the role
+     */
+    public String getRoleName() {
+        return this.name;
+    }
 }

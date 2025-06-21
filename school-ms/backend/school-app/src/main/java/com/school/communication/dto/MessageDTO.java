@@ -10,8 +10,24 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class MessageDTO {
+    
+    // Constructor that matches the parameters used in the builder's build() method
+    public MessageDTO(Long id, String subject, String content, Long senderId, String senderName,
+                     MessageType messageType, MessagePriority priority, LocalDateTime sendTime,
+                     Set<String> recipients, Set<String> readBy, boolean isRead) {
+        this.id = id;
+        this.subject = subject;
+        this.content = content;
+        this.senderId = senderId;
+        this.senderName = senderName;
+        this.messageType = messageType;
+        this.priority = priority;
+        this.sendTime = sendTime;
+        this.recipients = recipients;
+        this.readBy = readBy;
+        this.isRead = isRead;
+    }
     private Long id;
     private String subject;
     private String content;

@@ -29,4 +29,20 @@ public class LegacyStaff {
     
     // Default constructor
     public LegacyStaff() {}
+    
+    // Explicit getter methods
+    public Long getId() { return this.id; }
+    public String getStaffId() { return this.staffId; }
+    public String getFirstName() { return this.firstName; }
+    public String getLastName() { return this.lastName; }
+    public String getEmail() { return this.email; }
+    public String getPhone() { return this.phone; }
+    public String getAddress() { return this.address; }
+    public String getRole() { return this.role; }
+    public Date getDateOfBirth() { return this.dateOfBirth; }
+    public Date getJoiningDate() { return this.joiningDate; }
+    public String getDepartment() { return this.department; }
+    public boolean isActive() { return this.active; }
+    public String getGender() { return this.gender; }
+    public LegacyTeacherDetails getTeacherDetails() { return this.teacherDetails; }
 }
