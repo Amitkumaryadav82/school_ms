@@ -35,12 +35,13 @@ public class AdmissionRequest {
 
     private String previousSchool;
 
-    private String previousGrade;
-
-    @NotNull(message = "Previous percentage is required")
-    @Min(value = 0, message = "Percentage cannot be less than 0")
-    @Max(value = 100, message = "Percentage cannot be more than 100")
-    private Double previousPercentage;
+    private String previousGrade;    @NotBlank(message = "Previous percentage is required")
+    private String previousPercentage;
+    
+    // Additional information fields
+    private String bloodGroup;
+    
+    private String medicalConditions;
 
     private byte[] documents;
 

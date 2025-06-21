@@ -52,12 +52,13 @@ public class Admission extends Auditable {
 
     private String previousSchool;
 
-    private String previousGrade;
-
-    @NotNull
-    @Min(value = 0)
-    @Max(value = 100)
-    private Double previousPercentage;
+    private String previousGrade;    // Changed from Double to String for more flexible input
+    private String previousPercentage;
+    
+    // Added new fields for additional information
+    private String bloodGroup;
+    
+    private String medicalConditions;
 
     @Lob
     private byte[] documents;

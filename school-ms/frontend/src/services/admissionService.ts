@@ -23,7 +23,7 @@ export interface AdmissionApplication {
   rejectionReason?: string;
   previousSchool?: string;
   previousGrade?: string;
-  previousPercentage?: number;
+  previousPercentage?: string; // Changed from number to string
   documents?: any;
   documentsFormat?: string;
 }
@@ -41,11 +41,10 @@ interface BackendAdmissionResponse {
   email: string;
   guardianEmail?: string;
   address?: string;  // Added address field
-  status: string;
-  rejectionReason?: string;
+  status: string;  rejectionReason?: string;
   previousSchool?: string;
   previousGrade?: string;
-  previousPercentage?: number;
+  previousPercentage?: string; // Changed from number to string
   documents?: any;
   documentsFormat?: string;
   message?: string;
@@ -63,11 +62,13 @@ export interface AdmissionRequest {
   guardianName: string;
   guardianContact: string;
   guardianEmail?: string;
+  bloodGroup?: string;
+  medicalConditions?: string;
   address: string; // Making sure address is included as required
   gradeApplying: number; // Must be Integer, not string
   previousSchool?: string;
   previousGrade?: string;
-  previousPercentage: number; // Between 0-100
+  previousPercentage: string; // Changed from number to string
   documents?: any;
   documentsFormat?: string;
 }
@@ -145,10 +146,10 @@ export const admissionService = {  // Get all admission applications
       guardianContact: application.contactNumber, // Using same contact for guardian
       guardianEmail: application.email, // Using same email for guardian
       address: application.address, // Explicitly include address field
-      gradeApplying: parseInt(application.gradeApplying, 10) || 1, // Default to grade 1 if parsing fails
-      previousSchool: application.previousSchool || "Not Available",
+      gradeApplying: parseInt(application.gradeApplying, 10) || 1, // Default to grade 1 if parsing fails      previousSchool: application.previousSchool || "Not Available",
       previousGrade: application.previousGrade || "Not Available", 
-      previousPercentage: application.previousPercentage || 75.0, // Default value between 0-100
+      previousPercentage: application.previousPercentage?.toString() || "75.0",      bloodGroup: application.bloodGroup || "", 
+      medicalConditions: application.medicalConditions || "",
       documents: application.documents,
       documentsFormat: application.documentsFormat
     };
@@ -182,10 +183,11 @@ export const admissionService = {  // Get all admission applications
         guardianContact: application.contactNumber,
         guardianEmail: application.email,
         address: application.address, // Explicitly include address field
-        gradeApplying: parseInt(application.gradeApplying, 10),
-        previousSchool: application.previousSchool || "Not Available",
+        gradeApplying: parseInt(application.gradeApplying, 10),        previousSchool: application.previousSchool || "Not Available",
         previousGrade: application.previousGrade || "Not Available", 
-        previousPercentage: application.previousPercentage || 75.0,
+        previousPercentage: application.previousPercentage?.toString() || "75.0",
+        bloodGroup: application.bloodGroup || "",
+        medicalConditions: application.medicalConditions || "",
         documents: application.documents,
         documentsFormat: application.documentsFormat
       };
@@ -324,6 +326,8 @@ export const admissionService = {  // Get all admission applications
       status: 'ACTIVE',
       admissionDate: new Date().toISOString().split('T')[0],
       gender: additionalData.gender as string || 'MALE',
+      bloodGroup: admission.bloodGroup || '',  // Include the bloodGroup field
+      medicalConditions: admission.medicalConditions || '',  // Include the medicalConditions field
       ...additionalData
     };
     

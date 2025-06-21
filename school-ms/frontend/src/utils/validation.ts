@@ -26,6 +26,7 @@ export const isValidPhone = (phone: string): boolean => patterns.phone.test(phon
 export const isValidName = (name: string): boolean => patterns.name.test(name);
 export const isValidStudentId = (id: string): boolean => patterns.studentId.test(id);
 export const isPositiveNumber = (value: number): boolean => !isNaN(value) && value > 0;
+export const isValidNumber = (value: number | string): boolean => !isNaN(Number(value)) && Number(value) >= 0;
 export const isValidDate = (date: string | Date): boolean => {
   if (date instanceof Date) {
     return !isNaN(date.getTime());
@@ -173,6 +174,18 @@ export const validateAdmission = (admission: AdmissionApplication) => {
   }
   if (!admission.address || admission.address.length < 10) {
     errors.address = 'Please enter a complete address (minimum 10 characters)';
+  }
+  
+  // Validate bloodGroup if provided (optional field)
+  if (admission.bloodGroup && !['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', ''].includes(admission.bloodGroup)) {
+    errors.bloodGroup = 'Please enter a valid blood group (A+, A-, B+, B-, AB+, AB-, O+, O-)';
+  }
+  
+  // Validate previousPercentage if provided (optional field)
+  if (admission.previousPercentage && 
+      !(isValidNumber(admission.previousPercentage) || 
+        (typeof admission.previousPercentage === 'string' && admission.previousPercentage.trim() !== ''))) {
+    errors.previousPercentage = 'Please enter a valid percentage or grade';
   }
 
   return errors;

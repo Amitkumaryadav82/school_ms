@@ -41,9 +41,7 @@ public class AdmissionService {
 
         // DEBUG: Log incoming address
         System.out.println("DEBUG - Admission request address: " + request.getAddress());
-        System.out.println("DEBUG - Full admission request: " + request);
-
-        Admission admission = Admission.builder()
+        System.out.println("DEBUG - Full admission request: " + request);        Admission admission = Admission.builder()
                 .applicationDate(LocalDate.now())
                 .applicantName(request.getApplicantName())
                 .dateOfBirth(request.getDateOfBirth())
@@ -57,6 +55,8 @@ public class AdmissionService {
                 .previousSchool(request.getPreviousSchool())
                 .previousGrade(request.getPreviousGrade())
                 .previousPercentage(request.getPreviousPercentage())
+                .bloodGroup(request.getBloodGroup())
+                .medicalConditions(request.getMedicalConditions())
                 .documents(request.getDocuments())
                 .documentsFormat(request.getDocumentsFormat())
                 .status(AdmissionStatus.PENDING)
@@ -176,10 +176,11 @@ public class AdmissionService {
         admission.setGuardianContact(request.getGuardianContact());
         admission.setGuardianEmail(request.getGuardianEmail());
         admission.setAddress(request.getAddress());
-        admission.setGradeApplying(request.getGradeApplying());
-        admission.setPreviousSchool(request.getPreviousSchool());
+        admission.setGradeApplying(request.getGradeApplying());        admission.setPreviousSchool(request.getPreviousSchool());
         admission.setPreviousGrade(request.getPreviousGrade());
         admission.setPreviousPercentage(request.getPreviousPercentage());
+        admission.setBloodGroup(request.getBloodGroup());
+        admission.setMedicalConditions(request.getMedicalConditions());
 
         // DEBUG: Log entity before save
         System.out.println("DEBUG - Address after setting but before save: " + admission.getAddress());
@@ -239,13 +240,14 @@ public class AdmissionService {
                 .contactNumber(admission.getContactNumber())
                 .guardianName(admission.getGuardianName())
                 .guardianContact(admission.getGuardianContact())
-                .guardianEmail(admission.getGuardianEmail())
-                .grade(admission.getGradeApplying())
+                .guardianEmail(admission.getGuardianEmail())                .grade(admission.getGradeApplying())
                 .section("A")  // Default section
                 .address(admission.getAddress())
                 .previousSchool(admission.getPreviousSchool())
                 .admissionDate(LocalDate.now())
                 .status(StudentStatus.ACTIVE)
+                .bloodGroup(admission.getBloodGroup())
+                .medicalConditions(admission.getMedicalConditions())
                 .gender(Gender.OTHER)  // Default gender, can be updated later
                 .admission(admission)  // Set the admission relationship
                 .build();
@@ -289,10 +291,11 @@ public class AdmissionService {
                 .status(admission.getStatus())
                 .message(message)
                 .address(admission.getAddress())
-                // Include additional information fields
-                .previousSchool(admission.getPreviousSchool())
+                // Include additional information fields                .previousSchool(admission.getPreviousSchool())
                 .previousGrade(admission.getPreviousGrade())
                 .previousPercentage(admission.getPreviousPercentage())
+                .bloodGroup(admission.getBloodGroup())
+                .medicalConditions(admission.getMedicalConditions())
                 .documentsFormat(admission.getDocumentsFormat())
                 .studentId(admission.getStudent() != null ? admission.getStudent().getId() : null)
                 .build();

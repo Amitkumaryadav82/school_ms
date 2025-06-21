@@ -27,6 +27,6 @@ public class AdmissionResponse {
     private String medicalConditions; // Added missing field
     private String previousSchool;
     private String previousGrade;
-    private Double previousPercentage;
+    private String previousPercentage;
     private String documentsFormat;
 }
