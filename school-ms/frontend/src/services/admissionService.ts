@@ -72,20 +72,25 @@ export interface AdmissionRequest {
   documentsFormat?: string;
 }
 
-export const admissionService = {
-  // Get all admission applications
+export const admissionService = {  // Get all admission applications
   getAllApplications: async () => {
     const response = await api.get<BackendAdmissionResponse[]>('/api/admissions');
     console.log('API Response for getAllApplications:', response);
-    return response.map(transformResponseToApplication);
+    // Handle both array responses and potential wrapped responses
+    const admissionData = Array.isArray(response) ? response : [];
+    return admissionData.map(transformResponseToApplication);
   },
-  
-  // Get application by ID
+    // Get application by ID
   getApplicationById: async (id: number) => {
     try {
       console.log(`Fetching admission details for ID: ${id}`);
       const response = await api.get<BackendAdmissionResponse>(`/api/admissions/${id}`);
       console.log("Admission details from backend:", response);
+      
+      // Ensure we have a valid admission response
+      if (!response || typeof response !== 'object') {
+        throw new Error('Invalid admission data received from server');
+      }
       
       // Transform admission data
       const admissionData = transformResponseToApplication(response);
@@ -218,22 +223,34 @@ export const admissionService = {
       `/api/admissions/${id}/status?${queryParams.toString()}`
     );
   },
-  
-  // Get applications by status
-  getByStatus: (status: string) =>
-    api.get<BackendAdmissionResponse[]>(`/api/admissions/status/${status}`),
-  
-  // Search applications
-  searchApplications: (query: string) =>
-    api.get<BackendAdmissionResponse[]>(`/api/admissions/search?query=${query}`),
-  
-  // Get applications by date range
-  getByDateRange: (startDate: string, endDate: string) =>
-    api.get<BackendAdmissionResponse[]>(`/api/admissions/date-range?startDate=${startDate}&endDate=${endDate}`),
-  
-  // Get applications by grade
-  getByGrade: (grade: string) =>
-    api.get<BackendAdmissionResponse[]>(`/api/admissions/grade/${grade}`),
+    // Get applications by status
+  getByStatus: async (status: string) => {
+    const response = await api.get<BackendAdmissionResponse[]>(`/api/admissions/status/${status}`);
+    // Handle both array responses and potential wrapped responses
+    const admissionData = Array.isArray(response) ? response : [];
+    return admissionData;
+  },
+    // Search applications
+  searchApplications: async (query: string) => {
+    const response = await api.get<BackendAdmissionResponse[]>(`/api/admissions/search?query=${query}`);
+    // Handle both array responses and potential wrapped responses
+    const admissionData = Array.isArray(response) ? response : [];
+    return admissionData;
+  },
+    // Get applications by date range
+  getByDateRange: async (startDate: string, endDate: string) => {
+    const response = await api.get<BackendAdmissionResponse[]>(`/api/admissions/date-range?startDate=${startDate}&endDate=${endDate}`);
+    // Handle both array responses and potential wrapped responses
+    const admissionData = Array.isArray(response) ? response : [];
+    return admissionData;
+  },
+    // Get applications by grade
+  getByGrade: async (grade: string) => {
+    const response = await api.get<BackendAdmissionResponse[]>(`/api/admissions/grade/${grade}`);
+    // Handle both array responses and potential wrapped responses
+    const admissionData = Array.isArray(response) ? response : [];
+    return admissionData;
+  },
 
   // Delete application
   deleteApplication: (id: number) =>

@@ -19,9 +19,31 @@ public class StudentService {
     private StudentRepository studentRepository;
 
     public Student createStudent(Student student) {
+        System.out.println("Creating new student: " + student.getFirstName() + " " + student.getLastName());
         validateNewStudent(student);
-        student.setAdmissionDate(LocalDate.now());
-        return studentRepository.save(student);
+        
+        // Set admission date if not set
+        if (student.getAdmissionDate() == null) {
+            student.setAdmissionDate(LocalDate.now());
+        }
+        
+        // If student doesn't have a status, set it to ACTIVE
+        if (student.getStatus() == null) {
+            student.setStatus(StudentStatus.ACTIVE);
+        }
+        
+        // Handle circular reference with admission if present
+        if (student.getAdmission() != null && student.getAdmission().getStudent() == null) {
+            student.getAdmission().setStudent(student);
+        }
+        
+        try {
+            return studentRepository.save(student);
+        } catch (Exception e) {
+            System.err.println("Error saving student: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public Student updateStudent(Long id, Student student) {
@@ -115,11 +137,45 @@ public class StudentService {
     }
 
     private void validateNewStudent(Student student) {
-        if (studentRepository.existsByStudentId(student.getStudentId())) {
-            throw new DuplicateStudentException("Student ID already exists");
+        System.out.println("Validating new student with ID: " + student.getStudentId());
+        
+        if (student.getStudentId() == null || student.getStudentId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Student ID cannot be null or empty");
         }
-        if (student.getEmail() != null && studentRepository.existsByEmail(student.getEmail())) {
-            throw new DuplicateStudentException("Email already exists");
+        
+        if (studentRepository.existsByStudentId(student.getStudentId())) {
+            throw new DuplicateStudentException("Student ID already exists: " + student.getStudentId());
+        }
+        
+        if (student.getEmail() != null && !student.getEmail().trim().isEmpty()) {
+            if (studentRepository.existsByEmail(student.getEmail())) {
+                throw new DuplicateStudentException("Email already exists: " + student.getEmail());
+            }
+        }
+        
+        // Validate required fields
+        if (student.getFirstName() == null || student.getFirstName().trim().isEmpty()) {
+            throw new IllegalArgumentException("First name is required");
+        }
+        
+        if (student.getLastName() == null || student.getLastName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Last name is required");
+        }
+        
+        if (student.getContactNumber() == null || student.getContactNumber().trim().isEmpty()) {
+            throw new IllegalArgumentException("Contact number is required");
+        }
+        
+        if (student.getGuardianName() == null || student.getGuardianName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Guardian name is required");
+        }
+        
+        if (student.getGuardianContact() == null || student.getGuardianContact().trim().isEmpty()) {
+            throw new IllegalArgumentException("Guardian contact is required");
+        }
+        
+        if (student.getSection() == null || student.getSection().trim().isEmpty()) {
+            throw new IllegalArgumentException("Section is required");
         }
     }
 

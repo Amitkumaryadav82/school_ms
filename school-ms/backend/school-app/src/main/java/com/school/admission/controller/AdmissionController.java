@@ -59,42 +59,62 @@ public class AdmissionController {
     @ApiResponse(responseCode = "200", description = "Applications retrieved successfully")
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Admission>> getApplicationsByStatus(@PathVariable AdmissionStatus status) {
-        return ResponseEntity.ok(admissionService.getAdmissionsByStatus(status));
+    public ResponseEntity<List<AdmissionResponse>> getApplicationsByStatus(@PathVariable AdmissionStatus status) {
+        List<Admission> admissions = admissionService.getAdmissionsByStatus(status);
+        List<AdmissionResponse> responses = admissions.stream()
+            .map(admission -> admissionService.createAdmissionResponse(admission, "Retrieved successfully"))
+            .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Search applications", description = "Search applications by applicant name")
     @ApiResponse(responseCode = "200", description = "Search results retrieved successfully")
     @GetMapping("/search")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Admission>> searchApplications(@RequestParam String query) {
-        return ResponseEntity.ok(admissionService.searchAdmissions(query));
+    public ResponseEntity<List<AdmissionResponse>> searchApplications(@RequestParam String query) {
+        List<Admission> admissions = admissionService.searchAdmissions(query);
+        List<AdmissionResponse> responses = admissions.stream()
+            .map(admission -> admissionService.createAdmissionResponse(admission, "Retrieved successfully"))
+            .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Get applications by date range", description = "Retrieve applications within a date range")
     @ApiResponse(responseCode = "200", description = "Applications retrieved successfully")
     @GetMapping("/date-range")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Admission>> getApplicationsByDateRange(
+    public ResponseEntity<List<AdmissionResponse>> getApplicationsByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        return ResponseEntity.ok(admissionService.getAdmissionsByDateRange(startDate, endDate));
+        List<Admission> admissions = admissionService.getAdmissionsByDateRange(startDate, endDate);
+        List<AdmissionResponse> responses = admissions.stream()
+            .map(admission -> admissionService.createAdmissionResponse(admission, "Retrieved successfully"))
+            .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Get applications by grade", description = "Retrieve applications for a specific grade")
     @ApiResponse(responseCode = "200", description = "Applications retrieved successfully")
     @GetMapping("/grade/{grade}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Admission>> getApplicationsByGrade(@PathVariable Integer grade) {
-        return ResponseEntity.ok(admissionService.getAdmissionsByGrade(grade));
+    public ResponseEntity<List<AdmissionResponse>> getApplicationsByGrade(@PathVariable Integer grade) {
+        List<Admission> admissions = admissionService.getAdmissionsByGrade(grade);
+        List<AdmissionResponse> responses = admissions.stream()
+            .map(admission -> admissionService.createAdmissionResponse(admission, "Retrieved successfully"))
+            .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Get all admission applications", description = "Retrieve all admission applications")
     @ApiResponse(responseCode = "200", description = "Applications retrieved successfully")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Admission>> getAllApplications() {
-        return ResponseEntity.ok(admissionService.getAllAdmissions());
+    public ResponseEntity<List<AdmissionResponse>> getAllApplications() {
+        List<Admission> admissions = admissionService.getAllAdmissions();
+        List<AdmissionResponse> responses = admissions.stream()
+            .map(admission -> admissionService.createAdmissionResponse(admission, "Retrieved successfully"))
+            .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Update admission application details", description = "Update the details of an existing admission application")
@@ -118,8 +138,9 @@ public class AdmissionController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Admission> getApplicationById(@PathVariable Long id) {
-        return ResponseEntity.ok(admissionService.getAdmissionById(id));
+    public ResponseEntity<AdmissionResponse> getApplicationById(@PathVariable Long id) {
+        Admission admission = admissionService.getAdmissionById(id);
+        return ResponseEntity.ok(admissionService.createAdmissionResponse(admission, "Application found"));
     }
 
     @Operation(summary = "Delete admission application", description = "Delete an admission application")

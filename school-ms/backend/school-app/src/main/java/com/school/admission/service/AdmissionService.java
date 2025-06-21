@@ -8,6 +8,8 @@ import com.school.admission.dto.AdmissionResponse;
 import com.school.admission.exception.AdmissionNotFoundException;
 import com.school.admission.exception.InvalidAdmissionStateException;
 import com.school.student.model.Student;
+import com.school.student.model.StudentStatus;
+import com.school.student.model.Gender;
 import com.school.student.service.StudentService;
 import com.school.security.UserRole;
 import com.school.security.AuthService;
@@ -72,33 +74,61 @@ public class AdmissionService {
         return createAdmissionResponse(admission, "Application submitted successfully");
     }
 
+    @Transactional
     public AdmissionResponse updateApplicationStatus(Long id, AdmissionStatus newStatus, String remarks) {
+        System.out.println("Updating admission status for ID: " + id + " to " + newStatus);
+        
         Admission admission = admissionRepository.findById(id)
                 .orElseThrow(() -> new AdmissionNotFoundException("Admission application not found with id: " + id));
 
         validateStatusTransition(admission.getStatus(), newStatus);
-
+        
+        // Set the new status
         admission.setStatus(newStatus);
         if (newStatus == AdmissionStatus.REJECTED) {
             admission.setRejectionReason(remarks);
         }
 
+        // First save the admission with the updated status
+        admission = admissionRepository.save(admission);
+        
+        // Handle student/user creation as a separate transaction if approved
         if (newStatus == AdmissionStatus.APPROVED) {
-            // Create student account
-            Student student = createStudentFromAdmission(admission);
-            admission.setStudent(student);
-
-            // Create user account for student
-            RegisterRequest userRequest = RegisterRequest.builder()
-                    .username(student.getStudentId())
-                    .email(admission.getEmail())
-                    .password(generateTemporaryPassword())
-                    .role(UserRole.STUDENT)
-                    .build();
-            authService.register(userRequest);
+            try {
+                // Create student account
+                System.out.println("Creating student from admission ID: " + id);
+                Student student = createStudentFromAdmission(admission);
+                admission.setStudent(student);
+                admission = admissionRepository.save(admission);
+                
+                try {
+                    // Create user account for student
+                    System.out.println("Creating user account for student ID: " + student.getStudentId());
+                    RegisterRequest userRequest = RegisterRequest.builder()
+                            .username(student.getStudentId())
+                            .email(admission.getEmail())
+                            .password(generateTemporaryPassword())
+                            .fullName(admission.getApplicantName())
+                            .role(UserRole.STUDENT)
+                            .build();
+                    authService.register(userRequest);
+                    System.out.println("User account created successfully");
+                } catch (Exception e) {
+                    // If user registration fails, log the error but don't roll back the student creation
+                    System.err.println("Error creating user account for student: " + e.getMessage());
+                    e.printStackTrace();
+                    // Return success but mention the user creation issue
+                    return createAdmissionResponse(admission, 
+                        "Application approved and student record created, but user account creation failed: " + e.getMessage());
+                }
+            } catch (Exception e) {
+                // If student creation fails, log the error and throw an exception
+                System.err.println("Error creating student from admission: " + e.getMessage());
+                e.printStackTrace();
+                throw new InvalidAdmissionStateException("Failed to create student record: " + e.getMessage());
+            }
         }
 
-        admission = admissionRepository.save(admission);
         return createAdmissionResponse(admission, getStatusUpdateMessage(newStatus));
     }
 
@@ -197,7 +227,11 @@ public class AdmissionService {
     }
 
     private Student createStudentFromAdmission(Admission admission) {
-        return Student.builder()
+        // Generate a student ID (you can customize this format as needed)
+        String studentId = "ST" + System.currentTimeMillis() % 100000;
+        
+        Student student = Student.builder()
+                .studentId(studentId)
                 .firstName(extractFirstName(admission.getApplicantName()))
                 .lastName(extractLastName(admission.getApplicantName()))
                 .dateOfBirth(admission.getDateOfBirth())
@@ -207,8 +241,26 @@ public class AdmissionService {
                 .guardianContact(admission.getGuardianContact())
                 .guardianEmail(admission.getGuardianEmail())
                 .grade(admission.getGradeApplying())
+                .section("A")  // Default section
+                .address(admission.getAddress())
+                .previousSchool(admission.getPreviousSchool())
                 .admissionDate(LocalDate.now())
+                .status(StudentStatus.ACTIVE)
+                .gender(Gender.OTHER)  // Default gender, can be updated later
+                .admission(admission)  // Set the admission relationship
                 .build();
+        
+        try {
+            // First save the admission with updated status to avoid circular reference issues
+            admission = admissionRepository.save(admission);
+            
+            // Then save the student through StudentService to ensure all validations are applied
+            return studentService.createStudent(student);
+        } catch (Exception e) {
+            System.err.println("Full error details for student creation: " + e.getMessage());
+            e.printStackTrace();
+            throw new InvalidAdmissionStateException("Failed to create student record: " + e.getMessage());
+        }
     }
 
     private String generateTemporaryPassword() {
@@ -222,7 +274,7 @@ public class AdmissionService {
 
     private String extractLastName(String fullName) {
         return fullName.contains(" ") ? fullName.substring(fullName.indexOf(" ") + 1) : "";
-    }    private AdmissionResponse createAdmissionResponse(Admission admission, String message) {
+    }    public AdmissionResponse createAdmissionResponse(Admission admission, String message) {
         return AdmissionResponse.builder()
                 .id(admission.getId())
                 .applicantName(admission.getApplicantName())
