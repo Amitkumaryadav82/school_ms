@@ -1,29 +1,29 @@
-import React, { useState, useRef } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Typography,
-  Box,
-  Paper,
-  CircularProgress,
-  Alert,
-  AlertTitle,
-  Divider,
-  Chip,
-  IconButton,
-  Tooltip
-} from '@mui/material';
-import { StaffMember } from '../../services/staffService';
-import { parse } from 'papaparse';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DownloadIcon from '@mui/icons-material/Download';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import {
+    Alert,
+    AlertTitle,
+    Box,
+    Button,
+    Chip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    IconButton,
+    Paper,
+    TextField,
+    Tooltip,
+    Typography
+} from '@mui/material';
+import { parse } from 'papaparse';
+import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { StaffMember } from '../../services/staffService';
 
 interface BulkStaffUploadDialogProps {
   open: boolean;
@@ -39,10 +39,10 @@ interface StaffValidationError {
 }
 
 const REQUIRED_FIELDS = ['staffId', 'firstName', 'lastName', 'email', 'phoneNumber', 'role', 'joinDate'];
-const SAMPLE_CSV = `staffId,firstName,lastName,email,phoneNumber,role,joinDate,address,dateOfBirth,gender,qualifications,emergencyContact,bloodGroup,isActive
-EMP001,John,Smith,john.smith@example.com,1234567890,Teacher,2022-05-15,123 Main St,1985-03-20,MALE,B.Ed in Mathematics,9876543210,A+,true
-EMP002,Jane,Doe,jane.doe@example.com,9876543210,Librarian,2021-06-10,456 Elm St,1990-07-12,FEMALE,Master in Library Science,1234567890,O+,true
-EMP003,Robert,Johnson,robert.johnson@example.com,5551234567,Admin Officer,2020-03-15,789 Oak Ave,1982-11-30,MALE,MBA,7778889999,B-,true`;
+const SAMPLE_CSV = `staffId,firstName,middleName,lastName,email,phoneNumber,role,joinDate,address,dateOfBirth,gender,department,designation,qualifications,emergencyContact,bloodGroup,isActive,pfUAN,gratuity,serviceEndDate,basicSalary,hra,da,profileImage
+EMP001,John,M,Smith,john.smith@example.com,1234567890,Teacher,2022-05-15,123 Main St,1985-03-20,MALE,Mathematics,Senior Teacher,B.Ed in Mathematics,9876543210,A+,true,UAN12345678,GR12345,,50000,15000,5000,profile1.jpg
+EMP002,Jane,,Doe,jane.doe@example.com,9876543210,Librarian,2021-06-10,456 Elm St,1990-07-12,FEMALE,Library,Head Librarian,Master in Library Science,1234567890,O+,true,UAN23456789,GR23456,,45000,13000,4500,profile2.jpg
+EMP003,Robert,K,Johnson,robert.johnson@example.com,5551234567,Admin Officer,2020-03-15,789 Oak Ave,1982-11-30,MALE,Administration,Senior Manager,MBA,7778889999,B-,true,UAN34567890,GR34567,,60000,18000,6000,profile3.jpg`;
 
 const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
   open,
@@ -66,7 +66,8 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
     setFileName('');
   };
 
-  const validateStaffMember = (staff: any, index: number): StaffValidationError[] => {
+  // Validate staff member data
+  const validateStaffMember = (staff: StaffMember, index: number) => {
     const errors: StaffValidationError[] = [];
 
     // Check required fields
@@ -116,6 +117,27 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
         message: 'Invalid date format for dateOfBirth. Use YYYY-MM-DD'
       });
     }
+    
+    // Validate service end date if provided
+    if (staff.serviceEndDate && !/^\d{4}-\d{2}-\d{2}$/.test(staff.serviceEndDate)) {
+      errors.push({
+        index,
+        field: 'serviceEndDate',
+        message: 'Invalid date format for serviceEndDate. Use YYYY-MM-DD'
+      });
+    }
+    
+    // Validate numeric fields
+    const numericFields = ['basicSalary', 'hra', 'da'];
+    numericFields.forEach(field => {
+      if (staff[field] && isNaN(Number(staff[field]))) {
+        errors.push({
+          index,
+          field,
+          message: `${field} must be a valid number`
+        });
+      }
+    });
 
     return errors;
   };
@@ -146,13 +168,26 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
         setValidationErrors(allErrors);
         setParseStatus('error');
       } else {        
-        // Process isActive field (convert string to boolean)        
-        const processedStaffMembers = staffMembers.map(staff => ({
-          ...staff,
-          isActive: typeof staff.isActive === 'string' && staff.isActive ? 
+        // Process boolean and numeric fields
+        const processedStaffMembers = staffMembers.map(staff => {
+          // Process boolean fields
+          const isActiveValue = typeof staff.isActive === 'string' ? 
             String(staff.isActive).toLowerCase() === 'true' : 
-            Boolean(staff.isActive)
-        }));
+            Boolean(staff.isActive);
+            
+          // Process numeric fields
+          const basicSalary = staff.basicSalary ? Number(staff.basicSalary) : undefined;
+          const hra = staff.hra ? Number(staff.hra) : undefined;
+          const da = staff.da ? Number(staff.da) : undefined;
+          
+          return {
+            ...staff,
+            isActive: isActiveValue,
+            basicSalary,
+            hra,
+            da
+          };
+        });
         
         setParsedStaff(processedStaffMembers);
         setParseStatus('success');

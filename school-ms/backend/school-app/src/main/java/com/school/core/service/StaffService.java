@@ -22,6 +22,20 @@ public interface StaffService {
      * @return List of all staff
      */
     List<Staff> getAllStaff();
+    
+    /**
+     * Save a staff member with role synchronization
+     * @param staff The staff to save
+     * @return The saved staff
+     */
+    Staff save(Staff staff);
+    
+    /**
+     * Save a staff member
+     * @param staff The staff to save
+     * @return The saved staff
+     */
+    Staff saveStaff(Staff staff);
 
     /**
      * Get a staff member by ID
@@ -55,13 +69,6 @@ public interface StaffService {
      */
     Staff createStaff(Staff staff);
     
-    /**
-     * Save a staff member (create or update)
-     * 
-     * @param staff The staff to save
-     * @return The saved staff
-     */
-    Staff saveStaff(Staff staff);
 
     /**
      * Update an existing staff member

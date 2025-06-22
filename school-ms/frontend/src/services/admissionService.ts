@@ -1,5 +1,5 @@
 import api from './api';
-import { studentService, Student } from './studentService';
+import { Student, studentService } from './studentService';
 
 // Frontend interface for displaying admission applications
 export interface AdmissionApplication {

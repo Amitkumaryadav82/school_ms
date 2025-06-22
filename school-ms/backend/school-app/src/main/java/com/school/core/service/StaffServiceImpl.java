@@ -82,10 +82,10 @@ public class StaffServiceImpl implements StaffService {
         
         return staffRepository.save(staff);
     }
-    
-    @Override
+      @Override
     public Staff saveStaff(Staff staff) {
-        return staffRepository.save(staff);
+        // Use the save method that handles role synchronization
+        return save(staff);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class StaffServiceImpl implements StaffService {
         
         return staffRepository.findById(id)
                 .map(existingStaff -> {
-                    // Update non-null fields from staffDetails to existingStaff
+                    // Update basic identification fields
                     if (staffDetails.getStaffId() != null) {
                         existingStaff.setStaffId(staffDetails.getStaffId());
                     }
@@ -123,23 +123,82 @@ public class StaffServiceImpl implements StaffService {
                     if (staffDetails.getPhone() != null) {
                         existingStaff.setPhone(staffDetails.getPhone());
                     }
+                    if (staffDetails.getPhoneNumber() != null) {
+                        existingStaff.setPhoneNumber(staffDetails.getPhoneNumber());
+                    }
+                    
+                    // Update personal information
                     if (staffDetails.getDateOfBirth() != null) {
                         existingStaff.setDateOfBirth(staffDetails.getDateOfBirth());
                     }
                     if (staffDetails.getAddress() != null) {
                         existingStaff.setAddress(staffDetails.getAddress());
                     }
+                    if (staffDetails.getGender() != null) {
+                        existingStaff.setGender(staffDetails.getGender());
+                    }
+                    if (staffDetails.getQualifications() != null) {
+                        existingStaff.setQualifications(staffDetails.getQualifications());
+                    }
+                    if (staffDetails.getEmergencyContact() != null) {
+                        existingStaff.setEmergencyContact(staffDetails.getEmergencyContact());
+                    }
+                    if (staffDetails.getBloodGroup() != null) {
+                        existingStaff.setBloodGroup(staffDetails.getBloodGroup());
+                    }
+                    if (staffDetails.getProfileImage() != null) {
+                        existingStaff.setProfileImage(staffDetails.getProfileImage());
+                    }
+                    
+                    // Update employment information
                     if (staffDetails.getRole() != null) {
                         existingStaff.setRole(staffDetails.getRole());
                     }
                     if (staffDetails.getEmploymentStatus() != null) {
                         existingStaff.setEmploymentStatus(staffDetails.getEmploymentStatus());
-                    }                    // Use isActive instead of getActive (boolean vs Boolean)
-                    existingStaff.setActive(staffDetails.isActive());
-
+                    }
+                    if (staffDetails.getDepartment() != null) {
+                        existingStaff.setDepartment(staffDetails.getDepartment());
+                    }
+                    if (staffDetails.getDesignation() != null) {
+                        existingStaff.setDesignation(staffDetails.getDesignation());
+                    }
+                    
+                    // Update employment dates
+                    if (staffDetails.getJoinDate() != null) {
+                        existingStaff.setJoinDate(staffDetails.getJoinDate());
+                    }
                     if (staffDetails.getJoiningDate() != null) {
                         existingStaff.setJoiningDate(staffDetails.getJoiningDate());
                     }
+                    if (staffDetails.getServiceEndDate() != null) {
+                        existingStaff.setServiceEndDate(staffDetails.getServiceEndDate());
+                    }
+                    if (staffDetails.getTerminationDate() != null) {
+                        existingStaff.setTerminationDate(staffDetails.getTerminationDate());
+                    }
+                    
+                    // Update benefits and salary information
+                    if (staffDetails.getPfUAN() != null) {
+                        existingStaff.setPfUAN(staffDetails.getPfUAN());
+                    }
+                    if (staffDetails.getGratuity() != null) {
+                        existingStaff.setGratuity(staffDetails.getGratuity());
+                    }
+                    if (staffDetails.getBasicSalary() != null) {
+                        existingStaff.setBasicSalary(staffDetails.getBasicSalary());
+                    }
+                    if (staffDetails.getHra() != null) {
+                        existingStaff.setHra(staffDetails.getHra());
+                    }
+                    if (staffDetails.getDa() != null) {
+                        existingStaff.setDa(staffDetails.getDa());
+                    }
+
+                    // Use isActive instead of getActive (boolean vs Boolean)
+                    existingStaff.setActive(staffDetails.isActive());
+                    
+                    // Update teacher details if present
                     if (staffDetails.getTeacherDetails() != null) {
                         existingStaff.setTeacherDetails(staffDetails.getTeacherDetails());
                     }
@@ -277,6 +336,28 @@ public class StaffServiceImpl implements StaffService {
         
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException("Staff validation errors: " + String.join(", ", errors));
+        }
+    }
+
+    @Override
+    public Staff save(Staff staff) {
+        // Synchronize role fields to ensure consistency
+        synchronizeRoleFields(staff);
+        return staffRepository.save(staff);
+    }
+
+    /**
+     * Synchronizes the role fields to ensure consistency between the legacy string role
+     * and the staffRole object reference.
+     * 
+     * @param staff The staff entity to synchronize
+     */    private void synchronizeRoleFields(Staff staff) {
+        // If staffRole is set, update the legacy role field
+        if (staff.getRole() != null && staff.getRole().getName() != null) {
+            staff.setStringRole(staff.getRole().getName());
+        }        // If only the legacy role field is set, log a warning
+        else if (staff.getStringRole() != null && staff.getRole() == null) {
+            logger.warn("Staff entity has legacy role field set without staffRole object: {}", staff.getStringRole());
         }
     }
 }

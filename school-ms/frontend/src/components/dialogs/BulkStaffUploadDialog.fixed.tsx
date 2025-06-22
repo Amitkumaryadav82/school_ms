@@ -1,29 +1,28 @@
-import React, { useState, useRef } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Typography,
-  Box,
-  Paper,
-  CircularProgress,
-  Alert,
-  AlertTitle,
-  Divider,
-  Chip,
-  IconButton,
-  Tooltip
-} from '@mui/material';
-import { StaffMember } from '../../services/staffService';
-import { parse } from 'papaparse';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DownloadIcon from '@mui/icons-material/Download';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import {
+    Alert,
+    AlertTitle,
+    Box,
+    Button,
+    Chip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Paper,
+    TextField,
+    Tooltip,
+    Typography
+} from '@mui/material';
+import { parse } from 'papaparse';
+import React, { useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
+import { StaffMember } from '../../services/staffService';
 
 interface BulkStaffUploadDialogProps {
   open: boolean;
@@ -39,10 +38,10 @@ interface StaffValidationError {
 }
 
 const REQUIRED_FIELDS = ['staffId', 'firstName', 'lastName', 'email', 'phoneNumber', 'role', 'joinDate'];
-const SAMPLE_CSV = `staffId,firstName,lastName,email,phoneNumber,role,joinDate,address,dateOfBirth,gender,qualifications,emergencyContact,bloodGroup,isActive
-EMP001,John,Smith,john.smith@example.com,1234567890,Teacher,2022-05-15,123 Main St,1985-03-20,MALE,B.Ed in Mathematics,9876543210,A+,true
-EMP002,Jane,Doe,jane.doe@example.com,9876543210,Librarian,2021-06-10,456 Elm St,1990-07-12,FEMALE,Master in Library Science,1234567890,O+,true
-EMP003,Robert,Johnson,robert.johnson@example.com,5551234567,Admin Officer,2020-03-15,789 Oak Ave,1982-11-30,MALE,MBA,7778889999,B-,true`;
+const SAMPLE_CSV = `staffId,firstName,middleName,lastName,email,phoneNumber,role,joinDate,address,dateOfBirth,gender,department,designation,qualifications,emergencyContact,bloodGroup,isActive,pfUAN,gratuity,serviceEndDate,basicSalary,hra,da,profileImage
+EMP001,John,M,Smith,john.smith@example.com,1234567890,Teacher,2022-05-15,123 Main St,1985-03-20,MALE,Mathematics,Senior Teacher,B.Ed in Mathematics,9876543210,A+,true,UAN12345678,GR12345,,50000,15000,5000,profile1.jpg
+EMP002,Jane,,Doe,jane.doe@example.com,9876543210,Librarian,2021-06-10,456 Elm St,1990-07-12,FEMALE,Library,Head Librarian,Master in Library Science,1234567890,O+,true,UAN23456789,GR23456,,45000,13000,4500,profile2.jpg
+EMP003,Robert,K,Johnson,robert.johnson@example.com,5551234567,Admin Officer,2020-03-15,789 Oak Ave,1982-11-30,MALE,Administration,Senior Manager,MBA,7778889999,B-,true,UAN34567890,GR34567,,60000,18000,6000,profile3.jpg`;
 
 const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
   open,
@@ -66,7 +65,8 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
     setFileName('');
   };
 
-  const validateStaffMember = (staff: any, index: number): StaffValidationError[] => {
+  // Validate staff member data
+  const validateStaffMember = (staff: StaffMember, index: number) => {
     const errors: StaffValidationError[] = [];
 
     // Check required fields
@@ -116,6 +116,27 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
         message: 'Invalid date format for dateOfBirth. Use YYYY-MM-DD'
       });
     }
+    
+    // Validate service end date if provided
+    if (staff.serviceEndDate && !/^\d{4}-\d{2}-\d{2}$/.test(staff.serviceEndDate)) {
+      errors.push({
+        index,
+        field: 'serviceEndDate',
+        message: 'Invalid date format for serviceEndDate. Use YYYY-MM-DD'
+      });
+    }
+    
+    // Validate numeric fields
+    const numericFields = ['basicSalary', 'hra', 'da'];
+    numericFields.forEach(field => {
+      if (staff[field] && isNaN(Number(staff[field]))) {
+        errors.push({
+          index,
+          field,
+          message: `${field} must be a valid number`
+        });
+      }
+    });
 
     return errors;
   };
@@ -146,13 +167,50 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
         setValidationErrors(allErrors);
         setParseStatus('error');
       } else {        
-        // Process isActive field (convert string to boolean)        
-        const processedStaffMembers = staffMembers.map(staff => ({
-          ...staff,
-          isActive: typeof staff.isActive === 'string' && staff.isActive ? 
+        // Process boolean and numeric fields
+        const processedStaffMembers = staffMembers.map(staff => {
+          // Process boolean fields
+          const isActiveValue = typeof staff.isActive === 'string' ? 
             String(staff.isActive).toLowerCase() === 'true' : 
-            Boolean(staff.isActive)
-        }));
+            Boolean(staff.isActive);
+            
+          // Process numeric fields
+          const basicSalary = staff.basicSalary !== undefined && staff.basicSalary !== '' ? 
+            Number(staff.basicSalary) : undefined;
+            
+          const hra = staff.hra !== undefined && staff.hra !== '' ? 
+            Number(staff.hra) : undefined;
+            
+          const da = staff.da !== undefined && staff.da !== '' ? 
+            Number(staff.da) : undefined;
+          
+          // Make sure all date fields are properly formatted as strings
+          const processDateField = (dateValue: string | undefined): string | undefined => {
+            if (!dateValue || dateValue.trim() === '') return undefined;
+            
+            // If already in YYYY-MM-DD format, return as is
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) return dateValue;
+            
+            // Try to parse and format the date
+            try {
+              const date = new Date(dateValue);
+              return date.toISOString().split('T')[0]; // Get YYYY-MM-DD part
+            } catch (e) {
+              return undefined;
+            }
+          };
+          
+          return {
+            ...staff,
+            isActive: isActiveValue,
+            basicSalary,
+            hra,
+            da,
+            joinDate: processDateField(staff.joinDate),
+            dateOfBirth: processDateField(staff.dateOfBirth),
+            serviceEndDate: processDateField(staff.serviceEndDate),
+          };
+        });
         
         setParsedStaff(processedStaffMembers);
         setParseStatus('success');
@@ -194,7 +252,7 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
     link.href = URL.createObjectURL(blob);
     link.setAttribute('download', 'staff_upload_template.csv');
     
-    // Append to the document, click it, and remove it
+    // Append, click and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -217,49 +275,43 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
     reader.onload = (e) => {
       const data = e.target?.result;
       
-      try {
-        // Handle Excel files (xlsx, xls)
-        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-          const workbook = XLSX.read(data, { type: 'binary' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          
-          // Convert to CSV
-          const csv = XLSX.utils.sheet_to_csv(worksheet);
-          setCsvData(csv);
-        } 
-        // Handle CSV files directly
-        else if (file.name.endsWith('.csv')) {
-          setCsvData(data as string);
+      if (typeof data === 'string') {
+        // For CSV files, just set the data directly
+        if (file.name.endsWith('.csv')) {
+          setCsvData(data);
         }
-        else {
-          throw new Error('Unsupported file format. Please use CSV, XLSX, or XLS files.');
+        // For Excel files, convert to CSV first
+        else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+          try {
+            const workbook = XLSX.read(data, {type: 'binary'});
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const csv = XLSX.utils.sheet_to_csv(worksheet);
+            setCsvData(csv);
+          } catch (error) {
+            console.error('Error parsing Excel file:', error);
+            setValidationErrors([{
+              index: 0,
+              field: 'file',
+              message: 'Failed to parse Excel file: ' + (error instanceof Error ? error.message : String(error))
+            }]);
+            setParseStatus('error');
+          }
+        } else {
+          setValidationErrors([{
+            index: 0,
+            field: 'file',
+            message: 'Unsupported file format. Please upload a CSV or Excel file.'
+          }]);
+          setParseStatus('error');
         }
-        
-        // Reset states
-        setParseStatus('initial');
-        setParsedStaff([]);
-        setValidationErrors([]);
-      } catch (error) {
-        console.error('Error reading file:', error);
-        setValidationErrors([{
-          index: 0,
-          field: 'file',
-          message: 'Failed to read file: ' + (error instanceof Error ? error.message : String(error))
-        }]);
-        setParseStatus('error');
       }
     };
     
-    if (file.name.endsWith('.csv')) {
-      reader.readAsText(file);
-    } else {
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
       reader.readAsBinaryString(file);
-    }
-    
-    // Reset the input to allow selecting the same file again
-    if (event.target) {
-      event.target.value = '';
+    } else {
+      reader.readAsText(file);
     }
   };
 
@@ -364,30 +416,24 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
           </Alert>
         )}
 
-        {parsedStaff.length > 0 && (
-          <Paper variant="outlined" sx={{ p: 2, mt: 2, maxHeight: '200px', overflow: 'auto' }}>
+        {parseStatus === 'success' && parsedStaff.length > 0 && (
+          <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
-              Preview of Parsed Data ({parsedStaff.length} staff members)
+              Data Summary
             </Typography>
-            <Divider sx={{ mb: 2 }} />
-            {parsedStaff.slice(0, 5).map((staff, index) => (
-              <Box key={index} sx={{ mb: 1, p: 1, bgcolor: 'background.paper' }}>
-                <Typography variant="body2">
-                  <strong>ID:</strong> {staff.staffId}, 
-                  <strong> Name:</strong> {staff.firstName} {staff.lastName}, 
-                  <strong> Role:</strong> {staff.role}, 
-                  <strong> Email:</strong> {staff.email}
-                  <strong> Status:</strong> {staff.isActive ? 'Active' : 'Inactive'}
-                </Typography>
-              </Box>
-            ))}
-            {parsedStaff.length > 5 && (
-              <Chip 
-                label={`${parsedStaff.length - 5} more staff members`} 
-                size="small" 
-                sx={{ mt: 1 }} 
-              />
-            )}
+            <Typography variant="body2" gutterBottom>
+              Total records: {parsedStaff.length}
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+              {Object.keys(parsedStaff[0]).map((field) => (
+                <Chip 
+                  key={field} 
+                  label={field} 
+                  color={REQUIRED_FIELDS.includes(field) ? 'primary' : 'default'} 
+                  size="small" 
+                />
+              ))}
+            </Box>
           </Paper>
         )}
       </DialogContent>
@@ -395,13 +441,14 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
         <Button onClick={onClose} disabled={loading}>
           Cancel
         </Button>
-        <Button 
-          onClick={handleSubmit} 
+        <Button
           color="primary" 
-          disabled={parsedStaff.length === 0 || parseStatus !== 'success' || loading}
-          startIcon={loading ? <CircularProgress size={20} /> : <CloudUploadIcon />}
+          variant="contained" 
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+          disabled={parseStatus !== 'success' || parsedStaff.length === 0 || loading}
+          onClick={handleSubmit} 
         >
-          {loading ? 'Importing...' : 'Import Staff Data'}
+          {loading ? 'Uploading...' : 'Upload Staff Data'}
         </Button>
       </DialogActions>
     </Dialog>

@@ -208,11 +208,30 @@ public class Staff {    @Id
     
     public void setRole(StaffRole staffRole) {
         this.staffRole = staffRole;
-    }
-    
-    // Legacy role field maintained for backward compatibility
+    }    // Legacy role field maintained for backward compatibility
     @Column(name = "role")
     private String role;
+    
+    public String getStringRole() {
+        return this.role;
+    }
+    
+    public void setStringRole(String role) {
+        this.role = role;
+    }
+    
+    /**
+     * Gets the normalized role name as a string.
+     * Prefers the staffRole object's name if available, falls back to the legacy role field.
+     * 
+     * @return The normalized role name as a string
+     */
+    public String getRoleString() {
+        if (this.staffRole != null && this.staffRole.getName() != null) {
+            return this.staffRole.getName();
+        }
+        return this.role;
+    }
 
     @Column(name = "user_id")
     private Long userId;

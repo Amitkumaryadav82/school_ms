@@ -1,5 +1,5 @@
-import { api } from './api';
 import config from '../config/environment';
+import { api } from './api';
 
 export enum EmploymentStatus {
   ACTIVE = 'ACTIVE',
@@ -15,10 +15,24 @@ export interface TeacherDetails {
   department: string;
   specialization?: string;
   subjects: string;
+  subjectsTaught?: string; // Add this field to handle multiple data patterns
   teachingExperience: number;
   isClassTeacher: boolean;
   classAssignedId?: number;
   className?: string;
+}
+
+export interface StaffRole {
+  id?: number;
+  name?: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+// More flexible role interface to match API response
+export interface ApiStaffRole extends StaffRole {
+  roleName?: string;
+  [key: string]: any; // Allow additional properties
 }
 
 export interface StaffMember {
@@ -26,11 +40,17 @@ export interface StaffMember {
   staffId?: string;
   firstName: string;
   lastName: string;
+  middleName?: string; 
   fullName?: string;
   email: string;
   phoneNumber?: string;
   phone?: string; // Some endpoints use phone, others use phoneNumber
-  role: string;
+  // Based on the API response, role can be either:
+  // 1. A string (direct value from database)
+  // 2. A StaffRole object with name, description, etc.
+  role: string | StaffRole | ApiStaffRole | any;
+  // For backward compatibility with the API that returns staffRole instead of role
+  staffRole?: StaffRole | ApiStaffRole;
   roleId?: number;
   joinDate?: string;
   joiningDate?: string; // Backend uses joiningDate, frontend uses joinDate
@@ -80,9 +100,31 @@ const ROLE_ID_MAP: Record<string, number> = {
 const prepareStaffData = (staffMember: StaffMember): StaffMember => {
   const formattedStaff: StaffMember = { ...staffMember };
 
-  // Convert role name to ID if needed by backend
-  if (formattedStaff.role && ROLE_ID_MAP[formattedStaff.role]) {
-    formattedStaff.roleId = ROLE_ID_MAP[formattedStaff.role];
+  // Get the role as a string regardless of source format
+  let roleString = '';
+  if (typeof formattedStaff.role === 'string') {
+    roleString = formattedStaff.role;
+  } else if (formattedStaff.role && typeof formattedStaff.role === 'object' && 'name' in formattedStaff.role) {
+    roleString = formattedStaff.role.name || '';
+  } else if (formattedStaff.staffRole && typeof formattedStaff.staffRole === 'object' && 'name' in formattedStaff.staffRole) {
+    // If role is not set but staffRole is available, use that
+    roleString = formattedStaff.staffRole.name || '';
+  }
+
+  // Convert role name to standard format (UPPERCASE with underscores)
+  if (roleString) {
+    // Handle role names like "Admin Officer" -> "ADMIN_OFFICER"
+    if (!roleString.includes('_') && roleString !== roleString.toUpperCase()) {
+      roleString = roleString.toUpperCase().replace(/ /g, '_');
+    }
+    
+    // Set the role as string
+    formattedStaff.role = roleString;
+    
+    // Map to role ID if needed by backend
+    if (ROLE_ID_MAP[roleString]) {
+      formattedStaff.roleId = ROLE_ID_MAP[roleString];
+    }
   }
   
   // Ensure backend date format (YYYY-MM-DD)
@@ -96,13 +138,89 @@ const prepareStaffData = (staffMember: StaffMember): StaffMember => {
   } else if (formattedStaff.phone && !formattedStaff.phoneNumber) {
     formattedStaff.phoneNumber = formattedStaff.phone;
   }
+  
+  // Set up teacherDetails if this is a teacher but details aren't set
+  const isTeacher = roleString.includes('TEACHER') || roleString === 'Teacher';
+  if (isTeacher && 
+      !formattedStaff.teacherDetails && 
+      (formattedStaff.department || (formattedStaff as any).subjects)) {
+    
+    formattedStaff.teacherDetails = {
+      department: formattedStaff.department || '',
+      subjects: (formattedStaff as any).subjects || '',
+      teachingExperience: (formattedStaff as any).teachingExperience || 0,
+      isClassTeacher: false
+    };
+  }
+    // Format date fields to ensure YYYY-MM-DD format
+  // Type-safe approach to handle dynamic fields
+  const formatDateField = (field: keyof StaffMember) => {
+    const value = formattedStaff[field];
+    if (typeof value === 'string') {
+      // Check if it's already in the correct format
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        try {
+          const date = new Date(value);
+          if (!isNaN(date.getTime())) {
+            formattedStaff[field] = date.toISOString().split('T')[0] as any; // YYYY-MM-DD
+          }
+        } catch (e) {
+          console.warn(`Failed to format date for ${field}`, e);
+        }
+      }
+    }
+  };
+  
+  // Apply date formatting to specific fields
+  formatDateField('dateOfBirth');
+  formatDateField('joinDate');
+  formatDateField('joiningDate');
+  formatDateField('serviceEndDate');
+  
+  // Convert string numeric values to actual numbers
+  const formatNumericField = (field: keyof StaffMember) => {
+    const value = formattedStaff[field];
+    if (value !== undefined && value !== null && typeof value === 'string') {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        formattedStaff[field] = numValue as any;
+      }
+    }
+  };
+  
+  // Apply numeric formatting to specific fields
+  formatNumericField('basicSalary');
+  formatNumericField('hra');
+  formatNumericField('da');
+  formatNumericField('ta');
+  formatNumericField('otherAllowances');
+  formatNumericField('pfContribution');
+  formatNumericField('taxDeduction');
+  formatNumericField('netSalary');
+  
+  // Convert string boolean values to actual booleans
+  if (formattedStaff.isActive !== undefined && typeof formattedStaff.isActive === 'string') {
+    formattedStaff.isActive = (formattedStaff.isActive as string).toLowerCase() === 'true';
+  }
+  
+  // Ensure numeric fields are properly formatted
+  if (formattedStaff.basicSalary && typeof formattedStaff.basicSalary === 'string') {
+    formattedStaff.basicSalary = Number(formattedStaff.basicSalary);
+  }
+  
+  if (formattedStaff.hra && typeof formattedStaff.hra === 'string') {
+    formattedStaff.hra = Number(formattedStaff.hra);
+  }
+  
+  if (formattedStaff.da && typeof formattedStaff.da === 'string') {
+    formattedStaff.da = Number(formattedStaff.da);
+  }
 
   return formattedStaff;
 };
 
 // Try multiple possible bulk upload formats in sequence
-const tryBulkUploadFormats = (url: string, formattedStaffMembers: StaffMember[], headers: Record<string, string>) => {
-  // Format 1: Send with staff property (like the students/bulk endpoint)
+const tryBulkUploadFormats = (url: string, formattedStaffMembers: StaffMember[], headers: Record<string, string>) => {  // Format 1: Send with staff property (as expected by the backend's BulkStaffRequest)
   const tryStaffWrapper = () => {
     const data = { 
       staff: formattedStaffMembers,
@@ -199,10 +317,9 @@ export const staffService = {
     });
     
     console.log('Sending bulk staff data to server:', JSON.stringify(formattedStaffMembers, null, 2));
-    
-    // Use the /api/staff/bulk endpoint
+      // Use the /api/staff/bulk-upload endpoint
     const baseUrl = config.apiUrl.endsWith('/') ? config.apiUrl.slice(0, -1) : config.apiUrl;
-    const url = `${baseUrl}/api/staff/bulk`;
+    const url = `${baseUrl}/api/staff/bulk-upload`;
     
     console.log('Using URL:', url);
     

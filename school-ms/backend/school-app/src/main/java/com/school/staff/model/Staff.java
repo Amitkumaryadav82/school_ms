@@ -62,6 +62,19 @@ public class Staff {
 
     @Column(nullable = false)
     private boolean active = true;
+    
+    // Additional fields that align with the core.model.Staff entity
+    private String qualifications;
+    private String emergencyContact;
+    private String bloodGroup;
+    private String gender;
+    private String pfUAN;
+    private String gratuity;
+    private LocalDate serviceEndDate;
+    private Double basicSalary;
+    private Double hra;
+    private Double da;
+    private String profileImage;
 
     @OneToOne(cascade = CascadeType.ALL)
     private TeacherDetails teacherDetails;
@@ -92,4 +105,17 @@ public class Staff {
     public LocalDate getDateOfBirth() { return this.dateOfBirth; }
     public LocalDate getJoiningDate() { return this.joiningDate; }
     public String getDepartment() { return this.department; }
+    public String getDesignation() { return this.designation; }
+    public boolean isActive() { return this.active; }
+    public String getQualifications() { return this.qualifications; }
+    public String getEmergencyContact() { return this.emergencyContact; }
+    public String getBloodGroup() { return this.bloodGroup; }
+    public String getGender() { return this.gender; }
+    public String getPfUAN() { return this.pfUAN; }
+    public String getGratuity() { return this.gratuity; }
+    public LocalDate getServiceEndDate() { return this.serviceEndDate; }
+    public Double getBasicSalary() { return this.basicSalary; }
+    public Double getHra() { return this.hra; }
+    public Double getDa() { return this.da; }
+    public String getProfileImage() { return this.profileImage; }
 }

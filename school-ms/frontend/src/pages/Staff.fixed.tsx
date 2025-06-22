@@ -30,7 +30,7 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import DataTable, { Column } from '../components/DataTable';
 import AuthDebugger from '../components/debug/AuthDebugger';
-import BulkStaffUploadDialog from '../components/dialogs/BulkStaffUploadDialog';
+import BulkStaffUploadDialog from '../components/dialogs/BulkStaffUploadDialog.fixed';
 import StaffDialog from '../components/dialogs/StaffDialog';
 import ErrorMessage from '../components/ErrorMessage';
 import Loading from '../components/Loading';
@@ -40,7 +40,7 @@ import { useApi, useApiMutation } from '../hooks/useApi';
 import { hasStaffStatusUpdatePermission, parseJwt } from '../services/authService';
 import { EmploymentStatus, StaffMember, staffService } from '../services/staffService';
 import { hasPermission } from '../utils/permissions';
-import { formatRole, getAvatarColor } from './StaffHelper';
+import { formatRole, getAvatarColor, getRoleNameFromStaff } from './StaffHelper';
 
 const Staff: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -50,6 +50,7 @@ const Staff: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const { showNotification } = useNotification();
   const { user } = useAuth();
+  
   // Add debug logging to track user role and permissions  
   useEffect(() => {
     console.log('Current user:', user);
@@ -83,42 +84,18 @@ const Staff: React.FC = () => {
     }
   );
 
-  const { mutate: bulkCreateStaff, loading: bulkCreateLoading } = useApiMutation(
-    (data: StaffMember[]) => staffService.bulkCreate(data),
-    {
-      onSuccess: (result) => {
-        const { created, updated, errors } = result;
-        
-        if (errors && errors.length > 0) {
-          showNotification({ 
-            type: 'warning', 
-            message: `Partially completed: Created ${created}, Updated ${updated}, Failed ${errors.length} records` 
-          });
-        } else {
-          showNotification({ 
-            type: 'success', 
-            message: `Successfully imported staff data: Created ${created}, Updated ${updated} records` 
-          });
-        }
-        
-        setBulkUploadDialogOpen(false);
-        refresh();
-      },
-      onError: (error) => {
-        showNotification({ 
-          type: 'error', 
-          message: `Failed to import staff data: ${error.message}` 
-        });
-      }
-    }
-  );
-
   const { mutate: updateStaff, loading: updateLoading } = useApiMutation(
-    (data: StaffMember) => staffService.update(data.id!, data),
-    {      onSuccess: () => {
+    (data: { id: number, staff: Partial<StaffMember> }) => {
+      const staffUpdate = {
+        ...data.staff,
+        id: data.id
+      };
+      return staffService.update(data.id, staffUpdate as StaffMember);
+    },
+    {
+      onSuccess: () => {
         showNotification({ type: 'success', message: 'Staff member updated successfully' });
         setDialogOpen(false);
-        setSelectedStaff(undefined);
         refresh();
       },
       onError: (error) => {
@@ -130,12 +107,30 @@ const Staff: React.FC = () => {
     }
   );
 
+  const { mutate: updateEmploymentStatus, loading: updateStatusLoading } = useApiMutation(
+    (data: { id: number, status: EmploymentStatus }) => {
+      return staffService.updateEmploymentStatus(data.id, data.status);
+    },
+    {
+      onSuccess: () => {
+        showNotification({ type: 'success', message: 'Staff status updated successfully' });
+        refresh();
+      },
+      onError: (error) => {
+        showNotification({ 
+          type: 'error', 
+          message: `Failed to update employment status: ${error.message}` 
+        });
+      }
+    }
+  );
+
   const { mutate: deleteStaff, loading: deleteLoading } = useApiMutation(
     (id: number) => staffService.delete(id),
-    {      onSuccess: () => {
+    {
+      onSuccess: () => {
         showNotification({ type: 'success', message: 'Staff member deleted successfully' });
         setConfirmDeleteOpen(false);
-        setSelectedStaff(undefined);
         refresh();
       },
       onError: (error) => {
@@ -146,11 +141,26 @@ const Staff: React.FC = () => {
       }
     }
   );
+
+  const { mutate: bulkCreateStaff, loading: bulkCreateLoading } = useApiMutation(
+    (data: StaffMember[]) => staffService.createBulk(data),
+    {
+      onSuccess: () => {
+        showNotification({ type: 'success', message: 'Staff members created successfully' });
+        setBulkUploadDialogOpen(false);
+        refresh();
+      },
+      onError: (error) => {
+        showNotification({ 
+          type: 'error', 
+          message: `Failed to create staff members in bulk: ${error.message}` 
+        });
+      }
+    }
+  );
+
   const { mutate: toggleStaffStatus, loading: toggleStatusLoading } = useApiMutation(
-    (data: { id: number; isActive: boolean }) => {
-      const staffUpdate: Partial<StaffMember> = { isActive: data.isActive };
-      return staffService.update(data.id, staffUpdate as StaffMember);
-    },
+    (data: { id: number, isActive: boolean }) => staffService.toggleStatus(data.id, data.isActive),
     {
       onSuccess: () => {
         showNotification({ type: 'success', message: 'Staff status updated successfully' });
@@ -165,127 +175,81 @@ const Staff: React.FC = () => {
     }
   );
 
-  const { mutate: updateEmploymentStatus, loading: updateStatusLoading } = useApiMutation(
-    (data: { id: number; status: EmploymentStatus }) => {
-      // Add detailed request logging
-      console.log('Attempting to update employment status with:', {
-        staffId: data.id,
-        newStatus: data.status,
-        currentTime: new Date().toISOString()
-      });
-      return staffService.updateEmploymentStatus(data.id, data.status);
-    },
-    {
-      onSuccess: (result) => {
-        console.log('Employment status update succeeded:', {
-          result,
-          timestamp: new Date().toISOString()
-        });
-        showNotification({ type: 'success', message: 'Employment status updated successfully' });
-        refresh();
-      },
-      onError: (error) => {
-        console.error('Employment status update failed:', {
-          error,
-          timestamp: new Date().toISOString()
-        });
-        showNotification({ 
-          type: 'error', 
-          message: `Failed to update employment status: ${error.message}` 
-        });
-      }
-    }
-  );
-
-  const handleEmploymentStatusChange = async (staffId: number, newStatus: string) => {
-    console.log(`[DEBUG] [${new Date().toISOString()}] Attempting to update employment status for staff ID: ${staffId} to ${newStatus}`);
-    
-    // Advanced permission check using specialized function
+  const handleEmploymentStatusChange = (staffId: number, status: EmploymentStatus) => {
+    // Enhanced security check with token inspection
+    // First verify if user has required permissions in their token
     if (!hasStaffStatusUpdatePermission()) {
       console.error(`[DEBUG] [${new Date().toISOString()}] Permission denied: User lacks required role (ADMIN or HR_MANAGER) for staff status updates`);
       
-      // Log JWT details for debugging
-      debugPermissions();
-      
-      // Show user-friendly message
       showNotification({ 
         type: 'error', 
         message: "You don't have permission to update employment status. This action requires ADMIN or HR_MANAGER role." 
       });
+      
+      // Refresh the UI to reset any changes
+      refresh();
       return;
     }
-
+    
     console.log(`[DEBUG] [${new Date().toISOString()}] Permission check passed. User has ADMIN or HR_MANAGER role.`);
     
     try {
-      // Log attempt with timestamp and additional token information
-      console.log(`[DEBUG] [${new Date().toISOString()}] Calling staffService.updateEmploymentStatus with ID: ${staffId}, status: ${newStatus}`);
-      
-      // Attempt to decode and log the current auth token before making the request
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const tokenDetails = parseJwt(token);
-          console.log('[DEBUG] Auth token details before request:', {
-            exp: new Date(tokenDetails.exp * 1000).toISOString(),
-            roles: tokenDetails.roles || tokenDetails.authorities,
-            sub: tokenDetails.sub,
-            tokenLength: token.length,
-            tokenPrefix: token.substring(0, 15) + '...'
-          });
-        } else {
-          console.error('[DEBUG] No authentication token found in localStorage');
-        }
-      } catch (tokenError) {
-        console.error('[DEBUG] Error parsing authentication token:', tokenError);
+      // Get token and parse claims
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        return;
       }
       
-      await updateEmploymentStatus({ id: staffId, status: newStatus as EmploymentStatus });
-      console.log(`[DEBUG] [${new Date().toISOString()}] Employment status update successful for staff ID: ${staffId}`);
-    } catch (error: any) {
-      console.error(`[DEBUG] [${new Date().toISOString()}] Error occurred while updating employment status:`, error);
+      const tokenDetails = parseJwt(token);
       
-      // Enhanced error logging
-      if (error.response) {
-        console.error('[DEBUG] Server response error details:', {
-          status: error.response.status,
-          statusText: error.response.statusText,
-          headers: error.response.headers,
-          data: error.response.data
+      // Log token details for debugging
+      console.log('Token details:', {
+        sub: tokenDetails.sub,
+        exp: new Date(tokenDetails.exp * 1000).toISOString(),
+        roles: tokenDetails.roles || tokenDetails.authorities,
+        permissions: tokenDetails.permissions || []
+      });
+      
+      // Check if token has the required roles for this operation
+      const hasRequiredRole = (tokenDetails.roles || []).some(role => 
+        role === 'ADMIN' || role === 'HR_MANAGER'
+      );
+      
+      if (!hasRequiredRole) {
+        console.error('2. Token does not contain required roles (ADMIN or HR_MANAGER)');
+        
+        showNotification({ 
+          type: 'error', 
+          message: "Token validation failed. You don't have the required role to perform this action." 
         });
         
-        if (error.response.status === 403) {
-          console.error('[DEBUG] 403 Forbidden error detected. Possible causes:');
-          console.error('1. Token expired during the request');
-          console.error('2. Token does not contain required roles (ADMIN or HR_MANAGER)');
-          console.error('3. Backend permission check differs from frontend');
-          
-          // Re-check permissions after error
-          debugPermissions();
-        }
-      } else if (error.request) {
-        console.error('[DEBUG] Request was made but no response received:', error.request);
-      } else {
-        console.error('[DEBUG] Error setting up the request:', error.message);
+        refresh();
+        return;
       }
+      
+      // Proceed with the status update
+      updateEmploymentStatus({ id: staffId, status });
+      
+    } catch (error) {
+      console.error('Error validating permissions:', error);
+      showNotification({ 
+        type: 'error', 
+        message: "Failed to validate your permissions. Please try logging out and back in." 
+      });
+      refresh();
     }
   };
 
-  // Add a debug function to check user permissions
+  // Debug function to log user permissions
   const debugPermissions = () => {
-    if (!user) {
-      console.log('Debug: No user is logged in');
-      return false;
-    }
-    
-    console.log('Debug: User permissions check', {
-      userId: user.id,
-      userName: user?.username || 'unknown',
+    console.log('Permission check:', {
+      user,
       userRole: user?.role || 'none',
-      token: localStorage.getItem('token') ? 'Present (first 10 chars): ' + 
-        localStorage.getItem('token')?.substring(0, 10) + '...' : 'Missing',
+      isAuthenticated: !!user,
+      permissions: user?.permissions || [],
       hasManageStaff: user?.role ? hasPermission(user.role, 'MANAGE_STAFF') : false,
-      timestamp: new Date().toISOString()
+      token: localStorage.getItem('token')?.substring(0, 20) + '...'
     });
     
     return user?.role ? hasPermission(user.role, 'MANAGE_STAFF') : false;
@@ -322,67 +286,7 @@ const Staff: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (data: StaffMember) => {
-    if (selectedStaff?.id) {
-      await updateStaff({...data, id: selectedStaff.id});
-    } else {
-      await createStaff(data);
-    }
-  };
-
-  const handleBulkSubmit = async (staffMembers: StaffMember[]) => {
-    await bulkCreateStaff(staffMembers);
-  };
-
-  const handleToggleStatus = (staff: StaffMember) => {
-    if (staff.id) {
-      toggleStaffStatus({ id: staff.id, isActive: !staff.isActive });
-    }
-  };
-
-  const handleStatusChange = (staff: StaffMember, status: EmploymentStatus) => {
-    // Enhanced debug logging
-    console.log('Status change requested:', {
-      staffId: staff.id,
-      staffName: `${staff.firstName} ${staff.lastName}`,
-      currentStatus: staff.employmentStatus,
-      requestedStatus: status,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Debug the current user permissions
-    const hasManageStaffPermission = debugPermissions();
-    
-    // Adding more robust permission checking
-    if (!user) {
-      console.error('Permission denied: No authenticated user');
-      showNotification({ 
-        type: 'error', 
-        message: 'Authentication required: Please log in again' 
-      });
-      refresh(); // Refresh to restore original view
-      return;
-    }
-    
-    // Double-check permissions before proceeding with the API call
-    if (!hasManageStaffPermission) {
-      console.error(`Permission denied: User role ${user.role} does not have MANAGE_STAFF permission`);
-      showNotification({ 
-        type: 'error', 
-        message: 'You do not have permission to update employment status' 
-      });
-      refresh(); // Refresh to reset UI
-      return;
-    }
-    
-    if (staff.id) {
-      console.log(`Proceeding with status update for staff ${staff.id} to ${status}`);
-      handleEmploymentStatusChange(staff.id, status);
-    }
-  };
-
-  // Helper function to get color for employment status
-  const getStatusColor = (status?: EmploymentStatus): "success" | "warning" | "error" | "default" => {
+  const getStatusColor = (status?: EmploymentStatus): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" => {
     if (!status) return "default";
     
     switch (status) {
@@ -392,13 +296,14 @@ const Staff: React.FC = () => {
       case EmploymentStatus.SUSPENDED:
         return "warning";
       case EmploymentStatus.TERMINATED:
-      case EmploymentStatus.RETIRED:
-      case EmploymentStatus.RESIGNED:
         return "error";
       default:
         return "default";
     }
-  };  // Format staff roles for display is now imported from StaffHelper.ts
+  };
+  
+  // Format staff roles for display is now imported from StaffHelper.ts
+
   const formatTeacherSubjects = (staff: StaffMember) => {
     // Check if staff is a teacher by role (handling different formats of role)
     const roleName = getRoleNameFromStaff(staff);
@@ -423,7 +328,8 @@ const Staff: React.FC = () => {
     if (isTeacher && (staff as any).subjectsTaught) {
       return (staff as any).subjectsTaught;
     }
-      return '-';
+    
+    return '-';
   };
 
   const getStaffAvatar = (staff: StaffMember) => {
@@ -434,7 +340,9 @@ const Staff: React.FC = () => {
     const lastInitial = staff.lastName ? staff.lastName.charAt(0) : '';
     
     return `${firstInitial}${lastInitial}`.toUpperCase();
-  };  const getStaffFullName = (staff: Partial<StaffMember>) => {
+  };
+  
+  const getStaffFullName = (staff: Partial<StaffMember>) => {
     return `${staff.firstName || ''} ${staff.lastName || ''}`;
   };
 
@@ -446,56 +354,8 @@ const Staff: React.FC = () => {
     'Management': 'warning',
     'Account Officer': 'error',
     'Librarian': 'success'
-  };  
-  
-  // Helper function to extract role name from staff member
-  const getRoleNameFromStaff = (staff: StaffMember): string => {
-    let roleName: string | undefined = undefined;
-    
-    // Check if role is an object with name property (primary case from API)
-    if (typeof staff.role === 'object' && staff.role) {
-      if ((staff.role as any).name) {
-        roleName = (staff.role as any).name;
-      } else if ((staff.role as any).roleName) {
-        roleName = (staff.role as any).roleName;
-      }
-    }
-    // Check if role is a direct string (compatibility case)
-    else if (typeof staff.role === 'string') {
-      roleName = staff.role;
-    }
-    
-    // If we didn't get a role name yet, check staffRole object (backup case)
-    if (!roleName && (staff as any).staffRole) {
-      const staffRole = (staff as any).staffRole;
-      if (staffRole.name) {
-        roleName = staffRole.name;
-      } else if (staffRole.roleName) {
-        roleName = staffRole.roleName;
-      }
-    }
-    
-    // Last resort checks
-    if (!roleName) {
-      if ((staff as any).roleName) {
-        roleName = (staff as any).roleName;
-      }
-    }
-    
-    // If still nothing found, log the issue for debugging
-    if (!roleName) {
-      console.warn('Unable to extract role name from staff member:', {
-        staffId: staff.staffId,
-        name: `${staff.firstName} ${staff.lastName}`,
-        role: staff.role,
-        staffRole: (staff as any).staffRole
-      });
-      return '';
-    }
-    
-    return roleName;
   };
-  
+
   // Filter staff based on active filter
   const filteredStaffList = useMemo(() => {
     if (!staffList) return [];
@@ -554,7 +414,8 @@ const Staff: React.FC = () => {
       { label: 'Total', count: staffList.length, color: 'default' },
       { label: 'Active', count: staffList.filter(s => s.isActive).length, color: 'success' }
     ];
-      // Add stats for each role
+    
+    // Add stats for each role
     Object.keys(roleColors).forEach(role => {
       const count = staffList.filter(staff => {
         const roleName = getRoleNameFromStaff(staff);
@@ -606,10 +467,12 @@ const Staff: React.FC = () => {
         </Box>
       )
     },
-    { id: 'staffId', label: 'Staff ID', sortable: true },    { 
+    { id: 'staffId', label: 'Staff ID', sortable: true },
+    { 
       id: 'role', 
       label: 'Role', 
-      sortable: true,      format: (value, staff) => {
+      sortable: true,
+      format: (value, staff) => {
         // Use the imported helper function to extract role name
         const roleName = getRoleNameFromStaff(staff);
         
@@ -620,15 +483,6 @@ const Staff: React.FC = () => {
           extractedRoleName: roleName,
           rawRole: staff.role,
           staffRole: (staff as any).staffRole
-        });
-        
-        console.log('Role debug for staff:', {
-          staffId: staff.staffId,
-          name: `${staff.firstName} ${staff.lastName}`,
-          rawRole: staff.role,
-          extractedRoleName: roleName,
-          staffRoleObj: (staff as any).staffRole,
-          value
         });
         
         // Format the role name for display
@@ -669,7 +523,8 @@ const Staff: React.FC = () => {
           />
         );
       }
-    },    { 
+    },
+    { 
       id: 'department', 
       label: 'Department',
       sortable: true,
@@ -688,14 +543,16 @@ const Staff: React.FC = () => {
         
         return department;
       }
-    },{ 
+    },
+    { 
       id: 'subjects', 
       label: 'Subjects',
       sortable: false,
       format: (_, staff) => {
         const subjects = formatTeacherSubjects(staff);
-        if (!subjects) return '-';
+        if (!subjects || subjects === '-') return '-';
         
+        // Split subjects by comma and display as chips
         return (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
             {subjects.split(',').map((subject: string, index: number) => (
@@ -810,6 +667,7 @@ const Staff: React.FC = () => {
   if (loading && !staffList) {
     return <Loading />;
   }
+  
   if (error) {
     // Properly handle potential string error by explicitly converting to string
     const errorMessage = typeof error === 'string' 
@@ -844,57 +702,44 @@ const Staff: React.FC = () => {
         )}
       </Box>
 
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="h6" gutterBottom>Staff Overview</Typography>
-          <Grid container spacing={1}>
-            {roleStatistics.map((stat, index) => (
-              <Grid item key={index}>
-                <Chip 
-                  label={`${stat.label}: ${stat.count}`} 
-                  color={stat.color as any} 
-                  variant={activeFilter === stat.label ? 'filled' : 'outlined'}
-                  sx={{ 
-                    minWidth: 100,
-                    cursor: 'pointer',
-                    fontWeight: activeFilter === stat.label ? 'bold' : 'normal'
-                  }}
-                  onClick={() => handleFilterClick(stat.label)}
-                />
-              </Grid>
-            ))}
-          </Grid>
-          {activeFilter && (
-            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
-              <Typography variant="body2" color="text.secondary" mr={1}>
-                Filtered by:
-              </Typography>
-              <Chip 
-                label={activeFilter} 
-                size="small"
-                onDelete={() => setActiveFilter(null)}
+      {/* Staff Overview */}
+      <Paper sx={{ mb: 3, p: 2 }} elevation={1}>
+        <Typography variant="subtitle1" sx={{ mb: 1 }}>Staff Overview</Typography>
+        <Grid container spacing={2}>
+          {roleStatistics.map((stat, index) => (
+            <Grid item key={index}>
+              <Chip
+                label={`${stat.label}: ${stat.count}`}
+                color={stat.color as any}
+                variant={activeFilter === stat.label ? 'filled' : 'outlined'}
+                onClick={() => handleFilterClick(stat.label)}
+                sx={{ fontWeight: activeFilter === stat.label ? 'bold' : 'normal' }}
               />
-            </Box>
-          )}
-        </Box>
+            </Grid>
+          ))}
+        </Grid>
       </Paper>
 
-      <Paper>
-        <DataTable
-          columns={columns}
-          data={filteredStaffList || []}
-          loading={loading}
-          onRefresh={refresh}
-          searchPlaceholder="Search staff..."
-          initialSortBy="role"
-        />
-      </Paper>
+      {/* Staff Data Table */}
+      <DataTable
+        columns={columns}
+        data={filteredStaffList || []}
+        pagination
+        searchPlaceholder="Search staff..."
+      />
 
+      {/* Staff Dialog for Create/Edit */}
       <StaffDialog
         open={dialogOpen}
         onClose={handleDialogClose}
-        onSubmit={handleSubmit}
-        initialData={selectedStaff}
+        onSubmit={(staff) => {
+          if (selectedStaff?.id) {
+            updateStaff({ id: selectedStaff.id, staff });
+          } else {
+            createStaff(staff as StaffMember);
+          }
+        }}
+        staff={selectedStaff}
         loading={createLoading || updateLoading}
       />
 

@@ -82,9 +82,8 @@ public class StaffAdapter {
         staff.setFirstName(legacyStaff.getFirstName());
         staff.setLastName(legacyStaff.getLastName());
         staff.setEmail(legacyStaff.getEmail());
-        
-        // Save using service
-        Staff savedStaff = staffService.saveStaff(staff);
+          // Save using service
+        Staff savedStaff = staffService.save(staff);
         return convertToDTO(savedStaff);
     }
     
@@ -98,10 +97,9 @@ public class StaffAdapter {
             .map(existingStaff -> {
                 existingStaff.setFirstName(legacyStaff.getFirstName());
                 existingStaff.setLastName(legacyStaff.getLastName());
-                existingStaff.setEmail(legacyStaff.getEmail());
-                // Update other fields as needed
+                existingStaff.setEmail(legacyStaff.getEmail());                // Update other fields as needed
                 
-                Staff updatedStaff = staffService.saveStaff(existingStaff);
+                Staff updatedStaff = staffService.save(existingStaff);
                 return convertToDTO(updatedStaff);
             })
             .orElse(null);
@@ -168,9 +166,8 @@ public class StaffAdapter {
         int failureCount = 0;
         List<String> errors = new ArrayList<>();
         
-        for (Staff staff : staffList) {
-            try {
-                staffService.saveStaff(staff);
+        for (Staff staff : staffList) {            try {
+                staffService.save(staff);
                 successCount++;
             } catch (Exception e) {
                 failureCount++;

@@ -85,7 +85,7 @@ export const consolidatedStaffService = {
       dateOfBirth: staff.dateOfBirth ? new Date(staff.dateOfBirth).toISOString().split('T')[0] : undefined
     }));
     
-    return api.post<StaffMember[]>('staff/bulk', formattedStaff);
+    return api.post<StaffMember[]>('staff/bulk-upload', formattedStaff);
   },
   
   // Get staff statistics

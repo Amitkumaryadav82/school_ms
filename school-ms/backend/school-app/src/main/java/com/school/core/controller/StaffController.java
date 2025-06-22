@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.school.staff.dto.BulkStaffRequest;
 import com.school.common.dto.BulkUploadResponse;
+import com.school.core.dto.StaffDTO;
 import com.school.core.model.Staff;
 import com.school.core.service.StaffService;
 import com.school.common.util.CsvXlsParser;
@@ -60,10 +61,13 @@ public class StaffController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved all staff")
     })
-    public ResponseEntity<List<Staff>> getAllStaff() {
+    public ResponseEntity<List<StaffDTO>> getAllStaff() {
         logger.info("Retrieving all staff members");
         List<Staff> staffList = staffService.getAllStaff();
-        return ResponseEntity.ok(staffList);
+        List<StaffDTO> dtoList = staffList.stream()
+            .map(StaffDTO::fromEntity)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{id}")
@@ -72,10 +76,10 @@ public class StaffController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the staff member"),
             @ApiResponse(responseCode = "404", description = "Staff member not found")
     })
-    public ResponseEntity<Staff> getStaffById(@PathVariable Long id) {
+    public ResponseEntity<StaffDTO> getStaffById(@PathVariable Long id) {
         logger.info("Retrieving staff member with ID: {}", id);
         Optional<Staff> staff = staffService.getStaffById(id);
-        return staff.map(ResponseEntity::ok)
+        return staff.map(s -> ResponseEntity.ok(StaffDTO.fromEntity(s)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -85,10 +89,10 @@ public class StaffController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the staff member"),
             @ApiResponse(responseCode = "404", description = "Staff member not found")
     })
-    public ResponseEntity<Staff> getStaffByStaffId(@PathVariable String staffId) {
+    public ResponseEntity<StaffDTO> getStaffByStaffId(@PathVariable String staffId) {
         logger.info("Retrieving staff member with staff ID: {}", staffId);
         Optional<Staff> staff = staffService.getStaffByStaffId(staffId);
-        return staff.map(ResponseEntity::ok)
+        return staff.map(s -> ResponseEntity.ok(StaffDTO.fromEntity(s)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -97,11 +101,10 @@ public class StaffController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the staff member"),
             @ApiResponse(responseCode = "404", description = "Staff member not found")
-    })
-    public ResponseEntity<Staff> getStaffByEmail(@PathVariable String email) {
+    })    public ResponseEntity<StaffDTO> getStaffByEmail(@PathVariable String email) {
         logger.info("Retrieving staff member with email: {}", email);
         Optional<Staff> staff = staffService.getStaffByEmail(email);
-        return staff.map(ResponseEntity::ok)
+        return staff.map(s -> ResponseEntity.ok(StaffDTO.fromEntity(s)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -110,11 +113,10 @@ public class StaffController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Successfully created the staff member"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
-    })
-    public ResponseEntity<Staff> createStaff(@Valid @RequestBody Staff staff) {
+    })    public ResponseEntity<StaffDTO> createStaff(@Valid @RequestBody Staff staff) {
         logger.info("Creating new staff member: {}", staff);
-        Staff createdStaff = staffService.saveStaff(staff);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdStaff);
+        Staff createdStaff = staffService.save(staff);
+        return ResponseEntity.status(HttpStatus.CREATED).body(StaffDTO.fromEntity(createdStaff));
     }
 
     @PutMapping("/{id}")
@@ -123,12 +125,11 @@ public class StaffController {
             @ApiResponse(responseCode = "200", description = "Successfully updated the staff member"),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "404", description = "Staff member not found")
-    })
-    public ResponseEntity<Staff> updateStaff(@PathVariable Long id, @Valid @RequestBody Staff staff) {
+    })    public ResponseEntity<StaffDTO> updateStaff(@PathVariable Long id, @Valid @RequestBody Staff staff) {
         logger.info("Updating staff member with ID: {}", id);
         staff.setId(id);
         Optional<Staff> updatedStaff = staffService.updateStaff(staff);
-        return updatedStaff.map(ResponseEntity::ok)
+        return updatedStaff.map(s -> ResponseEntity.ok(StaffDTO.fromEntity(s)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 

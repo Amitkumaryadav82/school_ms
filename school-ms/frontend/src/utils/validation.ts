@@ -1,12 +1,11 @@
-import { Student } from '../services/studentService';
-import { Teacher } from '../services/teacherService';
 import { AdmissionApplication } from '../services/admissionService';
+import { Attendance } from '../services/attendanceService';
+import { Exam, ExamResult } from '../services/examService';
 import { LeaveRequest } from '../services/leaveService';
 import { Message } from '../services/messageService';
-import { FeeStructure } from '../services/feeService';
+import { Student } from '../services/studentService';
+import { Teacher } from '../services/teacherService';
 import { Payment } from '../types/payment.types';
-import { Exam, ExamResult } from '../services/examService';
-import { Attendance } from '../services/attendanceService';
 
 // Common validation patterns
 const patterns = {
