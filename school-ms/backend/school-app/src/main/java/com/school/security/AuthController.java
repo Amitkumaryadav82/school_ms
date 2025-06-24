@@ -14,16 +14,23 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "APIs for user authentication and registration")
 // Removed redundant @CrossOrigin annotation since we're using global CORS configuration from CorsConfig
-@Slf4j
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private AuthService authService;
@@ -51,22 +58,87 @@ public class AuthController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Login successful"),
             @ApiResponse(responseCode = "401", description = "Invalid credentials")
-    })
-    @PostMapping("/login")
+    })    @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
-            log.debug("Login attempt for user: {}", request.getUsername());
+            log.info("=== Login request received ===");
+            log.info("Login attempt for user: {}", request.getUsername());
+            log.debug("Request headers: {}", getRequestHeadersForLogging());
+            log.debug("Request IP: {}", getClientIpAddress());
+            log.debug("Password length: {}", request.getPassword() != null ? request.getPassword().length() : 0);
+            
             AuthResponse response = authService.login(request);
+            
             log.info("Login successful for user: {}", request.getUsername());
+            log.debug("Response token present: {}", response.getToken() != null);
+            log.debug("Response username: {}", response.getUsername());
+            log.debug("Response role: {}", response.getRole());
+            
             return ResponseEntity.ok(response);
         } catch (BadCredentialsException e) {
             log.warn("Login failed for user: {} - Invalid credentials", request.getUsername());
+            log.debug("BadCredentialsException details: {}", e.getMessage());
             return ResponseEntity.status(401)
                     .body(new ErrorResponse("INVALID_CREDENTIALS", "Invalid username or password"));
         } catch (Exception e) {
-            log.error("Login error for user: {}", request.getUsername(), e);
+            log.error("Login error for user: {} - Error type: {}", request.getUsername(), e.getClass().getName());
+            log.error("Error message: {}", e.getMessage());
+            log.error("Full stack trace:", e);
             return ResponseEntity.status(500)
                     .body(new ErrorResponse("SERVER_ERROR", "An unexpected error occurred"));
+        }
+    }
+    
+    // Helper method to get request headers for logging
+    private String getRequestHeadersForLogging() {
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            StringBuilder headers = new StringBuilder();
+            Enumeration<String> headerNames = request.getHeaderNames();
+            
+            while (headerNames.hasMoreElements()) {
+                String headerName = headerNames.nextElement();
+                // Skip sensitive headers
+                if (!headerName.equalsIgnoreCase("Authorization") && 
+                    !headerName.equalsIgnoreCase("Cookie")) {
+                    headers.append(headerName).append(": ")
+                           .append(request.getHeader(headerName)).append(", ");
+                }
+            }
+            
+            return headers.toString();
+        } catch (Exception e) {
+            log.warn("Could not extract request headers: {}", e.getMessage());
+            return "Could not extract headers";
+        }
+    }
+    
+    // Helper method to get client IP address
+    private String getClientIpAddress() {
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            
+            String ip = request.getHeader("X-Forwarded-For");
+            if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("Proxy-Client-IP");
+            }
+            if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("WL-Proxy-Client-IP");
+            }
+            if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("HTTP_CLIENT_IP");
+            }
+            if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+            }
+            if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getRemoteAddr();
+            }
+            
+            return ip;
+        } catch (Exception e) {
+            log.warn("Could not extract client IP: {}", e.getMessage());
+            return "Could not extract IP";
         }
     }
 
@@ -141,13 +213,119 @@ public class AuthController {
     @Operation(summary = "Authentication health check", description = "Check if authentication endpoints are accessible")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Authentication service is healthy")
-    })
-    @GetMapping("/health")
+    })    @GetMapping("/health")
     public ResponseEntity<?> healthCheck() {
         return ResponseEntity.ok(Map.of(
                 "status", "UP",
                 "timestamp", System.currentTimeMillis(),
                 "service", "authentication"));
+    }
+    
+    /**
+     * Diagnostic endpoint to check if a user exists in the system
+     * NOTE: This endpoint is for debugging purposes only and should be removed in production
+     */    @GetMapping("/debug/check-user/{username}")
+    public ResponseEntity<?> checkUserExists(@PathVariable String username) {
+        log.info("Diagnostic check requested for username: {}", username);
+        try {
+            boolean exists = authService.userExists(username);
+            if (exists) {
+                log.info("Debug endpoint: User '{}' exists", username);
+                return ResponseEntity.ok(Map.of(
+                    "exists", true,
+                    "username", username,
+                    "message", "User exists in the database"
+                ));
+            } else {                log.warn("Debug endpoint: User '{}' does not exist", username);
+                return ResponseEntity.ok(Map.of(
+                    "exists", false,
+                    "username", username,
+                    "message", "User does not exist in the database"
+                ));
+            }
+        } catch (Exception e) {
+            log.error("Error in debug endpoint", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "Failed to check user",
+                "message", e.getMessage()
+            ));
+        }
+    }
+    
+    /**
+     * Debug endpoint to test password encoding
+     * NOTE: This endpoint is for debugging purposes only and should be removed in production
+     */
+    @PostMapping("/debug/test-password-encoding")
+    public ResponseEntity<?> testPasswordEncoding(@RequestBody Map<String, String> request) {
+        try {
+            String rawPassword = request.get("password");
+            if (rawPassword == null || rawPassword.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Password is required"
+                ));
+            }
+            
+            log.info("Testing password encoding");
+            String encodedPassword = authService.testPasswordEncoding(rawPassword);
+            
+            return ResponseEntity.ok(Map.of(
+                "rawLength", rawPassword.length(),
+                "encodedLength", encodedPassword.length(),
+                "encoded", encodedPassword,
+                "encodedSample", encodedPassword.substring(0, Math.min(20, encodedPassword.length())) + "..."
+            ));
+        } catch (Exception e) {
+            log.error("Error testing password encoding", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "Failed to test password encoding",
+                "message", e.getMessage()
+            ));
+        }
+    }
+    
+    /**
+     * Debug endpoint to test authentication directly with the AuthenticationManager
+     * NOTE: This endpoint is for debugging purposes only and should be removed in production
+     */
+    @PostMapping("/debug/test-authentication")
+    public ResponseEntity<?> testAuthentication(@RequestBody Map<String, String> request) {
+        try {
+            String username = request.get("username");
+            String password = request.get("password");
+            
+            if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Username and password are required"
+                ));
+            }
+            
+            log.info("Testing direct authentication for user: {}", username);
+            
+            try {
+                Authentication auth = authService.testDirectAuthentication(username, password);
+                
+                return ResponseEntity.ok(Map.of(
+                    "authenticated", true,
+                    "username", username,
+                    "authorities", auth.getAuthorities().toString(),
+                    "message", "Authentication succeeded"
+                ));
+            } catch (BadCredentialsException e) {
+                log.warn("Direct authentication test failed for {}: Bad credentials", username);
+                return ResponseEntity.status(401).body(Map.of(
+                    "authenticated", false,
+                    "username", username,
+                    "message", "Bad credentials"
+                ));
+            }
+        } catch (Exception e) {
+            log.error("Error testing authentication", e);
+            return ResponseEntity.status(500).body(Map.of(
+                "error", "Failed to test authentication",
+                "message", e.getMessage()
+            ));
+        }
     }
 }
 

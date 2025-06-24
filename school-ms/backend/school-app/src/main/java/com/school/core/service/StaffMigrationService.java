@@ -10,18 +10,19 @@ import com.school.staff.adapter.StaffEntityAdapter;
 // Import the repositories with fully qualified names in the code
 import com.school.staff.model.ConsolidatedStaff;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service to handle the migration of staff data from legacy entities to the consolidated Staff entity.
  */
 @Service
-@Slf4j
 public class StaffMigrationService {
-      @Autowired
+    private static final Logger log = LoggerFactory.getLogger(StaffMigrationService.class);
+    
+    @Autowired
     private StaffRepository staffRepository;
 
     @Autowired

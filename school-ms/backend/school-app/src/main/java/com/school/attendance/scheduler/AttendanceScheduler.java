@@ -3,16 +3,17 @@ package com.school.attendance.scheduler;
 import com.school.attendance.service.AttendanceService;
 import com.school.attendance.dto.AttendanceAlert;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.List;
-
-@Slf4j
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Component
 @RequiredArgsConstructor
 public class AttendanceScheduler {
+    
+    private static final Logger log = LoggerFactory.getLogger(AttendanceScheduler.class);
 
     private final AttendanceService attendanceService;
 

@@ -26,6 +26,7 @@ com\school\course\service\CourseServiceImpl.class
 com\school\fee\repository\StudentFeeAssignmentRepository.class
 com\school\student\model\StudentStatus.class
 com\school\course\model\ConsolidatedCourse.class
+com\school\security\DefaultUserInitializer.class
 com\school\course\service\ConsolidatedCourseServiceImpl.class
 com\school\exam\model\ChapterDistribution$ChapterDistributionBuilder.class
 com\school\exam\repository\ChapterDistributionRepository.class
@@ -270,6 +271,7 @@ com\school\common\model\BaseEntity.class
 com\school\staff\service\ConsolidatedStaffService.class
 com\school\staff\adapter\StaffAdapter.class
 com\school\fee\model\FeePaymentSchedule$PaymentFrequency.class
+com\school\security\UserRepositoryLoggingWrapper.class
 com\school\course\model\Chapter$ChapterBuilder.class
 com\school\exam\dto\QuestionPaperStructureRequest.class
 com\school\fee\model\FeePayment$FeePaymentBuilder.class
@@ -366,6 +368,7 @@ com\school\exam\model\QuestionSection.class
 com\school\exam\dto\TabulationSheetDTO$StudentResult$StudentResultBuilder.class
 com\schoolms\service\BookIssueService.class
 com\school\attendance\dto\MonthlyAttendanceReport$StudentAttendanceDetail.class
+com\school\security\InitialAdminUserSetup.class
 com\school\exam\controller\ExamConfigurationController.class
 com\school\exam\controller\QuestionPaperController.class
 com\school\staff\service\StaffServiceAdapter.class

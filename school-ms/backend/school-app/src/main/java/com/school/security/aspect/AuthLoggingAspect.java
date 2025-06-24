@@ -2,18 +2,20 @@ package com.school.security.aspect;
 
 import com.school.security.dto.RegisterRequest;
 import com.school.security.dto.AuthResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Aspect
 @Component
-@Slf4j
 public class AuthLoggingAspect {
+    
+    private static final Logger log = LoggerFactory.getLogger(AuthLoggingAspect.class);
 
     @Before("execution(* com.school.security.AuthController.register(..))")
     public void logBeforeRegistration(JoinPoint joinPoint) {

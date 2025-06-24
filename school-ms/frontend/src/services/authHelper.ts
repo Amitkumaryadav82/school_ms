@@ -1,7 +1,7 @@
 /**
  * Helper functions for CORS and authentication related tasks
  */
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import config from '../config/environment';
 
 /**

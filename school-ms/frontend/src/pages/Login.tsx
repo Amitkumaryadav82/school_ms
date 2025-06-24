@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  Typography,
-  Link,
-  CircularProgress,
-  Alert,
-  Paper,
-  FormControlLabel,
-  Switch,
-  Collapse,
-  Divider,
-  Grid,
+    Alert,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Collapse,
+    Divider,
+    FormControlLabel,
+    Grid,
+    Link,
+    Paper,
+    Switch,
+    TextField,
+    Typography,
 } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
@@ -71,23 +71,21 @@ const Login = () => {
     
     try {
       setIsLoading(true);
-      console.log(`🔐 Attempting login with username: ${username}`);
-      
-      // Try direct API call first to debug
-      if (debugMode) {
-        console.log('🧪 Debug mode: Making direct API call instead of using auth context');
-        try {
-          const directLoginResponse = await authService.login({ username, password });
-          console.log('✅ Direct login API call successful:', directLoginResponse);
-          setTestResult('Direct API call successful! Proceeding with normal login flow...');
-          // Continue with normal login
-        } catch (directError: unknown) {
-          console.error('❌ Direct login API call failed:', directError);
-          setDetailedError(directError);
-          setTestResult(`Direct API call failed: ${(directError as Error)?.message || JSON.stringify(directError)}`);
-          throw directError;
-        }
-      }
+      console.log(`🔐 Attempting login with username: ${username}`);                // Try direct API call first to debug
+                if (debugMode) {
+                    console.log('🧪 Debug mode: Making direct API call instead of using auth context');
+                    try {
+                        const directLoginResponse = await authService.login({ username, password });
+                        console.log('✅ Direct login API call successful:', directLoginResponse);
+                        setTestResult('Direct API call successful! Proceeding with normal login flow...');
+                        // Continue with normal login
+                    } catch (directError: unknown) {
+                        console.error('❌ Direct login API call failed:', directError);
+                        setDetailedError(directError);
+                        setTestResult(`Direct API call failed: ${(directError as Error)?.message || JSON.stringify(directError)}`);
+                        throw directError;
+                    }
+                }
       
       // Regular login through context
       await login(username, password);

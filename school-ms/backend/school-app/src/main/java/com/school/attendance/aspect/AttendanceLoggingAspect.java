@@ -1,7 +1,6 @@
 package com.school.attendance.aspect;
 
 import com.school.attendance.model.Attendance;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -10,11 +9,14 @@ import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Aspect
 @Component
-@Slf4j
 public class AttendanceLoggingAspect {
+    
+    private static final Logger log = LoggerFactory.getLogger(AttendanceLoggingAspect.class);
 
     @Before("execution(* com.school.attendance.service.AttendanceService.*(..))")
     public void logBeforeAttendanceOperation(JoinPoint joinPoint) {
