@@ -41,6 +41,7 @@ import { hasStaffStatusUpdatePermission, parseJwt } from '../services/authServic
 import { EmploymentStatus, StaffMember, staffService } from '../services/staffService';
 import { hasPermission } from '../utils/permissions';
 import { formatRole, getAvatarColor } from './StaffHelper';
+import config from '../config/environment';
 
 const Staff: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -294,12 +295,102 @@ const Staff: React.FC = () => {
   // Use effect to run the debug check when component loads
   useEffect(() => {
     debugPermissions();
-  }, [user]);
-
-  const handleEdit = (staff: StaffMember) => {
+  }, [user]);  const handleEdit = async (staff: StaffMember) => {
     debugPermissions(); // Debug check permissions
-    setSelectedStaff(staff);
-    setDialogOpen(true);
+    
+    try {
+      // Always show loading state
+      showNotification({ type: 'info', message: 'Loading staff details...' });
+      
+      console.log('Original staff data:', staff);
+      
+      // Get a fresh complete staff record from the server by ID
+      if (staff.id) {
+        try {
+          // Direct API call bypassing the hook system to get raw data
+          const response = await fetch(`${config.apiUrl}/api/staff/${staff.id}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Failed to load staff details: ${response.status} ${response.statusText}`);
+          }
+          
+          const fullStaffData = await response.json();
+          console.log('API Raw response for staff:', fullStaffData);
+          
+          // Create a completely filled staff member object with all fields
+          // This ensures all fields have values even if API didn't return them
+          const completeStaffData: StaffMember = {
+            // Copy existing fields from API response
+            ...staff,
+            ...fullStaffData,
+            // Explicitly set values for the fields that weren't showing up
+            emergencyContact: fullStaffData.emergencyContact || '',
+            qualifications: fullStaffData.qualifications || '',
+            pfUAN: fullStaffData.pfUAN || '',
+            gratuity: fullStaffData.gratuity || '',
+            basicSalary: fullStaffData.basicSalary !== undefined ? Number(fullStaffData.basicSalary) : 0,
+            hra: fullStaffData.hra !== undefined ? Number(fullStaffData.hra) : 0,
+            da: fullStaffData.da !== undefined ? Number(fullStaffData.da) : 0,
+            ta: fullStaffData.ta !== undefined ? Number(fullStaffData.ta) : 0,
+            otherAllowances: fullStaffData.otherAllowances !== undefined ? Number(fullStaffData.otherAllowances) : 0,
+            bloodGroup: fullStaffData.bloodGroup || ''
+          };
+          
+          console.log('Setting complete staff data for dialog:', completeStaffData);
+          
+          // Set the staff data for the dialog
+          setSelectedStaff(completeStaffData);
+          
+        } catch (err) {
+          console.error('Error fetching staff details:', err);
+          // Fallback to using the original staff data with default values added
+          const fallbackData: StaffMember = {
+            ...staff,
+            emergencyContact: '',
+            qualifications: '',
+            pfUAN: '',
+            gratuity: '',
+            basicSalary: 0,
+            hra: 0,
+            da: 0,
+            ta: 0,
+            otherAllowances: 0,
+            bloodGroup: ''
+          };
+          
+          setSelectedStaff(fallbackData);
+          showNotification({ type: 'warning', message: 'Could not load complete staff details, using partial data' });
+        }
+      } else {
+        // For new staff, just use the default values
+        setSelectedStaff({
+          ...staff,
+          emergencyContact: '',
+          qualifications: '',
+          pfUAN: '',
+          gratuity: '',
+          basicSalary: 0,
+          hra: 0,
+          da: 0,
+          ta: 0,
+          otherAllowances: 0,
+          bloodGroup: ''
+        });
+      }
+      
+      // Open the dialog
+      setDialogOpen(true);
+      
+    } catch (error) {
+      console.error('Error in handleEdit:', error);
+      showNotification({ type: 'error', message: 'Failed to prepare staff data for editing' });
+    }
   };
 
   const handleDelete = (staff: StaffMember) => {

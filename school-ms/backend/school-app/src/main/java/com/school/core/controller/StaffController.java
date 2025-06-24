@@ -68,9 +68,7 @@ public class StaffController {
             .map(StaffDTO::fromEntity)
             .collect(Collectors.toList());
         return ResponseEntity.ok(dtoList);
-    }
-
-    @GetMapping("/{id}")
+    }    @GetMapping("/{id}")
     @Operation(summary = "Get staff by ID", description = "Retrieves a staff member by their ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the staff member"),
@@ -79,8 +77,28 @@ public class StaffController {
     public ResponseEntity<StaffDTO> getStaffById(@PathVariable Long id) {
         logger.info("Retrieving staff member with ID: {}", id);
         Optional<Staff> staff = staffService.getStaffById(id);
-        return staff.map(s -> ResponseEntity.ok(StaffDTO.fromEntity(s)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        
+        if (staff.isPresent()) {
+            Staff staffEntity = staff.get();
+            StaffDTO dto = StaffDTO.fromEntity(staffEntity);
+            
+            // Add debug logging to verify all fields are being set in the DTO
+            logger.debug("Staff entity values - qualifications: {}, emergencyContact: {}, pfUAN: {}, basicSalary: {}", 
+                staffEntity.getQualifications(), 
+                staffEntity.getEmergencyContact(),
+                staffEntity.getPfUAN(),
+                staffEntity.getBasicSalary());
+                
+            logger.debug("StaffDTO values - qualifications: {}, emergencyContact: {}, pfUAN: {}, basicSalary: {}", 
+                dto.getQualifications(), 
+                dto.getEmergencyContact(),
+                dto.getPfUAN(),
+                dto.getBasicSalary());
+                
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/by-staff-id/{staffId}")

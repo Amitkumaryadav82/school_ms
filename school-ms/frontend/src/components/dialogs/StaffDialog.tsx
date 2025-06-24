@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TextField,
   Grid,
@@ -93,8 +93,137 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
       }
     }
   );
-
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Add useEffect to update formData when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      console.log('StaffDialog initialData:', initialData);
+      
+      setFormData(prev => {
+        // Extract role from potentially nested objects
+        let roleValue: string = 'TEACHER'; // Default
+        
+        if (initialData.role) {
+          if (typeof initialData.role === 'object' && initialData.role !== null) {
+            const roleObj = initialData.role as any;
+            roleValue = roleObj.name || roleObj.role || roleValue;
+          } else if (typeof initialData.role === 'string') {
+            roleValue = initialData.role;
+          }
+        } else if (initialData.staffRole) {
+          // Check for staffRole as fallback
+          if (typeof initialData.staffRole === 'object' && initialData.staffRole !== null) {
+            const staffRoleObj = initialData.staffRole as any;
+            roleValue = staffRoleObj.name || staffRoleObj.role || roleValue;
+          } else {
+            roleValue = String(initialData.staffRole);
+          }
+        }
+
+        // Convert role to uppercase for consistency with dropdown options
+        roleValue = roleValue.toUpperCase().replace(/ /g, '_');
+        
+        // Extract phone number
+        const phoneNumberValue = initialData.phoneNumber || initialData.phone || '';
+        
+        // Extract blood group - try different property access methods
+        let bloodGroupValue = '';
+        if (initialData.bloodGroup !== undefined) {
+          bloodGroupValue = initialData.bloodGroup;
+        } else if (typeof initialData === 'object' && initialData !== null) {
+          // Try case-insensitive match
+          for (const key in initialData) {
+            if (key.toLowerCase() === 'bloodgroup') {
+              const val = (initialData as any)[key];
+              if (val !== undefined) bloodGroupValue = String(val);
+              break;
+            }
+          }
+        }
+        
+        // Extract qualifications with similar approach
+        let qualificationsValue = '';
+        if (initialData.qualifications !== undefined) {
+          qualificationsValue = initialData.qualifications;
+        } else if (typeof initialData === 'object' && initialData !== null) {
+          // Try case-insensitive match
+          for (const key in initialData) {
+            if (key.toLowerCase() === 'qualifications') {
+              const val = (initialData as any)[key];
+              if (val !== undefined) qualificationsValue = String(val);
+              break;
+            }
+          }
+        }        // Extract emergencyContact
+        const emergencyContactValue = initialData.emergencyContact || '';
+        
+        // Extract PF UAN
+        const pfUANValue = initialData.pfUAN || '';
+        
+        // Extract Gratuity
+        const gratuityValue = initialData.gratuity || '';
+        
+        // Extract Salary Details
+        const basicSalaryValue = initialData.basicSalary || 0;
+        const hraValue = initialData.hra || 0;
+        const daValue = initialData.da || 0;
+        const taValue = initialData.ta || 0;
+        const otherAllowancesValue = initialData.otherAllowances || 0;        console.log('StaffDialog initialData DETAILS:', {
+          emergencyContact: initialData.emergencyContact,
+          pfUAN: initialData.pfUAN,
+          gratuity: initialData.gratuity,
+          basicSalary: initialData.basicSalary,
+          hra: initialData.hra,
+          da: initialData.da,
+          ta: initialData.ta
+        });
+        
+        console.log('Normalized values:', {
+          role: roleValue,
+          phoneNumber: phoneNumberValue,
+          bloodGroup: bloodGroupValue,
+          qualifications: qualificationsValue,
+          emergencyContact: emergencyContactValue,
+          pfUAN: pfUANValue,
+          gratuity: gratuityValue,
+          basicSalary: basicSalaryValue,
+          hra: hraValue,
+          da: daValue,
+          ta: taValue,
+          otherAllowances: otherAllowancesValue
+        });        // Log exactly what we're getting from backend
+        console.log('DETAILED DEBUG - StaffDialog initialData field values:', {
+          emergencyContact: initialData.emergencyContact,
+          emergencyContactType: typeof initialData.emergencyContact,
+          pfUAN: initialData.pfUAN,
+          pfUANType: typeof initialData.pfUAN,
+          gratuity: initialData.gratuity,
+          gratuityType: typeof initialData.gratuity,
+          basicSalary: initialData.basicSalary,
+          basicSalaryType: typeof initialData.basicSalary
+        });
+
+        // Create new form data with the normalized values
+        return {
+          ...prev,
+          ...initialData,
+          role: roleValue,
+          phoneNumber: phoneNumberValue,
+          bloodGroup: bloodGroupValue,
+          qualifications: qualificationsValue,
+          emergencyContact: emergencyContactValue,
+          pfUAN: pfUANValue,
+          gratuity: gratuityValue,
+          basicSalary: basicSalaryValue,
+          hra: hraValue,
+          da: daValue,
+          ta: taValue,
+          otherAllowances: otherAllowancesValue,
+        };
+      });
+    }
+  }, [initialData]);
 
   const handleChange = (field: keyof StaffMember) => (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
