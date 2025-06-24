@@ -1,31 +1,31 @@
 import {
-    Add as AddIcon,
-    CloudUpload as CloudUploadIcon,
-    Delete as DeleteIcon,
-    Edit as EditIcon,
-    Email as EmailIcon,
-    Schedule as ScheduleIcon,
-    School as SchoolIcon
+  Add as AddIcon,
+  CloudUpload as CloudUploadIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Email as EmailIcon,
+  Schedule as ScheduleIcon,
+  School as SchoolIcon
 } from '@mui/icons-material';
 import {
-    Avatar,
-    Box,
-    Button,
-    Chip,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    FormControl,
-    Grid,
-    IconButton,
-    MenuItem,
-    Paper,
-    Select,
-    Stack,
-    Tooltip,
-    Typography
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  Grid,
+  IconButton,
+  MenuItem,
+  Paper,
+  Select,
+  Stack,
+  Tooltip,
+  Typography
 } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import DataTable, { Column } from '../components/DataTable';
@@ -688,30 +688,16 @@ const Staff: React.FC = () => {
         
         return department;
       }
-    },{ 
-      id: 'subjects', 
-      label: 'Subjects',
-      sortable: false,
+    },    { id: 'email', label: 'Email', sortable: true },
+    { 
+      id: 'phoneNumber', 
+      label: 'Contact', 
+      sortable: true,
       format: (_, staff) => {
-        const subjects = formatTeacherSubjects(staff);
-        if (!subjects) return '-';
-        
-        return (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {subjects.split(',').map((subject: string, index: number) => (
-              <Chip 
-                key={index} 
-                label={subject.trim()} 
-                size="small" 
-                variant="outlined"
-              />
-            ))}
-          </Box>
-        );
+        // Check both phoneNumber and phone fields as per StaffMember interface
+        return staff.phoneNumber || staff.phone || '-';
       }
     },
-    { id: 'email', label: 'Email', sortable: true },
-    { id: 'phoneNumber', label: 'Contact', sortable: true },
     { 
       id: 'isActive', 
       label: 'Status', 
@@ -779,8 +765,7 @@ const Staff: React.FC = () => {
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-            </>
-          )}
+            </>          )}
           
           {staff.role === 'TEACHER' && (
             <>
@@ -796,12 +781,6 @@ const Staff: React.FC = () => {
               </Tooltip>
             </>
           )}
-          
-          <Tooltip title="Contact">
-            <IconButton size="small" color="success">
-              <EmailIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
         </Box>
       )
     }
