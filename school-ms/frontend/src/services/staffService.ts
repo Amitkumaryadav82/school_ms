@@ -3,12 +3,22 @@ import { api } from './api';
 
 export enum EmploymentStatus {
   ACTIVE = 'ACTIVE',
-  ON_LEAVE = 'ON_LEAVE',
-  SUSPENDED = 'SUSPENDED',
+  INACTIVE = 'INACTIVE',
+  PROBATION = 'PROBATION',
   TERMINATED = 'TERMINATED',
+  LEAVE_OF_ABSENCE = 'LEAVE_OF_ABSENCE',
   RETIRED = 'RETIRED',
+  CONTRACT = 'CONTRACT',
   RESIGNED = 'RESIGNED'
 }
+
+// List of allowed employment statuses for the UI
+export const ALLOWED_EMPLOYMENT_STATUSES = [
+  EmploymentStatus.ACTIVE,
+  EmploymentStatus.TERMINATED,
+  EmploymentStatus.RETIRED,
+  EmploymentStatus.RESIGNED
+];
 
 export interface TeacherDetails {
   id?: number;

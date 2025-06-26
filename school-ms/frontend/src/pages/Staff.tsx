@@ -39,7 +39,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useApi, useApiMutation } from '../hooks/useApi';
 import { hasStaffStatusUpdatePermission, parseJwt } from '../services/authService';
-import { EmploymentStatus, StaffMember, staffService } from '../services/staffService';
+import { EmploymentStatus, ALLOWED_EMPLOYMENT_STATUSES, StaffMember, staffService } from '../services/staffService';
 import { hasPermission } from '../utils/permissions';
 import { formatRole, getAvatarColor } from './StaffHelper';
 import { inspectObject, debugStaffResponse, createTestStaffMember } from '../utils/staffDebug';
@@ -211,14 +211,27 @@ const Staff: React.FC = () => {
         showNotification({ type: 'success', message: 'Employment status updated successfully' });
         refresh();
       },
-      onError: (error) => {
+      onError: (error: any) => {
         console.error('Employment status update failed:', {
           error,
           timestamp: new Date().toISOString()
         });
+        
+        // Extract server error message if available
+        let errorMessage = error.message || 'An unknown error occurred';
+        
+        if (error.response && error.response.data) {
+          // Check for API-specific error format
+          if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+          } else if (typeof error.response.data === 'string') {
+            errorMessage = error.response.data;
+          }
+        }
+        
         showNotification({ 
           type: 'error', 
-          message: `Failed to update employment status: ${error.message}` 
+          message: `Failed to update employment status: ${errorMessage}` 
         });
       }
     }
@@ -281,19 +294,46 @@ const Staff: React.FC = () => {
           data: error.response.data
         });
         
-        if (error.response.status === 403) {
+        // Check for specific API error responses
+        if (error.response.status === 400 && error.response.data && error.response.data.message) {
+          // This is likely our validation error from the backend
+          console.error('[DEBUG] Validation error from backend:', error.response.data.message);
+          showNotification({
+            type: 'error',
+            message: error.response.data.message
+          });
+        } else if (error.response.status === 403) {
           console.error('[DEBUG] 403 Forbidden error detected. Possible causes:');
           console.error('1. Token expired during the request');
           console.error('2. Token does not contain required roles (ADMIN or HR_MANAGER)');
           console.error('3. Backend permission check differs from frontend');
           
+          showNotification({
+            type: 'error',
+            message: 'You do not have permission to perform this action'
+          });
+          
           // Re-check permissions after error
           debugPermissions();
+        } else {
+          // Generic server error
+          showNotification({
+            type: 'error',
+            message: `Server error: ${error.response.statusText || 'Unknown error'}`
+          });
         }
       } else if (error.request) {
         console.error('[DEBUG] Request was made but no response received:', error.request);
+        showNotification({
+          type: 'error',
+          message: 'Network error: Could not connect to the server'
+        });
       } else {
         console.error('[DEBUG] Error setting up the request:', error.message);
+        showNotification({
+          type: 'error',
+          message: `Error: ${error.message}`
+        });
       }
     }
   };
@@ -492,6 +532,30 @@ const Staff: React.FC = () => {
       return;
     }
     
+    // Check for valid transitions
+    if (staff.employmentStatus && staff.employmentStatus !== EmploymentStatus.ACTIVE && 
+        status !== staff.employmentStatus) {
+      console.error(`Invalid status transition from ${staff.employmentStatus} to ${status}`);
+      showNotification({ 
+        type: 'error', 
+        message: `Invalid status transition: Only ACTIVE staff can be changed to other statuses` 
+      });
+      refresh(); // Refresh to reset UI
+      return;
+    }
+    
+    // Confirm the status change if it's a terminal status (terminated, resigned, retired)
+    if (status === EmploymentStatus.TERMINATED || 
+        status === EmploymentStatus.RESIGNED || 
+        status === EmploymentStatus.RETIRED) {
+      
+      // Ask for confirmation before proceeding
+      if (!window.confirm(`Are you sure you want to change ${staff.firstName} ${staff.lastName}'s status to ${status}? This action cannot be reversed.`)) {
+        console.log('Status change cancelled by user');
+        return;
+      }
+    }
+    
     if (staff.id) {
       console.log(`Proceeding with status update for staff ${staff.id} to ${status}`);
       handleEmploymentStatusChange(staff.id, status);
@@ -505,14 +569,16 @@ const Staff: React.FC = () => {
     switch (status) {
       case EmploymentStatus.ACTIVE:
         return "success";
-      case EmploymentStatus.ON_LEAVE:
-      case EmploymentStatus.SUSPENDED:
-        return "warning";
       case EmploymentStatus.TERMINATED:
       case EmploymentStatus.RETIRED:
       case EmploymentStatus.RESIGNED:
         return "error";
       default:
+        // For any legacy statuses still in the database
+        if (status === EmploymentStatus.INACTIVE) return "error";
+        if (status === EmploymentStatus.PROBATION || 
+            status === EmploymentStatus.CONTRACT || 
+            status === EmploymentStatus.LEAVE_OF_ABSENCE) return "warning";
         return "default";
     }
   };  // Format staff roles for display is now imported from StaffHelper.ts
@@ -859,12 +925,14 @@ const Staff: React.FC = () => {
                     switch (staff.employmentStatus) {
                       case EmploymentStatus.ACTIVE:
                         return 'success.main';
-                      case EmploymentStatus.ON_LEAVE:
-                      case EmploymentStatus.SUSPENDED:
+                      case EmploymentStatus.LEAVE_OF_ABSENCE:
+                      case EmploymentStatus.PROBATION:
+                      case EmploymentStatus.CONTRACT:
                         return 'warning.main';
                       case EmploymentStatus.TERMINATED:
                       case EmploymentStatus.RETIRED:
                       case EmploymentStatus.RESIGNED:
+                      case EmploymentStatus.INACTIVE:
                         return 'error.main';
                       default:
                         return 'text.primary';
@@ -873,11 +941,20 @@ const Staff: React.FC = () => {
                 }
               }}
             >
-              {Object.values(EmploymentStatus).map((status) => (
-                <MenuItem key={status} value={status}>
-                  {status.replace('_', ' ')}
+              {/* Only show valid options based on current status */}
+              {staff.employmentStatus === EmploymentStatus.ACTIVE ? (
+                // If active, show only allowed transitions
+                ALLOWED_EMPLOYMENT_STATUSES.map((status) => (
+                  <MenuItem key={status} value={status}>
+                    {status.replace('_', ' ')}
+                  </MenuItem>
+                ))
+              ) : (
+                // If not active, only show current status (no transitions allowed)
+                <MenuItem key={staff.employmentStatus} value={staff.employmentStatus}>
+                  {staff.employmentStatus ? staff.employmentStatus.replace('_', ' ') : 'UNKNOWN'}
                 </MenuItem>
-              ))}
+              )}
             </Select>
           </FormControl>
         ) : (

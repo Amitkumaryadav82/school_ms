@@ -30,6 +30,7 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -219,5 +220,117 @@ public class StaffController {
             errorResponse.setErrors(errors);
             return ResponseEntity.badRequest().body(errorResponse);
         }
+    }
+
+    @PatchMapping("/{id}/employment-status")
+    @Operation(summary = "Update staff employment status", description = "Updates the employment status of a staff member with validation")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully updated the staff employment status"),
+            @ApiResponse(responseCode = "400", description = "Invalid status transition requested"),
+            @ApiResponse(responseCode = "404", description = "Staff member not found")
+    })
+    public ResponseEntity<?> updateEmploymentStatus(@PathVariable Long id, @RequestBody Map<String, Object> statusUpdate) {
+        logger.info("Updating employment status for staff with ID: {}", id);
+        
+        try {
+            // Get the requested status change
+            String statusStr = (String) statusUpdate.get("employmentStatus");
+            if (statusStr == null) {
+                logger.error("No employmentStatus provided in the request body");
+                return ResponseEntity.badRequest().body(Map.of(
+                    "message", "No employment status provided",
+                    "success", false
+                ));
+            }
+            
+            // Convert string to enum
+            com.school.core.model.EmploymentStatus newStatus;
+            try {
+                newStatus = com.school.core.model.EmploymentStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
+                logger.error("Invalid employment status: {}", statusStr);
+                return ResponseEntity.badRequest().body(Map.of(
+                    "message", "Invalid employment status: " + statusStr,
+                    "success", false
+                ));
+            }
+            
+            // Get the existing staff
+            Optional<Staff> existingStaffOpt = staffService.getStaffById(id);
+            if (!existingStaffOpt.isPresent()) {
+                logger.error("Staff not found with ID: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+            
+            Staff existingStaff = existingStaffOpt.get();
+            com.school.core.model.EmploymentStatus currentStatus = existingStaff.getEmploymentStatus();
+            
+            // Validate the status transition
+            if (!isValidStatusTransition(currentStatus, newStatus)) {
+                String errorMessage = "Invalid status transition from " + currentStatus + " to " + newStatus + 
+                                     ". Only allowed transitions are: Active → Terminated, Active → Retired, Active → Resigned";
+                logger.error(errorMessage);
+                return ResponseEntity.badRequest().body(Map.of(
+                    "message", errorMessage,
+                    "success", false
+                ));
+            }
+            
+            // Update the staff status
+            existingStaff.setEmploymentStatus(newStatus);
+            
+            // If the staff is being terminated/retired/resigned, set the termination date
+            if (newStatus == com.school.core.model.EmploymentStatus.TERMINATED || 
+                newStatus == com.school.core.model.EmploymentStatus.RETIRED || 
+                newStatus == com.school.core.model.EmploymentStatus.RESIGNED) {
+                existingStaff.setTerminationDate(LocalDate.now());
+                existingStaff.setServiceEndDate(LocalDate.now());
+                
+                // Update active status
+                existingStaff.setActive(false);
+                existingStaff.setIsActive(false);
+            }
+            
+            // Save the updated staff
+            Staff updatedStaff = staffService.save(existingStaff);
+            
+            // Return the updated staff DTO
+            return ResponseEntity.ok(StaffDTO.fromEntity(updatedStaff));
+            
+        } catch (Exception e) {
+            logger.error("Error updating employment status: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                    "message", "Error updating employment status: " + e.getMessage(),
+                    "success", false
+                ));
+        }
+    }
+    
+    /**
+     * Validates if the requested status transition is allowed.
+     * Rules:
+     * - Active can transition to: Terminated, Retired, or Resigned
+     * - No other transitions are allowed
+     * 
+     * @param currentStatus The current status of the staff
+     * @param newStatus The requested new status
+     * @return true if the transition is valid, false otherwise
+     */
+    private boolean isValidStatusTransition(com.school.core.model.EmploymentStatus currentStatus, com.school.core.model.EmploymentStatus newStatus) {
+        // If there's no status change, it's valid
+        if (currentStatus == newStatus) {
+            return true;
+        }
+        
+        // Check allowed transitions
+        if (currentStatus == com.school.core.model.EmploymentStatus.ACTIVE) {
+            return newStatus == com.school.core.model.EmploymentStatus.TERMINATED || 
+                   newStatus == com.school.core.model.EmploymentStatus.RETIRED || 
+                   newStatus == com.school.core.model.EmploymentStatus.RESIGNED;
+        }
+        
+        // No other transitions are allowed
+        return false;
     }
 }
