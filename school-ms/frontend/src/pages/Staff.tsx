@@ -1,3 +1,4 @@
+// @ts-check
 import {
     Add as AddIcon,
     CloudUpload as CloudUploadIcon,
@@ -42,6 +43,22 @@ import { EmploymentStatus, StaffMember, staffService } from '../services/staffSe
 import { hasPermission } from '../utils/permissions';
 import { formatRole, getAvatarColor } from './StaffHelper';
 
+/**
+ * IMPORTANT DEVELOPER NOTE:
+ * 
+ * This component handles the staff management functionality. We've added defensive
+ * programming to handle cases where the `/api/staff` endpoint might return a single
+ * object instead of an array, which was causing the error:
+ * "TypeError: staffList.filter is not a function"
+ * 
+ * The fixes ensure we always operate on arrays in the component, with:
+ * 1. A transformResponse handler in useApi
+ * 2. Safety checks in useMemo hooks
+ * 3. An updated staffService.getAll() method
+ * 
+ * If you experience any issues, check the server response format for the staff endpoint.
+ */
+
 const Staff: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkUploadDialogOpen, setBulkUploadDialogOpen] = useState(false);
@@ -63,7 +80,16 @@ const Staff: React.FC = () => {
     error,
     refresh
   } = useApi<StaffMember[]>(() => staffService.getAll(), {
-    cacheKey: 'staffList'
+    cacheKey: 'staffList',
+    // Transform data to ensure it's always an array
+    transformResponse: (data) => {
+      // Convert to array if it's not already
+      if (data && !Array.isArray(data)) {
+        console.warn('StaffList API returned non-array data:', data);
+        return Array.isArray(data) ? data : (data ? [data] : []);
+      }
+      return data;
+    }
   });
 
   const { mutate: createStaff, loading: createLoading } = useApiMutation(
@@ -525,7 +551,27 @@ const Staff: React.FC = () => {
     
     return `${firstInitial}${lastInitial}`.toUpperCase();
   };  const getStaffFullName = (staff: Partial<StaffMember>) => {
-    return `${staff.firstName || ''} ${staff.lastName || ''}`;
+    if (!staff) return 'Unknown Staff';
+    
+    // Check for fullName property first
+    if (staff.fullName) return staff.fullName;
+    
+    // Handle potential data issues
+    const firstName = staff.firstName || '';
+    const lastName = staff.lastName || '';
+    
+    if (!firstName && !lastName) {
+      // Try alternative fields
+      const email = staff.email || '';
+      if (email) {
+        // Extract name from email if available
+        const namePart = email.split('@')[0];
+        return namePart.replace('.', ' ').replace('_', ' ');
+      }
+      return 'Unknown Staff';
+    }
+    
+    return `${firstName} ${lastName}`.trim();
   };
 
   // Role colors for consistent display
@@ -589,14 +635,16 @@ const Staff: React.FC = () => {
   // Filter staff based on active filter
   const filteredStaffList = useMemo(() => {
     if (!staffList) return [];
-    if (!activeFilter) return staffList;
-
-    // Special filters
-    if (activeFilter === 'Total') return staffList;
-    if (activeFilter === 'Active') return staffList.filter(s => s.isActive);
+    // Ensure staffList is an array
+    const staffArray = Array.isArray(staffList) ? staffList : (staffList ? [staffList] : []);
+    if (!activeFilter) return staffArray;
     
-    // Filter by role
-    return staffList.filter(staff => {
+    // Handle special filter cases
+    if (activeFilter === 'Total') return staffArray;
+    if (activeFilter === 'Active') return staffArray.filter(s => s.isActive);
+
+    // Filter by role name
+    return staffArray.filter(staff => {
       const roleName = getRoleNameFromStaff(staff);
       if (!roleName) return false;
       
@@ -640,13 +688,16 @@ const Staff: React.FC = () => {
   const roleStatistics = useMemo(() => {
     if (!staffList) return [];
     
+    // Ensure staffList is an array
+    const staffArray = Array.isArray(staffList) ? staffList : (staffList ? [staffList] : []);
+    
     const stats = [
-      { label: 'Total', count: staffList.length, color: 'default' },
-      { label: 'Active', count: staffList.filter(s => s.isActive).length, color: 'success' }
+      { label: 'Total', count: staffArray.length, color: 'default' },
+      { label: 'Active', count: staffArray.filter(s => s.isActive).length, color: 'success' }
     ];
-      // Add stats for each role
+    // Add stats for each role
     Object.keys(roleColors).forEach(role => {
-      const count = staffList.filter(staff => {
+      const count = staffArray.filter(staff => {
         const roleName = getRoleNameFromStaff(staff);
         return roleName === role.toUpperCase().replace(' ', '_') || 
                roleName === role ||
@@ -875,6 +926,30 @@ const Staff: React.FC = () => {
       )
     }
   ];
+
+  // Debug method to log staff data
+  useEffect(() => {
+    if (staffList) {
+      console.log('=== Staff Data Debug ===');
+      console.log('Raw staffList:', staffList);
+      
+      if (Array.isArray(staffList)) {
+        console.log(`Received ${staffList.length} staff members`);
+        
+        if (staffList.length > 0) {
+          const firstStaff = staffList[0];
+          console.log('First staff member:', firstStaff);
+          console.log('Role data:', {
+            roleType: typeof firstStaff.role,
+            roleValue: firstStaff.role,
+            objectKeys: firstStaff.role && typeof firstStaff.role === 'object' ? Object.keys(firstStaff.role) : 'N/A'
+          });
+        }
+      } else {
+        console.log('staffList is not an array!', typeof staffList);
+      }
+    }
+  }, [staffList]);
 
   if (loading && !staffList) {
     return <Loading />;

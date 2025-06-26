@@ -5,10 +5,14 @@ import { StaffMember } from '../services/staffService';
  * Extract role name from a staff member regardless of the data structure
  */
 export const getRoleNameFromStaff = (staff: StaffMember): string => {
+  if (!staff) return 'Unknown';
   let roleName: string | undefined = undefined;
+  
+  console.log('Extracting role from staff:', staff);
   
   // Check if role is an object with name property (primary case from API)
   if (typeof staff.role === 'object' && staff.role) {
+    console.log('Role is an object:', staff.role);
     if ((staff.role as any).name) {
       roleName = (staff.role as any).name;
     } else if ((staff.role as any).roleName) {
@@ -17,37 +21,78 @@ export const getRoleNameFromStaff = (staff: StaffMember): string => {
   }
   // Check if role is a direct string (compatibility case)
   else if (typeof staff.role === 'string') {
+    console.log('Role is a string:', staff.role);
     roleName = staff.role;
   }
   
   // If we didn't get a role name yet, check staffRole object (backup case)
   if (!roleName && (staff as any).staffRole) {
+    console.log('Checking staffRole object:', (staff as any).staffRole);
     const staffRole = (staff as any).staffRole;
-    if (staffRole.name) {
-      roleName = staffRole.name;
-    } else if (staffRole.roleName) {
-      roleName = staffRole.roleName;
+    if (typeof staffRole === 'object') {
+      if (staffRole.name) {
+        roleName = staffRole.name;
+      } else if (staffRole.roleName) {
+        roleName = staffRole.roleName;
+      }
+    } else if (typeof staffRole === 'string') {
+      roleName = staffRole;
     }
   }
   
-  // Last resort checks
+  // Enhanced fallback strategies for role name
   if (!roleName) {
-    if ((staff as any).roleName) {
-      roleName = (staff as any).roleName;
+    console.log('Using additional fallback strategies for role extraction');
+    
+    // Try direct property access for backward compatibility
+    roleName = (staff as any).roleName || 
+               (staff as any).stringRole || 
+               (staff as any).roleType ||
+               (staff as any).designation;
+  }
+  
+  // Try to extract from nested objects if still not found
+  if (!roleName && staff) {
+    console.log('Trying deeper object inspection for role');
+    const roleFields = ['role', 'staffRole', 'userRole', 'position', 'designation'];
+    
+    for (const field of roleFields) {
+      const value = (staff as any)[field];
+      if (value) {
+        if (typeof value === 'string') {
+          roleName = value;
+          break;
+        } else if (typeof value === 'object') {
+          // Look for common name fields in the object
+          const nameFields = ['name', 'roleName', 'type', 'value', 'title'];
+          for (const nameField of nameFields) {
+            if (value[nameField] && typeof value[nameField] === 'string') {
+              roleName = value[nameField];
+              break;
+            }
+          }
+          if (roleName) break;
+        }
+      }
     }
   }
   
+  // If all else fails, set a default based on other fields
   if (!roleName) {
-    console.warn('Unable to extract role name from staff member:', {
-      staffId: staff.staffId,
-      name: `${staff.firstName} ${staff.lastName}`,
-      role: staff.role,
-      staffRole: (staff as any).staffRole
-    });
-    return '';
+    // Try to determine from department
+    if (staff.department?.toLowerCase().includes('teach')) {
+      roleName = 'TEACHER';
+    } else if (staff.department?.toLowerCase().includes('admin')) {
+      roleName = 'ADMIN';
+    } else if (staff.department?.toLowerCase().includes('principal')) {
+      roleName = 'PRINCIPAL';
+    }
   }
   
-  return roleName;
+  console.log('Final resolved role name:', roleName || 'Unknown');
+  
+  // If still no role name, default to "Unknown"
+  return roleName || "Unknown";
 };
 
 /**

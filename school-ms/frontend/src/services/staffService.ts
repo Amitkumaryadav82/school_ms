@@ -284,7 +284,27 @@ const tryBulkUploadFormats = (url: string, formattedStaffMembers: StaffMember[],
 
 export const staffService = {
   // Get all staff members
-  getAll: () => api.get<StaffMember[]>('staff'),
+  getAll: async () => {
+    try {
+      const response = await api.get<StaffMember | StaffMember[]>('staff');
+      
+      // Ensure we always return an array
+      if (!response) {
+        console.log('Staff API returned null/undefined response');
+        return [];
+      }
+      
+      if (Array.isArray(response)) {
+        return response;
+      } else {
+        console.log('Staff API returned a single object instead of an array, converting to array');
+        return [response];
+      }
+    } catch (error) {
+      console.error('Error fetching staff list:', error);
+      throw error;
+    }
+  },
   
   // Get a specific staff member by ID
   getById: (id: number) => api.get<StaffMember>(`staff/${id}`),
