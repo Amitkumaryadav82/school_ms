@@ -1,60 +1,113 @@
-import React, { useState, useEffect } from 'react';
+import { Cancel, CheckCircle, Edit, HighlightOff, RemoveCircle, Save } from '@mui/icons-material';
 import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  TextField,
-  Button,
-  FormControl,
-  InputLabel,
-  CircularProgress,
-  Chip,
-  IconButton,
-  Tooltip
+    Box,
+    Button,
+    Chip,
+    FormControl,
+    IconButton,
+    MenuItem,
+    Paper,
+    Select,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Tooltip,
+    Typography
 } from '@mui/material';
-import { Save, Edit, Cancel, CheckCircle, HighlightOff, RemoveCircle } from '@mui/icons-material';
-import { useApi, useApiMutation } from '../../hooks/useApi';
-import { teacherAttendanceService, TeacherAttendance, AttendanceStatus } from '../../services/teacherAttendanceService';
-import { staffService } from '../../services/staffService';
+import React, { useState } from 'react';
 import { useNotification } from '../../context/NotificationContext';
-import Loading from '../Loading';
+import { useApi, useApiMutation } from '../../hooks/useApi';
+import { StaffAttendanceDTO, staffAttendanceService, StaffAttendanceStatus } from '../../services/staffAttendanceService';
+import { staffService } from '../../services/staffService';
+import { AttendanceStatus, TeacherAttendance, teacherAttendanceService } from '../../services/teacherAttendanceService';
 import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 
 interface AttendanceDailyViewProps {
   date: string;
   isAdmin: boolean;
+  staffType?: string;
+  attendanceService?: 'teacher' | 'staff';
 }
 
-const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({ date, isAdmin }) => {
+const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({ 
+  date, 
+  isAdmin,
+  staffType = 'ALL',
+  attendanceService = 'teacher'
+}) => {
   const { showNotification } = useNotification();
   const [editMode, setEditMode] = useState<Record<number, boolean>>({});
-  const [attendanceEdits, setAttendanceEdits] = useState<Record<number, TeacherAttendance>>({});
+  const [attendanceEdits, setAttendanceEdits] = useState<Record<number, any>>({});
 
-  // Fetch teachers and attendance data
-  const { data: teachers, error: teachersError, loading: teachersLoading } = useApi(() => 
-    staffService.getActiveTeachers()
-  );
-  const { data: attendanceData, error: attendanceError, loading: attendanceLoading, refetch: refetchAttendance } = useApi(() => 
-    teacherAttendanceService.getAttendanceByDate(date)
-  , { dependencies: [date] });
-  // Holiday check
-  const { data: holidayCheck } = useApi(() => 
-    teacherAttendanceService.checkIfHoliday(date)
-  , { dependencies: [date] });
+  // Determine which service to use
+  const useStaffAttendance = attendanceService === 'staff';
+
+  // Fetch staff members based on type
+  const { data: staffMembers, error: staffError, loading: staffLoading } = useApi(() => {
+    if (useStaffAttendance) {
+      return staffType === 'TEACHING' 
+        ? staffService.getActiveTeachers()
+        : staffType === 'NON_TEACHING'
+          ? staffService.getNonTeachingStaff() 
+          : staffService.getAllStaff();
+    } else {
+      return staffService.getActiveTeachers();
+    }
+  }, { dependencies: [staffType, attendanceService] });
+
+  // Fetch attendance data
+  const { data: attendanceData, error: attendanceError, loading: attendanceLoading, refetch: refetchAttendance } = useApi(() => {
+    if (useStaffAttendance) {
+      return staffAttendanceService.getStaffAttendanceByDate(date);
+    } else {
+      return teacherAttendanceService.getAttendanceByDate(date);
+    }
+  }, { dependencies: [date, attendanceService] });
+  // Holiday check - use the appropriate service based on the attendanceService
+  const { data: holidayCheck } = useApi(() => {
+    // Use the appropriate service based on the attendanceService prop
+    const service = attendanceService === 'staff' ? staffAttendanceService : teacherAttendanceService;
+    return service.checkIfHoliday(date);
+  }, { dependencies: [date, attendanceService] });
 
   // Apply type assertion to ensure isHoliday property exists
   const isHoliday = holidayCheck ? (holidayCheck as { isHoliday: boolean }).isHoliday : false;
 
-  // Mutations
-  const { mutateAsync: markAttendance } = useApiMutation(
+  // Mutations for staff attendance
+  const { mutateAsync: markStaffAttendance } = useApiMutation(
+    (attendance: StaffAttendanceDTO) => staffAttendanceService.createStaffAttendance(attendance),
+    {
+      onSuccess: () => {
+        showNotification('Attendance marked successfully', 'success');
+        refetchAttendance();
+      },
+      onError: (error) => {
+        showNotification(`Error marking attendance: ${error.message}`, 'error');
+      }
+    }
+  );
+
+  const { mutateAsync: updateStaffAttendance } = useApiMutation(
+    ({ id, data }: { id: number; data: StaffAttendanceDTO }) => 
+      staffAttendanceService.updateStaffAttendance(id, data),
+    {
+      onSuccess: () => {
+        showNotification('Attendance updated successfully', 'success');
+        refetchAttendance();
+      },
+      onError: (error) => {
+        showNotification(`Error updating attendance: ${error.message}`, 'error');
+      }
+    }
+  );
+
+  // Mutations for teacher attendance
+  const { mutateAsync: markTeacherAttendance } = useApiMutation(
     (attendance: TeacherAttendance) => teacherAttendanceService.markAttendance(attendance),
     {
       onSuccess: () => {
@@ -67,7 +120,7 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({ date, isAdmin
     }
   );
 
-  const { mutateAsync: updateAttendance } = useApiMutation(
+  const { mutateAsync: updateTeacherAttendance } = useApiMutation(
     ({ id, data }: { id: number; data: TeacherAttendance }) => 
       teacherAttendanceService.updateAttendance(id, data),
     {
@@ -83,104 +136,125 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({ date, isAdmin
 
   // Prepare attendance map for easy lookup
   const attendanceMap = React.useMemo(() => {
-    const map: Record<number, TeacherAttendance> = {};
-    attendanceData?.forEach((attendance) => {
-      if (attendance.employeeId) {
-        map[attendance.employeeId] = attendance;
-      }
-    });
+    const map: Record<number, any> = {};
+    if (attendanceData) {
+      attendanceData.forEach((attendance: any) => {
+        const id = useStaffAttendance ? attendance.staffId : attendance.employeeId;
+        if (id) {
+          map[id] = attendance;
+        }
+      });
+    }
     return map;
-  }, [attendanceData]);
+  }, [attendanceData, useStaffAttendance]);
 
   // Toggle edit mode for a specific row
-  const toggleEditMode = (employeeId: number, attendanceRecord?: TeacherAttendance) => {
+  const toggleEditMode = (memberId: number, attendanceRecord?: any) => {
     setEditMode(prev => ({
       ...prev,
-      [employeeId]: !prev[employeeId]
+      [memberId]: !prev[memberId]
     }));
 
     // Initialize edit form with current data or defaults
-    if (!editMode[employeeId] && attendanceRecord) {
+    if (!editMode[memberId] && attendanceRecord) {
       setAttendanceEdits(prev => ({
         ...prev,
-        [employeeId]: { ...attendanceRecord }
+        [memberId]: { ...attendanceRecord }
       }));
-    } else if (!editMode[employeeId]) {
-      const defaultAttendance: TeacherAttendance = {
-        employeeId,
-        attendanceDate: date,
-        attendanceStatus: isHoliday ? AttendanceStatus.HOLIDAY : AttendanceStatus.PRESENT
-      };
-      setAttendanceEdits(prev => ({
-        ...prev,
-        [employeeId]: defaultAttendance
-      }));
+    } else if (!editMode[memberId]) {
+      if (useStaffAttendance) {
+        const defaultAttendance: StaffAttendanceDTO = {
+          staffId: memberId,
+          attendanceDate: date,
+          status: isHoliday ? StaffAttendanceStatus.HOLIDAY : StaffAttendanceStatus.PRESENT
+        };
+        setAttendanceEdits(prev => ({
+          ...prev,
+          [memberId]: defaultAttendance
+        }));
+      } else {
+        const defaultAttendance: TeacherAttendance = {
+          employeeId: memberId,
+          attendanceDate: date,
+          attendanceStatus: isHoliday ? AttendanceStatus.HOLIDAY : AttendanceStatus.PRESENT
+        };
+        setAttendanceEdits(prev => ({
+          ...prev,
+          [memberId]: defaultAttendance
+        }));
+      }
     }
   };
 
   // Handle form field changes
-  const handleAttendanceChange = (employeeId: number, field: keyof TeacherAttendance, value: any) => {
+  const handleAttendanceChange = (memberId: number, field: string, value: any) => {
     setAttendanceEdits(prev => ({
       ...prev,
-      [employeeId]: {
-        ...prev[employeeId],
+      [memberId]: {
+        ...prev[memberId],
         [field]: value
       }
     }));
   };
 
   // Save attendance record
-  const saveAttendance = async (employeeId: number) => {
-    const attendanceRecord = attendanceEdits[employeeId];
+  const saveAttendance = async (memberId: number) => {
+    const attendanceRecord = attendanceEdits[memberId];
     
     if (!attendanceRecord) return;
     
     try {
-      if (attendanceRecord.id) {
-        // Update existing record
-        await updateAttendance({ id: attendanceRecord.id, data: attendanceRecord });
+      if (useStaffAttendance) {
+        if (attendanceRecord.id) {
+          await updateStaffAttendance({ id: attendanceRecord.id, data: attendanceRecord });
+        } else {
+          await markStaffAttendance(attendanceRecord);
+        }
       } else {
-        // Create new record
-        await markAttendance(attendanceRecord);
+        if (attendanceRecord.id) {
+          await updateTeacherAttendance({ id: attendanceRecord.id, data: attendanceRecord });
+        } else {
+          await markTeacherAttendance(attendanceRecord);
+        }
       }
       
       // Exit edit mode
-      toggleEditMode(employeeId);
+      toggleEditMode(memberId);
     } catch (error) {
       console.error('Error saving attendance:', error);
     }
   };
 
   // Get status color
-  const getStatusColor = (status: AttendanceStatus | undefined) => {
-    switch (status) {
-      case AttendanceStatus.PRESENT: return 'success';
-      case AttendanceStatus.ABSENT: return 'error';
-      case AttendanceStatus.HALF_DAY: return 'warning';
-      case AttendanceStatus.ON_LEAVE: return 'info';
-      case AttendanceStatus.HOLIDAY: return 'secondary';
-      default: return 'default';
-    }
-  };
-  // Get status icon
-  const getStatusIcon = (status: AttendanceStatus | undefined): React.ReactElement | undefined => {
-    switch (status) {
-      case AttendanceStatus.PRESENT: return <CheckCircle fontSize="small" />;
-      case AttendanceStatus.ABSENT: return <HighlightOff fontSize="small" />;
-      case AttendanceStatus.HALF_DAY: return <RemoveCircle fontSize="small" />;
-      case AttendanceStatus.ON_LEAVE: return <Cancel fontSize="small" />;
-      case AttendanceStatus.HOLIDAY: 
-      default: 
-        return undefined;
-    }
+  const getStatusColor = (status: string | undefined) => {
+    const statusMap: Record<string, string> = {
+      'PRESENT': 'success',
+      'ABSENT': 'error',
+      'HALF_DAY': 'warning',
+      'ON_LEAVE': 'info',
+      'HOLIDAY': 'secondary'
+    };
+    return status ? statusMap[status] || 'default' : 'default';
   };
 
-  if (teachersLoading || attendanceLoading) {
+  // Get status icon
+  const getStatusIcon = (status: string | undefined): React.ReactElement | undefined => {
+    const iconMap: Record<string, React.ReactElement> = {
+      'PRESENT': <CheckCircle fontSize="small" />,
+      'ABSENT': <HighlightOff fontSize="small" />,
+      'HALF_DAY': <RemoveCircle fontSize="small" />,
+      'ON_LEAVE': <Cancel fontSize="small" />
+    };
+    
+    return status ? iconMap[status] : undefined;
+  };
+
+  if (staffLoading || attendanceLoading) {
     return <Loading />;
   }
 
-  if (teachersError) {
-    return <ErrorMessage message="Failed to load teachers data." />;
+  if (staffError) {
+    return <ErrorMessage message="Failed to load staff data." />;
   }
 
   if (attendanceError) {

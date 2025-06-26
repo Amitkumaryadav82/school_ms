@@ -1,28 +1,27 @@
-import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  Box,
-  LinearProgress,
-  Alert,
-  AlertTitle,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  IconButton,
-  Tooltip
-} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import ErrorIcon from '@mui/icons-material/Error';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
+import {
+    Alert,
+    AlertTitle,
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    LinearProgress,
+    List,
+    ListItem,
+    ListItemText,
+    Paper,
+    Tooltip,
+    Typography
+} from '@mui/material';
+import React, { useState } from 'react';
 import { AdmissionApplication, admissionService } from '../../services/admissionService';
 
 interface AdmissionBulkUploadDialogProps {

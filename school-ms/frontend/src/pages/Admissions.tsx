@@ -1,32 +1,50 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Box, Typography, Button, Paper, Alert, AlertTitle, Dialog, 
-  DialogTitle, DialogContent, DialogActions, CircularProgress, 
-  List, ListItem, ListItemText, Divider, Checkbox, FormControl,
-  InputLabel, Select, MenuItem, SelectChangeEvent, IconButton,
-  Tooltip, TextField, Grid, Chip, OutlinedInput, Autocomplete
+import ClearIcon from '@mui/icons-material/Clear';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import EditIcon from '@mui/icons-material/Edit';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import {
+    Alert, AlertTitle,
+    Box,
+    Button,
+    Checkbox,
+    Chip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    FormControl,
+    Grid,
+    IconButton,
+    InputLabel,
+    List, ListItem, ListItemText,
+    MenuItem,
+    OutlinedInput,
+    Paper,
+    Select,
+    SelectChangeEvent,
+    TextField,
+    Tooltip,
+    Typography
 } from '@mui/material';
-import { useNotification } from '../context/NotificationContext';
-import { useAuth } from '../context/AuthContext';
-import { AdmissionApplication, admissionService } from '../services/admissionService';
-import api from '../services/api';
+import React, { useEffect, useMemo, useState } from 'react';
 import DataTable from '../components/DataTable';
-import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
+import Loading from '../components/Loading';
 import Permission from '../components/Permission';
-import AdmissionDialog from '../components/dialogs/AdmissionDialog';
 import AuthErrorDialog from '../components/debug/AuthErrorDialog';
 import AdmissionBulkUploadDialog from '../components/dialogs/AdmissionBulkUploadDialog';
-import { useApi } from '../hooks/useApi';
-import { formatDate } from '../utils/tableFormatters';
+import AdmissionDialog from '../components/dialogs/AdmissionDialog';
 import environment from '../config/environment';
-import EditIcon from '@mui/icons-material/Edit';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import ClearIcon from '@mui/icons-material/Clear';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
+import { useApi } from '../hooks/useApi';
+import { AdmissionApplication, admissionService } from '../services/admissionService';
+import api from '../services/api';
+import { formatDate } from '../utils/tableFormatters';
 
 // Helper function to format status with appropriate styling
 const formatStatus = (status: string) => {

@@ -39,10 +39,10 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useApi, useApiMutation } from '../hooks/useApi';
 import { hasStaffStatusUpdatePermission, parseJwt } from '../services/authService';
-import { EmploymentStatus, ALLOWED_EMPLOYMENT_STATUSES, StaffMember, staffService } from '../services/staffService';
+import { ALLOWED_EMPLOYMENT_STATUSES, EmploymentStatus, StaffMember, staffService } from '../services/staffService';
 import { hasPermission } from '../utils/permissions';
+import { createTestStaffMember, debugStaffResponse, inspectObject } from '../utils/staffDebug';
 import { formatRole, getAvatarColor } from './StaffHelper';
-import { inspectObject, debugStaffResponse, createTestStaffMember } from '../utils/staffDebug';
 
 /**
  * IMPORTANT DEVELOPER NOTE:

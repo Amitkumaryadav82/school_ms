@@ -15,6 +15,7 @@ import MarksEntry from './pages/MarksEntry';
 import Register from './pages/Register';
 import Reports from './pages/Reports';
 import Staff from './pages/Staff';
+import StaffAttendance from './pages/StaffAttendance'; // Import the StaffAttendance page
 import Students from './pages/Students';
 import TeacherAttendance from './pages/TeacherAttendance'; // Import the TeacherAttendance page
 // Import new consolidated views
@@ -153,6 +154,18 @@ function AppRoutes() {
             <Layout>
               <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.TEACHER]}>
                 <TeacherAttendance />
+              </RoleBasedRoute>
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/staff-attendance"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.STAFF]}>
+                <StaffAttendance />
               </RoleBasedRoute>
             </Layout>
           </ProtectedRoute>
