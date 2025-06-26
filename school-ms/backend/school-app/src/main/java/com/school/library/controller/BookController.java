@@ -1,8 +1,9 @@
-package com.schoolms.controller;
+package com.school.library.controller;
 
-import com.schoolms.model.Book;
-import com.schoolms.service.BookService;
+import com.school.library.model.Book;
+import com.school.library.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class BookController {
     private final BookService bookService;
 
     @Autowired
-    public BookController(BookService bookService) {
+    public BookController(@Qualifier("libraryBookService") BookService bookService) {
         this.bookService = bookService;
     }
 

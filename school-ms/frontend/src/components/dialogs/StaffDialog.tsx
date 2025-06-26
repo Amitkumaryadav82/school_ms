@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
 import {
-  TextField,
-  Grid,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  Chip,
-  Box,
-  Typography,
-  Divider,
-  FormHelperText,
+    Divider,
+    FormControl,
+    FormHelperText,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+    Typography
 } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { StaffMember, TeacherDetails } from '../../services/staffService';
 import BaseDialog from './BaseDialog';
 

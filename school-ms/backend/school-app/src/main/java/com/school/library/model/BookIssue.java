@@ -1,4 +1,4 @@
-package com.schoolms.model;
+package com.school.library.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

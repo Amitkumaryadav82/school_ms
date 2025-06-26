@@ -1,8 +1,9 @@
-package com.schoolms.service;
+package com.school.library.service;
 
-import com.schoolms.model.Book;
-import com.schoolms.repository.BookRepository;
+import com.school.library.model.Book;
+import com.school.library.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,13 +13,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Service
+@Service("libraryBookService")
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository) {
+    public BookServiceImpl(@Qualifier("libraryBookRepositoryImpl") BookRepository bookRepository) {
         this.bookRepository = bookRepository;
     }
 

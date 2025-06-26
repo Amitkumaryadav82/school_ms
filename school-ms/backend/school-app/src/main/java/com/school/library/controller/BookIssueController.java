@@ -1,8 +1,9 @@
-package com.schoolms.controller;
+package com.school.library.controller;
 
-import com.schoolms.model.BookIssue;
-import com.schoolms.service.BookIssueService;
+import com.school.library.model.BookIssue;
+import com.school.library.service.BookIssueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class BookIssueController {
     private final BookIssueService bookIssueService;
 
     @Autowired
-    public BookIssueController(BookIssueService bookIssueService) {
+    public BookIssueController(@Qualifier("libraryBookIssueService") BookIssueService bookIssueService) {
         this.bookIssueService = bookIssueService;
     }
 

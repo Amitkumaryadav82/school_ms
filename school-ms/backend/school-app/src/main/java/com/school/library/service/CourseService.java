@@ -1,6 +1,6 @@
-package com.schoolms.service;
+package com.school.library.service;
 
-import com.schoolms.model.Course;
+import com.school.library.model.Course;
 import java.util.List;
 import java.util.Optional;
 

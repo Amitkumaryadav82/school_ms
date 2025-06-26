@@ -1,31 +1,30 @@
 import {
-  Add as AddIcon,
-  CloudUpload as CloudUploadIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Email as EmailIcon,
-  Schedule as ScheduleIcon,
-  School as SchoolIcon
+    Add as AddIcon,
+    CloudUpload as CloudUploadIcon,
+    Delete as DeleteIcon,
+    Edit as EditIcon,
+    Schedule as ScheduleIcon,
+    School as SchoolIcon
 } from '@mui/icons-material';
 import {
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  FormControl,
-  Grid,
-  IconButton,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  Tooltip,
-  Typography
+    Avatar,
+    Box,
+    Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    FormControl,
+    Grid,
+    IconButton,
+    MenuItem,
+    Paper,
+    Select,
+    Stack,
+    Tooltip,
+    Typography
 } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import DataTable, { Column } from '../components/DataTable';
@@ -34,6 +33,7 @@ import BulkStaffUploadDialog from '../components/dialogs/BulkStaffUploadDialog';
 import StaffDialog from '../components/dialogs/StaffDialog';
 import ErrorMessage from '../components/ErrorMessage';
 import Loading from '../components/Loading';
+import config from '../config/environment';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useApi, useApiMutation } from '../hooks/useApi';
@@ -41,7 +41,6 @@ import { hasStaffStatusUpdatePermission, parseJwt } from '../services/authServic
 import { EmploymentStatus, StaffMember, staffService } from '../services/staffService';
 import { hasPermission } from '../utils/permissions';
 import { formatRole, getAvatarColor } from './StaffHelper';
-import config from '../config/environment';
 
 const Staff: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);

@@ -1,11 +1,12 @@
-package com.schoolms.repository;
+package com.school.library.service;
 
-import com.schoolms.model.BookIssue;
+import com.school.library.model.BookIssue;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public interface BookIssueRepository {
+public interface BookIssueService {
     List<BookIssue> getAllBookIssues();
 
     List<BookIssue> getActiveBookIssues();
@@ -16,13 +17,17 @@ public interface BookIssueRepository {
 
     List<BookIssue> getBookIssuesByDateRange(LocalDate startDate, LocalDate endDate);
 
-    BookIssue createBookIssue(BookIssue bookIssue);
+    BookIssue issueBook(BookIssue bookIssue);
 
-    BookIssue updateBookIssue(BookIssue bookIssue);
+    BookIssue returnBook(Long issueId);
 
     boolean deleteBookIssue(Long id);
 
-    List<BookIssue> getBookIssuesByBookId(Long bookId);
-
     List<BookIssue> getOverdueBookIssues();
+
+    Map<String, Long> getInventorySummary();
+
+    Map<String, Long> getIssuedBooksCountByCategory();
+
+    Map<LocalDate, Long> getIssueCountByDateRange(LocalDate startDate, LocalDate endDate);
 }

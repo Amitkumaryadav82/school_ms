@@ -1,6 +1,6 @@
-package com.schoolms.repository;
+package com.school.library.repository;
 
-import com.schoolms.model.Course;
+import com.school.library.model.Course;
 import java.util.List;
 import java.util.Optional;
 

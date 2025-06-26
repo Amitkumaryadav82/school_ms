@@ -1,6 +1,6 @@
-package com.schoolms.repository;
+package com.school.library.repository;
 
-import com.schoolms.model.Book;
+import com.school.library.model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+@Repository("libraryBookRepositoryImpl") 
 public class BookRepositoryImpl implements BookRepository {
 
     private final JdbcTemplate jdbcTemplate;

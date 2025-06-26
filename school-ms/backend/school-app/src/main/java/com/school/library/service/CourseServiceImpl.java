@@ -1,8 +1,9 @@
-package com.schoolms.service;
+package com.school.library.service;
 
-import com.schoolms.model.Course;
-import com.schoolms.repository.CourseRepository;
+import com.school.library.model.Course;
+import com.school.library.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,14 +12,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-@Service
+@Service("libraryCourseService")
 public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public CourseServiceImpl(CourseRepository courseRepository, JdbcTemplate jdbcTemplate) {
+    public CourseServiceImpl(@Qualifier("libraryCoursesRepositoryImpl") CourseRepository courseRepository, JdbcTemplate jdbcTemplate) {
         this.courseRepository = courseRepository;
         this.jdbcTemplate = jdbcTemplate;
     }

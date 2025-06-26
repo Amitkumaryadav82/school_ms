@@ -1,6 +1,6 @@
-package com.schoolms.repository;
+package com.school.library.repository;
 
-import com.schoolms.model.Book;
+import com.school.library.model.Book;
 import java.util.List;
 import java.util.Optional;
 

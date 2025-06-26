@@ -1,8 +1,9 @@
-package com.schoolms.controller;
+package com.school.library.controller;
 
-import com.schoolms.model.Course;
-import com.schoolms.service.CourseService;
+import com.school.library.model.Course;
+import com.school.library.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,15 +14,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-@RestController("schoolmsCourseController")
-@RequestMapping("/api/courses")
+/**
+ * Course controller for library-specific course operations.
+ * The endpoint was changed from /api/courses to /api/library/courses to avoid conflicts
+ * with ConsolidatedCourseController. This controller specifically handles library-related
+ * course operations while the main course operations are handled by ConsolidatedCourseController.
+ */
+
+@RestController
+@RequestMapping("/api/library/courses")
 @CrossOrigin(origins = "*") // Consider restricting this in production
 public class CourseController {
 
     private final CourseService courseService;
 
     @Autowired
-    public CourseController(CourseService courseService) {
+    public CourseController(@Qualifier("libraryCourseService") CourseService courseService) {
         this.courseService = courseService;
     }
 

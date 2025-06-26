@@ -1,10 +1,11 @@
-package com.schoolms.service;
+package com.school.library.service;
 
-import com.schoolms.model.Book;
-import com.schoolms.model.BookIssue;
-import com.schoolms.repository.BookIssueRepository;
-import com.schoolms.repository.BookRepository;
+import com.school.library.model.Book;
+import com.school.library.model.BookIssue;
+import com.school.library.repository.BookIssueRepository;
+import com.school.library.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,14 +16,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+@Service("libraryBookIssueService")
 public class BookIssueServiceImpl implements BookIssueService {
 
     private final BookIssueRepository bookIssueRepository;
     private final BookRepository bookRepository;
 
     @Autowired
-    public BookIssueServiceImpl(BookIssueRepository bookIssueRepository, BookRepository bookRepository) {
+    public BookIssueServiceImpl(@Qualifier("libraryBookIssueRepositoryImpl") BookIssueRepository bookIssueRepository, 
+                              @Qualifier("libraryBookRepositoryImpl") BookRepository bookRepository) {
         this.bookIssueRepository = bookIssueRepository;
         this.bookRepository = bookRepository;
     }
