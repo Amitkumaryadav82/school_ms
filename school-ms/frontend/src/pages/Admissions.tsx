@@ -16,6 +16,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import Permission from '../components/Permission';
 import AdmissionDialog from '../components/dialogs/AdmissionDialog';
 import AuthErrorDialog from '../components/debug/AuthErrorDialog';
+import AdmissionBulkUploadDialog from '../components/dialogs/AdmissionBulkUploadDialog';
 import { useApi } from '../hooks/useApi';
 import { formatDate } from '../utils/tableFormatters';
 import environment from '../config/environment';
@@ -24,6 +25,8 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ClearIcon from '@mui/icons-material/Clear';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 // Helper function to format status with appropriate styling
 const formatStatus = (status: string) => {
@@ -160,6 +163,9 @@ const Admissions = () => {
   // Flag to indicate if filters are active
   const [filtersActive, setFiltersActive] = useState(false);
 
+  // State for bulk upload dialog
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
+  
   // Debug logging on component mount
   useEffect(() => {
     console.log('🔍 Admissions component mounted');
@@ -1105,6 +1111,50 @@ const Admissions = () => {
     );
   };
 
+  // Function to fetch admissions data with error handling
+  const fetchAdmissions = async () => {
+    try {
+      setLoading(true);
+      await refresh();
+    } catch (error) {
+      console.error('Error fetching admissions:', error);
+      showNotification({
+        type: 'error',
+        message: 'Failed to fetch admissions data'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Bulk upload handlers
+  const handleOpenBulkUpload = () => {
+    setIsBulkUploadOpen(true);
+  };
+  
+  const handleCloseBulkUpload = () => {
+    setIsBulkUploadOpen(false);
+  };
+  
+  const handleBulkUploadSuccess = (admissions: AdmissionApplication[]) => {
+    showNotification({
+      type: 'success',
+      message: `Successfully uploaded ${admissions.length} admission applications.`
+    });
+    
+    // Refresh data after successful upload
+    setLoading(true);
+    admissionService.getAllApplications()
+      .then(data => {
+        setAdmissions(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching admissions:', error);
+        setLoading(false);
+      });
+  };
+
   if (apiLoading) {
     return <Loading />;
   }
@@ -1192,6 +1242,18 @@ const Admissions = () => {
             </IconButton>
           </Tooltip>
           
+          {/* Bulk Upload Button */}
+          <Permission roles={['ADMIN']}>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<CloudUploadIcon />}
+              onClick={handleOpenBulkUpload}
+            >
+              Bulk Upload
+            </Button>
+          </Permission>
+            
           {/* Clear Filters Button - only show when filters are active */}
           {filtersActive && (
             <Tooltip title="Clear All Filters">
@@ -1341,6 +1403,13 @@ const Admissions = () => {
           onClose={() => setAuthError(null)}
         />
       )}
+
+      {/* Bulk Upload Dialog */}
+      <AdmissionBulkUploadDialog
+        open={isBulkUploadOpen}
+        onClose={handleCloseBulkUpload}
+        onSuccess={handleBulkUploadSuccess}
+      />
     </Box>
   );
 };

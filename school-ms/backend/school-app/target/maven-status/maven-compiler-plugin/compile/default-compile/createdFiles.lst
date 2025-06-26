@@ -138,6 +138,7 @@ com\school\exam\dto\ExamBlueprintDTO$ExamBlueprintDTOBuilder.class
 com\school\fee\model\Fee$FeeBuilder.class
 com\school\security\dto\LoginRequest.class
 com\school\fee\repository\FeeStructureRepository.class
+com\school\admission\util\AdmissionCsvParser.class
 com\school\fee\dto\FeeInstallmentResponse.class
 com\school\exception\InvalidDateRangeException.class
 com\school\security\UserRole.class
@@ -268,6 +269,7 @@ com\school\admission\controller\AdmissionController.class
 com\school\security\UserRepository.class
 com\school\attendance\dto\AttendanceDTO.class
 com\school\exam\repository\QuestionSectionRepository.class
+com\school\admission\dto\BulkAdmissionRequest.class
 com\school\common\model\BaseEntity.class
 com\school\staff\service\ConsolidatedStaffService.class
 com\school\staff\adapter\StaffAdapter.class

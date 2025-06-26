@@ -5,6 +5,7 @@ import com.school.admission.model.Admission.AdmissionStatus;
 import com.school.admission.service.AdmissionService;
 import com.school.admission.dto.AdmissionRequest;
 import com.school.admission.dto.AdmissionResponse;
+import com.school.admission.dto.BulkAdmissionRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,6 +17,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -164,5 +169,55 @@ public class AdmissionController {
         Map<String, Object> response = new HashMap<>();
         response.put("hasStudent", hasStudent);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Submit multiple admission applications", description = "Submit multiple admission applications in bulk")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Applications submitted successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid application data")
+    })
+    @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AdmissionResponse>> submitBulkApplications(@Valid @RequestBody BulkAdmissionRequest request) {
+        if (request.getAdmissions().size() != request.getExpectedCount()) {
+            throw new IllegalArgumentException("Expected count does not match the number of applications provided");
+        }
+        
+        List<AdmissionResponse> responses = admissionService.submitBulkApplications(request);
+        return ResponseEntity.ok(responses);
+    }
+    
+    @Operation(summary = "Upload admission applications from CSV", description = "Process a CSV file containing admission applications")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "CSV processed successfully"),
+            @ApiResponse(responseCode = "400", description = "Error processing CSV file")
+    })
+    @PostMapping(value = "/upload-csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AdmissionResponse>> uploadAdmissionsCsv(@RequestParam("file") MultipartFile file) {
+        try {
+            List<AdmissionResponse> responses = admissionService.processAdmissionsCsv(file);
+            return ResponseEntity.ok(responses);
+        } catch (IOException e) {
+            throw new RuntimeException("Error processing CSV file: " + e.getMessage(), e);
+        }
+    }
+    
+    @Operation(summary = "Download CSV template", description = "Download a template CSV file for bulk admission upload")
+    @ApiResponse(responseCode = "200", description = "Template downloaded successfully")
+    @GetMapping("/download-template")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<byte[]> downloadCsvTemplate() {
+        try {
+            byte[] templateBytes = admissionService.generateCsvTemplate();
+            
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=admission_template.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .contentLength(templateBytes.length)
+                .body(templateBytes);
+        } catch (IOException e) {
+            throw new RuntimeException("Error generating CSV template: " + e.getMessage(), e);
+        }
     }
 }

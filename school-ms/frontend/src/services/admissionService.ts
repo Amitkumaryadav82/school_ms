@@ -73,6 +73,12 @@ export interface AdmissionRequest {
   documentsFormat?: string;
 }
 
+// Bulk admission request interface
+export interface BulkAdmissionRequest {
+  admissions: AdmissionRequest[];
+  expectedCount: number;
+}
+
 export const admissionService = {  // Get all admission applications
   getAllApplications: async () => {
     const response = await api.get<BackendAdmissionResponse[]>('/api/admissions');
@@ -390,7 +396,72 @@ export const admissionService = {  // Get all admission applications
         checkStudentStatus: '/api/admissions/:id/student-status'
       }
     };
-  }
+  },
+  
+  // Bulk admission request methods
+  submitBulkApplications: async (applications: AdmissionRequest[]) => {
+    const request: BulkAdmissionRequest = {
+      admissions: applications,
+      expectedCount: applications.length
+    };
+    
+    const response = await api.post<BackendAdmissionResponse[]>('/api/admissions/bulk', request);
+    console.log('Bulk submission response:', response);
+    
+    if (Array.isArray(response)) {
+      return response.map(transformResponseToApplication);
+    }
+    return [];
+  },
+  
+  // Upload a CSV file with admission applications
+  uploadCsv: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const response = await api.post<BackendAdmissionResponse[]>('/api/admissions/upload-csv', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      console.log('CSV upload response:', response);
+      
+      if (Array.isArray(response)) {
+        return response.map(transformResponseToApplication);
+      }
+      return [];
+    } catch (error) {
+      console.error('Error uploading CSV:', error);
+      throw error;
+    }
+  },
+  
+  // Download CSV template for bulk admission upload
+  downloadCsvTemplate: async () => {
+    try {
+      const response = await api.get('/api/admissions/download-template', {
+        responseType: 'blob'
+      });
+      
+      // Create a download link for the CSV template
+      // Type assertion needed for response
+      const blob = new Blob([response as BlobPart]);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'admission_template.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      return true;
+    } catch (error) {
+      console.error('Error downloading CSV template:', error);
+      throw error;
+    }
+  },
 };
 
 // Transformer function that maps backend response to frontend model

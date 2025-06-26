@@ -5,8 +5,10 @@ import com.school.admission.model.Admission.AdmissionStatus;
 import com.school.admission.repository.AdmissionRepository;
 import com.school.admission.dto.AdmissionRequest;
 import com.school.admission.dto.AdmissionResponse;
+import com.school.admission.dto.BulkAdmissionRequest;
 import com.school.admission.exception.AdmissionNotFoundException;
 import com.school.admission.exception.InvalidAdmissionStateException;
+import com.school.admission.util.AdmissionCsvParser;
 import com.school.student.model.Student;
 import com.school.student.model.StudentStatus;
 import com.school.student.model.Gender;
@@ -14,15 +16,23 @@ import com.school.student.service.StudentService;
 import com.school.security.UserRole;
 import com.school.security.AuthService;
 import com.school.security.dto.RegisterRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class AdmissionService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdmissionService.class);
 
     @Autowired
     private AdmissionRepository admissionRepository;
@@ -32,6 +42,9 @@ public class AdmissionService {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private AdmissionCsvParser admissionCsvParser;
 
     public AdmissionResponse submitApplication(AdmissionRequest request) {
         // Check if applicant already has a pending application
@@ -319,6 +332,96 @@ public class AdmissionService {
                 return "Student has been enrolled successfully";
             default:
                 return "Application status updated";
+        }
+    }
+
+    /**
+     * Submit multiple admission applications in bulk
+     *
+     * @param request BulkAdmissionRequest containing list of admission requests
+     * @return List of AdmissionResponse for each submitted application
+     */
+    @Transactional
+    public List<AdmissionResponse> submitBulkApplications(BulkAdmissionRequest request) {
+        logger.info("Processing bulk admission request with {} applications", request.getExpectedCount());
+        List<AdmissionResponse> responses = new ArrayList<>();
+        int successCount = 0;
+        int errorCount = 0;
+        
+        // Process each application
+        for (AdmissionRequest admissionRequest : request.getAdmissions()) {
+            try {
+                logger.debug("Processing application for: {}", admissionRequest.getApplicantName());
+                AdmissionResponse response = submitApplication(admissionRequest);
+                responses.add(response);
+                successCount++;
+            } catch (Exception e) {
+                // Log the error but continue processing
+                logger.error("Error processing application for {}: {}", 
+                    admissionRequest.getApplicantName(), e.getMessage(), e);
+                errorCount++;
+                
+                // Create error response using builder pattern
+                AdmissionResponse errorResponse = AdmissionResponse.builder()
+                    .applicantName(admissionRequest.getApplicantName())
+                    .email(admissionRequest.getEmail())
+                    .message("Error: " + e.getMessage())
+                    .status(AdmissionStatus.PENDING) // Default status for errors
+                    .applicationDate(LocalDate.now())
+                    .gradeApplying(admissionRequest.getGradeApplying())
+                    .build();
+                responses.add(errorResponse);
+            }
+        }
+        
+        logger.info("Bulk admission processing completed. Success: {}, Failed: {}", successCount, errorCount);
+        return responses;
+    }
+    
+    /**
+     * Process a CSV file containing admission applications
+     *
+     * @param file CSV file with admission data
+     * @return List of AdmissionResponse for each processed application
+     * @throws IOException if there is an error reading or processing the file
+     */
+    @Transactional
+    public List<AdmissionResponse> processAdmissionsCsv(MultipartFile file) throws IOException {
+        logger.info("Processing CSV file for bulk admission: {}, size: {} bytes", 
+            file.getOriginalFilename(), file.getSize());
+        
+        try {
+            // Parse CSV data into AdmissionRequest objects
+            List<AdmissionRequest> admissionRequests = admissionCsvParser.parseAdmissionsFromFile(file);
+            logger.info("Successfully parsed {} admission requests from CSV", admissionRequests.size());
+            
+            // Create a BulkAdmissionRequest and process it
+            BulkAdmissionRequest bulkRequest = new BulkAdmissionRequest();
+            bulkRequest.setAdmissions(admissionRequests);
+            bulkRequest.setExpectedCount(admissionRequests.size());
+            
+            return submitBulkApplications(bulkRequest);
+        } catch (IOException e) {
+            logger.error("Error processing CSV file: {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+    
+    /**
+     * Generate a CSV template for bulk admission upload
+     * 
+     * @return byte array containing the CSV template
+     * @throws IOException if error generating template
+     */
+    public byte[] generateCsvTemplate() throws IOException {
+        logger.info("Generating CSV template for admission applications");
+        try {
+            byte[] template = admissionCsvParser.generateCsvTemplate();
+            logger.info("Successfully generated CSV template with {} bytes", template.length);
+            return template;
+        } catch (IOException e) {
+            logger.error("Error generating CSV template: {}", e.getMessage(), e);
+            throw e;
         }
     }
 }
