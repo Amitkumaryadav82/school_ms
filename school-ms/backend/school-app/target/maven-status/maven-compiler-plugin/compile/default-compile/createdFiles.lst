@@ -44,6 +44,7 @@ com\school\student\controller\StudentController.class
 com\school\fee\model\Fee$FeeType.class
 com\school\attendance\dto\AttendanceAlert$AttendanceAlertBuilder.class
 com\school\exam\repository\ExamRepository.class
+com\school\core\dto\TeacherDetailsDTO.class
 com\school\attendance\dto\StudentAttendanceSummaryDTO.class
 com\school\monitoring\ControllerMonitoringAspect.class
 com\school\hrm\entity\StaffDesignationMapping.class
@@ -230,6 +231,7 @@ com\school\hrm\dto\StaffDTO$StaffDTOBuilder.class
 com\school\student\dto\StudentDTO$StudentDTOBuilder.class
 com\school\library\repository\BookIssueRepositoryImpl.class
 com\school\fee\model\FeeStructure$FeeStructureBuilder.class
+com\school\core\dto\TeacherDetailsDTO$TeacherDetailsDTOBuilder.class
 com\school\communication\service\NotificationServiceImpl$1.class
 com\school\exam\controller\BlueprintController.class
 com\school\exam\dto\DetailedExamSummary$QuestionPerformance$QuestionPerformanceBuilder.class
@@ -323,6 +325,7 @@ com\school\fee\dto\FeePaymentScheduleRequest.class
 com\school\hrm\repository\TeacherRepository.class
 com\school\common\util\DateConverter.class
 com\school\attendance\dto\AttendanceAlert.class
+com\school\config\JacksonConfig.class
 com\school\attendance\dto\ClassAttendanceRequest.class
 com\school\exam\model\ExamBlueprint.class
 com\school\fee\controller\TransportRouteController.class
@@ -375,6 +378,7 @@ com\school\exam\controller\QuestionPaperController.class
 com\school\staff\service\StaffServiceAdapter.class
 com\school\config\CorsFilterConfig.class
 com\school\student\repository\StudentRepository.class
+com\school\security\AuthControllerConfig.class
 com\school\fee\dto\SemesterFeeReport$SemesterFeeReportBuilder.class
 com\school\fee\dto\ClassWiseCollection.class
 com\school\fee\dto\FeeRequest.class

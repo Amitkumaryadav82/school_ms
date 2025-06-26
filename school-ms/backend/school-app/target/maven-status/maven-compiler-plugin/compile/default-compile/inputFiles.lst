@@ -60,6 +60,7 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\MessagePriority.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\model\BookIssue.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\model\Course.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\dto\TeacherDetailsDTO.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\service\AdmissionService.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\service\StudentService.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionController.java
@@ -179,6 +180,7 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\controller\BookController.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\StudentAttendanceSummaryDTO.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\StudentFeeAssignmentRepository.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\JacksonConfig.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\ExamSummary.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\FeePayment.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ChapterDistributionRepository.java
@@ -261,6 +263,7 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\AuditConfig.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\model\ConsolidatedCourse.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\QuestionPaperController.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthControllerConfig.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamResultRepository.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\PaymentRepository.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\ApplicationConfig.java

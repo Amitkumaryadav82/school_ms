@@ -63,11 +63,31 @@ public class StaffController {
     })
     public ResponseEntity<List<StaffDTO>> getAllStaff() {
         logger.info("Retrieving all staff members");
-        List<Staff> staffList = staffService.getAllStaff();
-        List<StaffDTO> dtoList = staffList.stream()
-            .map(StaffDTO::fromEntity)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok(dtoList);
+        try {
+            List<Staff> staffList = staffService.getAllStaff();
+            List<StaffDTO> dtoList = staffList.stream()
+                .map(staff -> {
+                    try {
+                        return StaffDTO.fromEntity(staff);
+                    } catch (Exception e) {
+                        logger.error("Error converting staff to DTO: {}", e.getMessage(), e);
+                        // Return a minimal DTO with just the ID to prevent the whole list from failing
+                        return StaffDTO.builder()
+                            .id(staff.getId())
+                            .staffId(staff.getStaffId() != null ? staff.getStaffId() : "unknown")
+                            .firstName(staff.getFirstName() != null ? staff.getFirstName() : "Error")
+                            .lastName(staff.getLastName() != null ? staff.getLastName() : "Processing")
+                            .build();
+                    }
+                })
+                .collect(Collectors.toList());
+            
+            logger.debug("Successfully converted {} staff members to DTOs", dtoList.size());
+            return ResponseEntity.ok(dtoList);
+        } catch (Exception e) {
+            logger.error("Error retrieving all staff: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of());
+        }
     }    @GetMapping("/{id}")
     @Operation(summary = "Get staff by ID", description = "Retrieves a staff member by their ID")
     @ApiResponses({

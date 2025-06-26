@@ -286,19 +286,49 @@ export const staffService = {
   // Get all staff members
   getAll: async () => {
     try {
+      console.log('Fetching staff from API...');
       const response = await api.get<StaffMember | StaffMember[]>('staff');
+      
+      console.log('Raw API response:', response);
       
       // Ensure we always return an array
       if (!response) {
-        console.log('Staff API returned null/undefined response');
+        console.warn('Staff API returned null/undefined response');
         return [];
       }
       
       if (Array.isArray(response)) {
-        return response;
+        console.log(`Staff API returned an array with ${response.length} items`);
+        
+        // Add validation to ensure data has required fields
+        const validStaff = response.map((staff, index) => {
+          // Ensure required fields have at least default values
+          const validatedStaff: StaffMember = {
+            ...staff,
+            firstName: staff.firstName || 'Unknown',
+            lastName: staff.lastName || 'Staff',
+            email: staff.email || `staff${index + 1}@example.com`,
+            // Ensure role is properly set
+            role: staff.role || 'Unknown'
+          };
+          return validatedStaff;
+        });
+        
+        return validStaff;
       } else {
         console.log('Staff API returned a single object instead of an array, converting to array');
-        return [response];
+        
+        // Validate the single staff object
+        const staff = response as StaffMember;
+        const validatedStaff: StaffMember = {
+          ...staff,
+          firstName: staff.firstName || 'Unknown',
+          lastName: staff.lastName || 'Staff',
+          email: staff.email || 'staff@example.com',
+          role: staff.role || 'Unknown'
+        };
+        
+        return [validatedStaff];
       }
     } catch (error) {
       console.error('Error fetching staff list:', error);

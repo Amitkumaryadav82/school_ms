@@ -8,10 +8,68 @@ export interface ApiTestEndpoint {
 export interface ApiTestResult {
   name: string;
   success: boolean;
-  status: string | number;
+  status?: string | number;
   data?: any;
   error?: string;
 }
+
+/**
+ * Debug utilities for troubleshooting data issues in the application
+ */
+export const inspectObject = (obj: any, label = 'Object Inspection'): void => {
+  console.group(label);
+  
+  if (obj === null) {
+    console.log('Object is null');
+    console.groupEnd();
+    return;
+  }
+  
+  if (obj === undefined) {
+    console.log('Object is undefined');
+    console.groupEnd();
+    return;
+  }
+  
+  // Log type information
+  console.log('Type:', typeof obj);
+  console.log('Is Array:', Array.isArray(obj));
+  
+  // Log properties
+  if (typeof obj === 'object') {
+    console.log('Keys:', Object.keys(obj));
+    console.log('Has prototype:', Object.getPrototypeOf(obj) !== null);
+    
+    // If it's an array, log length and first few items
+    if (Array.isArray(obj)) {
+      console.log('Array length:', obj.length);
+      console.log('First 3 items:', obj.slice(0, 3));
+      
+      // If array has items, inspect first item
+      if (obj.length > 0) {
+        console.log('First item type:', typeof obj[0]);
+        console.log('First item keys:', typeof obj[0] === 'object' ? Object.keys(obj[0]) : 'Not an object');
+      }
+    } else {
+      // Regular object
+      const sampleProps: Record<string, any> = {};
+      Object.keys(obj).forEach(key => {
+        const value = obj[key];
+        sampleProps[key] = {
+          type: typeof value,
+          isNull: value === null,
+          isUndefined: value === undefined,
+          isArray: Array.isArray(value),
+          sample: typeof value === 'object' ? (Array.isArray(value) ? `Array[${value.length}]` : 'Object') : value
+        };
+      });
+      
+      console.log('Properties:', sampleProps);
+    }
+  }
+  
+  console.groupEnd();
+};
 
 /**
  * Utility for testing API endpoints to diagnose connectivity issues

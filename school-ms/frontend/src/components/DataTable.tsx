@@ -178,12 +178,22 @@ function DataTable<T extends { [key: string]: any }>({
                   <CircularProgress />
                 </TableCell>
               </TableRow>
-            ) : paginatedData.length === 0 ? (
+            ) : !sortedData || sortedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length} align="center" sx={{ py: 4 }}>
                   <Typography variant="body1" color="text.secondary">
-                    No data found
+                    No data available
                   </Typography>
+                  {onRefresh && (
+                    <Box mt={2}>
+                      <Typography variant="body2" color="text.secondary" mb={1}>
+                        Click refresh to try loading data again
+                      </Typography>
+                      <IconButton onClick={onRefresh}>
+                        <RefreshIcon />
+                      </IconButton>
+                    </Box>
+                  )}
                 </TableCell>
               </TableRow>
             ) : (

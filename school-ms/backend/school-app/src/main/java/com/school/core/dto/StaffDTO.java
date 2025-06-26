@@ -4,6 +4,7 @@ import com.school.core.model.EmploymentStatus;
 import com.school.core.model.Staff;
 import com.school.core.model.StaffRole;
 import com.school.core.model.TeacherDetails;
+import com.school.core.dto.TeacherDetailsDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -61,8 +62,8 @@ public class StaffDTO {
     private Double hra;
     private Double da;
     
-    // Teacher-specific details
-    private TeacherDetails teacherDetails;
+    // Teacher-specific details - now using DTO to avoid circular reference
+    private TeacherDetailsDTO teacherDetails;
     
     // Active status
     private Boolean isActive;
@@ -115,7 +116,7 @@ public class StaffDTO {
             .basicSalary(staff.getBasicSalary())
             .hra(staff.getHra())
             .da(staff.getDa())
-            .teacherDetails(staff.getTeacherDetails())
+            .teacherDetails(TeacherDetailsDTO.fromEntity(staff.getTeacherDetails()))
             .isActive(staff.getIsActive())
             .build();
     }

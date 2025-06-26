@@ -373,23 +373,81 @@ apiClient.interceptors.response.use(
   }
 );
 
+/**
+ * Helper function to handle possible string responses from the API.
+ * This is needed because sometimes the backend returns a string when it should return JSON.
+ */
+function handlePossibleStringResponse<T>(res: any, endpoint: string): T {
+  if (typeof res.data === 'string' && 
+      (res.data.trim().startsWith('[') || res.data.trim().startsWith('{'))) {
+    try {
+      console.log(`Got string response from ${endpoint}, parsing as JSON`);
+      return JSON.parse(res.data) as T;
+    } catch (parseError) {
+      console.error(`Failed to parse string response from ${endpoint} as JSON:`, parseError);
+      return res.data as unknown as T;
+    }
+  }
+  
+  return res.data as T;
+}
+
 // Simplified API wrapper with consistent endpoint handling
 export const api = {
-  get: <T>(endpoint: string, params?: any) => 
-    apiClient.get<T>(ensureEndpoint(endpoint), { params }).then(res => res.data),
-  
-  post: <T>(endpoint: string, data?: any, config?: any) => 
-    config ? apiClient.post<T>(ensureEndpoint(endpoint), data, config).then(res => res.data)
-          : apiClient.post<T>(ensureEndpoint(endpoint), data).then(res => res.data),
-  
-  put: <T>(endpoint: string, data?: any) => 
-    apiClient.put<T>(ensureEndpoint(endpoint), data).then(res => res.data),
-  
-  delete: <T>(endpoint: string) => 
-    apiClient.delete<T>(ensureEndpoint(endpoint)).then(res => res.data),
+  get: <T>(endpoint: string, params?: any) => {
+    const fullEndpoint = ensureEndpoint(endpoint);
     
-  patch: <T>(endpoint: string, data?: any) => 
-    apiClient.patch<T>(ensureEndpoint(endpoint), data).then(res => res.data),
+    // Add special handling for all endpoints to handle potential string responses
+    return apiClient.get<any>(fullEndpoint, { params })
+      .then(res => {
+        // Log debug information for staff endpoints
+        if (endpoint === 'staff' || endpoint.startsWith('staff/')) {
+          console.log(`API Response from ${fullEndpoint}:`, {
+            status: res.status,
+            headers: res.headers,
+            data: res.data,
+            dataType: res.data ? typeof res.data : 'undefined'
+          });
+        }
+        
+        return handlePossibleStringResponse<T>(res, fullEndpoint);
+      })
+      .catch(error => {
+        console.error(`API Error from ${fullEndpoint}:`, {
+          message: error.message,
+          response: error.response,
+          statusText: error.response?.statusText,
+          data: error.response?.data
+        });
+        throw error;
+      });
+  },
+  
+  post: <T>(endpoint: string, data?: any, config?: any) => {
+    const fullEndpoint = ensureEndpoint(endpoint);
+    return (config ? 
+      apiClient.post<any>(fullEndpoint, data, config) : 
+      apiClient.post<any>(fullEndpoint, data)
+    ).then(res => handlePossibleStringResponse<T>(res, fullEndpoint));
+  },
+  
+  put: <T>(endpoint: string, data?: any) => {
+    const fullEndpoint = ensureEndpoint(endpoint);
+    return apiClient.put<any>(fullEndpoint, data)
+      .then(res => handlePossibleStringResponse<T>(res, fullEndpoint));
+  },
+  
+  delete: <T>(endpoint: string) => {
+    const fullEndpoint = ensureEndpoint(endpoint);
+    return apiClient.delete<any>(fullEndpoint)
+      .then(res => handlePossibleStringResponse<T>(res, fullEndpoint));
+  },
+    
+  patch: <T>(endpoint: string, data?: any) => {
+    const fullEndpoint = ensureEndpoint(endpoint);
+    return apiClient.patch<any>(fullEndpoint, data)
+      .then(res => handlePossibleStringResponse<T>(res, fullEndpoint));
+  },
     
   // Special method for auth requests that bypasses cache
   authRequest: <T>(endpoint: string, data?: any) => 

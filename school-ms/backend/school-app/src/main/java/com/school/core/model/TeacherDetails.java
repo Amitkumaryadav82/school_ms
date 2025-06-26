@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 /**
  * Consolidated TeacherDetails entity that combines all fields from both:
@@ -20,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"staff"}) // Prevent circular reference during serialization
 public class TeacherDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,6 +56,7 @@ public class TeacherDetails {
     private LocalDateTime updatedAt;
 
     @OneToOne(mappedBy = "teacherDetails")
+    @JsonBackReference
     private Staff staff;
     
     public Long getId() {

@@ -42,6 +42,7 @@ import { hasStaffStatusUpdatePermission, parseJwt } from '../services/authServic
 import { EmploymentStatus, StaffMember, staffService } from '../services/staffService';
 import { hasPermission } from '../utils/permissions';
 import { formatRole, getAvatarColor } from './StaffHelper';
+import { inspectObject, debugStaffResponse, createTestStaffMember } from '../utils/staffDebug';
 
 /**
  * IMPORTANT DEVELOPER NOTE:
@@ -927,29 +928,110 @@ const Staff: React.FC = () => {
     }
   ];
 
-  // Debug method to log staff data
+  // Enhanced debug method with structured logging
   useEffect(() => {
     if (staffList) {
       console.log('=== Staff Data Debug ===');
-      console.log('Raw staffList:', staffList);
+      debugStaffResponse(staffList);
       
-      if (Array.isArray(staffList)) {
-        console.log(`Received ${staffList.length} staff members`);
+      // Check if the data has all the necessary fields and structure
+      if (Array.isArray(staffList) && staffList.length > 0) {
+        const firstStaff = staffList[0];
+        console.log('Detailed staff inspection:');
+        inspectObject(firstStaff, 'First Staff Member');
         
-        if (staffList.length > 0) {
-          const firstStaff = staffList[0];
-          console.log('First staff member:', firstStaff);
-          console.log('Role data:', {
-            roleType: typeof firstStaff.role,
-            roleValue: firstStaff.role,
-            objectKeys: firstStaff.role && typeof firstStaff.role === 'object' ? Object.keys(firstStaff.role) : 'N/A'
-          });
+        // Check critical fields
+        const criticalFields = ['firstName', 'lastName', 'role', 'staffId', 'email'];
+        const missingFields = criticalFields.filter(field => !firstStaff[field]);
+        
+        if (missingFields.length > 0) {
+          console.warn('Missing critical fields:', missingFields);
         }
-      } else {
-        console.log('staffList is not an array!', typeof staffList);
+      } else if (Array.isArray(staffList) && staffList.length === 0) {
+        console.warn('Staff list is empty. Adding test staff member for debugging:');
+        const testStaff = createTestStaffMember();
+        console.log(testStaff);
       }
+    } else {
+      console.warn('staffList is null or undefined');
     }
   }, [staffList]);
+
+  // Enhanced error handling
+  useEffect(() => {
+    if (error) {
+      console.error('Error in Staff component:', error);
+      showNotification({
+        type: 'error',
+        message: `Failed to load staff data: ${error}`,
+      });
+    }
+  }, [error, showNotification]);
+
+  // Add fallback data if staffList is empty but we have a count showing total of 1
+  useEffect(() => {
+    if (staffList && Array.isArray(staffList) && staffList.length === 0) {
+      console.log('staffList is empty array, adding fallback data');
+      // Create a fallback staff member to ensure UI works
+      const fallbackStaff: StaffMember = {
+        id: 0,
+        firstName: 'Default',
+        lastName: 'Staff',
+        email: 'default@example.com',
+        role: 'Unknown',
+        isActive: true,
+        staffId: 'STAFF-0001',
+        department: 'Administration'
+      };
+      
+      // This is just for debugging purposes - it won't actually modify the state
+      console.log('Would display fallback staff:', [fallbackStaff]);
+    }
+  }, [staffList]);
+
+  // Direct test function for API troubleshooting
+  const testStaffApi = async () => {
+    try {
+      console.group('Staff API Direct Test');
+      console.log('Making direct fetch request to /api/staff...');
+      
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const token = localStorage.getItem('token');
+      
+      console.log('Using API URL:', apiUrl);
+      console.log('Token available:', !!token);
+      
+      const response = await fetch(`${apiUrl}/api/staff`, {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      const responseData = await response.json();
+      console.log('Response data:', responseData);
+      
+      // Use our debug utility
+      debugStaffResponse(responseData);
+      
+      if (Array.isArray(responseData) && responseData.length > 0) {
+        console.log('✅ API returned data successfully!');
+      } else if (Array.isArray(responseData) && responseData.length === 0) {
+        console.warn('⚠️ API returned an empty array');
+      } else {
+        console.error('❌ API did not return an array');
+      }
+      
+      console.groupEnd();
+    } catch (error) {
+      console.error('Error testing staff API:', error);
+    }
+  };
 
   if (loading && !staffList) {
     return <Loading />;
@@ -1072,6 +1154,24 @@ const Staff: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Add Debug Test Button (only in development) */}
+      {import.meta.env.DEV && (
+        <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
+          <Button 
+            variant="outlined" 
+            color="warning" 
+            size="small"
+            onClick={testStaffApi}
+            sx={{ 
+              borderStyle: 'dashed',
+              fontSize: '0.75rem'
+            }}
+          >
+            Debug: Test Staff API Directly
+          </Button>
+        </Box>
+      )}
 
       <AuthDebugger />
     </Box>

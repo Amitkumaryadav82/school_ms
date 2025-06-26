@@ -16,6 +16,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -271,7 +272,10 @@ public class Staff {    @Id
     private Double hra;
 
     @Column(name = "da")
-    private Double da;    @OneToOne(cascade = CascadeType.ALL)
+    private Double da;
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonManagedReference
     private TeacherDetails teacherDetails;
     
     public TeacherDetails getTeacherDetails() {
