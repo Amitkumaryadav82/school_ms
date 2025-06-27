@@ -23,7 +23,13 @@ import {
   Tooltip,
   Divider,
   Alert,
-  FormHelperText
+  FormHelperText,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -271,13 +277,21 @@ const HolidayManagement: React.FC = () => {
         <Typography variant="h6" component="h2">
           School Holidays Management
         </Typography>
-        <Box>
-          <FormControl sx={{ width: 120, mr: 2 }}>
-            <InputLabel>Year</InputLabel>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <FormControl 
+            sx={{ 
+              width: '150px',  // Set a specific width to match the button
+              mr: 2 
+            }} 
+            size="medium"
+          >
+            <InputLabel id="year-select-label">Year</InputLabel>
             <Select
+              labelId="year-select-label"
               value={selectedYear}
               label="Year"
               onChange={(e) => setSelectedYear(Number(e.target.value))}
+              sx={{ height: '40px' }}  // Set a specific height to match the button
             >
               {[...Array(5)].map((_, i) => {
                 const year = new Date().getFullYear() - 2 + i;
@@ -293,85 +307,76 @@ const HolidayManagement: React.FC = () => {
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpenAddDialog}
+            size="medium"
+            sx={{ height: '40px' }}  // Match the height with the Year dropdown
           >
             Add Holiday
           </Button>
-          <Button
-            variant="outlined"
-            sx={{ ml: 1 }}
-            onClick={handleAddDefaultHolidays}
-          >
-            Add Default Holidays
-          </Button>
         </Box>
-      </Box>      {holidays && (holidays as any).holidays ? (
-        Object.keys((holidays as any).holidays).map((month) => {
-          const monthHolidays = (holidays as any).holidays[month];
-          
-          if (monthHolidays.length === 0) return null;
-          
-          return (
-            <Box key={month} sx={{ mb: 4 }}>
-              <Typography variant="h6" gutterBottom>{month}</Typography>
-              <Divider sx={{ mb: 2 }} />
-              
-              <Grid container spacing={2}>
-                {monthHolidays.map((holiday: any) => (
-                  <Grid item xs={12} sm={6} md={4} key={holiday.id}>
-                    <Card>
-                      <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                          <EventIcon color="primary" sx={{ mr: 1 }} />
-                          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                            {holiday.name}
-                          </Typography>
-                        </Box>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                          {new Date(holiday.date).toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </Typography>
-                        <Chip 
-                          label={holiday.type.replace('_', ' ')} 
-                          size="small"
-                          color={getHolidayTypeColor(holiday.type) as any}
-                          sx={{ mb: 1 }}
-                        />
-                        {holiday.description && (
-                          <Typography variant="body2" sx={{ mt: 1 }}>
-                            {holiday.description}
-                          </Typography>
-                        )}
-                      </CardContent>
-                      <CardActions>
-                        <Tooltip title="Edit">
-                          <IconButton 
-                            size="small" 
-                            onClick={() => handleOpenEditDialog(holiday)}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete">
-                          <IconButton 
-                            size="small" 
-                            color="error"
-                            onClick={() => handleOpenDeleteDialog(holiday)}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </CardActions>
-                    </Card>
-                  </Grid>
+      </Box>
+      
+      {holidays && (holidays as any).allHolidays ? (
+        <Box sx={{ mt: 3 }}>
+          <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+            <Table stickyHeader aria-label="holidays table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Holiday Name</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell align="center">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(holidays as any).allHolidays.map((holiday: any) => (
+                  <TableRow hover key={holiday.id}>
+                    <TableCell>
+                      {new Date(holiday.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <EventIcon color="primary" sx={{ mr: 1 }} />
+                        <Typography variant="body1">{holiday.name}</Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={holiday.type.replace('_', ' ')} 
+                        size="small"
+                        color={getHolidayTypeColor(holiday.type) as any}
+                      />
+                    </TableCell>
+                    <TableCell>{holiday.description || '-'}</TableCell>
+                    <TableCell align="center">
+                      <Tooltip title="Edit">
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleOpenEditDialog(holiday)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton 
+                          size="small" 
+                          color="error"
+                          onClick={() => handleOpenDeleteDialog(holiday)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </Grid>
-            </Box>
-          );
-        })
+              </TableBody>
+            </Table>
+          </Paper>
+        </Box>
       ) : (
         <Alert severity="info">No holidays found for {selectedYear}.</Alert>
       )}

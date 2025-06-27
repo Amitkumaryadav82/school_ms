@@ -11,8 +11,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/hrm/holidays")
@@ -73,9 +79,24 @@ public class HolidayController {
     }
 
     @GetMapping("/calendar/{year}")
-    public ResponseEntity<List<HolidayDTO>> getHolidaysByYear(@PathVariable int year) {
+    public ResponseEntity<Map<String, Object>> getHolidaysByYear(@PathVariable int year) {
         List<HolidayDTO> holidays = holidayService.getHolidaysByYear(year);
-        return ResponseEntity.ok(holidays);
+
+        // Sort holidays by date (month and day)
+        holidays.sort(Comparator.comparing(HolidayDTO::getDate));
+
+        // Group holidays by month
+        Map<String, List<HolidayDTO>> holidaysByMonth = holidays.stream()
+                .collect(Collectors.groupingBy(holiday -> {
+                    Month month = holiday.getDate().getMonth();
+                    return month.getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                }));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("holidays", holidaysByMonth);
+        response.put("allHolidays", holidays); // Add sorted flat list for tabular view
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/check")
