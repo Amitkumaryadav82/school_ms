@@ -21,7 +21,7 @@ import {
 import React, { useState } from 'react';
 import { useNotification } from '../../context/NotificationContext';
 import { useApi, useApiMutation } from '../../hooks/useApi';
-import { employeeAttendanceService, EmployeeAttendanceDTO, EmployeeAttendanceStatus } from '../../services/employeeAttendanceService';
+import { EmployeeAttendanceDTO, employeeAttendanceService, EmployeeAttendanceStatus } from '../../services/employeeAttendanceService';
 import { staffService } from '../../services/staffService';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
@@ -52,8 +52,13 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
 
   // Fetch attendance data
   const { data: attendanceData, error: attendanceError, loading: attendanceLoading, refetch: refetchAttendance } = useApi(() => {
+    console.log(`Fetching attendance data for date: ${date}, staffType: ${staffType}`);
     return employeeAttendanceService.getAttendanceByDate(date, staffType);
-  }, { dependencies: [date, staffType] });
+  }, { 
+    dependencies: [date, staffType],
+    // Ensure we get fresh data each time
+    cacheTime: 0
+  });
   
   // Holiday check
   const { data: holidayCheck } = useApi(() => {
@@ -156,16 +161,27 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
     if (!attendanceRecord) return;
     
     try {
+      let response;
+      console.log('Saving attendance with data:', attendanceRecord);
+      
       if (attendanceRecord.id) {
-        await updateAttendance({ id: attendanceRecord.id, data: attendanceRecord });
+        console.log(`Updating attendance record ${attendanceRecord.id}`);
+        response = await updateAttendance({ id: attendanceRecord.id, data: attendanceRecord });
       } else {
-        await markAttendance(attendanceRecord);
+        console.log('Creating new attendance record');
+        response = await markAttendance(attendanceRecord);
       }
+      
+      console.log('Save attendance response:', response);
+      
+      // Force refetch to update the UI with latest data
+      await refetchAttendance();
       
       // Exit edit mode
       toggleEditMode(memberId);
     } catch (error) {
       console.error('Error saving attendance:', error);
+      showNotification(`Error saving attendance: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
     }
   };
 

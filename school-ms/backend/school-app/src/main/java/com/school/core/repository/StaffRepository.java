@@ -19,6 +19,15 @@ import com.school.core.model.StaffRole;
  */
 @Repository
 public interface StaffRepository extends JpaRepository<Staff, Long> {
+    
+    /**
+     * Find staff by ID with eager loading of StaffRole
+     * 
+     * @param id The staff ID
+     * @return Optional containing the staff with eagerly loaded StaffRole if found
+     */
+    @Query("SELECT s FROM CoreStaff s LEFT JOIN FETCH s.staffRole WHERE s.id = ?1")
+    Optional<Staff> findByIdWithRole(Long id);
 
     /**
      * Find staff member by staffId

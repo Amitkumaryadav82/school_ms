@@ -1,67 +1,64 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  Card,
-  CardContent,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Tabs,
-  Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip
+    AssessmentOutlined,
+    CalendarToday,
+    GetApp,
+    PeopleOutline,
+    Person,
+    Print
+} from '@mui/icons-material';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Chip,
+    Divider,
+    FormControl,
+    Grid,
+    InputLabel,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    MenuItem,
+    Paper,
+    Select,
+    Tab,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Tabs,
+    Typography
 } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
+import React, { useState } from 'react';
 import {
-  PieChart,
-  Pie,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartsTooltip,
-  Legend,
-  Cell,
-  ResponsiveContainer,
-  LineChart,
-  Line
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    Tooltip as RechartsTooltip,
+    ResponsiveContainer,
+    XAxis,
+    YAxis
 } from 'recharts';
-import {
-  AssessmentOutlined,
-  CalendarToday,
-  Person,
-  School,
-  PeopleOutline,
-  PlaylistAddCheck,
-  GetApp,
-  Print
-} from '@mui/icons-material';
+import { useNotification } from '../../context/NotificationContext';
 import { useApi } from '../../hooks/useApi';
 import { employeeAttendanceService } from '../../services/employeeAttendanceService';
-import { staffService, StaffMember } from '../../services/staffService';
-import { useNotification } from '../../context/NotificationContext';
-import Loading from '../Loading';
+import { staffService } from '../../services/staffService';
 import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 
 interface TabPanelProps {
   children?: React.ReactNode;

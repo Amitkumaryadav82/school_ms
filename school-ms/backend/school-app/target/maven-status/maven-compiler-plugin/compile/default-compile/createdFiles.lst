@@ -362,6 +362,7 @@ com\school\notification\service\NotificationService.class
 com\school\attendance\dto\MonthlyAttendanceReport.class
 com\school\communication\model\Message$MessageBuilder.class
 com\school\course\controller\ConsolidatedCourseController.class
+com\school\attendance\service\impl\EmployeeAttendanceServiceImpl$1.class
 com\school\fee\model\FeePayment.class
 com\school\student\exception\StudentNotFoundException.class
 com\school\hrm\repository\StaffRepository.class

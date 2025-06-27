@@ -1,39 +1,33 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Chip,
-  IconButton,
-  Tooltip,
-  Grid,
-  Card,
-  CardContent
-} from '@mui/material';
-import {
-  GetApp as DownloadIcon,
-  Print as PrintIcon,
-  FilterList as FilterIcon,
-  PieChart as ChartIcon
+    GetApp as DownloadIcon,
+    Print as PrintIcon
 } from '@mui/icons-material';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    FormControl,
+    Grid,
+    MenuItem,
+    Paper,
+    Select,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Typography
+} from '@mui/material';
 import dayjs from 'dayjs';
+import React, { useState } from 'react';
+import { Bar, BarChart, CartesianGrid, Legend, Tooltip as RechartsTooltip, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { useNotification } from '../../context/NotificationContext';
 import { useApi } from '../../hooks/useApi';
 import { employeeAttendanceService } from '../../services/employeeAttendanceService';
-import { useNotification } from '../../context/NotificationContext';
-import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 
 interface AttendanceMonthlyViewProps {
   year: number;

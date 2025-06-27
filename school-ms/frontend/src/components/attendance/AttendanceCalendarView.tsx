@@ -1,44 +1,30 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  Card,
-  CardContent,
-  CardHeader,
-  Badge,
-  CircularProgress,
-  Chip,
-  IconButton,
-  Tooltip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField
+    Box,
+    Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    TextField,
+    Typography
 } from '@mui/material';
-import {
-  Event as EventIcon,
-  InfoOutlined,
-  Add,
-  Edit,
-  Close
-} from '@mui/icons-material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
-import { useApi, useApiMutation } from '../../hooks/useApi';
-import { employeeAttendanceService, EmployeeAttendanceDTO, EmployeeAttendanceStatus, HolidayDTO, HolidayType } from '../../services/employeeAttendanceService';
+import React, { useEffect, useState } from 'react';
 import { useNotification } from '../../context/NotificationContext';
-import Loading from '../Loading';
+import { useApi, useApiMutation } from '../../hooks/useApi';
+import { employeeAttendanceService, HolidayDTO, HolidayType } from '../../services/employeeAttendanceService';
 import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 
 interface CalendarDayInfo {
   date: string;

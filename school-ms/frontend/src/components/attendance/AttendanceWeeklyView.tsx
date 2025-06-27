@@ -1,33 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import { Cancel, CheckCircle, Edit, HighlightOff, RemoveCircle } from '@mui/icons-material';
 import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Select,
-  MenuItem,
-  TextField,
-  FormControl,
-  InputLabel,
-  Chip,
-  IconButton,
-  Tooltip,
-  CircularProgress,
-  Alert,
-  Grid
+    Box,
+    Chip,
+    IconButton,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Tooltip,
+    Typography
 } from '@mui/material';
-import { Edit, CheckCircle, HighlightOff, RemoveCircle, Cancel } from '@mui/icons-material';
 import dayjs from 'dayjs';
+import React from 'react';
 import { useApi } from '../../hooks/useApi';
-import { employeeAttendanceService, EmployeeAttendanceDTO, EmployeeAttendanceStatus } from '../../services/employeeAttendanceService';
+import { EmployeeAttendanceDTO, employeeAttendanceService, EmployeeAttendanceStatus } from '../../services/employeeAttendanceService';
 import { staffService } from '../../services/staffService';
-import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 
 interface AttendanceWeeklyViewProps {
   startDate: string;

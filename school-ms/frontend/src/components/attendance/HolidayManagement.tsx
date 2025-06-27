@@ -1,51 +1,45 @@
-import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Chip,
-  IconButton,
-  Tooltip,
-  Divider,
-  Alert,
-  FormHelperText,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Event as EventIcon
+    Add as AddIcon,
+    Delete as DeleteIcon,
+    Edit as EditIcon,
+    Event as EventIcon
 } from '@mui/icons-material';
+import {
+    Alert,
+    Box,
+    Button,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    FormControl,
+    FormHelperText,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TextField,
+    Tooltip,
+    Typography
+} from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import React, { useState } from 'react';
+import { useNotification } from '../../context/NotificationContext';
 import { useApi, useApiMutation } from '../../hooks/useApi';
 import { employeeAttendanceService, HolidayDTO, HolidayType } from '../../services/employeeAttendanceService';
-import { useNotification } from '../../context/NotificationContext';
-import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
+import Loading from '../Loading';
 
 const HolidayManagement: React.FC = () => {
   const { showNotification } = useNotification();

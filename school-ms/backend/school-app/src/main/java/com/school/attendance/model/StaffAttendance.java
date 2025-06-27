@@ -22,7 +22,7 @@ public class StaffAttendance extends Auditable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "staff_id", nullable = false)
+    @JoinColumn(name = "staff_id", nullable = false, referencedColumnName = "id")
     private Staff staff;
 
     @NotNull

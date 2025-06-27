@@ -58,128 +58,71 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
             }
         }
         
-        // Find the staff entity by employee ID with role eagerly loaded
-        Staff staff;
-        try {
-            // Use the new method that eagerly loads the StaffRole
-            staff = staffRepository.findByIdWithRole(attendanceDTO.getEmployeeId())
-                .orElseThrow(() -> new EntityNotFoundException("Staff not found with id: " + attendanceDTO.getEmployeeId()));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to find staff with ID: " + attendanceDTO.getEmployeeId() + 
-                ". Please ensure the staff exists in the school_staff table.", e);
+        // Find the staff entity by employee ID
+        Staff staff = staffRepository.findById(attendanceDTO.getEmployeeId())
+            .orElseThrow(() -> new EntityNotFoundException("Staff not found with id: " + attendanceDTO.getEmployeeId()));
+        
+        // Check if attendance record already exists for this staff and date
+        StaffAttendance existingAttendance = staffAttendanceRepository.findByStaffIdAndAttendanceDate(
+            attendanceDTO.getEmployeeId(), 
+            LocalDate.parse(attendanceDTO.getAttendanceDate())
+        );
+        
+        // If exists, update it instead
+        if (existingAttendance != null) {
+            return updateAttendance(existingAttendance.getId(), attendanceDTO);
         }
         
-        try {
-            // Debug logging
-            System.out.println("Attempting to mark attendance for staff ID: " + staff.getId() + 
-                " (" + staff.getFirstName() + " " + staff.getLastName() + ") on date: " + 
-                attendanceDTO.getAttendanceDate());
-            
-            // Explicitly check if attendance record already exists for this staff and date
-            StaffAttendance existingAttendance = staffAttendanceRepository.findByStaffIdAndAttendanceDate(
-                attendanceDTO.getEmployeeId(), 
-                attendanceDTO.getAttendanceDate()
-            );
-            
-            // If exists, update it instead of creating a new record
-            if (existingAttendance != null) {
-                System.out.println("Found existing attendance record with ID: " + existingAttendance.getId() + 
-                    " for staff ID: " + staff.getId() + " on date: " + attendanceDTO.getAttendanceDate() + 
-                    " - updating record");
-                
-                // Update existing record fields
-                existingAttendance.setStatus(convertEmployeeStatusToStaffStatus(attendanceDTO.getStatus()));
-                existingAttendance.setNote(attendanceDTO.getReason());
-                
-                // Save the updated entity
-                StaffAttendance savedAttendance = staffAttendanceRepository.save(existingAttendance);
-                
-                System.out.println("Successfully updated attendance record with ID: " + savedAttendance.getId());
-                
-                // Convert back to DTO and return
-                return convertToDTO(savedAttendance);
-            }
-            
-            System.out.println("No existing attendance record found - creating new record for staff ID: " + 
-                staff.getId() + " on date: " + attendanceDTO.getAttendanceDate());
-            
-            // If no record exists, create a new one
-            StaffAttendance staffAttendance = new StaffAttendance();
-            staffAttendance.setStaff(staff);
-            staffAttendance.setAttendanceDate(attendanceDTO.getAttendanceDate());
-            staffAttendance.setStatus(convertEmployeeStatusToStaffStatus(attendanceDTO.getStatus()));
-            staffAttendance.setNote(attendanceDTO.getReason());
-            
-            // Save to database
-            StaffAttendance savedAttendance = staffAttendanceRepository.save(staffAttendance);
-            
-            System.out.println("Successfully created new attendance record with ID: " + savedAttendance.getId());
-            
-            // Convert back to DTO and return
-            return convertToDTO(savedAttendance);
-        } catch (Exception e) {
-            // Log the error in detail
-            System.err.println("Error creating/updating attendance record: " + e.getMessage());
-            e.printStackTrace();
-            
-            if (e.getMessage() != null && e.getMessage().contains("staff_attendance_staff_id_fkey")) {
-                throw new RuntimeException("Foreign key constraint error: The staff ID " + attendanceDTO.getEmployeeId() + 
-                    " does not exist in the school_staff table. Please ensure you are using a valid staff ID.", e);
-            } else if (e.getMessage() != null && e.getMessage().contains("unique_staff_date")) {
-                throw new RuntimeException("Duplicate record: An attendance record already exists for staff ID " + 
-                    attendanceDTO.getEmployeeId() + " on date " + attendanceDTO.getAttendanceDate() + 
-                    ". Try updating the existing record instead.", e);
-            } else {
-                // Re-throw a more specific exception
-                throw new RuntimeException("The operation could not be completed due to a data constraint violation: " + 
-                    e.getMessage(), e);
-            }
-        }
+        // Convert DTO to entity
+        StaffAttendance staffAttendance = new StaffAttendance();
+        staffAttendance.setStaff(staff);
+        staffAttendance.setAttendanceDate(LocalDate.parse(attendanceDTO.getAttendanceDate()));
+        staffAttendance.setStatus(convertEmployeeStatusToStaffStatus(attendanceDTO.getStatus()));
+        staffAttendance.setNote(attendanceDTO.getReason());
+        
+        // Save to database
+        StaffAttendance savedAttendance = staffAttendanceRepository.save(staffAttendance);
+        
+        // Convert back to DTO and return
+        return convertToDTO(savedAttendance);
     }
 
     @Override
     @Transactional
     public List<EmployeeAttendanceDTO> createBulkAttendance(EmployeeBulkAttendanceRequest request) {
         List<EmployeeAttendanceDTO> createdAttendances = new ArrayList<>();
-        LocalDate attendanceDate = request.getAttendanceDate();
+        LocalDate attendanceDate = LocalDate.parse(request.getAttendanceDate());
         
         // Check if the date is a holiday
         boolean isDateHoliday = isHoliday(attendanceDate);
         
         // Process each employee attendance
         for (Map.Entry<Long, EmployeeAttendanceStatus> entry : request.getAttendanceMap().entrySet()) {
-            try {
-                Long employeeId = entry.getKey();
-                
-                // Find the staff entity with role eagerly loaded
-                Optional<Staff> staffOpt = staffRepository.findByIdWithRole(employeeId);
-                if (!staffOpt.isPresent()) {
-                    continue; // Skip if staff doesn't exist
-                }
-                Staff staff = staffOpt.get();
-                
-                // Create attendance DTO
-                EmployeeAttendanceDTO attendanceDTO = new EmployeeAttendanceDTO();
-                attendanceDTO.setEmployeeId(employeeId);
-                attendanceDTO.setAttendanceDate(attendanceDate);
-                
-                // If it's a holiday, override the status
-                if (isDateHoliday) {
-                    attendanceDTO.setStatus(EmployeeAttendanceStatus.HOLIDAY);
-                } else {
-                    attendanceDTO.setStatus(entry.getValue());
-                }
-                
-                attendanceDTO.setRemarks(request.getRemarks());
-                
-                // Use the updated createAttendance method for each entry
-                // This will handle duplicate checks and update vs. insert logic
-                createdAttendances.add(createAttendance(attendanceDTO));
-            } catch (Exception e) {
-                // Log the error but continue processing other entries
-                System.err.println("Error processing attendance for employee ID " + entry.getKey() + ": " + e.getMessage());
-                // We don't throw here to allow other records to be processed
+            Long employeeId = entry.getKey();
+            
+            // Find the staff entity
+            Optional<Staff> staffOpt = staffRepository.findById(employeeId);
+            if (!staffOpt.isPresent()) {
+                continue; // Skip if staff doesn't exist
             }
+            Staff staff = staffOpt.get();
+            
+            // Create attendance DTO
+            EmployeeAttendanceDTO attendanceDTO = new EmployeeAttendanceDTO();
+            attendanceDTO.setEmployeeId(employeeId);
+            attendanceDTO.setAttendanceDate(request.getAttendanceDate());
+            
+            // If it's a holiday, override the status
+            if (isDateHoliday) {
+                attendanceDTO.setStatus(EmployeeAttendanceStatus.HOLIDAY);
+            } else {
+                attendanceDTO.setStatus(entry.getValue());
+            }
+            
+            attendanceDTO.setRemarks(request.getRemarks());
+            
+            // Save attendance
+            createdAttendances.add(createAttendance(attendanceDTO));
         }
         
         return createdAttendances;
@@ -214,19 +157,8 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
             return true;
         }
         
-        // Add robust null checking
-        if (attendance == null || attendance.getStaff() == null) {
-            return false;
-        }
-        
-        String staffRole = null;
-        try {
-            if (attendance.getStaff().getStaffRole() != null) {
-                staffRole = attendance.getStaff().getStaffRole().getName();
-            }
-        } catch (Exception e) {
-            System.err.println("Error accessing staff role: " + e.getMessage());
-        }
+        String staffRole = attendance.getStaff().getStaffRole() != null ? 
+            attendance.getStaff().getStaffRole().getName() : null;
             
         if ("TEACHING".equalsIgnoreCase(employeeType)) {
             return staffRole != null && staffRole.toLowerCase().contains("teacher");
@@ -289,8 +221,8 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
     @Override
     @Transactional
     public EmployeeAttendanceDTO updateAttendance(Long id, EmployeeAttendanceDTO attendanceDTO) {
-        // Find the existing record with eager loading of staff
-        StaffAttendance staffAttendance = staffAttendanceRepository.findByIdWithStaff(id)
+        // Find the existing record
+        StaffAttendance staffAttendance = staffAttendanceRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Attendance record not found with id: " + id));
         
         // Update the entity
@@ -315,7 +247,7 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
         // Delete from database
         staffAttendanceRepository.deleteById(id);
     }
-
+    
     @Override
     public Map<String, Object> getMonthlyAttendanceReport(int year, int month, String employeeType) {
         // TODO: Implement report generation
@@ -336,7 +268,7 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
         Map<EmployeeAttendanceStatus, Long> stats = new HashMap<>();
         return stats;
     }
-
+    
     @Override
     public boolean isHoliday(LocalDate date) {
         Map<String, Boolean> holidayCheck = holidayService.checkIfHoliday(date);
@@ -367,31 +299,17 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
             dto.setPosition(staffAttendance.getStaff().getDesignation());
         }
         
-        // Set employee type based on role - with improved null checking
-        try {
-            String staffRole = null;
-            if (staffAttendance.getStaff() != null && 
-                staffAttendance.getStaff().getStaffRole() != null &&
-                staffAttendance.getStaff().getStaffRole().getName() != null) {
-                staffRole = staffAttendance.getStaff().getStaffRole().getName();
-                
-                if (staffRole.toLowerCase().contains("teacher")) {
-                    dto.setEmployeeType("TEACHING");
-                } else {
-                    dto.setEmployeeType("NON_TEACHING");
-                }
-            } else {
-                // Default if role is null
-                dto.setEmployeeType("NON_TEACHING");
-                System.out.println("Staff role was null for staff ID: " + staffAttendance.getStaff().getId());
-            }
-        } catch (Exception e) {
-            // Default to NON_TEACHING if there's any issue with role determination
+        // Set employee type based on role
+        String staffRole = staffAttendance.getStaff().getStaffRole() != null ? 
+            staffAttendance.getStaff().getStaffRole().getName() : null;
+            
+        if (staffRole != null && staffRole.toLowerCase().contains("teacher")) {
+            dto.setEmployeeType("TEACHING");
+        } else {
             dto.setEmployeeType("NON_TEACHING");
-            System.err.println("Error determining employee type: " + e.getMessage());
         }
         
-        dto.setAttendanceDate(staffAttendance.getAttendanceDate());
+        dto.setAttendanceDate(staffAttendance.getAttendanceDate().toString());
         dto.setStatus(convertStaffStatusToEmployeeStatus(staffAttendance.getStatus()));
         dto.setReason(staffAttendance.getNote());
         
@@ -400,9 +318,13 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
             dto.setMarkedBy(staffAttendance.getCreatedBy());
         }
         
-        // Set creation and update timestamps
-        dto.setCreatedAt(staffAttendance.getCreatedAt());
-        dto.setUpdatedAt(staffAttendance.getUpdatedAt());
+        if (staffAttendance.getCreatedDate() != null) {
+            dto.setCreatedAt(staffAttendance.getCreatedDate().toString());
+        }
+        
+        if (staffAttendance.getLastModifiedDate() != null) {
+            dto.setUpdatedAt(staffAttendance.getLastModifiedDate().toString());
+        }
         
         return dto;
     }
