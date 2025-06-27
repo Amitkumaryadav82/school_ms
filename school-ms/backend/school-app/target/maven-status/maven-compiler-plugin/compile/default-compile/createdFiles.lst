@@ -75,6 +75,7 @@ com\school\attendance\dto\StudentAttendanceSummaryDTO$StudentAttendanceSummaryDT
 com\school\fee\dto\LateFeeDTO$LateFeeDTOBuilder.class
 com\school\hrm\entity\Staff$StaffBuilder.class
 com\school\exam\controller\ExamBlueprintController.class
+com\school\hrm\util\HolidayThreadLocal.class
 com\school\admission\exception\InvalidAdmissionStateException.class
 com\school\exam\dto\ChapterWisePerformanceDTO$QuestionPerformance.class
 com\school\library\controller\BookIssueController.class
@@ -130,6 +131,7 @@ com\school\attendance\service\AttendanceService.class
 com\school\staff\controller\ConsolidatedStaffController.class
 com\school\communication\exception\MessageNotFoundException.class
 com\school\library\service\CourseServiceImpl.class
+com\school\hrm\controller\HolidayDebugController.class
 com\school\attendance\service\EmployeeAttendanceService.class
 com\school\exam\model\QuestionPaperStructure$QuestionPaperStructureBuilder.class
 com\school\staff\repository\ConsolidatedStaffRepository.class
@@ -196,6 +198,7 @@ com\school\admission\service\AdmissionService$1.class
 com\school\fee\controller\FeeReportController.class
 com\school\exam\dto\ExamBlueprintDTO$BlueprintValidationResult$BlueprintValidationResultBuilder.class
 com\school\exam\dto\ChapterWisePerformanceDTO.class
+com\school\hrm\controller\TeacherAttendanceController.class
 com\school\course\repository\CourseRepository.class
 com\school\exam\dto\ExamBlueprintDTO$SectionDistribution.class
 com\school\exam\controller\ExamAnalysisController.class
@@ -304,6 +307,7 @@ com\school\fee\repository\FeeRepository.class
 com\school\fee\dto\SemesterFeeReport.class
 com\school\exam\dto\ExamBlueprintDTO$ChapterDistributionDTO.class
 com\school\fee\model\FeePaymentSchedule$FeePaymentScheduleBuilder.class
+com\school\attendance\controller\StaffAttendanceController.class
 com\school\fee\dto\FeeStructureDTO$FeeStructureDTOBuilder.class
 com\school\fee\dto\FeePaymentScheduleResponse.class
 com\school\common\dto\BulkUploadResponse.class

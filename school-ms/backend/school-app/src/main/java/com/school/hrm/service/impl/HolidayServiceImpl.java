@@ -6,6 +6,7 @@ import com.school.hrm.model.Holiday;
 import com.school.hrm.model.Holiday.HolidayType;
 import com.school.hrm.repository.HolidayRepository;
 import com.school.hrm.service.HolidayService;
+import com.school.hrm.util.HolidayThreadLocal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,9 +97,27 @@ public class HolidayServiceImpl implements HolidayService {
 
     @Override
     public Map<String, Boolean> checkIfHoliday(LocalDate date) {
-        boolean isHoliday = holidayRepository.existsByDate(date);
         Map<String, Boolean> response = new HashMap<>();
-        response.put("isHoliday", isHoliday);
+        
+        System.out.println("HolidayServiceImpl: Checking if " + date + " is a holiday");
+        
+        // Check if the date is a holiday
+        Optional<Holiday> holidayOpt = holidayRepository.findByDate(date);
+        if (holidayOpt.isPresent()) {
+            Holiday holiday = holidayOpt.get();
+            System.out.println("HolidayServiceImpl: Found holiday: " + holiday.getName() + " for date: " + date);
+            response.put("isHoliday", true);
+            response.put("holidayName", Boolean.TRUE); // Using Boolean.TRUE as a placeholder since Map doesn't support mixed types
+            response.put("description", Boolean.TRUE); // Placeholder for description
+            
+            // Store the actual name and description in thread local for retrieval
+            HolidayThreadLocal.setHolidayName(holiday.getName());
+            HolidayThreadLocal.setHolidayDescription(holiday.getDescription());
+        } else {
+            System.out.println("HolidayServiceImpl: No holiday found for date: " + date);
+            response.put("isHoliday", false);
+        }
+        
         return response;
     }
 
