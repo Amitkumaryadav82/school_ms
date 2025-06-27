@@ -144,7 +144,6 @@ const StaffAttendance: React.FC = () => {
             date={selectedDate.format('YYYY-MM-DD')} 
             isAdmin={isAdmin}
             staffType={staffTypeFilter} 
-            attendanceService="staff" 
           />
         </TabPanel>
 
@@ -170,7 +169,6 @@ const StaffAttendance: React.FC = () => {
             endDate={selectedWeek.endOf('week').format('YYYY-MM-DD')} 
             isAdmin={isAdmin}
             staffType={staffTypeFilter}
-            attendanceService="staff" 
           />
         </TabPanel>
 
@@ -197,16 +195,15 @@ const StaffAttendance: React.FC = () => {
             month={selectedMonth.month() + 1} 
             isAdmin={isAdmin}
             staffType={staffTypeFilter}
-            attendanceService="staff" 
           />
         </TabPanel>
 
         <TabPanel value={tabValue} index={3}>
-          <AttendanceCalendarView attendanceService="staff" staffType={staffTypeFilter} />
+          <AttendanceCalendarView staffType={staffTypeFilter} />
         </TabPanel>
 
         <TabPanel value={tabValue} index={4}>
-          <AttendanceUpload attendanceService="staff" />
+          <AttendanceUpload />
         </TabPanel>
 
         <TabPanel value={tabValue} index={5}>
@@ -214,7 +211,7 @@ const StaffAttendance: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={isAdmin ? 6 : 3}>
-          <AttendanceReports isAdmin={isAdmin} attendanceService="staff" staffType={staffTypeFilter} />
+          <AttendanceReports isAdmin={isAdmin} staffType={staffTypeFilter} />
         </TabPanel>
       </Paper>
     </Box>

@@ -42,7 +42,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { useApi, useApiMutation } from '../../hooks/useApi';
-import { teacherAttendanceService, SchoolHoliday, HolidayType } from '../../services/teacherAttendanceService';
+import { employeeAttendanceService, HolidayDTO, HolidayType } from '../../services/employeeAttendanceService';
 import { useNotification } from '../../context/NotificationContext';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
@@ -52,8 +52,8 @@ const HolidayManagement: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
-  const [selectedHoliday, setSelectedHoliday] = useState<SchoolHoliday | null>(null);
-  const [holidayForm, setHolidayForm] = useState<Partial<SchoolHoliday>>({
+  const [selectedHoliday, setSelectedHoliday] = useState<HolidayDTO | null>(null);
+  const [holidayForm, setHolidayForm] = useState<Partial<HolidayDTO>>({
     date: '',
     name: '',
     description: '',
@@ -62,17 +62,17 @@ const HolidayManagement: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   // API calls
   const { data: holidays, loading, error, refetch } = useApi(
-    () => teacherAttendanceService.getHolidaysCalendar(selectedYear),
+    () => employeeAttendanceService.getHolidaysCalendar(selectedYear),
     { dependencies: [selectedYear] }
   );
   const { data: holidayTypes } = useApi(
-    () => teacherAttendanceService.getHolidayTypes(),
+    () => employeeAttendanceService.getHolidayTypes(),
     { dependencies: [] }
   );
 
   // Mutations
   const { mutateAsync: addHoliday } = useApiMutation(
-    (holiday: SchoolHoliday) => teacherAttendanceService.addHoliday(holiday),
+    (holiday: HolidayDTO) => employeeAttendanceService.addHoliday(holiday),
     {
       onSuccess: () => {
         showNotification('Holiday added successfully', 'success');
@@ -87,8 +87,8 @@ const HolidayManagement: React.FC = () => {
   );
 
   const { mutateAsync: updateHoliday } = useApiMutation(
-    ({ id, holiday }: { id: number, holiday: SchoolHoliday }) => 
-      teacherAttendanceService.updateHoliday(id, holiday),
+    ({ id, holiday }: { id: number, holiday: HolidayDTO }) => 
+      employeeAttendanceService.updateHoliday(id, holiday),
     {
       onSuccess: () => {
         showNotification('Holiday updated successfully', 'success');
@@ -103,7 +103,7 @@ const HolidayManagement: React.FC = () => {
   );
 
   const { mutateAsync: deleteHoliday } = useApiMutation(
-    (id: number) => teacherAttendanceService.deleteHoliday(id),
+    (id: number) => employeeAttendanceService.deleteHoliday(id),
     {
       onSuccess: () => {
         showNotification('Holiday deleted successfully', 'success');
@@ -117,7 +117,7 @@ const HolidayManagement: React.FC = () => {
   );
 
   const { mutateAsync: addDefaultHolidays } = useApiMutation(
-    (year: number) => teacherAttendanceService.addDefaultHolidays(year),
+    (year: number) => employeeAttendanceService.addDefaultHolidays(year),
     {
       onSuccess: () => {
         showNotification('Default holidays added successfully', 'success');

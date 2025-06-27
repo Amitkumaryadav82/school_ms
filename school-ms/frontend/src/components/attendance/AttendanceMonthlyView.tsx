@@ -30,7 +30,7 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import dayjs from 'dayjs';
 import { useApi } from '../../hooks/useApi';
-import { teacherAttendanceService } from '../../services/teacherAttendanceService';
+import { employeeAttendanceService } from '../../services/employeeAttendanceService';
 import { useNotification } from '../../context/NotificationContext';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
@@ -46,7 +46,7 @@ const AttendanceMonthlyView: React.FC<AttendanceMonthlyViewProps> = ({ year, mon
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   // Fetch monthly attendance report
   const { data, error, loading } = useApi(() => 
-    teacherAttendanceService.getMonthlyAttendanceReport(year, month)
+    employeeAttendanceService.getMonthlyAttendanceReport(year, month)
   , { dependencies: [year, month] });
 
   // Get list of departments for filtering

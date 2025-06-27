@@ -105,6 +105,16 @@ apiClient.interceptors.response.use(
       headers: error.config?.headers,
       requestTimestamp: new Date().toISOString()
     });
+    
+    // Additional logging specifically for attendance API errors
+    if (error.config?.url?.includes('/api/staff/attendance')) {
+      console.error(`API Error from ${error.config.url}: `, {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        stack: error.stack
+      });
+    }
       // Special handling for 401 errors - try to refresh the token first
     if (error.response?.status === 401 && !error.config?.__isRetryAfterRefresh) {
       try {

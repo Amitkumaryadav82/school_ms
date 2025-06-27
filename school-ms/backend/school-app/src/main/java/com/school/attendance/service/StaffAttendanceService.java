@@ -4,6 +4,8 @@ import com.school.attendance.dto.BulkStaffAttendanceRequest;
 import com.school.attendance.dto.StaffAttendanceDTO;
 import com.school.attendance.model.StaffAttendanceStatus;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -59,4 +61,24 @@ public interface StaffAttendanceService {
      * Get attendance statistics for a date range
      */
     Map<StaffAttendanceStatus, Long> getOverallAttendanceStats(LocalDate startDate, LocalDate endDate);
+    
+    /**
+     * Process an uploaded attendance file
+     */
+    Map<String, Object> processAttendanceFile(MultipartFile file) throws Exception;
+    
+    /**
+     * Get monthly attendance report
+     */
+    Map<String, Object> getMonthlyAttendanceReport(int year, int month);
+    
+    /**
+     * Get attendance statistics for an employee
+     */
+    Map<String, Object> getEmployeeAttendanceStats(Long staffId, LocalDate startDate, LocalDate endDate);
+    
+    /**
+     * Check if a date is a holiday
+     */
+    boolean isHoliday(LocalDate date);
 }

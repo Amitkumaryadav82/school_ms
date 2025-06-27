@@ -21,9 +21,8 @@ import {
 import React, { useState } from 'react';
 import { useNotification } from '../../context/NotificationContext';
 import { useApi, useApiMutation } from '../../hooks/useApi';
-import { StaffAttendanceDTO, staffAttendanceService, StaffAttendanceStatus } from '../../services/staffAttendanceService';
+import { employeeAttendanceService, EmployeeAttendanceDTO, EmployeeAttendanceStatus } from '../../services/employeeAttendanceService';
 import { staffService } from '../../services/staffService';
-import { AttendanceStatus, TeacherAttendance, teacherAttendanceService } from '../../services/teacherAttendanceService';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
 
@@ -31,56 +30,42 @@ interface AttendanceDailyViewProps {
   date: string;
   isAdmin: boolean;
   staffType?: string;
-  attendanceService?: 'teacher' | 'staff';
 }
 
 const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({ 
   date, 
   isAdmin,
-  staffType = 'ALL',
-  attendanceService = 'teacher'
+  staffType = 'ALL'
 }) => {
   const { showNotification } = useNotification();
   const [editMode, setEditMode] = useState<Record<number, boolean>>({});
   const [attendanceEdits, setAttendanceEdits] = useState<Record<number, any>>({});
 
-  // Determine which service to use
-  const useStaffAttendance = attendanceService === 'staff';
-
   // Fetch staff members based on type
   const { data: staffMembers, error: staffError, loading: staffLoading } = useApi(() => {
-    if (useStaffAttendance) {
-      return staffType === 'TEACHING' 
-        ? staffService.getActiveTeachers()
-        : staffType === 'NON_TEACHING'
-          ? staffService.getNonTeachingStaff() 
-          : staffService.getAllStaff();
-    } else {
-      return staffService.getActiveTeachers();
-    }
-  }, { dependencies: [staffType, attendanceService] });
+    return staffType === 'TEACHING' 
+      ? staffService.getActiveTeachers()
+      : staffType === 'NON_TEACHING'
+        ? staffService.getNonTeachingStaff() 
+        : staffService.getAll();
+  }, { dependencies: [staffType] });
 
   // Fetch attendance data
   const { data: attendanceData, error: attendanceError, loading: attendanceLoading, refetch: refetchAttendance } = useApi(() => {
-    if (useStaffAttendance) {
-      return staffAttendanceService.getStaffAttendanceByDate(date);
-    } else {
-      return teacherAttendanceService.getAttendanceByDate(date);
-    }
-  }, { dependencies: [date, attendanceService] });
-  // Holiday check - use the appropriate service based on the attendanceService
+    return employeeAttendanceService.getAttendanceByDate(date, staffType);
+  }, { dependencies: [date, staffType] });
+  
+  // Holiday check
   const { data: holidayCheck } = useApi(() => {
-    // Use the appropriate service based on the attendanceService prop
-    const service = attendanceService === 'staff' ? staffAttendanceService : teacherAttendanceService;
-    return service.checkIfHoliday(date);
-  }, { dependencies: [date, attendanceService] });
+    return employeeAttendanceService.checkIfHoliday(date);
+  }, { dependencies: [date] });
 
   // Apply type assertion to ensure isHoliday property exists
   const isHoliday = holidayCheck ? (holidayCheck as { isHoliday: boolean }).isHoliday : false;
 
-  // Mutations for staff attendance
-  const { mutateAsync: markStaffAttendance } = useApiMutation(
-    (attendance: StaffAttendanceDTO) => staffAttendanceService.createStaffAttendance(attendance),
+  // Mutations for attendance
+  const { mutateAsync: markAttendance } = useApiMutation(
+    (attendance: EmployeeAttendanceDTO) => employeeAttendanceService.markAttendance(attendance),
     {
       onSuccess: () => {
         showNotification('Attendance marked successfully', 'success');
@@ -92,37 +77,9 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
     }
   );
 
-  const { mutateAsync: updateStaffAttendance } = useApiMutation(
-    ({ id, data }: { id: number; data: StaffAttendanceDTO }) => 
-      staffAttendanceService.updateStaffAttendance(id, data),
-    {
-      onSuccess: () => {
-        showNotification('Attendance updated successfully', 'success');
-        refetchAttendance();
-      },
-      onError: (error) => {
-        showNotification(`Error updating attendance: ${error.message}`, 'error');
-      }
-    }
-  );
-
-  // Mutations for teacher attendance
-  const { mutateAsync: markTeacherAttendance } = useApiMutation(
-    (attendance: TeacherAttendance) => teacherAttendanceService.markAttendance(attendance),
-    {
-      onSuccess: () => {
-        showNotification('Attendance marked successfully', 'success');
-        refetchAttendance();
-      },
-      onError: (error) => {
-        showNotification(`Error marking attendance: ${error.message}`, 'error');
-      }
-    }
-  );
-
-  const { mutateAsync: updateTeacherAttendance } = useApiMutation(
-    ({ id, data }: { id: number; data: TeacherAttendance }) => 
-      teacherAttendanceService.updateAttendance(id, data),
+  const { mutateAsync: updateAttendance } = useApiMutation(
+    ({ id, data }: { id: number; data: EmployeeAttendanceDTO }) => 
+      employeeAttendanceService.updateAttendance(id, data),
     {
       onSuccess: () => {
         showNotification('Attendance updated successfully', 'success');
@@ -139,14 +96,13 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
     const map: Record<number, any> = {};
     if (attendanceData) {
       attendanceData.forEach((attendance: any) => {
-        const id = useStaffAttendance ? attendance.staffId : attendance.employeeId;
-        if (id) {
-          map[id] = attendance;
+        if (attendance.employeeId) {
+          map[attendance.employeeId] = attendance;
         }
       });
     }
     return map;
-  }, [attendanceData, useStaffAttendance]);
+  }, [attendanceData]);
 
   // Toggle edit mode for a specific row
   const toggleEditMode = (memberId: number, attendanceRecord?: any) => {
@@ -162,27 +118,23 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
         [memberId]: { ...attendanceRecord }
       }));
     } else if (!editMode[memberId]) {
-      if (useStaffAttendance) {
-        const defaultAttendance: StaffAttendanceDTO = {
-          staffId: memberId,
-          attendanceDate: date,
-          status: isHoliday ? StaffAttendanceStatus.HOLIDAY : StaffAttendanceStatus.PRESENT
-        };
-        setAttendanceEdits(prev => ({
-          ...prev,
-          [memberId]: defaultAttendance
-        }));
-      } else {
-        const defaultAttendance: TeacherAttendance = {
-          employeeId: memberId,
-          attendanceDate: date,
-          attendanceStatus: isHoliday ? AttendanceStatus.HOLIDAY : AttendanceStatus.PRESENT
-        };
-        setAttendanceEdits(prev => ({
-          ...prev,
-          [memberId]: defaultAttendance
-        }));
-      }
+      const employee = staffMembers?.find((staff: any) => staff.id === memberId);
+      const employeeType = employee?.role?.includes('TEACHER') ? 'TEACHING' : 'NON_TEACHING';
+      
+      const defaultAttendance: EmployeeAttendanceDTO = {
+        employeeId: memberId,
+        employeeName: `${employee?.firstName || ''} ${employee?.lastName || ''}`.trim(),
+        employeeType: employeeType,
+        department: employee?.department || '',
+        position: employee?.position || '',
+        attendanceDate: date,
+        status: isHoliday ? EmployeeAttendanceStatus.HOLIDAY : EmployeeAttendanceStatus.PRESENT
+      };
+      
+      setAttendanceEdits(prev => ({
+        ...prev,
+        [memberId]: defaultAttendance
+      }));
     }
   };
 
@@ -204,18 +156,10 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
     if (!attendanceRecord) return;
     
     try {
-      if (useStaffAttendance) {
-        if (attendanceRecord.id) {
-          await updateStaffAttendance({ id: attendanceRecord.id, data: attendanceRecord });
-        } else {
-          await markStaffAttendance(attendanceRecord);
-        }
+      if (attendanceRecord.id) {
+        await updateAttendance({ id: attendanceRecord.id, data: attendanceRecord });
       } else {
-        if (attendanceRecord.id) {
-          await updateTeacherAttendance({ id: attendanceRecord.id, data: attendanceRecord });
-        } else {
-          await markTeacherAttendance(attendanceRecord);
-        }
+        await markAttendance(attendanceRecord);
       }
       
       // Exit edit mode
@@ -273,13 +217,18 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
             variant="outlined" 
             color="primary" 
             onClick={() => {
-              // Mark all teachers as present by default
-              teachers?.forEach((teacher: any) => {
-                if (!attendanceMap[teacher.id!]) {
+              // Mark all employees as present by default
+              staffMembers?.forEach((employee: any) => {
+                if (!attendanceMap[employee.id!]) {
+                  const employeeType = employee?.role?.includes('TEACHER') ? 'TEACHING' : 'NON_TEACHING';
                   markAttendance({
-                    employeeId: teacher.id!,
+                    employeeId: employee.id!,
+                    employeeName: `${employee?.firstName || ''} ${employee?.lastName || ''}`.trim(),
+                    employeeType: employeeType,
+                    department: employee?.department || '',
+                    position: employee?.position || '',
                     attendanceDate: date,
-                    attendanceStatus: isHoliday ? AttendanceStatus.HOLIDAY : AttendanceStatus.PRESENT
+                    status: isHoliday ? EmployeeAttendanceStatus.HOLIDAY : EmployeeAttendanceStatus.PRESENT
                   });
                 }
               });
@@ -303,25 +252,25 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {teachers && teachers.length > 0 ? (
-              teachers.map((teacher: any) => {
-                const attendanceRecord = attendanceMap[teacher.id!];
-                const isEditing = editMode[teacher.id!] || false;
+            {staffMembers && staffMembers.length > 0 ? (
+              staffMembers.map((employee: any) => {
+                const attendanceRecord = attendanceMap[employee.id!];
+                const isEditing = editMode[employee.id!] || false;
                 
                 return (
-                  <TableRow key={teacher.id}>
-                    <TableCell>{teacher.staffId}</TableCell>
-                    <TableCell>{teacher.firstName} {teacher.lastName}</TableCell>
-                    <TableCell>{teacher.department || 'N/A'}</TableCell>
+                  <TableRow key={employee.id}>
+                    <TableCell>{employee.staffId || employee.employeeId}</TableCell>
+                    <TableCell>{employee.firstName} {employee.lastName}</TableCell>
+                    <TableCell>{employee.department || 'N/A'}</TableCell>
                     <TableCell>
                       {isEditing ? (
                         <FormControl fullWidth size="small">
                           <Select
-                            value={attendanceEdits[teacher.id!]?.attendanceStatus || ''}
-                            onChange={(e) => handleAttendanceChange(teacher.id!, 'attendanceStatus', e.target.value)}
+                            value={attendanceEdits[employee.id!]?.status || ''}
+                            onChange={(e) => handleAttendanceChange(employee.id!, 'status', e.target.value)}
                             disabled={isHoliday}
                           >
-                            {Object.values(AttendanceStatus).map((status) => (
+                            {Object.values(EmployeeAttendanceStatus).map((status) => (
                               <MenuItem key={status} value={status}>
                                 {status.replace('_', ' ')}
                               </MenuItem>
@@ -330,9 +279,9 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
                         </FormControl>
                       ) : (
                         <Chip 
-                          icon={getStatusIcon(attendanceRecord?.attendanceStatus)}
-                          label={attendanceRecord?.attendanceStatus?.replace('_', ' ') || 'Not Marked'} 
-                          color={getStatusColor(attendanceRecord?.attendanceStatus) as any}
+                          icon={getStatusIcon(attendanceRecord?.status)}
+                          label={attendanceRecord?.status?.replace('_', ' ') || 'Not Marked'} 
+                          color={getStatusColor(attendanceRecord?.status) as any}
                           size="small"
                         />
                       )}
@@ -343,8 +292,8 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
                           size="small"
                           fullWidth
                           placeholder="Reason (if absent/leave)"
-                          value={attendanceEdits[teacher.id!]?.reason || ''}
-                          onChange={(e) => handleAttendanceChange(teacher.id!, 'reason', e.target.value)}
+                          value={attendanceEdits[employee.id!]?.reason || ''}
+                          onChange={(e) => handleAttendanceChange(employee.id!, 'reason', e.target.value)}
                         />
                       ) : (
                         attendanceRecord?.reason || '-'
@@ -358,7 +307,7 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
                               <IconButton 
                                 color="success" 
                                 size="small"
-                                onClick={() => saveAttendance(teacher.id!)}
+                                onClick={() => saveAttendance(employee.id!)}
                               >
                                 <Save />
                               </IconButton>
@@ -367,7 +316,7 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
                               <IconButton 
                                 color="error" 
                                 size="small"
-                                onClick={() => toggleEditMode(teacher.id!)}
+                                onClick={() => toggleEditMode(employee.id!)}
                               >
                                 <Cancel />
                               </IconButton>
@@ -378,7 +327,7 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
                             <IconButton
                               color="primary"
                               size="small"
-                              onClick={() => toggleEditMode(teacher.id!, attendanceRecord)}
+                              onClick={() => toggleEditMode(employee.id!, attendanceRecord)}
                             >
                               <Edit />
                             </IconButton>
@@ -391,7 +340,7 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={6} align="center">No teachers found</TableCell>
+                <TableCell colSpan={6} align="center">No staff members found</TableCell>
               </TableRow>
             )}
           </TableBody>

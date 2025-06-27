@@ -40,7 +40,7 @@ import {
   Refresh
 } from '@mui/icons-material';
 import { useApiMutation } from '../../hooks/useApi';
-import { teacherAttendanceService } from '../../services/teacherAttendanceService';
+import { employeeAttendanceService } from '../../services/employeeAttendanceService';
 import { useNotification } from '../../context/NotificationContext';
 
 const AttendanceUpload: React.FC = () => {
@@ -62,7 +62,7 @@ const AttendanceUpload: React.FC = () => {
 
   // API mutations
   const { mutateAsync: uploadFile, isLoading: isUploading } = useApiMutation(
-    (file: File) => teacherAttendanceService.uploadAttendanceFile(file),
+    (file: File) => employeeAttendanceService.uploadAttendanceFile(file),
     {
       onSuccess: (data) => {
         setUploadResult({
@@ -85,7 +85,7 @@ const AttendanceUpload: React.FC = () => {
   );
 
   const { mutateAsync: downloadTemplate, isLoading: isDownloading } = useApiMutation(
-    () => teacherAttendanceService.downloadAttendanceTemplate(),
+    () => employeeAttendanceService.downloadAttendanceTemplate(),
     {
       onSuccess: (data) => {
         // Create a download link for the template

@@ -24,7 +24,7 @@ import {
 import { Edit, CheckCircle, HighlightOff, RemoveCircle, Cancel } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { useApi } from '../../hooks/useApi';
-import { teacherAttendanceService, TeacherAttendance, AttendanceStatus } from '../../services/teacherAttendanceService';
+import { employeeAttendanceService, EmployeeAttendanceDTO, EmployeeAttendanceStatus } from '../../services/employeeAttendanceService';
 import { staffService } from '../../services/staffService';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
@@ -41,11 +41,11 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, 
     staffService.getActiveTeachers()
   );
   const { data: attendanceData, error: attendanceError, loading: attendanceLoading } = useApi(() => 
-    teacherAttendanceService.getAttendanceByDateRange(startDate, endDate)
+    employeeAttendanceService.getAttendanceByDateRange(startDate, endDate)
   , { dependencies: [startDate, endDate] });
   // Fetch holiday data for the week
   const { data: holidayData, error: holidayError, loading: holidayLoading } = useApi(() => 
-    teacherAttendanceService.getHolidaysByDateRange(startDate, endDate)
+    employeeAttendanceService.getHolidaysByDateRange(startDate, endDate)
   , { dependencies: [startDate, endDate] });
 
   // Generate dates array for the week
@@ -65,7 +65,7 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, 
 
   // Prepare attendance map for each employee and date
   const attendanceMap = React.useMemo(() => {
-    const map: Record<number, Record<string, TeacherAttendance>> = {};
+    const map: Record<number, Record<string, EmployeeAttendanceDTO>> = {};
     
     attendanceData?.forEach((attendance) => {
       if (!map[attendance.employeeId]) {
@@ -89,24 +89,24 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, 
   }, [holidayData]);
 
   // Get status color
-  const getStatusColor = (status: AttendanceStatus | undefined) => {
+  const getStatusColor = (status: EmployeeAttendanceStatus | undefined) => {
     switch (status) {
-      case AttendanceStatus.PRESENT: return 'success';
-      case AttendanceStatus.ABSENT: return 'error';
-      case AttendanceStatus.HALF_DAY: return 'warning';
-      case AttendanceStatus.ON_LEAVE: return 'info';
-      case AttendanceStatus.HOLIDAY: return 'secondary';
+      case EmployeeAttendanceStatus.PRESENT: return 'success';
+      case EmployeeAttendanceStatus.ABSENT: return 'error';
+      case EmployeeAttendanceStatus.HALF_DAY: return 'warning';
+      case EmployeeAttendanceStatus.ON_LEAVE: return 'info';
+      case EmployeeAttendanceStatus.HOLIDAY: return 'secondary';
       default: return 'default';
     }
   };
   // Get status icon
-  const getStatusIcon = (status: AttendanceStatus | undefined): React.ReactElement | undefined => {
+  const getStatusIcon = (status: EmployeeAttendanceStatus | undefined): React.ReactElement | undefined => {
     switch (status) {
-      case AttendanceStatus.PRESENT: return <CheckCircle fontSize="small" />;
-      case AttendanceStatus.ABSENT: return <HighlightOff fontSize="small" />;
-      case AttendanceStatus.HALF_DAY: return <RemoveCircle fontSize="small" />;
-      case AttendanceStatus.ON_LEAVE: return <Cancel fontSize="small" />;
-      case AttendanceStatus.HOLIDAY:
+      case EmployeeAttendanceStatus.PRESENT: return <CheckCircle fontSize="small" />;
+      case EmployeeAttendanceStatus.ABSENT: return <HighlightOff fontSize="small" />;
+      case EmployeeAttendanceStatus.HALF_DAY: return <RemoveCircle fontSize="small" />;
+      case EmployeeAttendanceStatus.ON_LEAVE: return <Cancel fontSize="small" />;
+      case EmployeeAttendanceStatus.HOLIDAY:
       default:
         return undefined;
     }
@@ -166,9 +166,9 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, 
                         {attendance ? (
                           <Box>
                             <Chip 
-                              icon={getStatusIcon(attendance.attendanceStatus)}
-                              label={attendance.attendanceStatus?.replace('_', ' ') || 'Not Marked'} 
-                              color={getStatusColor(attendance.attendanceStatus) as any}
+                              icon={getStatusIcon(attendance.status)}
+                              label={attendance.status?.replace('_', ' ') || 'Not Marked'} 
+                              color={getStatusColor(attendance.status) as any}
                               size="small"
                             />
                             {isAdmin && (

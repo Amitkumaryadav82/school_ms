@@ -35,7 +35,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { useApi, useApiMutation } from '../../hooks/useApi';
-import { teacherAttendanceService, TeacherAttendance, AttendanceStatus, SchoolHoliday, HolidayType } from '../../services/teacherAttendanceService';
+import { employeeAttendanceService, EmployeeAttendanceDTO, EmployeeAttendanceStatus, HolidayDTO, HolidayType } from '../../services/employeeAttendanceService';
 import { useNotification } from '../../context/NotificationContext';
 import Loading from '../Loading';
 import ErrorMessage from '../ErrorMessage';
@@ -58,7 +58,7 @@ const AttendanceCalendarView: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [calendarData, setCalendarData] = useState<Record<string, CalendarDayInfo>>({});
   const [holidayDialogOpen, setHolidayDialogOpen] = useState(false);
-  const [newHoliday, setNewHoliday] = useState<Partial<SchoolHoliday>>({
+  const [newHoliday, setNewHoliday] = useState<Partial<HolidayDTO>>({
     date: '',
     name: '',
     description: '',
@@ -66,7 +66,7 @@ const AttendanceCalendarView: React.FC = () => {
 
   // API calls
   const { data: holidaysData, loading: holidaysLoading, error: holidaysError, refetch: refetchHolidays } = useApi(
-    () => teacherAttendanceService.getHolidaysByDateRange(
+    () => employeeAttendanceService.getHolidaysByDateRange(
       selectedMonth.startOf('month').format('YYYY-MM-DD'),
       selectedMonth.endOf('month').format('YYYY-MM-DD')
     ),
@@ -75,7 +75,7 @@ const AttendanceCalendarView: React.FC = () => {
     }
   );
   const { data: attendanceData, loading: attendanceLoading, error: attendanceError } = useApi(
-    () => teacherAttendanceService.getAttendanceByDateRange(
+    () => employeeAttendanceService.getAttendanceByDateRange(
       selectedMonth.startOf('month').format('YYYY-MM-DD'),
       selectedMonth.endOf('month').format('YYYY-MM-DD')
     ),
@@ -84,7 +84,7 @@ const AttendanceCalendarView: React.FC = () => {
     }
   );
   const { data: teachersData, loading: teachersLoading, error: teachersError } = useApi(
-    () => teacherAttendanceService.getMonthlyAttendanceReport(
+    () => employeeAttendanceService.getMonthlyAttendanceReport(
       selectedMonth.year(), 
       selectedMonth.month() + 1
     ),
@@ -95,7 +95,7 @@ const AttendanceCalendarView: React.FC = () => {
 
   // Mutations
   const { mutateAsync: addHoliday } = useApiMutation(
-    (holiday: SchoolHoliday) => teacherAttendanceService.addHoliday(holiday),
+    (holiday: HolidayDTO) => employeeAttendanceService.addHoliday(holiday),
     {
       onSuccess: () => {
         showNotification('Holiday added successfully', 'success');

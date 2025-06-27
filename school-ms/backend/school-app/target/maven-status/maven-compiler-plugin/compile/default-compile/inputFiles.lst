@@ -15,12 +15,14 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\TeacherDetailsRepository.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\QuestionPaperStructureRequest.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\ConsolidatedStaffRepository.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\EmployeeBulkAttendanceRequest.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\exception\ExamNotFoundException.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\ExamConfiguration.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\service\NotificationService.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\ExamBlueprintRequest.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\Employee.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffService.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\EmployeeAttendanceDTO.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentMethodDistribution.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\RequestTracingFilter.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\StaffRepository.java
@@ -53,6 +55,7 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\JwtAuthenticationFilter.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\impl\ExamBlueprintServiceImpl.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\InvalidAttendanceException.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\EmployeeAttendanceService.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherDetails.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\controller\BookIssueController.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\StudentFeeAssignment.java
@@ -134,6 +137,7 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherDetailsRepository.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\exception\AttendanceValidationException.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\EmployeeRepository.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\impl\EmployeeAttendanceServiceImpl.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\CustomUserDetailsService.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\Staff.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeePaymentScheduleController.java
@@ -147,6 +151,7 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceDTO.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffRole.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\StaffRepository.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\EmployeeAttendanceStatus.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\exception\StudentNotFoundException.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\StaffRole.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\EmploymentStatus.java
@@ -176,6 +181,7 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\exception\BlueprintNotFoundException.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\dto\AuthResponse.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\exception\DuplicateEmailException.java
+C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\EmployeeAttendanceController.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\OpenApiConfig.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\MonthlyAttendanceReport.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\Teacher.java
@@ -276,7 +282,6 @@ C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\co
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthControllerConfig.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamResultRepository.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\PaymentRepository.java
-C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\StaffAttendanceController.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\ApplicationConfig.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\QuestionSection.java
 C:\Users\amitk\Documents\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\exception\DuplicateStudentException.java

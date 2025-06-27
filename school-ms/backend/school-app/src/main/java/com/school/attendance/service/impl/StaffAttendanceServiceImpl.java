@@ -15,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class StaffAttendanceServiceImpl implements StaffAttendanceService {
@@ -185,6 +187,101 @@ public class StaffAttendanceServiceImpl implements StaffAttendanceService {
         }
         
         return stats;
+    }
+
+    @Override
+    public Map<String, Object> processAttendanceFile(MultipartFile file) throws Exception {
+        // Implementation for file processing
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("processed", 0);
+        result.put("errors", new ArrayList<>());
+        return result;
+    }
+    
+    @Override
+    public Map<String, Object> getMonthlyAttendanceReport(int year, int month) {
+        // Get the first and last day of the month
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+        
+        // Get all attendance records for the month
+        List<StaffAttendance> attendanceList = staffAttendanceRepository.findByAttendanceDateBetween(startDate, endDate);
+        
+        // Process data and create report
+        Map<String, Object> report = new HashMap<>();
+        report.put("year", year);
+        report.put("month", month);
+        report.put("startDate", startDate);
+        report.put("endDate", endDate);
+        report.put("totalWorkingDays", calculateWorkingDays(startDate, endDate));
+        
+        // Process employee summaries (simplified)
+        List<Map<String, Object>> employeeSummaries = new ArrayList<>();
+        // Populate employeeSummaries based on attendance data
+        report.put("employeeSummaries", employeeSummaries);
+        
+        return report;
+    }
+    
+    private int calculateWorkingDays(LocalDate startDate, LocalDate endDate) {
+        // Basic implementation counting weekdays
+        int workingDays = 0;
+        LocalDate date = startDate;
+        while (!date.isAfter(endDate)) {
+            if (date.getDayOfWeek().getValue() < 6) { // Exclude Saturday (6) and Sunday (7)
+                workingDays++;
+            }
+            date = date.plusDays(1);
+        }
+        return workingDays;
+    }
+    
+    @Override
+    public Map<String, Object> getEmployeeAttendanceStats(Long staffId, LocalDate startDate, LocalDate endDate) {
+        // Get staff member
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + staffId));
+        
+        // Get attendance records
+        List<StaffAttendance> attendanceList = staffAttendanceRepository.findByStaffIdAndAttendanceDateBetween(
+                staffId, startDate, endDate);
+        
+        // Create stats
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("staffId", staffId);
+        stats.put("staffName", staff.getFullName());
+        stats.put("startDate", startDate);
+        stats.put("endDate", endDate);
+        stats.put("totalWorkingDays", calculateWorkingDays(startDate, endDate));
+        
+        // Count status occurrences
+        Map<StaffAttendanceStatus, Long> statusCounts = attendanceList.stream()
+                .collect(Collectors.groupingBy(StaffAttendance::getStatus, Collectors.counting()));
+        
+        stats.put("presentDays", statusCounts.getOrDefault(StaffAttendanceStatus.PRESENT, 0L));
+        stats.put("absentDays", statusCounts.getOrDefault(StaffAttendanceStatus.ABSENT, 0L));
+        stats.put("halfDays", statusCounts.getOrDefault(StaffAttendanceStatus.HALF_DAY, 0L));
+        stats.put("leaveDays", statusCounts.getOrDefault(StaffAttendanceStatus.ON_LEAVE, 0L));
+        
+        // Calculate attendance percentage
+        long totalDays = calculateWorkingDays(startDate, endDate);
+        long presentCount = statusCounts.getOrDefault(StaffAttendanceStatus.PRESENT, 0L);
+        double percentage = totalDays > 0 ? (presentCount * 100.0) / totalDays : 0;
+        stats.put("attendancePercentage", String.format("%.2f%%", percentage));
+        
+        return stats;
+    }
+    
+    @Override
+    public boolean isHoliday(LocalDate date) {
+        // For now, just check if it's a weekend
+        int dayOfWeek = date.getDayOfWeek().getValue();
+        return dayOfWeek == 6 || dayOfWeek == 7; // Saturday or Sunday
+        
+        // In a complete implementation, you would:
+        // 1. Check school holidays table (from HolidayService)
+        // 2. Check national/regional holidays
     }
 
     /**

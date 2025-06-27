@@ -57,7 +57,7 @@ import {
   Print
 } from '@mui/icons-material';
 import { useApi } from '../../hooks/useApi';
-import { teacherAttendanceService, AttendanceStats } from '../../services/teacherAttendanceService';
+import { employeeAttendanceService } from '../../services/employeeAttendanceService';
 import { staffService, StaffMember } from '../../services/staffService';
 import { useNotification } from '../../context/NotificationContext';
 import Loading from '../Loading';
@@ -106,7 +106,7 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin }) => {
   const { data: employeeStats, loading: statsLoading, error: statsError } = useApi(
     () => {
       if (!selectedTeacher) return Promise.resolve(null);
-      return teacherAttendanceService.getAttendanceStats(
+      return employeeAttendanceService.getAttendanceStats(
         Number(selectedTeacher),
         startDate.format('YYYY-MM-DD'),
         endDate.format('YYYY-MM-DD')
@@ -115,7 +115,7 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin }) => {
     { dependencies: [selectedTeacher, startDate, endDate] }
   );
   const { data: monthlyReport, loading: monthlyReportLoading, error: monthlyReportError } = useApi(
-    () => teacherAttendanceService.getMonthlyAttendanceReport(selectedYear, selectedMonth),
+    () => employeeAttendanceService.getMonthlyAttendanceReport(selectedYear, selectedMonth),
     { dependencies: [selectedYear, selectedMonth] }
   );
 
