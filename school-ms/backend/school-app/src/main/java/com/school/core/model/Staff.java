@@ -167,6 +167,14 @@ public class Staff {    @Id
     private LocalDate terminationDate;    @Column(name = "department")
     private String department;
     
+    public String getDepartment() {
+        return this.department;
+    }
+    
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+    
     @Column(name = "designation")
     private String designation;
     

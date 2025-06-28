@@ -53,6 +53,14 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     List<Staff> findByIsActiveTrue();
     
     /**
+     * Find all active staff members with eager loading of StaffRole
+     * 
+     * @return List of active staff members with eagerly loaded StaffRole
+     */
+    @Query("SELECT s FROM CoreStaff s LEFT JOIN FETCH s.staffRole WHERE s.isActive = true")
+    List<Staff> findAllActiveStaffWithRole();
+    
+    /**
      * Find staff members by role string (legacy method)
      * 
      * @param role The role string

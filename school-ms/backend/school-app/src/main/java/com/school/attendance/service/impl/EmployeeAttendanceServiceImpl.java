@@ -7,8 +7,10 @@ import com.school.attendance.model.StaffAttendance;
 import com.school.attendance.model.StaffAttendanceStatus;
 import com.school.attendance.repository.StaffAttendanceRepository;
 import com.school.attendance.service.EmployeeAttendanceService;
+import com.school.attendance.service.HolidayAttendanceService;
 import com.school.core.model.Staff;
 import com.school.core.repository.StaffRepository;
+import com.school.hrm.dto.HolidayDTO;
 import com.school.hrm.service.HolidayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,16 +35,19 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
     private final HolidayService holidayService;
     private final StaffAttendanceRepository staffAttendanceRepository;
     private final StaffRepository staffRepository;
+    private final HolidayAttendanceService holidayAttendanceService;
     
     @Autowired
     public EmployeeAttendanceServiceImpl(
         HolidayService holidayService,
         StaffAttendanceRepository staffAttendanceRepository,
-        StaffRepository staffRepository
+        StaffRepository staffRepository,
+        HolidayAttendanceService holidayAttendanceService
     ) {
         this.holidayService = holidayService;
         this.staffAttendanceRepository = staffAttendanceRepository;
         this.staffRepository = staffRepository;
+        this.holidayAttendanceService = holidayAttendanceService;
     }
     
     @Override
@@ -52,22 +57,18 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
         if (isHoliday(attendanceDTO.getAttendanceDate())) {
             attendanceDTO.setStatus(EmployeeAttendanceStatus.HOLIDAY);
             
-            // Add the holiday name to the reason field
-            String holidayName = com.school.hrm.util.HolidayThreadLocal.getHolidayName();
-            if (holidayName != null && !holidayName.isEmpty()) {
-                attendanceDTO.setReason("Holiday: " + holidayName);
+            // Add the holiday name to the reason field using HolidayAttendanceService
+            HolidayDTO holidayDTO = holidayAttendanceService.getHolidayDetails(attendanceDTO.getAttendanceDate());
+            if (holidayDTO != null) {
+                attendanceDTO.setReason("Holiday: " + holidayDTO.getName());
                 
                 // Add description if available
-                String description = com.school.hrm.util.HolidayThreadLocal.getHolidayDescription();
-                if (description != null && !description.isEmpty()) {
-                    attendanceDTO.setReason(attendanceDTO.getReason() + " - " + description);
+                if (holidayDTO.getDescription() != null && !holidayDTO.getDescription().isEmpty()) {
+                    attendanceDTO.setReason(attendanceDTO.getReason() + " - " + holidayDTO.getDescription());
                 }
             } else {
                 attendanceDTO.setReason("Holiday (System Generated)");
             }
-            
-            // Clear thread local after use
-            com.school.hrm.util.HolidayThreadLocal.clear();
         }
         
         // Find the staff entity by employee ID with role eagerly loaded
@@ -155,8 +156,16 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
         List<EmployeeAttendanceDTO> createdAttendances = new ArrayList<>();
         LocalDate attendanceDate = request.getAttendanceDate();
         
-        // Check if the date is a holiday
-        boolean isDateHoliday = isHoliday(attendanceDate);
+        // Check if the date is a holiday using HolidayAttendanceService
+        boolean isDateHoliday = holidayAttendanceService.isHoliday(attendanceDate);
+        
+        // Get holiday details if it's a holiday
+        HolidayDTO holidayDTO = null;
+        if (isDateHoliday) {
+            holidayDTO = holidayAttendanceService.getHolidayDetails(attendanceDate);
+            System.out.println("Date " + attendanceDate + " is a holiday: " + 
+                (holidayDTO != null ? holidayDTO.getName() : "Unknown holiday"));
+        }
         
         // Process each employee attendance
         for (Map.Entry<Long, EmployeeAttendanceStatus> entry : request.getAttendanceMap().entrySet()) {
@@ -175,14 +184,24 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
                 attendanceDTO.setEmployeeId(employeeId);
                 attendanceDTO.setAttendanceDate(attendanceDate);
                 
-                // If it's a holiday, override the status
+                // If it's a holiday, override the status and add holiday information
                 if (isDateHoliday) {
                     attendanceDTO.setStatus(EmployeeAttendanceStatus.HOLIDAY);
+                    
+                    // Add holiday details to reason if available
+                    if (holidayDTO != null) {
+                        String reason = "Holiday: " + holidayDTO.getName();
+                        if (holidayDTO.getDescription() != null && !holidayDTO.getDescription().isEmpty()) {
+                            reason += " - " + holidayDTO.getDescription();
+                        }
+                        attendanceDTO.setReason(reason);
+                    } else {
+                        attendanceDTO.setReason("Holiday (System Generated)");
+                    }
                 } else {
                     attendanceDTO.setStatus(entry.getValue());
+                    attendanceDTO.setRemarks(request.getRemarks());
                 }
-                
-                attendanceDTO.setRemarks(request.getRemarks());
                 
                 // Use the updated createAttendance method for each entry
                 // This will handle duplicate checks and update vs. insert logic
@@ -212,26 +231,20 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
     public List<EmployeeAttendanceDTO> getAttendanceByDate(LocalDate date, String employeeType) {
         System.out.println("getAttendanceByDate called for date: " + date + ", employeeType: " + employeeType);
         
-        // Check if the day is a holiday
-        boolean isDateHoliday = isHoliday(date);
+        // Check if the day is a holiday using HolidayAttendanceService
+        boolean isDateHoliday = holidayAttendanceService.isHoliday(date);
         System.out.println("Date " + date + " is holiday: " + isDateHoliday);
         
-        // Find existing records for the given date
-        List<StaffAttendance> staffAttendanceList = staffAttendanceRepository.findByAttendanceDate(date);
-        System.out.println("Found " + staffAttendanceList.size() + " existing attendance records for date: " + date);
-        
-        // If it's a holiday and no attendance records exist, create HOLIDAY records for all staff
-        if (isDateHoliday && staffAttendanceList.isEmpty()) {
-            System.out.println("Creating holiday attendance records for all staff since it's a holiday and no records exist");
-            createHolidayAttendanceForAllStaff(date);
-            // Fetch the newly created records
-            staffAttendanceList = staffAttendanceRepository.findByAttendanceDate(date);
-            System.out.println("After creating holiday records, found " + staffAttendanceList.size() + " attendance records");
-        } else if (isDateHoliday) {
-            System.out.println("It's a holiday but attendance records already exist - not creating new ones");
-        } else {
-            System.out.println("Not a holiday - proceeding with regular attendance processing");
+        // If it's a holiday, ensure all staff have HOLIDAY attendance records
+        if (isDateHoliday) {
+            System.out.println("Date is a holiday - ensuring all staff have proper HOLIDAY status");
+            int recordsProcessed = holidayAttendanceService.ensureHolidayAttendance(date);
+            System.out.println("Processed " + recordsProcessed + " holiday attendance records");
         }
+        
+        // Find all records for the given date (after potential holiday updates)
+        List<StaffAttendance> staffAttendanceList = staffAttendanceRepository.findByAttendanceDate(date);
+        System.out.println("Found " + staffAttendanceList.size() + " attendance records for date: " + date);
         
         // Convert to DTOs
         List<EmployeeAttendanceDTO> attendanceList = staffAttendanceList.stream()
@@ -372,8 +385,8 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
 
     @Override
     public boolean isHoliday(LocalDate date) {
-        Map<String, Boolean> holidayCheck = holidayService.checkIfHoliday(date);
-        boolean isHoliday = holidayCheck.getOrDefault("isHoliday", false);
+        // Directly delegate to the specialized holiday attendance service
+        boolean isHoliday = holidayAttendanceService.isHoliday(date);
         System.out.println("Checking if " + date + " is a holiday: " + isHoliday);
         return isHoliday;
     }
@@ -488,55 +501,11 @@ public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService 
      */
     @Transactional
     private void createHolidayAttendanceForAllStaff(LocalDate date) {
-        System.out.println("Creating holiday attendance records for all active staff on " + date);
+        System.out.println("Creating holiday attendance records for all active staff on " + date + " using HolidayAttendanceService");
         
-        // Get holiday information
-        Map<String, Boolean> holidayInfo = holidayService.checkIfHoliday(date);
-        String holidayName = com.school.hrm.util.HolidayThreadLocal.getHolidayName();
-        String holidayDescription = com.school.hrm.util.HolidayThreadLocal.getHolidayDescription();
+        // Delegate to the specialized service for creating holiday attendance records
+        int recordsProcessed = holidayAttendanceService.ensureHolidayAttendance(date);
         
-        // Prepare the note text
-        String noteText = "Auto-generated for holiday";
-        if (holidayName != null && !holidayName.isEmpty()) {
-            noteText = "Holiday: " + holidayName;
-            if (holidayDescription != null && !holidayDescription.isEmpty()) {
-                noteText += " - " + holidayDescription;
-            }
-        }
-        
-        // Get all active staff
-        List<Staff> allActiveStaff = staffRepository.findByIsActiveTrue();
-        System.out.println("Found " + allActiveStaff.size() + " active staff members");
-        
-        // Create a holiday attendance record for each staff member
-        for (Staff staff : allActiveStaff) {
-            System.out.println("Processing staff: " + staff.getId() + " - " + staff.getFirstName() + " " + staff.getLastName());
-            // Check if attendance record already exists
-            StaffAttendance existing = staffAttendanceRepository.findByStaffIdAndAttendanceDate(staff.getId(), date);
-            
-            if (existing == null) {
-                // Create new holiday attendance
-                StaffAttendance attendance = new StaffAttendance();
-                attendance.setStaff(staff);
-                attendance.setAttendanceDate(date);
-                attendance.setStatus(StaffAttendanceStatus.HOLIDAY);
-                attendance.setNote(noteText);
-                
-                // Save to database
-                staffAttendanceRepository.save(attendance);
-            } else {
-                // Update existing attendance to HOLIDAY if it's not already
-                if (existing.getStatus() != StaffAttendanceStatus.HOLIDAY) {
-                    existing.setStatus(StaffAttendanceStatus.HOLIDAY);
-                    existing.setNote(noteText + " (Updated automatically)");
-                    staffAttendanceRepository.save(existing);
-                }
-            }
-        }
-        
-        // Clear thread local after use
-        com.school.hrm.util.HolidayThreadLocal.clear();
-        
-        System.out.println("Created holiday attendance records for " + allActiveStaff.size() + " staff members");
+        System.out.println("Created/updated " + recordsProcessed + " holiday attendance records");
     }
 }

@@ -11,6 +11,7 @@ com\school\attendance\dto\MonthlyAttendanceStats.class
 com\school\communication\repository\MessageRepository.class
 com\school\exam\dto\TabulationSheetDTO$TabulationSheetDTOBuilder.class
 com\school\attendance\model\StaffAttendance$StaffAttendanceBuilder.class
+com\school\attendance\controller\DirectFixController.class
 com\school\exam\model\Exam$ExamType.class
 com\school\exam\model\ExamConfiguration$ApprovalStatus.class
 com\school\fee\controller\CorsTestController.class
@@ -169,6 +170,7 @@ com\school\fee\dto\ClassSectionFeeReport$StudentFeeDetail$StudentFeeDetailBuilde
 com\school\security\AuthService.class
 com\school\exam\repository\QuestionPaperStructureRepository.class
 com\school\communication\model\InAppNotification.class
+com\school\attendance\service\HolidayAttendanceService.class
 com\school\course\service\ChapterService.class
 com\school\fee\service\TransportRouteService.class
 com\school\fee\repository\LateFeeRepository.class
@@ -444,10 +446,12 @@ com\school\hrm\entity\Teacher$TeacherBuilder.class
 com\school\hrm\service\impl\HolidayServiceImpl.class
 com\school\staff\repository\TeacherDetailsRepository.class
 com\school\security\User$UserBuilder.class
+com\school\attendance\controller\HolidayAttendanceDebugController.class
 com\school\staff\dto\BulkStaffRequest.class
 com\school\fee\dto\FeePaymentSummary.class
 com\school\fee\exception\FeeExceptionHandler.class
 com\school\core\controller\MigrationController.class
+com\school\attendance\service\impl\HolidayAttendanceServiceImpl.class
 com\school\security\dto\AuthResponse.class
 com\school\attendance\dto\EmployeeBulkAttendanceRequest$EmployeeBulkAttendanceRequestBuilder.class
 com\school\security\dto\AuthResponse$AuthResponseBuilder.class
@@ -460,5 +464,6 @@ com\school\attendance\model\Attendance$AttendanceBuilder.class
 com\school\library\controller\CourseController.class
 com\school\fee\dto\FeePaymentSummary$FeePaymentSummaryBuilder.class
 com\school\attendance\service\impl\EmployeeAttendanceServiceImpl.class
+com\school\hrm\controller\HolidayAttendanceTestController.class
 com\school\student\util\StudentMapper.class
 com\school\fee\repository\PaymentScheduleRepository.class
