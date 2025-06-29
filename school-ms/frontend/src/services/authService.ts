@@ -1,5 +1,5 @@
-import api from './api';
 import config from '../config/environment';
+import api from './api';
 
 // Custom JWT decode function to avoid needing the jwt-decode package
 export function parseJwt(token: string) {

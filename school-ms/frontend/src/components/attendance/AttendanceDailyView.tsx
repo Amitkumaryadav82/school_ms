@@ -41,23 +41,54 @@ const AttendanceDailyView: React.FC<AttendanceDailyViewProps> = ({
   const [editMode, setEditMode] = useState<Record<number, boolean>>({});
   const [attendanceEdits, setAttendanceEdits] = useState<Record<number, any>>({});
 
-  // Fetch staff members based on type
-  const { data: staffMembers, error: staffError, loading: staffLoading } = useApi(() => {
-    return staffType === 'TEACHING' 
-      ? staffService.getActiveTeachers()
-      : staffType === 'NON_TEACHING'
-        ? staffService.getNonTeachingStaff() 
-        : staffService.getAll();
-  }, { dependencies: [staffType] });
+  // Fetch all staff instead of doing backend filtering
+  const { data: allStaffMembers, error: staffError, loading: staffLoading } = useApi(() => {
+    return staffService.getAll();
+  }, { dependencies: [] });
+  
+  // Apply frontend filtering based on staffType
+  const staffMembers = React.useMemo(() => {
+    if (!allStaffMembers) return [];
+    
+    if (staffType === 'ALL') return allStaffMembers;
+    
+    // Teaching staff roles (case-insensitive matching)
+    const teachingRoles = ['teacher', 'librarian', 'principal'];
+    // Administration staff roles (case-insensitive matching)
+    const administrationRoles = ['management', 'admin', 'director', 'supervisor'];
+    
+    return allStaffMembers.filter(staff => {
+      // Get role name regardless of structure (string or object)
+      let roleName = '';
+      
+      if (typeof staff.role === 'string') {
+        roleName = staff.role.toLowerCase();
+      } else if (staff.role && typeof staff.role === 'object' && 'name' in staff.role) {
+        roleName = (staff.role.name || '').toLowerCase();
+      } else if (staff.staffRole && typeof staff.staffRole === 'object' && 'name' in staff.staffRole) {
+        roleName = (staff.staffRole.name || '').toLowerCase();
+      }
+      
+      // Match based on staffType
+      if (staffType === 'TEACHING') {
+        return teachingRoles.some(role => roleName.includes(role));
+      } else if (staffType === 'NON_TEACHING') {
+        return !teachingRoles.some(role => roleName.includes(role));
+      } else if (staffType === 'ADMINISTRATION') {
+        return administrationRoles.some(role => roleName.includes(role));
+      }
+      
+      return true;
+    });
+  }, [allStaffMembers, staffType]);
 
   // Fetch attendance data
   const { data: attendanceData, error: attendanceError, loading: attendanceLoading, refetch: refetchAttendance } = useApi(() => {
     console.log(`Fetching attendance data for date: ${date}, staffType: ${staffType}`);
     return employeeAttendanceService.getAttendanceByDate(date, staffType);
   }, { 
-    dependencies: [date, staffType],
-    // Ensure we get fresh data each time
-    cacheTime: 0
+    dependencies: [date, staffType]
+    // No cacheTime option in this hook implementation
   });
   
   // Holiday check

@@ -37,22 +37,76 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({
 }) => {
   const navigate = useNavigate();
   
-  // Fetch staff based on type (same approach as AttendanceDailyView)
-  const { data: staffMembers, error: staffError, loading: staffLoading } = useApi(() => {
-    return staffType === 'TEACHING' 
-      ? staffService.getActiveTeachers()
-      : staffType === 'NON_TEACHING'
-        ? staffService.getNonTeachingStaff() 
-        : staffService.getAll();
+  // Fetch all staff instead of doing backend filtering
+  const { data: allStaffMembers, error: staffError, loading: staffLoading } = useApi(() => {
+    return staffService.getAll();
   }, { dependencies: [staffType] });
-  const { data: attendanceData, error: attendanceError, loading: attendanceLoading } = useApi(() => 
-    employeeAttendanceService.getAttendanceByDateRange(startDate, endDate)
-  , { dependencies: [startDate, endDate] });
+  
+  // Apply frontend filtering based on staffType
+  const staffMembers = React.useMemo(() => {
+    if (!allStaffMembers) return [];
+    
+    if (staffType === 'ALL') return allStaffMembers;
+    
+    // Teaching staff roles (case-insensitive matching)
+    const teachingRoles = ['teacher', 'librarian', 'principal'];
+    // Administration staff roles (case-insensitive matching)
+    const administrationRoles = ['management', 'admin', 'director', 'supervisor'];
+    
+    return allStaffMembers.filter(staff => {
+      // Get role name regardless of structure (string or object)
+      let roleName = '';
+      
+      if (typeof staff.role === 'string') {
+        roleName = staff.role.toLowerCase();
+      } else if (staff.role && typeof staff.role === 'object' && 'name' in staff.role) {
+        roleName = (staff.role.name || '').toLowerCase();
+      } else if (staff.staffRole && typeof staff.staffRole === 'object' && 'name' in staff.staffRole) {
+        roleName = (staff.staffRole.name || '').toLowerCase();
+      }
+      
+      // Match based on staffType
+      if (staffType === 'TEACHING') {
+        return teachingRoles.some(role => roleName.includes(role));
+      } else if (staffType === 'NON_TEACHING') {
+        return !teachingRoles.some(role => roleName.includes(role));
+      } else if (staffType === 'ADMINISTRATION') {
+        return administrationRoles.some(role => roleName.includes(role));
+      }
+      
+      return true;
+    });
+  }, [allStaffMembers, staffType]);
+  
+  // Add error handling and debug logging for attendance data fetching
+  const { data: attendanceData, error: attendanceError, loading: attendanceLoading } = useApi(() => {
+    console.log(`Fetching weekly attendance data for date range: ${startDate} to ${endDate}`);
+    // Add token validation before fetching attendance data
+    return employeeAttendanceService.getAttendanceByDateRange(startDate, endDate);
+  }, { 
+    dependencies: [startDate, endDate],
+    onError: (error) => {
+      console.error('Failed to load weekly attendance data:', error);
+    },
+    onSuccess: (data) => {
+      console.log(`Successfully loaded ${data?.length || 0} attendance records for the week`);
+    }
+  });
+  
   // Fetch holiday data for the week
-  const { data: holidayData, error: holidayError, loading: holidayLoading } = useApi(() => 
-    employeeAttendanceService.getHolidaysByDateRange(startDate, endDate)
-  , { dependencies: [startDate, endDate] });
-
+  const { data: holidayData, error: holidayError, loading: holidayLoading } = useApi(() => {
+    console.log(`Fetching holiday data for date range: ${startDate} to ${endDate}`);
+    return employeeAttendanceService.getHolidaysByDateRange(startDate, endDate);
+  }, { 
+    dependencies: [startDate, endDate],
+    onError: (error) => {
+      console.error('Failed to load holiday data:', error);
+    },
+    onSuccess: (data) => {
+      console.log(`Successfully loaded ${data?.length || 0} holidays for the week`);
+    }
+  });
+  
   // Generate dates array for the week
   const dates = React.useMemo(() => {
     const start = dayjs(startDate);

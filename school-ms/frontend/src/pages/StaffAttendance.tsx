@@ -112,9 +112,8 @@ const StaffAttendance: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const handleStaffTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setStaffTypeFilter(event.target.value as string);
-  };
+  // This function is no longer needed as we're using the onChange handler directly
+  // in the Select component below
 
   // If we're in weekly-edit mode, render the weekly edit component instead
   if (isWeeklyEditMode) {
