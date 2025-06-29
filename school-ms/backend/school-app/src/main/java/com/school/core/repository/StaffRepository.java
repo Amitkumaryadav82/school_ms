@@ -46,18 +46,20 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     Optional<Staff> findByEmail(String email);
     
     /**
-     * Find all active staff members
+     * Find all active staff members (based on employment status)
      * 
      * @return List of active staff members
      */
+    @Query("SELECT s FROM CoreStaff s WHERE s.employmentStatus = com.school.core.model.EmploymentStatus.ACTIVE")
     List<Staff> findByIsActiveTrue();
     
     /**
      * Find all active staff members with eager loading of StaffRole
+     * This uses employment_status = 'ACTIVE' instead of isActive flag
      * 
      * @return List of active staff members with eagerly loaded StaffRole
      */
-    @Query("SELECT s FROM CoreStaff s LEFT JOIN FETCH s.staffRole WHERE s.isActive = true")
+    @Query("SELECT s FROM CoreStaff s LEFT JOIN FETCH s.staffRole WHERE s.employmentStatus = com.school.core.model.EmploymentStatus.ACTIVE")
     List<Staff> findAllActiveStaffWithRole();
     
     /**
@@ -70,10 +72,12 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     
     /**
      * Find staff members by active status
+     * This now uses employment_status instead of isActive flag
      * 
-     * @param isActive The active status
+     * @param isActive The active status (true = ACTIVE, false = TERMINATED)
      * @return List of staff with the specified active status
      */
+    @Query("SELECT s FROM CoreStaff s WHERE (:isActive = true AND s.employmentStatus = 'ACTIVE') OR (:isActive = false AND s.employmentStatus = 'TERMINATED')")
     List<Staff> findByIsActive(Boolean isActive);    /**
      * Find staff members by role name
      * 

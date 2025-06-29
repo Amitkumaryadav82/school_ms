@@ -74,7 +74,7 @@ public class DirectFixController {
         }
         
         // Get holiday details
-        String sql = "SELECT name, description FROM holidays WHERE date = :date";
+        String sql = "SELECT name, description, type FROM school_holidays WHERE date = :date";
         Object[] holidayInfo = (Object[]) entityManager.createNativeQuery(sql)
                 .setParameter("date", date)
                 .getSingleResult();
@@ -117,7 +117,7 @@ public class DirectFixController {
     public ResponseEntity<Map<String, Object>> fixAllHolidayAttendance() {
         
         // Get all holiday dates
-        String dateSql = "SELECT date FROM holidays";
+        String dateSql = "SELECT date FROM school_holidays";
         @SuppressWarnings("unchecked")
         java.util.List<java.sql.Date> dates = entityManager.createNativeQuery(dateSql).getResultList();
         
@@ -128,7 +128,7 @@ public class DirectFixController {
             LocalDate date = sqlDate.toLocalDate();
             
             // Get holiday details
-            String sql = "SELECT name, description FROM holidays WHERE date = :date";
+            String sql = "SELECT name, description, type FROM school_holidays WHERE date = :date";
             Object[] holidayInfo = (Object[]) entityManager.createNativeQuery(sql)
                     .setParameter("date", date)
                     .getSingleResult();
@@ -158,6 +158,36 @@ public class DirectFixController {
         result.put("holidaysProcessed", dates.size());
         result.put("recordsFixed", totalFixed);
         result.put("message", "Successfully processed all holiday attendance records");
+        
+        return ResponseEntity.ok(result);
+    }
+    
+    /**
+     * Fix staff with NULL or incorrect employment_status
+     * This will set all staff with NULL or non-ACTIVE status to ACTIVE if they should be active
+     */
+    @PostMapping("/fix-employment-status")
+    @Transactional
+    public ResponseEntity<Map<String, Object>> fixEmploymentStatus() {
+        // Update NULL employment_status to 'ACTIVE'
+        String sqlNull = "UPDATE school_staff SET employment_status = 'ACTIVE' WHERE employment_status IS NULL";
+        Query queryNull = entityManager.createNativeQuery(sqlNull);
+        int updatedNull = queryNull.executeUpdate();
+        
+        // Get count of staff with non-ACTIVE status but is_active = true
+        String countSql = "SELECT COUNT(*) FROM school_staff WHERE is_active = true AND employment_status != 'ACTIVE'";
+        Long inconsistentCount = (Long) entityManager.createNativeQuery(countSql).getSingleResult();
+        
+        // Update staff with incorrect status (is_active = true but employment_status != 'ACTIVE')
+        String sqlInconsistent = "UPDATE school_staff SET employment_status = 'ACTIVE' WHERE is_active = true AND employment_status != 'ACTIVE'";
+        Query queryInconsistent = entityManager.createNativeQuery(sqlInconsistent);
+        int updatedInconsistent = queryInconsistent.executeUpdate();
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("nullStatusUpdated", updatedNull);
+        result.put("inconsistentStatusFound", inconsistentCount);
+        result.put("inconsistentStatusUpdated", updatedInconsistent);
+        result.put("message", "Employment status fixes applied successfully");
         
         return ResponseEntity.ok(result);
     }

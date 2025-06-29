@@ -91,7 +91,8 @@ public class ConsolidatedStaffServiceImpl implements ConsolidatedStaffService {
 
     @Override
     public List<ConsolidatedStaff> getActiveStaff() {
-        List<ConsolidatedStaff> activeStaff = staffRepository.findByIsActiveTrue();
+        // Updated to use findByEmploymentStatus(ACTIVE) instead of findByIsActiveTrue
+        List<ConsolidatedStaff> activeStaff = staffRepository.findByEmploymentStatus(EmploymentStatus.ACTIVE);
         activeStaff.forEach(this::enrichWithRoleName);
         return activeStaff;
     }
@@ -111,14 +112,13 @@ public class ConsolidatedStaffServiceImpl implements ConsolidatedStaffService {
     @Override
     @Transactional
     public ConsolidatedStaff createStaff(ConsolidatedStaff staff) {
-        // Set default values if needed
-        if (staff.getIsActive() == null) {
-            staff.setIsActive(true);
-        }
-        
+        // Always set employment status to ACTIVE for new staff
         if (staff.getEmploymentStatus() == null) {
             staff.setEmploymentStatus(EmploymentStatus.ACTIVE);
         }
+        
+        // Keep isActive in sync with employmentStatus for backward compatibility
+        staff.setIsActive(staff.getEmploymentStatus() == EmploymentStatus.ACTIVE);
         
         // Set audit timestamps
         LocalDateTime now = LocalDateTime.now();
@@ -195,7 +195,8 @@ public class ConsolidatedStaffServiceImpl implements ConsolidatedStaffService {
     @Transactional
     public ConsolidatedStaff deactivateStaff(Long id) {
         ConsolidatedStaff staff = getStaffById(id);
-        staff.setIsActive(false);
+        // Use the utility method to update both employmentStatus and isActive
+        updateEmploymentStatus(staff, EmploymentStatus.TERMINATED);
         staff.setUpdatedAt(LocalDateTime.now());
         
         ConsolidatedStaff updatedStaff = staffRepository.save(staff);
@@ -207,7 +208,8 @@ public class ConsolidatedStaffServiceImpl implements ConsolidatedStaffService {
     @Transactional
     public ConsolidatedStaff activateStaff(Long id) {
         ConsolidatedStaff staff = getStaffById(id);
-        staff.setIsActive(true);
+        // Use the utility method to update both employmentStatus and isActive
+        updateEmploymentStatus(staff, EmploymentStatus.ACTIVE);
         staff.setUpdatedAt(LocalDateTime.now());
         
         ConsolidatedStaff updatedStaff = staffRepository.save(staff);
@@ -219,7 +221,8 @@ public class ConsolidatedStaffServiceImpl implements ConsolidatedStaffService {
     @Transactional
     public ConsolidatedStaff updateStaffStatus(Long id, EmploymentStatus status) {
         ConsolidatedStaff staff = getStaffById(id);
-        staff.setEmploymentStatus(status);
+        // Use the utility method to update both employmentStatus and isActive
+        updateEmploymentStatus(staff, status);
         staff.setUpdatedAt(LocalDateTime.now());
         
         // If terminated, set service end date to today
@@ -249,8 +252,12 @@ public class ConsolidatedStaffServiceImpl implements ConsolidatedStaffService {
     public List<ConsolidatedStaff> bulkCreateStaff(List<ConsolidatedStaff> staffList) {
         LocalDateTime now = LocalDateTime.now();
         staffList.forEach(staff -> {
-            if (staff.getIsActive() == null) staff.setIsActive(true);
-            if (staff.getEmploymentStatus() == null) staff.setEmploymentStatus(EmploymentStatus.ACTIVE);
+            // First set employment status
+            if (staff.getEmploymentStatus() == null) {
+                staff.setEmploymentStatus(EmploymentStatus.ACTIVE);
+            }
+            // Then ensure isActive is in sync with employment status
+            staff.setIsActive(staff.getEmploymentStatus() == EmploymentStatus.ACTIVE);
             staff.setCreatedAt(now);
             staff.setUpdatedAt(now);
         });
@@ -267,5 +274,18 @@ public class ConsolidatedStaffServiceImpl implements ConsolidatedStaffService {
         if (staff.getRoleId() != null) {
             staff.setRoleName(roleCache.getOrDefault(staff.getRoleId(), "UNKNOWN"));
         }
+    }
+
+    /**
+     * Utility method to update a staff member's employment status
+     * This keeps the isActive field in sync with employmentStatus for backward compatibility
+     * 
+     * @param staff The staff member to update
+     * @param status The new employment status
+     */
+    private void updateEmploymentStatus(ConsolidatedStaff staff, EmploymentStatus status) {
+        staff.setEmploymentStatus(status);
+        // Keep isActive in sync with employmentStatus
+        staff.setIsActive(status == EmploymentStatus.ACTIVE);
     }
 }

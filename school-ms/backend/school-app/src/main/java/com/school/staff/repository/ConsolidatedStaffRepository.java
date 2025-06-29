@@ -47,10 +47,11 @@ public interface ConsolidatedStaffRepository extends JpaRepository<ConsolidatedS
     List<ConsolidatedStaff> findByRoleId(Long roleId);
     
     /**
-     * Find active staff
+     * Find active staff (based on employment status)
      * 
      * @return List of active staff
      */
+    @Query("SELECT s FROM ConsolidatedStaff s WHERE s.employmentStatus = com.school.staff.model.EmploymentStatus.ACTIVE")
     List<ConsolidatedStaff> findByIsActiveTrue();
     
     /**
