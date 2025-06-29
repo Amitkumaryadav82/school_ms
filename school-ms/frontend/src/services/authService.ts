@@ -233,9 +233,32 @@ export const authService = {
       .then(() => console.log('✅ AuthService: Server logout successful'))
       .catch(e => console.log('ℹ️ AuthService: Server logout failed, but client logout completed'));
   },
-    validateToken: async (token: string) => {
+    validateToken: async (token?: string) => {
     try {
-      const response = await api.authRequest<{valid: boolean}>('/auth/validate-token', { token });
+      // If no token provided, get from localStorage
+      const tokenToValidate = token || localStorage.getItem('token');
+      
+      if (!tokenToValidate) {
+        console.error('❌ AuthService: No token to validate');
+        return false;
+      }
+      
+      // First do a client-side validation of token expiration
+      try {
+        const payload = parseJwt(tokenToValidate);
+        if (payload && payload.exp) {
+          const currentTime = Date.now() / 1000; // Convert to seconds
+          if (payload.exp < currentTime) {
+            console.error('❌ AuthService: Token expired (client check)');
+            return false;
+          }
+        }
+      } catch (parseError) {
+        console.error('❌ AuthService: Error parsing token:', parseError);
+      }
+      
+      // Then validate with server
+      const response = await api.authRequest<{valid: boolean}>('/auth/validate-token', { token: tokenToValidate });
       return response.valid === true;
     } catch (error) {
       console.error('❌ AuthService: Token validation failed:', error);
@@ -300,3 +323,10 @@ function getCurrentUser(): { role: string } | null {
     return null;
   }
 }
+
+// Make authService available globally
+if (typeof window !== 'undefined') {
+  (window as any).authService = authService;
+}
+
+export default authService;

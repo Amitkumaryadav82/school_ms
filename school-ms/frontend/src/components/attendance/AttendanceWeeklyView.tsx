@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
 import { EmployeeAttendanceDTO, employeeAttendanceService, EmployeeAttendanceStatus } from '../../services/employeeAttendanceService';
 import { staffService } from '../../services/staffService';
@@ -25,13 +26,25 @@ interface AttendanceWeeklyViewProps {
   startDate: string;
   endDate: string;
   isAdmin: boolean;
+  staffType?: string;
 }
 
-const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, endDate, isAdmin }) => {
-  // Fetch teachers and attendance data
-  const { data: teachers, error: teachersError, loading: teachersLoading } = useApi(() => 
-    staffService.getActiveTeachers()
-  );
+const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ 
+  startDate, 
+  endDate, 
+  isAdmin,
+  staffType = 'ALL'
+}) => {
+  const navigate = useNavigate();
+  
+  // Fetch staff based on type (same approach as AttendanceDailyView)
+  const { data: staffMembers, error: staffError, loading: staffLoading } = useApi(() => {
+    return staffType === 'TEACHING' 
+      ? staffService.getActiveTeachers()
+      : staffType === 'NON_TEACHING'
+        ? staffService.getNonTeachingStaff() 
+        : staffService.getAll();
+  }, { dependencies: [staffType] });
   const { data: attendanceData, error: attendanceError, loading: attendanceLoading } = useApi(() => 
     employeeAttendanceService.getAttendanceByDateRange(startDate, endDate)
   , { dependencies: [startDate, endDate] });
@@ -104,11 +117,11 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, 
     }
   };
 
-  if (teachersLoading || attendanceLoading || holidayLoading) {
+  if (staffLoading || attendanceLoading || holidayLoading) {
     return <Loading />;
   }
 
-  if (teachersError || attendanceError || holidayError) {
+  if (staffError || attendanceError || holidayError) {
     return <ErrorMessage message="Failed to load attendance data." />;
   }
 
@@ -119,8 +132,7 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, 
       </Typography>
 
       <TableContainer component={Paper}>
-        <Table size="small">
-          <TableHead>
+        <Table size="small">              <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 'bold' }}>Staff ID</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
@@ -138,45 +150,31 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, 
                   )}
                 </TableCell>
               ))}
+              {isAdmin && <TableCell align="center" sx={{ fontWeight: 'bold', width: 100 }}>Actions</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
-            {teachers && teachers.length > 0 ? (
-              teachers.map((teacher: any) => (
-                <TableRow key={teacher.id}>
-                  <TableCell>{teacher.staffId}</TableCell>
-                  <TableCell>{teacher.firstName} {teacher.lastName}</TableCell>
-                  <TableCell>{teacher.department}</TableCell>
+            {staffMembers && staffMembers.length > 0 ? (
+              staffMembers.map((staff: any) => (
+                <TableRow key={staff.id}>
+                  <TableCell>{staff.staffId}</TableCell>
+                  <TableCell>{staff.firstName} {staff.lastName}</TableCell>
+                  <TableCell>{staff.department}</TableCell>
                   
                   {dates.map((date) => {
-                    const attendance = teacher.id && attendanceMap[teacher.id] 
-                      ? attendanceMap[teacher.id][date] 
+                    const attendance = staff.id && attendanceMap[staff.id] 
+                      ? attendanceMap[staff.id][date] 
                       : undefined;
                     
                     return (
-                      <TableCell key={`${teacher.id}-${date}`} align="center">
+                      <TableCell key={`${staff.id}-${date}`} align="center">
                         {attendance ? (
-                          <Box>
-                            <Chip 
-                              icon={getStatusIcon(attendance.status)}
-                              label={attendance.status?.replace('_', ' ') || 'Not Marked'} 
-                              color={getStatusColor(attendance.status) as any}
-                              size="small"
-                            />
-                            {isAdmin && (
-                              <Tooltip title="Edit Attendance">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => {
-                                    // This would open an edit dialog/modal in a complete implementation
-                                    window.location.href = `/teacher-attendance?date=${date}&employeeId=${teacher.id}`;
-                                  }}
-                                >
-                                  <Edit fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </Box>
+                          <Chip 
+                            icon={getStatusIcon(attendance.status)}
+                            label={attendance.status?.replace('_', ' ') || 'Not Marked'} 
+                            color={getStatusColor(attendance.status) as any}
+                            size="small"
+                          />
                         ) : holidayMap[date] ? (
                           <Chip 
                             label="Holiday" 
@@ -191,12 +189,29 @@ const AttendanceWeeklyView: React.FC<AttendanceWeeklyViewProps> = ({ startDate, 
                       </TableCell>
                     );
                   })}
+                  
+                  {isAdmin && (
+                    <TableCell align="center">
+                      <Tooltip title="Edit Attendance for Entire Week">
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          onClick={() => {
+                            // Use React Router navigation to preserve authentication context
+                            navigate(`/staff-attendance?startDate=${startDate}&endDate=${endDate}&employeeId=${staff.id}&mode=weekly-edit`);
+                          }}
+                        >
+                          <Edit />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={3 + dates.length} align="center">
-                  No teachers found
+                  No staff members found
                 </TableCell>
               </TableRow>
             )}

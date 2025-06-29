@@ -79,12 +79,14 @@ const menuItems: MenuItem[] = [
     path: '/staff',
     allowedRoles: [ROLES.ADMIN]
   },
+  /* Courses tab hidden per requirement
   { 
     text: 'Courses', 
     icon: <Book />, 
     path: '/consolidated-courses',
     allowedRoles: [ROLES.ADMIN, ROLES.TEACHER]
-  },  { 
+  },*/  
+  { 
     text: 'Staff Attendance', 
     icon: <EventAvailable />, 
     path: '/staff-attendance',

@@ -21,15 +21,18 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import AttendanceCalendarView from '../components/attendance/AttendanceCalendarView';
 import AttendanceDailyView from '../components/attendance/AttendanceDailyView';
 import AttendanceMonthlyView from '../components/attendance/AttendanceMonthlyView';
 import AttendanceReports from '../components/attendance/AttendanceReports';
 import AttendanceUpload from '../components/attendance/AttendanceUpload';
+import AttendanceWeeklyEdit from '../components/attendance/AttendanceWeeklyEdit';
 import AttendanceWeeklyView from '../components/attendance/AttendanceWeeklyView';
 import HolidayManagement from '../components/attendance/HolidayManagement';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
+import { authService } from '../services/authService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -56,13 +59,38 @@ const TabPanel = (props: TabPanelProps) => {
 
 const StaffAttendance: React.FC = () => {
   const { showNotification } = useNotification();
-  const { currentUser } = useAuth();
+  const { currentUser, logout, isAuthenticated } = useAuth();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
   const [selectedWeek, setSelectedWeek] = useState<Dayjs>(dayjs());
   const [isAdmin, setIsAdmin] = useState(false);
   const [staffTypeFilter, setStaffTypeFilter] = useState<string>("ALL");
+  
+  // Validate token when component mounts or on URL parameter changes
+  useEffect(() => {
+    const validateSession = async () => {
+      try {
+        // Use the auth service to validate the token
+        await authService.validateToken();
+      } catch (error) {
+        console.error('Token validation failed in StaffAttendance:', error);
+        // Redirect to login with expired session message
+        logout('expired');
+      }
+    };
+    
+    validateSession();
+  }, [logout, searchParams]);
+  
+  // Check URL for weekly-edit mode parameters
+  const mode = searchParams.get('mode');
+  const employeeId = searchParams.get('employeeId');
+  const paramStartDate = searchParams.get('startDate');
+  const paramEndDate = searchParams.get('endDate');
+  const isWeeklyEditMode = mode === 'weekly-edit' && employeeId && paramStartDate && paramEndDate;
   
   // Check if the current user has admin permissions
   useEffect(() => {
@@ -72,6 +100,14 @@ const StaffAttendance: React.FC = () => {
     }
   }, [currentUser]);
 
+  // Set weekly tab when in weekly-edit mode
+  useEffect(() => {
+    if (isWeeklyEditMode && paramStartDate) {
+      setSelectedWeek(dayjs(paramStartDate));
+      setTabValue(1); // Weekly tab
+    }
+  }, [isWeeklyEditMode, paramStartDate]);
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
@@ -79,6 +115,21 @@ const StaffAttendance: React.FC = () => {
   const handleStaffTypeChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setStaffTypeFilter(event.target.value as string);
   };
+
+  // If we're in weekly-edit mode, render the weekly edit component instead
+  if (isWeeklyEditMode) {
+    return (
+      <Box sx={{ flexGrow: 1 }}>
+        <Paper sx={{ p: 2, mb: 2 }}>
+          <AttendanceWeeklyEdit 
+            employeeId={parseInt(employeeId)}
+            startDate={paramStartDate}
+            endDate={paramEndDate}
+          />
+        </Paper>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -194,12 +245,11 @@ const StaffAttendance: React.FC = () => {
             year={selectedMonth.year()} 
             month={selectedMonth.month() + 1} 
             isAdmin={isAdmin}
-            staffType={staffTypeFilter}
           />
         </TabPanel>
 
         <TabPanel value={tabValue} index={3}>
-          <AttendanceCalendarView staffType={staffTypeFilter} />
+          <AttendanceCalendarView />
         </TabPanel>
 
         <TabPanel value={tabValue} index={4}>
@@ -211,7 +261,7 @@ const StaffAttendance: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={isAdmin ? 6 : 3}>
-          <AttendanceReports isAdmin={isAdmin} staffType={staffTypeFilter} />
+          <AttendanceReports isAdmin={isAdmin} />
         </TabPanel>
       </Paper>
     </Box>

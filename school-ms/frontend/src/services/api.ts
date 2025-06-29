@@ -146,30 +146,21 @@ apiClient.interceptors.response.use(
         const userData = localStorage.getItem('user');
         if (userData) {
           try {
-            // Check if this is a Dashboard API request
+            // Check if this is a Dashboard API or Attendance API request
             const isDashboardRequest = error.config?.url.includes('dashboard') || 
                                       error.config?.url.includes('students') ||
                                       error.config?.url.includes('teachers') ||
-                                      error.config?.url.includes('courses');
+                                      error.config?.url.includes('courses') ||
+                                      error.config?.url.includes('attendance');
             
             // If this is a dashboard request, we want to be more lenient
             if (isDashboardRequest) {
               console.warn('Dashboard API request failed with 401, but keeping user session active');
               // We'll show a notification instead of proceeding with error
-              try {
-                // Dynamic import to avoid circular dependency
-                const { default: NotificationContext } = await import('../context/NotificationContext');
-                const showNotification = NotificationContext._currentValue?.showNotification;
-                
-                if (showNotification) {
-                  showNotification({
-                    type: 'warning',
-                    message: 'Some dashboard data couldn\'t be loaded. Will retry automatically.'
-                  });
-                }
-              } catch (notifErr) {
-                console.warn('Could not show notification:', notifErr);
-              }
+              // Just log the warning without trying to show notification
+              // to avoid circular dependency issues
+              console.warn('Dashboard/attendance API request failed with 401, but keeping session active');
+              console.warn('Some data couldn\'t be loaded. Will retry automatically.');
               
               // For dashboard requests, return empty data instead of error to prevent crashes
               if (isDashboardRequest) {
