@@ -22,7 +22,7 @@ import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import AttendanceDailyView from '../components/attendance/AttendanceDailyView';
-import AttendanceReports from '../components/attendance/AttendanceReports';
+import AttendanceReportsImpl from '../components/attendance/AttendanceReportsImpl';
 import AttendanceUpload from '../components/attendance/AttendanceUpload';
 import AttendanceWeeklyEdit from '../components/attendance/AttendanceWeeklyEdit';
 import AttendanceWeeklyView from '../components/attendance/AttendanceWeeklyView';
@@ -227,7 +227,7 @@ const StaffAttendance: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={isAdmin ? 4 : 2}>
-          <AttendanceReports isAdmin={isAdmin} />
+          <AttendanceReportsImpl isAdmin={isAdmin} staffType={staffTypeFilter} />
         </TabPanel>
       </Paper>
     </Box>

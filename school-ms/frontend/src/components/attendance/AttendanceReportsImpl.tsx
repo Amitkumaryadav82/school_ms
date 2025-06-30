@@ -1,8 +1,5 @@
-// React imports
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-
-// Material UI icons
 import {
     AssessmentOutlined,
     CalendarToday,
@@ -11,8 +8,6 @@ import {
     Person,
     Print
 } from '@mui/icons-material';
-
-// Material UI components
 import {
     Box,
     Button,
@@ -40,8 +35,6 @@ import {
     Tabs,
     Typography
 } from '@mui/material';
-
-// Date pickers
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -63,8 +56,8 @@ import {
 } from 'recharts';
 import { useNotification } from '../../context/NotificationContext';
 import { useApi } from '../../hooks/useApi';
-import { employeeAttendanceService } from '../../services/employeeAttendanceService';
-import { staffService } from '../../services/staffService';
+import { employeeAttendanceService, EmployeeAttendanceStatus } from '../../services/employeeAttendanceService';
+import staffService from '../../services/staffService';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
 
@@ -90,88 +83,202 @@ const TabPanel = (props: TabPanelProps) => {
   );
 };
 
-interface AttendanceReportsProps {
+interface AttendanceReportsImplProps {
   isAdmin: boolean;
   staffType?: string;
 }
 
-const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffType = 'ALL' }) => {
+const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, staffType = 'ALL' }) => {
   const { showNotification } = useNotification();
   const [tabValue, setTabValue] = useState(0);
-  const [selectedTeacher, setSelectedTeacher] = useState<number | ''>('');
+  const [selectedStaffMember, setSelectedStaffMember] = useState<number | ''>('');
   const [startDate, setStartDate] = useState<Dayjs>(dayjs().subtract(30, 'day'));
   const [endDate, setEndDate] = useState<Dayjs>(dayjs());
   const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
   const [selectedMonth, setSelectedMonth] = useState<number>(dayjs().month() + 1);
-
-  // API calls
-  const { data: teachers, loading: teachersLoading, error: teachersError } = useApi(
-    () => staffService.getActiveTeachers()
-  );
-
-  const { data: employeeStats, loading: statsLoading, error: statsError } = useApi(
+  
+  // Calculate date range for monthly data
+  const monthStartDate = dayjs(`${selectedYear}-${selectedMonth}-01`);
+  const monthEndDate = monthStartDate.endOf('month');
+  
+  // API calls using available endpoints
+  const { data: allStaff, loading: staffLoading, error: staffError } = useApi(
     () => {
-      if (!selectedTeacher) return Promise.resolve(null);
-      console.log('Fetching attendance stats for employee:', selectedTeacher, 'from', startDate.format('YYYY-MM-DD'), 'to', endDate.format('YYYY-MM-DD'));
-      return employeeAttendanceService.getAttendanceStats(
-        Number(selectedTeacher),
-        startDate.format('YYYY-MM-DD'),
-        endDate.format('YYYY-MM-DD')
-      );
+      console.log("Fetching all staff data");
+      return staffService.getAll().then(response => {
+        console.log(`Received ${response?.length || 0} staff records`);
+        return response;
+      });
     },
-    { dependencies: [selectedTeacher, startDate, endDate] }
+    { dependencies: [] }
   );
-  const { data: monthlyReport, loading: monthlyReportLoading, error: monthlyReportError, refresh } = useApi(
+  
+  // Filter staff based on staff type and active status
+  const filteredStaff = React.useMemo(() => {
+    if (!allStaff) return [];
+    
+    // Log the total count before filtering
+    console.log(`Total staff before filtering: ${allStaff.length}`);
+    
+    const filtered = allStaff.filter(staff => {
+      // Filter by staff type if specified
+      if (staffType !== 'ALL' && staff.employeeType !== staffType) {
+        return false;
+      }
+      
+      // Include all active staff (can be teachers, administrators, or other staff)
+      return staff.employmentStatus === 'ACTIVE';
+    });
+    
+    // Log the count after filtering
+    console.log(`Staff after filtering (type=${staffType}): ${filtered.length}`);
+    
+    // Sort staff alphabetically by name for better usability
+    filtered.sort((a, b) => {
+      const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+      const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+    
+    return filtered;
+  }, [allStaff, staffType]);
+  
+  // Get attendance data for selected staff member
+  const { data: staffAttendance, loading: staffAttendanceLoading, error: staffAttendanceError } = useApi(
     () => {
-      console.log('Fetching monthly report for year:', selectedYear, 'month:', selectedMonth, 'staffType:', staffType);
-      return employeeAttendanceService.getMonthlyAttendanceReport(selectedYear, selectedMonth, staffType);
+      if (!selectedStaffMember) return Promise.resolve([]);
+      
+      console.log(`Fetching attendance for staff ID: ${selectedStaffMember}`);
+      return employeeAttendanceService.getAttendanceByEmployee(Number(selectedStaffMember))
+        .then(response => {
+          console.log(`Received ${response?.length || 0} attendance records for staff ID ${selectedStaffMember}`);
+          return response;
+        });
+    },
+    { dependencies: [selectedStaffMember] }
+  );
+  
+  // Get attendance data for selected month (for all employees)
+  const { data: monthlyAttendance, loading: monthlyAttendanceLoading, error: monthlyAttendanceError } = useApi(
+    () => {
+      return employeeAttendanceService.getAttendanceByDateRange(
+        monthStartDate.format('YYYY-MM-DD'), 
+        monthEndDate.format('YYYY-MM-DD'),
+        staffType
+      );
     },
     { dependencies: [selectedYear, selectedMonth, staffType] }
   );
   
-  // Enhanced debug logging for report data
-  useEffect(() => {
-    if (monthlyReport) {
-      console.log('Monthly report data received:', monthlyReport);
-      console.log('Monthly report has employee summaries:', !!monthlyReport.employeeSummaries);
-      if (monthlyReport.employeeSummaries) {
-        console.log('Number of employees in report:', monthlyReport.employeeSummaries.length);
-        // Log the first employee record to check data structure
-        if (monthlyReport.employeeSummaries.length > 0) {
-          console.log('Sample employee data:', monthlyReport.employeeSummaries[0]);
-        }
-      }
-    } else if (monthlyReportError) {
-      console.error('Error fetching monthly report:', monthlyReportError);
-    }
-  }, [monthlyReport, monthlyReportError]);
-  
-  // Enhanced debug logging for UI state and data
-  useEffect(() => {
-    console.log('AttendanceReports component state:', {
-      tabValue,
-      isAdmin,
-      selectedTeacher: selectedTeacher || 'none',
-      hasTeachers: teachers ? teachers.length > 0 : false,
-      hasMonthlyReport: !!monthlyReport,
-      hasEmployeeStats: !!employeeStats,
-      departmentDataLength: departmentData.length,
-      trendDataLength: trendData.length,
-      currentMonth: selectedMonth,
-      currentYear: selectedYear
+  // Calculate employee stats from raw attendance data
+  const employeeStats = React.useMemo(() => {
+    if (!staffAttendance || !selectedStaffMember) return null;
+    
+    // Filter by date range
+    const inRangeAttendance = staffAttendance.filter(record => {
+      const recordDate = dayjs(record.attendanceDate);
+      return recordDate.isAfter(startDate) && recordDate.isBefore(endDate);
     });
-  }, [tabValue, isAdmin, selectedTeacher, teachers, monthlyReport, employeeStats, departmentData, trendData, selectedMonth, selectedYear]);
-
-  // Handle tab change
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-  // Get teacher name from ID
-  const getTeacherName = (id: number) => {
-    const teacher = teachers?.find((t: any) => t.id === id);
-    return teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown';
-  };
-
+    
+    // Count days by status
+    const presentDays = inRangeAttendance.filter(a => a.status === EmployeeAttendanceStatus.PRESENT).length;
+    const absentDays = inRangeAttendance.filter(a => a.status === EmployeeAttendanceStatus.ABSENT).length;
+    const halfDays = inRangeAttendance.filter(a => a.status === EmployeeAttendanceStatus.HALF_DAY).length;
+    const leaveDays = inRangeAttendance.filter(a => a.status === EmployeeAttendanceStatus.ON_LEAVE).length;
+    const totalMarkedDays = inRangeAttendance.length;
+    
+    // Calculate total working days (excluding weekends and holidays)
+    const totalDays = endDate.diff(startDate, 'day') + 1;
+    const totalWorkingDays = totalDays - Math.floor(totalDays / 7) * 2; // Approximate by removing weekends
+    
+    // Calculate attendance percentage
+    const attendancePercentage = totalMarkedDays > 0 
+      ? Math.round((presentDays + (halfDays * 0.5)) / totalMarkedDays * 100)
+      : 0;
+      
+    // Group dates by status for details section
+    const datesByStatus = inRangeAttendance.reduce((acc, curr) => {
+      if (!acc[curr.status]) {
+        acc[curr.status] = [];
+      }
+      acc[curr.status].push(curr.attendanceDate);
+      return acc;
+    }, {} as Record<string, string[]>);
+    
+    return {
+      startDate: startDate.format('YYYY-MM-DD'),
+      endDate: endDate.format('YYYY-MM-DD'),
+      totalWorkingDays,
+      presentDays,
+      absentDays,
+      halfDays,
+      leaveDays,
+      attendancePercentage,
+      datesByStatus
+    };
+  }, [staffAttendance, selectedStaffMember, startDate, endDate]);
+  
+  // Calculate monthly report data from raw attendance
+  const monthlyReport = React.useMemo(() => {
+    if (!monthlyAttendance || !allStaff) return null;
+    
+    // Group attendance by employee
+    const employeeAttendanceMap = monthlyAttendance.reduce((acc, record) => {
+      if (!acc[record.employeeId]) {
+        acc[record.employeeId] = [];
+      }
+      acc[record.employeeId].push(record);
+      return acc;
+    }, {} as Record<number, typeof monthlyAttendance>);
+    
+    // Calculate summaries for each employee
+    const employeeSummaries = Object.entries(employeeAttendanceMap).map(([employeeId, records]) => {
+      const employee = allStaff.find(s => s.id === parseInt(employeeId));
+      
+      if (!employee) return null;
+      
+      // Count days by status
+      const presentDays = records.filter(r => r.status === EmployeeAttendanceStatus.PRESENT).length;
+      const absentDays = records.filter(r => r.status === EmployeeAttendanceStatus.ABSENT).length;
+      const halfDays = records.filter(r => r.status === EmployeeAttendanceStatus.HALF_DAY).length;
+      const leaveDays = records.filter(r => r.status === EmployeeAttendanceStatus.ON_LEAVE).length;
+      const totalDays = records.length;
+      
+      // Calculate attendance percentage
+      const attendancePercentage = totalDays > 0 
+        ? ((presentDays + (halfDays * 0.5)) / totalDays * 100).toFixed(1)
+        : "0";
+      
+      // Create daily status map
+      const dailyStatus = records.reduce((acc, record) => {
+        acc[record.attendanceDate] = record.status;
+        return acc;
+      }, {} as Record<string, string>);
+      
+      return {
+        employeeId: parseInt(employeeId),
+        employeeName: employee.firstName + ' ' + employee.lastName,
+        department: employee.department || 'Unknown',
+        presentDays,
+        halfDays,
+        absentDays,
+        leaveDays,
+        attendancePercentage,
+        dailyStatus
+      };
+    }).filter(Boolean);
+    
+    return {
+      year: selectedYear,
+      month: selectedMonth,
+      monthName: monthStartDate.format('MMMM'),
+      startDate: monthStartDate.format('YYYY-MM-DD'),
+      endDate: monthEndDate.format('YYYY-MM-DD'),
+      totalWorkingDays: monthEndDate.diff(monthStartDate, 'day') + 1,
+      employeeSummaries
+    };
+  }, [monthlyAttendance, allStaff, selectedYear, selectedMonth, monthStartDate, monthEndDate]);
+  
   // Prepare chart data for individual teacher
   const individualChartData = React.useMemo(() => {
     if (!employeeStats) return [];
@@ -184,170 +291,87 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
     ];
   }, [employeeStats]);
 
-  // Prepare attendance trend data with improved error handling and fallbacks
-  const trendData = React.useMemo(() => {
-    console.log('Generating trend data, monthly report:', monthlyReport);
-    
-    // Example trend data based on monthly report
-    const months = Array(12).fill(0).map((_, i) => {
-      const date = dayjs().month(i);
-      return {
-        month: date.format('MMM'),
-        present: 0,
-        absent: 0
-      };
-    });
-    
-    console.log('Initial trend data template:', months);
-    
-    // For the current month, use real data
-    if (monthlyReport && monthlyReport.employeeSummaries && monthlyReport.employeeSummaries.length > 0) {
-      try {
-        const monthIndex = selectedMonth - 1;
-        console.log(`Updating trend data for month index ${monthIndex} (${dayjs().month(monthIndex).format('MMMM')})`);
-        
-        // Calculate average attendance stats for the department
-        let totalPresent = 0;
-        let totalAbsent = 0;
-        let employeeCount = 0;
-        
-        monthlyReport.employeeSummaries.forEach(employee => {
-          if (!employee) return;
-          
-          employeeCount++;
-          
-          // Safely access properties with fallbacks
-          const presentDays = typeof employee.presentDays === 'number' ? employee.presentDays : 0;
-          const absentDays = typeof employee.absentDays === 'number' ? employee.absentDays : 0;
-          
-          console.log(`Employee ${employee.employeeName || 'Unknown'}: present=${presentDays}, absent=${absentDays}`);
-          
-          totalPresent += presentDays;
-          totalAbsent += absentDays;
-        });
-        
-        console.log(`Total present days: ${totalPresent}, total absent days: ${totalAbsent}, employee count: ${employeeCount}`);
-        
-        // Set the real values for the selected month
-        if (monthIndex >= 0 && monthIndex < months.length) {
-          months[monthIndex].present = totalPresent;
-          months[monthIndex].absent = totalAbsent;
-        }
-        
-        // Add sample data for surrounding months to make the chart more interesting
-        // This is for demonstration purposes only - in a real app this would be real historical data
-        const prevMonth = (monthIndex - 1 + 12) % 12;
-        const nextMonth = (monthIndex + 1) % 12;
-        
-        // Add some representative data for nearby months
-        if (totalPresent > 0 || totalAbsent > 0) {
-          // Previous month (slightly lower values)
-          months[prevMonth].present = Math.round(totalPresent * 0.9);
-          months[prevMonth].absent = Math.round(totalAbsent * 0.85);
-          
-          // Next month (projected values - slightly higher attendance)
-          months[nextMonth].present = Math.round(totalPresent * 1.05);
-          months[nextMonth].absent = Math.round(totalAbsent * 0.9);
-        }
-        
-        console.log('Updated trend data:', months);
-      } catch (err) {
-        console.error('Error processing trend data:', err);
-      }
-    } else {
-      console.log('No employee summaries available in monthly report for trend data');
-      
-      // If no real data, provide sample data so the chart isn't empty
-      for (let i = 0; i < 12; i++) {
-        months[i].present = Math.round(Math.random() * 50) + 100; // 100-150 range
-        months[i].absent = Math.round(Math.random() * 20) + 5;    // 5-25 range
-      }
-    }
-    
-    return months;
-  }, [monthlyReport, selectedMonth]);
-
-  // Prepare data for department-wise comparison with improved error handling
+  // Prepare data for department-wise comparison
   const departmentData = React.useMemo(() => {
-    console.log('Calculating department data from monthly report:', monthlyReport);
-    
     if (!monthlyReport || !monthlyReport.employeeSummaries) {
-      console.log('No monthly report data or employee summaries for department calculations');
-      return [
-        { department: 'No Data', attendanceRate: 0, total: 0 }
-      ];
+      return [];
     }
     
-    if (monthlyReport.employeeSummaries.length === 0) {
-      console.log('Employee summaries array is empty - no departments to calculate');
-      return [
-        { department: 'No Data Available', attendanceRate: 0, total: 0 }
-      ];
-    }
-    
+    // Group by department
     const deptMap: Record<string, { 
       department: string, 
       attendanceRate: number, 
       total: number 
     }> = {};
     
-    try {
-      monthlyReport.employeeSummaries.forEach(employee => {
-        if (!employee) {
-          console.warn('Empty employee record found in summaries');
-          return;
-        }
-        
-        console.log('Processing employee department data:', employee);
-        const dept = employee.department || 'Other';
-        
-        if (!deptMap[dept]) {
-          deptMap[dept] = {
-            department: dept,
-            attendanceRate: 0,
-            total: 0
-          };
-        }
-        
-        // More robust parsing with fallbacks
-        let attendancePercentage = 0;
-        try {
-          // Handle various formats (string with %, plain number, etc)
-          const percentStr = String(employee.attendancePercentage || '0').replace('%', '');
-          attendancePercentage = parseFloat(percentStr);
-          // Cap at 100%
-          attendancePercentage = isNaN(attendancePercentage) ? 0 : Math.min(attendancePercentage, 100);
-        } catch (err) {
-          console.warn('Failed to parse attendance percentage:', employee.attendancePercentage);
-        }
-        
-        console.log(`Employee ${employee.employeeName || 'Unknown'} has attendance percentage: ${attendancePercentage}%`);
-        deptMap[dept].attendanceRate += attendancePercentage;
-        deptMap[dept].total += 1;
-      });
-    } catch (err) {
-      console.error('Error processing employee summaries:', err);
-      return [
-        { department: 'Error Processing Data', attendanceRate: 0, total: 0 }
-      ];
-    }
-    
-    // Ensure we have at least one department
-    if (Object.keys(deptMap).length === 0) {
-      return [
-        { department: 'No Departments Found', attendanceRate: 0, total: 0 }
-      ];
-    }
+    monthlyReport.employeeSummaries.forEach(employee => {
+      const dept = employee.department || 'Unknown';
+      if (!deptMap[dept]) {
+        deptMap[dept] = {
+          department: dept,
+          attendanceRate: 0,
+          total: 0
+        };
+      }
+      
+      const attendancePercentage = parseFloat(employee.attendancePercentage || '0');
+      deptMap[dept].attendanceRate += attendancePercentage;
+      deptMap[dept].total += 1;
+    });
     
     // Calculate averages
-    const result = Object.values(deptMap).map(item => ({
+    return Object.values(deptMap).map(item => ({
       ...item,
       attendanceRate: item.total > 0 ? Math.round(item.attendanceRate / item.total) : 0
     }));
-    
-    console.log('Calculated department data:', result);
-    return result;
   }, [monthlyReport]);
+
+  // Generate trend data from monthly report
+  const trendData = React.useMemo(() => {
+    // Create empty data for all 12 months
+    const months = Array(12).fill(0).map((_, i) => {
+      const date = dayjs().month(i);
+      return {
+        month: date.format('MMM'),
+        present: Math.round(Math.random() * 50) + 50, // Sample data 50-100
+        absent: Math.round(Math.random() * 20)       // Sample data 0-20
+      };
+    });
+    
+    // Fill current month with real data if available
+    if (monthlyReport && monthlyReport.employeeSummaries) {
+      const monthIndex = selectedMonth - 1;
+      
+      // Calculate total attendance metrics
+      let totalPresent = 0;
+      let totalAbsent = 0;
+      
+      monthlyReport.employeeSummaries.forEach(employee => {
+        totalPresent += employee.presentDays;
+        totalAbsent += employee.absentDays;
+      });
+      
+      // Update the month data with real values
+      months[monthIndex] = {
+        month: months[monthIndex].month,
+        present: totalPresent,
+        absent: totalAbsent
+      };
+    }
+    
+    return months;
+  }, [monthlyReport, selectedMonth]);
+
+  // Handle tab change
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  // Get teacher name from ID
+  const getStaffName = (id: number) => {
+    const staff = filteredStaff?.find((s: any) => s.id === id);
+    return staff ? `${staff.firstName} ${staff.lastName}` : 'Unknown';
+  };
 
   // Handle export reports
   const handleExport = () => {
@@ -359,22 +383,34 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
     window.print();
   };
 
-  // Only show a full loading state if we're loading teachers list, 
-  // other loading states are handled within each tab panel
-  if (isAdmin && teachersLoading) {
-    console.log('Reports loading teachers list');
-    return <Loading message="Loading teacher data..." />;
+  // Helper function to calculate percentage for chart tooltips
+  const calculatePercentage = (value: number, stats: any) => {
+    if (!stats) return 0;
+    const total = stats.presentDays + stats.absentDays + stats.halfDays + stats.leaveDays;
+    return total > 0 ? Math.round((value / total) * 100) : 0;
+  };
+
+  // Loading state
+  if (staffLoading || 
+    (tabValue === 0 && selectedStaffMember && staffAttendanceLoading) || 
+    (tabValue !== 0 && monthlyAttendanceLoading)) {
+    return <Loading />;
   }
 
-  // Full error state only for critical errors that prevent the component from functioning
-  if (isAdmin && teachersError) {
-    console.error('Reports error state - failed to load teachers:', teachersError);
-    return (
-      <ErrorMessage 
-        message="Failed to load teacher data. Please refresh the page and try again." 
-        severity="error"
-      />
-    );
+  // Error state with more detailed messages
+  if (staffError) {
+    console.error("Staff data loading error:", staffError);
+    return <ErrorMessage message="Failed to load staff data. Please try again later." />;
+  }
+  
+  if (tabValue === 0 && selectedStaffMember && staffAttendanceError) {
+    console.error("Staff attendance data loading error:", staffAttendanceError);
+    return <ErrorMessage message="Failed to load attendance data for the selected staff member. Please try again later." />;
+  }
+  
+  if (tabValue !== 0 && monthlyAttendanceError) {
+    console.error("Monthly attendance data loading error:", monthlyAttendanceError);
+    return <ErrorMessage message="Failed to load department attendance data. Please try again later." />;
   }
 
   return (
@@ -424,25 +460,38 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
             <Grid container spacing={2}>
               <Grid item xs={12} md={4}>
                 <FormControl fullWidth>
-                  <InputLabel id="teacher-select-label">Select Teacher</InputLabel>
+                  <InputLabel id="staff-select-label">Select Staff Member</InputLabel>
                   <Select
-                    labelId="teacher-select-label"
-                    value={selectedTeacher}
-                    label="Select Teacher"
-                    onChange={(e) => setSelectedTeacher(e.target.value as number)}
+                    labelId="staff-select-label"
+                    value={selectedStaffMember}
+                    label="Select Staff Member"
+                    onChange={(e) => setSelectedStaffMember(e.target.value as number)}
                   >
                     <MenuItem value="">
-                      <em>Select a teacher</em>
+                      <em>Select a staff member</em>
                     </MenuItem>
-                    {teachers?.map((teacher: any) => (
-                      <MenuItem key={teacher.id} value={teacher.id}>
-                        {teacher.firstName} {teacher.lastName}
+                    {filteredStaff?.map((staff: any) => (
+                      <MenuItem key={staff.id} value={staff.id}>
+                        {staff.firstName} {staff.lastName}
+                        {staff.employeeType && <span style={{ fontSize: '0.8em', marginLeft: '8px', color: '#666' }}>
+                          ({staff.employeeType.replace('_', ' ')})
+                        </span>}
                       </MenuItem>
                     ))}
                   </Select>
+                  {staffType === 'ALL' ? (
+                    <Typography variant="caption" sx={{ mt: 0.5, color: 'text.secondary' }}>
+                      Showing all active staff members ({filteredStaff?.length || 0})
+                    </Typography>
+                  ) : (
+                    <Typography variant="caption" sx={{ mt: 0.5, color: 'text.secondary' }}>
+                      Filtered to {staffType.replace('_', ' ').toLowerCase()} staff ({filteredStaff?.length || 0})
+                    </Typography>
+                  )}
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={4}>                <DatePicker
+              <Grid item xs={12} md={4}>
+                <DatePicker
                   label="Start Date"
                   value={startDate}
                   onChange={(date) => date && setStartDate(dayjs(date as any))}
@@ -459,14 +508,14 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
               </Grid>
             </Grid>
 
-            {selectedTeacher && employeeStats ? (
+            {selectedStaffMember && employeeStats ? (
               <Box sx={{ mt: 3 }}>
                 <Grid container spacing={3}>
                   <Grid item xs={12} md={6}>
                     <Card>
                       <CardContent>
                         <Typography variant="h6" gutterBottom>
-                          Attendance Summary for {getTeacherName(Number(selectedTeacher))}
+                          Attendance Summary for {getStaffName(Number(selectedStaffMember))}
                         </Typography>
                         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                           {dayjs(employeeStats.startDate).format('MMM D, YYYY')} - {dayjs(employeeStats.endDate).format('MMM D, YYYY')}
@@ -527,8 +576,8 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
                           Attendance Distribution
                         </Typography>
                         
-                        <Box sx={{ height: 250, width: '100%' }}>
-                          <ResponsiveContainer>
+                        <Box sx={{ height: 300, width: '100%', mt: 2 }}>
+                          <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Pie
                                 data={individualChartData}
@@ -537,14 +586,15 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
                                 outerRadius={80}
                                 fill="#8884d8"
                                 dataKey="value"
-                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                labelLine={false}
+                                label={false}
                               >
                                 {individualChartData.map((entry, index) => (
                                   <Cell key={`cell-${index}`} fill={entry.color} />
                                 ))}
                               </Pie>
-                              <RechartsTooltip />
-                              <Legend />
+                              <RechartsTooltip formatter={(value, name) => [`${value} days (${calculatePercentage(value, employeeStats)}%)`, name]} />
+                              <Legend layout="horizontal" verticalAlign="bottom" align="center" />
                             </PieChart>
                           </ResponsiveContainer>
                         </Box>
@@ -591,54 +641,17 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
                   </Card>
                 )}
               </Box>
-            ) : selectedTeacher ? (
+            ) : selectedStaffMember ? (
               <Box sx={{ mt: 3, textAlign: 'center', p: 3 }}>
-                {loading ? (
-                  <Typography>Loading attendance data...</Typography>
-                ) : error ? (
-                  <>
-                    <Typography variant="h6" color="error" gutterBottom>
-                      Error loading attendance data
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {error || "There was a problem loading the attendance data. Please try again."}
-                    </Typography>
-                    <Button 
-                      variant="outlined" 
-                      sx={{ mt: 2 }} 
-                      onClick={() => refresh()}
-                    >
-                      Retry
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Typography variant="h6" gutterBottom>
-                      No attendance data found for selected date range
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                      Try adjusting the date range to view attendance records
-                    </Typography>
-                    <Card sx={{ maxWidth: 400, mx: 'auto', p: 2 }}>
-                      <Typography variant="subtitle2">Suggestions:</Typography>
-                      <List dense>
-                        <ListItem>
-                          <ListItemIcon><CalendarToday fontSize="small" /></ListItemIcon>
-                          <ListItemText primary="Expand the date range" />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemIcon><CalendarToday fontSize="small" /></ListItemIcon>
-                          <ListItemText primary="Check for dates with known attendance" />
-                        </ListItem>
-                      </List>
-                    </Card>
-                  </>
-                )}
+                <Typography>No attendance data found for the selected date range</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Try selecting a different date range or check if the staff member has attendance records.
+                </Typography>
               </Box>
             ) : (
               <Box sx={{ mt: 3, textAlign: 'center', p: 4, bgcolor: 'background.paper', borderRadius: 1 }}>
                 <Person sx={{ fontSize: 60, color: 'primary.light', mb: 2, opacity: 0.7 }} />
-                <Typography variant="h6">Please select a teacher to view attendance reports</Typography>
+                <Typography variant="h6">Please select a staff member to view attendance reports</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                   Individual attendance reports include attendance statistics, trends, and detailed logs.
                 </Typography>
@@ -830,4 +843,4 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
   );
 };
 
-export default AttendanceReports;
+export default AttendanceReportsImpl;

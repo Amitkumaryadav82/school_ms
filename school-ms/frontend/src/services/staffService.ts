@@ -297,48 +297,74 @@ export const staffService = {
   getAll: async () => {
     try {
       console.log('Fetching staff from API...');
-      const response = await api.get<StaffMember | StaffMember[]>('staff');
       
-      console.log('Raw API response:', response);
-      
-      // Ensure we always return an array
-      if (!response) {
-        console.warn('Staff API returned null/undefined response');
-        return [];
-      }
-      
-      if (Array.isArray(response)) {
-        console.log(`Staff API returned an array with ${response.length} items`);
+      try {
+        const response = await api.get<StaffMember | StaffMember[]>('staff');
         
-        // Add validation to ensure data has required fields
-        const validStaff = response.map((staff, index) => {
-          // Ensure required fields have at least default values
+        console.log('Raw API response:', response);
+        
+        // Ensure we always return an array
+        if (!response) {
+          console.warn('Staff API returned null/undefined response');
+          throw new Error('Empty staff response');
+        }
+        
+        if (Array.isArray(response)) {
+          console.log(`Staff API returned an array with ${response.length} items`);
+          
+          // Add validation to ensure data has required fields
+          const validStaff = response.map((staff, index) => {
+            // Ensure required fields have at least default values
+            const validatedStaff: StaffMember = {
+              ...staff,
+              firstName: staff.firstName || 'Unknown',
+              lastName: staff.lastName || 'Staff',
+              email: staff.email || `staff${index + 1}@example.com`,
+              // Ensure role is properly set
+              role: staff.role || 'Unknown'
+            };
+            return validatedStaff;
+          });
+          
+          if (validStaff.length > 0) {
+            return validStaff;
+          } else {
+            console.warn('No staff members returned from API, trying alternative approach');
+            throw new Error('No staff members found');
+          }
+        } else {
+          console.log('Staff API returned a single object instead of an array, converting to array');
+          
+          // Validate the single staff object
+          const staff = response as StaffMember;
           const validatedStaff: StaffMember = {
             ...staff,
             firstName: staff.firstName || 'Unknown',
             lastName: staff.lastName || 'Staff',
-            email: staff.email || `staff${index + 1}@example.com`,
-            // Ensure role is properly set
+            email: staff.email || 'staff@example.com',
             role: staff.role || 'Unknown'
           };
-          return validatedStaff;
-        });
+          
+          return [validatedStaff];
+        }
+      } catch (initialError) {
+        console.warn('Error with direct staff API call, trying alternative approach', initialError);
         
-        return validStaff;
-      } else {
-        console.log('Staff API returned a single object instead of an array, converting to array');
+        // If the direct approach fails, combine teachers and non-teaching staff
+        const [teachers, nonTeachingStaff] = await Promise.all([
+          staffService.getActiveTeachers(),
+          staffService.getNonTeachingStaff()
+        ]);
         
-        // Validate the single staff object
-        const staff = response as StaffMember;
-        const validatedStaff: StaffMember = {
-          ...staff,
-          firstName: staff.firstName || 'Unknown',
-          lastName: staff.lastName || 'Staff',
-          email: staff.email || 'staff@example.com',
-          role: staff.role || 'Unknown'
-        };
+        const allStaff = [...teachers, ...nonTeachingStaff];
+        console.log(`Retrieved ${teachers.length} teachers and ${nonTeachingStaff.length} non-teaching staff (${allStaff.length} total)`);
         
-        return [validatedStaff];
+        if (allStaff.length === 0) {
+          console.error('Failed to retrieve any staff members through alternative methods');
+          throw new Error('No staff members found through any method');
+        }
+        
+        return allStaff;
       }
     } catch (error) {
       console.error('Error fetching staff list:', error);
