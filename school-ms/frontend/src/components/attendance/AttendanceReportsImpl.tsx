@@ -326,41 +326,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
     }));
   }, [monthlyReport]);
 
-  // Generate trend data from monthly report
-  const trendData = React.useMemo(() => {
-    // Create empty data for all 12 months
-    const months = Array(12).fill(0).map((_, i) => {
-      const date = dayjs().month(i);
-      return {
-        month: date.format('MMM'),
-        present: Math.round(Math.random() * 50) + 50, // Sample data 50-100
-        absent: Math.round(Math.random() * 20)       // Sample data 0-20
-      };
-    });
-    
-    // Fill current month with real data if available
-    if (monthlyReport && monthlyReport.employeeSummaries) {
-      const monthIndex = selectedMonth - 1;
-      
-      // Calculate total attendance metrics
-      let totalPresent = 0;
-      let totalAbsent = 0;
-      
-      monthlyReport.employeeSummaries.forEach(employee => {
-        totalPresent += employee.presentDays;
-        totalAbsent += employee.absentDays;
-      });
-      
-      // Update the month data with real values
-      months[monthIndex] = {
-        month: months[monthIndex].month,
-        present: totalPresent,
-        absent: totalAbsent
-      };
-    }
-    
-    return months;
-  }, [monthlyReport, selectedMonth]);
+  // Trend analysis data calculation removed
 
   // Handle tab change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -452,7 +418,6 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
           >
             <Tab icon={<Person />} label="Individual Reports" />
             {isAdmin && <Tab icon={<PeopleOutline />} label="Department Reports" />}
-            {isAdmin && <Tab icon={<AssessmentOutlined />} label="Trend Analysis" />}
           </Tabs>
 
           {/* Individual Teacher Report */}
@@ -788,55 +753,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
             </TabPanel>
           )}
 
-          {/* Trend Analysis */}
-          {isAdmin && (
-            <TabPanel value={tabValue} index={2}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        Yearly Attendance Trend
-                      </Typography>
-                      
-                      <Box sx={{ height: 400 }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={trendData}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis />
-                            <RechartsTooltip />
-                            <Legend />
-                            <Line 
-                              type="monotone" 
-                              dataKey="present" 
-                              name="Present Days" 
-                              stroke="#4caf50" 
-                              activeDot={{ r: 8 }} 
-                            />
-                            <Line 
-                              type="monotone" 
-                              dataKey="absent" 
-                              name="Absent Days" 
-                              stroke="#f44336" 
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </Box>
-                      
-                      <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
-                        Note: This chart shows the trend of teacher attendance throughout the year.
-                        Complete data is shown for the current month, with estimated values for other months.
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-            </TabPanel>
-          )}
+          {/* Trend Analysis section removed */}
         </Paper>
       </LocalizationProvider>
     </Box>
