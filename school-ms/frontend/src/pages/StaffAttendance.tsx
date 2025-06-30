@@ -161,7 +161,7 @@ const StaffAttendance: React.FC = () => {
           >
             <Tab icon={<Today />} label="Daily" />
             <Tab icon={<ViewWeek />} label="Weekly" />
-            {isAdmin && <Tab label="Upload" />}
+            {isAdmin && <Tab label="Bulk Upload" />}
             {isAdmin && <Tab label="Holidays" />}
             <Tab label="Reports" />
           </Tabs>
