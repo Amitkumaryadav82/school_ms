@@ -1,5 +1,4 @@
 import {
-    CalendarMonth,
     Today,
     ViewWeek
 } from '@mui/icons-material';
@@ -22,9 +21,7 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import AttendanceCalendarView from '../components/attendance/AttendanceCalendarView';
 import AttendanceDailyView from '../components/attendance/AttendanceDailyView';
-import AttendanceMonthlyView from '../components/attendance/AttendanceMonthlyView';
 import AttendanceReports from '../components/attendance/AttendanceReports';
 import AttendanceUpload from '../components/attendance/AttendanceUpload';
 import AttendanceWeeklyEdit from '../components/attendance/AttendanceWeeklyEdit';
@@ -64,7 +61,6 @@ const StaffAttendance: React.FC = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-  const [selectedMonth, setSelectedMonth] = useState<Dayjs>(dayjs());
   const [selectedWeek, setSelectedWeek] = useState<Dayjs>(dayjs());
   const [isAdmin, setIsAdmin] = useState(false);
   const [staffTypeFilter, setStaffTypeFilter] = useState<string>("ALL");
@@ -165,8 +161,6 @@ const StaffAttendance: React.FC = () => {
           >
             <Tab icon={<Today />} label="Daily" />
             <Tab icon={<ViewWeek />} label="Weekly" />
-            <Tab icon={<CalendarMonth />} label="Monthly" />
-            {isAdmin && <Tab label="Calendar View" />}
             {isAdmin && <Tab label="Upload" />}
             {isAdmin && <Tab label="Holidays" />}
             <Tab label="Reports" />
@@ -222,44 +216,17 @@ const StaffAttendance: React.FC = () => {
           />
         </TabPanel>
 
+        {/* Monthly and Calendar View tabs removed */}
+
         <TabPanel value={tabValue} index={2}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Box sx={{ mb: 3, display: 'flex', alignItems: 'center' }}>              <DatePicker
-                label="Select Month"
-                views={['year', 'month']}
-                value={selectedMonth}
-                onChange={(newDate) => {
-                  if (newDate) {
-                    setSelectedMonth(dayjs(newDate as any));
-                  }
-                }}
-                sx={{ width: 200, mr: 2 }}
-              />
-              <Typography variant="body1" sx={{ ml: 2 }}>
-                {selectedMonth.format('MMMM YYYY')}
-              </Typography>
-            </Box>
-          </LocalizationProvider>
-          <AttendanceMonthlyView 
-            year={selectedMonth.year()} 
-            month={selectedMonth.month() + 1} 
-            isAdmin={isAdmin}
-          />
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={3}>
-          <AttendanceCalendarView />
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={4}>
           <AttendanceUpload />
         </TabPanel>
 
-        <TabPanel value={tabValue} index={5}>
+        <TabPanel value={tabValue} index={3}>
           <HolidayManagement />
         </TabPanel>
 
-        <TabPanel value={tabValue} index={isAdmin ? 6 : 3}>
+        <TabPanel value={tabValue} index={isAdmin ? 4 : 2}>
           <AttendanceReports isAdmin={isAdmin} />
         </TabPanel>
       </Paper>
