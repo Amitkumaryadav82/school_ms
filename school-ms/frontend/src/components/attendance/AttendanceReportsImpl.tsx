@@ -96,6 +96,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
   const [endDate, setEndDate] = useState<Dayjs>(dayjs());
   const [selectedYear, setSelectedYear] = useState<number>(dayjs().year());
   const [selectedMonth, setSelectedMonth] = useState<number>(dayjs().month() + 1);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('ALL');
   
   // Calculate date range for monthly data
   const monthStartDate = dayjs(`${selectedYear}-${selectedMonth}-01`);
@@ -112,6 +113,17 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
     },
     { dependencies: [] }
   );
+  
+  // Extract unique departments from staff data
+  const departmentList = React.useMemo(() => {
+    if (!allStaff) return [];
+    
+    const departments = allStaff
+      .filter(staff => staff.department)
+      .map(staff => staff.department as string);
+    
+    return Array.from(new Set(departments)).sort();
+  }, [allStaff]);
   
   // Filter staff based on staff type and active status
   const filteredStaff = React.useMemo(() => {
@@ -341,7 +353,104 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
 
   // Handle export reports
   const handleExport = () => {
-    showNotification('Export functionality will be implemented', 'info');
+    if (tabValue !== 1) {
+      showNotification('Please navigate to Department Reports tab to export data', 'info');
+      return;
+    }
+    
+    if (!monthlyReport || !monthlyReport.employeeSummaries) {
+      showNotification('No data available to export', 'error');
+      return;
+    }
+    
+    // Filter staff by selected department
+    const filteredEmployees = selectedDepartment === 'ALL'
+      ? monthlyReport.employeeSummaries
+      : monthlyReport.employeeSummaries.filter(emp => emp.department === selectedDepartment);
+    
+    if (filteredEmployees.length === 0) {
+      showNotification('No staff found in the selected department', 'warning');
+      return;
+    }
+    
+    try {
+      // Generate CSV headers with dates
+      const daysInMonth = monthEndDate.date();
+      const dateHeaders = Array.from({ length: daysInMonth }, (_, i) => 
+        `${monthStartDate.date(i + 1).format('D MMM')}`
+      );
+      
+      // Create header row
+      let csvContent = `Staff ID,Name,Department,${dateHeaders.join(',')},Present,Absent,Half Day,Leave,Attendance %\n`;
+      
+      // Add data for each employee
+      filteredEmployees.forEach(employee => {
+        const {
+          employeeId,
+          employeeName,
+          department,
+          presentDays,
+          absentDays,
+          halfDays,
+          leaveDays,
+          attendancePercentage,
+          dailyStatus
+        } = employee;
+        
+        // Create daily status entries
+        const dailyEntries = [];
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = monthStartDate.date(day).format('YYYY-MM-DD');
+          const status = dailyStatus[date] || '-';
+          
+          // Map status codes to more readable format
+          let statusText;
+          switch(status) {
+            case EmployeeAttendanceStatus.PRESENT:
+              statusText = 'P';
+              break;
+            case EmployeeAttendanceStatus.ABSENT:
+              statusText = 'A';
+              break;
+            case EmployeeAttendanceStatus.HALF_DAY:
+              statusText = 'H';
+              break;
+            case EmployeeAttendanceStatus.ON_LEAVE:
+              statusText = 'L';
+              break;
+            default:
+              statusText = '-';
+          }
+          
+          dailyEntries.push(statusText);
+        }
+        
+        // Add row to CSV
+        csvContent += `${employeeId},"${employeeName}","${department}",${dailyEntries.join(',')},${presentDays},${absentDays},${halfDays},${leaveDays},${attendancePercentage}%\n`;
+      });
+      
+      // Create download link
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      
+      // Generate filename with department, month and year
+      const deptName = selectedDepartment === 'ALL' ? 'All_Departments' : selectedDepartment.replace(/\s+/g, '_');
+      const monthName = monthStartDate.format('MMM').toLowerCase();
+      link.setAttribute('download', `${deptName}_attendance_${monthName}_${selectedYear}.csv`);
+      
+      // Trigger download and cleanup
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      showNotification(`Exported ${filteredEmployees.length} staff records successfully`, 'success');
+    } catch (error) {
+      console.error('Export error:', error);
+      showNotification('Failed to export data. Please try again.', 'error');
+    }
   };
 
   // Handle print reports
@@ -389,12 +498,17 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
         {isAdmin && (
           <Box>
             <Button
-              variant="outlined"
+              variant="contained"
+              color={tabValue === 1 ? "primary" : "inherit"}
               startIcon={<GetApp />}
               onClick={handleExport}
               sx={{ mr: 1 }}
+              title={tabValue === 1 ? 
+                `Export ${selectedDepartment === 'ALL' ? 'all departments' : selectedDepartment} attendance for ${dayjs().month(selectedMonth - 1).format('MMMM')} ${selectedYear}` : 
+                "Go to Department Reports tab to export data"
+              }
             >
-              Export
+              Export Department Report
             </Button>
             <Button
               variant="outlined"
@@ -628,7 +742,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
           {isAdmin && (
             <TabPanel value={tabValue} index={1}>
               <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={4}>
                   <FormControl fullWidth>
                     <InputLabel>Year</InputLabel>
                     <Select
@@ -645,7 +759,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={4}>
                   <FormControl fullWidth>
                     <InputLabel>Month</InputLabel>
                     <Select
@@ -660,6 +774,21 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
                           </MenuItem>
                         );
                       })}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Department</InputLabel>
+                    <Select
+                      value={selectedDepartment}
+                      label="Department"
+                      onChange={(e) => setSelectedDepartment(e.target.value)}
+                    >
+                      <MenuItem value="ALL">All Departments</MenuItem>
+                      {departmentList.map(dept => (
+                        <MenuItem key={dept} value={dept}>{dept}</MenuItem>
+                      ))}
                     </Select>
                   </FormControl>
                 </Grid>
