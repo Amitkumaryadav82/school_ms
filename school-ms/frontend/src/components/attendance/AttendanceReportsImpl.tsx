@@ -664,18 +664,6 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
     }
   }, [monthlyAttendance, allStaff, selectedYear, selectedMonth, monthStartDate, monthEndDate]);
   
-  // Prepare chart data for individual teacher
-  const individualChartData = React.useMemo(() => {
-    if (!employeeStats) return [];
-    
-    return [
-      { name: 'Present', value: employeeStats.presentDays, color: '#4caf50' },
-      { name: 'Absent', value: employeeStats.absentDays, color: '#f44336' },
-      { name: 'Half Day', value: employeeStats.halfDays, color: '#ff9800' },
-      { name: 'Leave', value: employeeStats.leaveDays, color: '#2196f3' }
-    ];
-  }, [employeeStats]);
-
   // Prepare data for department-wise comparison
   const departmentData = React.useMemo(() => {
     try {
@@ -862,13 +850,6 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
   // Handle print reports
   const handlePrint = () => {
     window.print();
-  };
-
-  // Helper function to calculate percentage for chart tooltips
-  const calculatePercentage = (value: number, stats: any) => {
-    if (!stats) return 0;
-    const total = stats.presentDays + stats.absentDays + stats.halfDays + stats.leaveDays;
-    return total > 0 ? Math.round((value / total) * 100) : 0;
   };
 
   // Log errors for debugging
@@ -1216,110 +1197,79 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
 
             {selectedStaffMember && employeeStats ? (
               <Box sx={{ mt: 3 }}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
-                    <Card>
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                          Attendance Summary for {getStaffName(Number(selectedStaffMember))}
+                <Card sx={{ mb: 3 }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                      <Box>
+                        <Typography variant="h6" component="div">
+                          {getStaffName(Number(selectedStaffMember))}
                         </Typography>
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                        <Typography variant="subtitle2" color="text.secondary">
                           {dayjs(employeeStats.startDate).format('MMM D, YYYY')} - {dayjs(employeeStats.endDate).format('MMM D, YYYY')}
                         </Typography>
-                        
-                        <Grid container spacing={2} sx={{ mt: 2 }}>
-                          <Grid item xs={6} md={3}>
-                            <Box>
-                              <Typography variant="overline">Working Days</Typography>
-                              <Typography variant="h5">{employeeStats.totalWorkingDays}</Typography>
-                            </Box>
-                          </Grid>
-                          <Grid item xs={6} md={3}>
-                            <Box>
-                              <Typography variant="overline">Present</Typography>
-                              <Typography variant="h5" color="success.main">{employeeStats.presentDays}</Typography>
-                            </Box>
-                          </Grid>
-                          <Grid item xs={6} md={3}>
-                            <Box>
-                              <Typography variant="overline">Absent</Typography>
-                              <Typography variant="h5" color="error.main">{employeeStats.absentDays}</Typography>
-                            </Box>
-                          </Grid>
-                          <Grid item xs={6} md={3}>
-                            <Box>
-                              <Typography variant="overline">Attendance %</Typography>
-                              <Typography variant="h5">{employeeStats.attendancePercentage}%</Typography>
-                            </Box>
-                          </Grid>
-                        </Grid>
-
-                        <Divider sx={{ my: 2 }} />
-                        
-                        {/* Additional stats */}
-                        <Grid container spacing={2}>
-                          <Grid item xs={6} md={6}>
-                            <Box>
-                              <Typography variant="overline">Half Days</Typography>
-                              <Typography variant="body1">{employeeStats.halfDays}</Typography>
-                            </Box>
-                          </Grid>
-                          <Grid item xs={6} md={6}>
-                            <Box>
-                              <Typography variant="overline">On Leave</Typography>
-                              <Typography variant="body1">{employeeStats.leaveDays}</Typography>
-                            </Box>
-                          </Grid>
-                        </Grid>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-
-                  <Grid item xs={12} md={6}>
-                    <Card>
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                          Attendance Distribution
-                        </Typography>
-                        
-                        <Box sx={{ height: 300, width: '100%', mt: 2 }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie
-                                data={individualChartData}
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="value"
-                                labelLine={false}
-                                label={false}
-                              >
-                                {individualChartData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                              </Pie>
-                              <RechartsTooltip formatter={(value, name) => [`${value} days (${calculatePercentage(value, employeeStats)}%)`, name]} />
-                              <Legend layout="horizontal" verticalAlign="bottom" align="center" />
-                            </PieChart>
-                          </ResponsiveContainer>
+                      </Box>
+                      
+                      <Box sx={{ textAlign: 'right' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                          <Typography variant="h4" component="div" color="primary" sx={{ fontWeight: 'bold' }}>
+                            {employeeStats.attendancePercentage}%
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+                            Attendance
+                          </Typography>
                         </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grid>
+                      </Box>
+                    </Box>
+                    
+                    <Divider sx={{ my: 2 }} />
+                    
+                    <Grid container spacing={2} sx={{ mb: 2 }}>
+                      <Grid item xs={4} sm={2}>
+                        <Box sx={{ textAlign: 'center', p: 1, bgcolor: 'success.light', borderRadius: 1 }}>
+                          <Typography variant="h6" color="success.dark">{employeeStats.presentDays}</Typography>
+                          <Typography variant="body2">Present</Typography>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={4} sm={2}>
+                        <Box sx={{ textAlign: 'center', p: 1, bgcolor: 'error.light', borderRadius: 1 }}>
+                          <Typography variant="h6" color="error.dark">{employeeStats.absentDays}</Typography>
+                          <Typography variant="body2">Absent</Typography>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={4} sm={2}>
+                        <Box sx={{ textAlign: 'center', p: 1, bgcolor: 'warning.light', borderRadius: 1 }}>
+                          <Typography variant="h6" color="warning.dark">{employeeStats.halfDays}</Typography>
+                          <Typography variant="body2">Half Day</Typography>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={4} sm={2}>
+                        <Box sx={{ textAlign: 'center', p: 1, bgcolor: 'info.light', borderRadius: 1 }}>
+                          <Typography variant="h6" color="info.dark">{employeeStats.leaveDays}</Typography>
+                          <Typography variant="body2">Leave</Typography>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={4} sm={2}>
+                        <Box sx={{ textAlign: 'center', p: 1, bgcolor: 'background.paper', borderRadius: 1, border: '1px dashed', borderColor: 'divider' }}>
+                          <Typography variant="h6">{employeeStats.totalWorkingDays}</Typography>
+                          <Typography variant="body2">Working Days</Typography>
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
 
                 {employeeStats.datesByStatus && Object.keys(employeeStats.datesByStatus).length > 0 && (
                   <Card sx={{ mt: 3 }}>
                     <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        Attendance Details
+                      <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <CalendarToday fontSize="small" sx={{ mr: 1 }} />
+                        Attendance Log
                       </Typography>
 
                       <TableContainer>
                         <Table size="small" aria-label="attendance details table">
                           <TableHead>
-                            <TableRow>
+                            <TableRow sx={{ bgcolor: 'background.paper' }}>
                               <TableCell sx={{ fontWeight: 'bold', width: '20%' }}>Status</TableCell>
                               <TableCell sx={{ fontWeight: 'bold', width: '40%' }}>Date</TableCell>
                               <TableCell sx={{ fontWeight: 'bold', width: '40%' }}>Day</TableCell>
