@@ -197,7 +197,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <BlueprintForm mode="create" />
+              <Layout>
+                <BlueprintForm mode="create" />
+              </Layout>
             </RoleBasedRoute>
           </ProtectedRoute>
         }
@@ -207,7 +209,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <BlueprintForm mode="edit" />
+              <Layout>
+                <BlueprintForm mode="edit" />
+              </Layout>
             </RoleBasedRoute>
           </ProtectedRoute>
         }
@@ -216,7 +220,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <ExamConfigurationForm />
+              <Layout>
+                <ExamConfigurationForm />
+              </Layout>
             </RoleBasedRoute>
           </ProtectedRoute>
         }
@@ -226,7 +232,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <ExamConfigurationForm />
+              <Layout>
+                <ExamConfigurationForm />
+              </Layout>
             </RoleBasedRoute>
           </ProtectedRoute>
         }
@@ -236,7 +244,9 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <MarksEntry />
+              <Layout>
+                <MarksEntry />
+              </Layout>
             </RoleBasedRoute>
           </ProtectedRoute>
         }

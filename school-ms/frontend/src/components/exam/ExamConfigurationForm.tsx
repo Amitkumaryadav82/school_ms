@@ -7,17 +7,20 @@ import {
   Input, 
   Select, 
   Stack, 
-  Heading,
-  NumberInput,
-  NumberInputField,
+  Typography,
+  TextField,
   Checkbox,
   Divider,
-  Flex,
-  useToast
-} from '@chakra-ui/react';
+  Grid,
+  IconButton,
+  Paper
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { ExamConfiguration, ExamType } from '../../services/examService';
 import { examService } from '../../services/examService';
 import QuestionPaperStructureForm from './QuestionPaperStructureForm';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 
 interface ExamConfigurationFormProps {
   initialData?: ExamConfiguration;
@@ -26,6 +29,7 @@ interface ExamConfigurationFormProps {
 
 const ExamConfigurationForm: React.FC<ExamConfigurationFormProps> = ({ initialData, onSubmitSuccess }) => {
   const toast = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ExamConfiguration>({
     name: '',
@@ -122,9 +126,16 @@ const ExamConfigurationForm: React.FC<ExamConfigurationFormProps> = ({ initialDa
 
   return (
     <Box as="form" onSubmit={handleSubmit} p={4} borderWidth="1px" borderRadius="lg" shadow="md">
-      <Heading size="md" mb={4}>
-        {initialData?.id ? 'Edit Exam Configuration' : 'Create New Exam Configuration'}
-      </Heading>
+      <HStack mb={4}>
+        <IconButton 
+          aria-label="Back" 
+          icon={<ArrowBackIcon />} 
+          onClick={() => navigate(-1)} 
+        />
+        <Heading size="md">
+          {initialData?.id ? 'Edit Exam Configuration' : 'Create New Exam Configuration'}
+        </Heading>
+      </HStack>
       
       <Stack spacing={4}>
         <FormControl id="name" isRequired>

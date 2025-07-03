@@ -13,6 +13,7 @@ import {
     TextField,
     Typography
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -222,9 +223,19 @@ const ExamConfigurationForm: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Paper sx={{ p: 3, maxWidth: 900, mx: 'auto', mt: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          {id ? 'Edit Exam Configuration' : 'Create New Exam Configuration'}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+          <Button 
+            variant="outlined" 
+            startIcon={<ArrowBackIcon />} 
+            onClick={() => navigate('/exams')} 
+            sx={{ mr: 2 }}
+          >
+            Back to Exams
+          </Button>
+          <Typography variant="h4" component="div">
+            {id ? 'Edit Exam Configuration' : 'Create New Exam Configuration'}
+          </Typography>
+        </Box>
         
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
           <Grid container spacing={3}>
