@@ -90,7 +90,84 @@ interface AttendanceReportsImplProps {
   staffType?: string;
 }
 
+// Add global print styles to ensure all content is printed properly
+const printStyles = `
+  @media print {
+    /* Hide UI controls during printing */
+    button, .MuiTabs-root, .MuiTab-root, form, .print-hide {
+      display: none !important;
+    }
+    
+    /* Ensure content is displayed properly */
+    .print-container {
+      display: block !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Ensure tables display properly */
+    table {
+      width: 100% !important;
+      page-break-inside: auto !important;
+      border-collapse: collapse !important;
+    }
+    
+    /* Prevent page breaks inside rows */
+    tr {
+      page-break-inside: avoid !important;
+    }
+    
+    /* Ensure headers print on each page */
+    thead {
+      display: table-header-group !important;
+    }
+    
+    /* Set text colors for better printing */
+    * {
+      color: #000 !important;
+      text-shadow: none !important;
+    }
+    
+    /* Status colors should still be visible */
+    .status-present { color: #2e7d32 !important; }
+    .status-absent { color: #d32f2f !important; }
+    .status-half-day { color: #ed6c02 !important; }
+    .status-leave { color: #0288d1 !important; }
+    .status-weekend, .status-not-marked { color: #757575 !important; }
+    
+    /* Remove shadows and make borders more visible */
+    .MuiPaper-root, .MuiCard-root {
+      box-shadow: none !important;
+      border: 1px solid #ddd !important;
+      margin-bottom: 20px !important;
+    }
+    
+    /* Make sure content isn't cut off */
+    body {
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+`;
+
 const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, staffType = 'ALL' }) => {
+  // Add print styles to the document
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = printStyles;
+    document.head.appendChild(styleElement);
+    
+    // Save original title
+    const originalTitle = document.title;
+    
+    return () => {
+      document.head.removeChild(styleElement);
+      document.title = originalTitle;
+    };
+  }, []);
+  
   const { showNotification } = useNotification();
   const [tabValue, setTabValue] = useState(0);
   const [selectedStaffMember, setSelectedStaffMember] = useState<number | ''>('');
@@ -849,7 +926,26 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
 
   // Handle print reports
   const handlePrint = () => {
-    window.print();
+    // Show notification to user
+    showNotification('Preparing document for printing...', 'info');
+    
+    // Add a class to body for print-specific styling
+    document.body.classList.add('printing-attendance');
+    
+    // Add a sufficient delay to ensure all content is properly rendered before printing
+    setTimeout(() => {
+      try {
+        window.print();
+      } catch (err) {
+        console.error('Print error:', err);
+        showNotification('There was an error when trying to print', 'error');
+      } finally {
+        // Remove the print class after printing
+        setTimeout(() => {
+          document.body.classList.remove('printing-attendance');
+        }, 500);
+      }
+    }, 500);
   };
 
   // Log errors for debugging
@@ -869,6 +965,17 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
   const safeFilteredStaff = React.useMemo(() => {
     return filteredStaff && filteredStaff.length > 0 ? filteredStaff : [];
   }, [filteredStaff]);
+  
+  // Set document title for printing - moved after filteredStaff is defined
+  useEffect(() => {
+    if (selectedStaffMember && filteredStaff) {
+      const staff = filteredStaff.find((s: any) => s.id === Number(selectedStaffMember));
+      const staffName = staff ? `${staff.firstName} ${staff.lastName}` : 'Unknown Staff';
+      document.title = `Attendance Report - ${staffName}`;
+    } else {
+      document.title = 'Attendance Reports & Analytics';
+    }
+  }, [selectedStaffMember, filteredStaff]);
 
   // Loading state
   if (staffLoading || 
@@ -991,13 +1098,13 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box className="print-hide" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6" component="h2">
           Attendance Reports & Analytics
         </Typography>
         
         {isAdmin && (
-          <Box>
+          <Box className="print-hide">
             <Button
               variant="contained"
               color={tabValue === 1 ? "primary" : "inherit"}
@@ -1037,7 +1144,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
 
           {/* Individual Teacher Report */}
           <TabPanel value={tabValue} index={0}>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} className="print-hide">
               <Grid item xs={12} md={4}>
                 <Autocomplete
                   id="staff-select-autocomplete"
@@ -1196,8 +1303,8 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
             )}
 
             {selectedStaffMember && employeeStats ? (
-              <Box sx={{ mt: 3 }}>
-                <Card sx={{ mb: 3 }}>
+              <Box className="print-container" sx={{ mt: 3, '@media print': { display: 'block', width: '100%' } }}>
+                <Card sx={{ mb: 3, '@media print': { display: 'block', pageBreakAfter: 'avoid' } }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                       <Box>
@@ -1216,6 +1323,11 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
                           </Typography>
                           <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
                             Attendance
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                          <Typography variant="caption" color="text.secondary">
+                            (Present days + 0.5 × Half days) / Total marked days × 100
                           </Typography>
                         </Box>
                       </Box>
@@ -1259,23 +1371,51 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
                 </Card>
 
                 {employeeStats.datesByStatus && Object.keys(employeeStats.datesByStatus).length > 0 && (
-                  <Card sx={{ mt: 3 }}>
-                    <CardContent>
+                  <Card sx={{ 
+                    mt: 3, 
+                    '@media print': { 
+                      display: 'block',
+                      width: '100%',
+                      breakInside: 'auto',
+                      pageBreakInside: 'auto'
+                    } 
+                  }}>
+                    <CardContent sx={{ '@media print': { padding: '16px !important' } }}>
                       <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <CalendarToday fontSize="small" sx={{ mr: 1 }} />
                         Attendance Log
                       </Typography>
 
-                      <TableContainer>
-                        <Table size="small" aria-label="attendance details table">
-                          <TableHead>
-                            <TableRow sx={{ bgcolor: 'background.paper' }}>
-                              <TableCell sx={{ fontWeight: 'bold', width: '20%' }}>Status</TableCell>
-                              <TableCell sx={{ fontWeight: 'bold', width: '40%' }}>Date</TableCell>
-                              <TableCell sx={{ fontWeight: 'bold', width: '40%' }}>Day</TableCell>
+                      <TableContainer sx={{ 
+                        '@media print': { 
+                          display: 'block',
+                          width: '100%',
+                          pageBreakInside: 'auto',
+                          breakInside: 'auto'
+                        } 
+                      }}>
+                        <Table size="small" aria-label="attendance details table" sx={{ 
+                          '@media print': { 
+                            width: '100%',
+                            pageBreakInside: 'auto',
+                            breakInside: 'auto',
+                            borderCollapse: 'collapse'
+                          } 
+                        }}>
+                          <TableHead sx={{ 
+                            '@media print': { 
+                              display: 'table-header-group',
+                              breakInside: 'avoid',
+                              pageBreakInside: 'avoid'
+                            }
+                          }}>
+                            <TableRow sx={{ bgcolor: 'background.paper', '@media print': { backgroundColor: '#f5f5f5 !important' } }}>
+                              <TableCell sx={{ fontWeight: 'bold', width: '20%', '@media print': { borderBottom: '2px solid #000', fontWeight: 'bold' } }}>Status</TableCell>
+                              <TableCell sx={{ fontWeight: 'bold', width: '40%', '@media print': { borderBottom: '2px solid #000', fontWeight: 'bold' } }}>Date</TableCell>
+                              <TableCell sx={{ fontWeight: 'bold', width: '40%', '@media print': { borderBottom: '2px solid #000', fontWeight: 'bold' } }}>Day</TableCell>
                             </TableRow>
                           </TableHead>
-                          <TableBody>
+                          <TableBody sx={{ '@media print': { display: 'table-row-group' } }}>
                             {/* Create entries for each date in the selected range */}
                             {(() => {
                               // Create a map to store attendance statuses
@@ -1375,10 +1515,16 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
                                   key={`attendance-${entry.date}`}
                                   sx={{ 
                                     '&:last-child td, &:last-child th': { border: 0 },
-                                    bgcolor: index % 2 === 0 ? 'background.paper' : 'background.default'
+                                    bgcolor: index % 2 === 0 ? 'background.paper' : 'background.default',
+                                    '@media print': { 
+                                      breakInside: 'avoid',
+                                      pageBreakInside: 'avoid',
+                                      backgroundColor: index % 2 === 0 ? '#ffffff !important' : '#f9f9f9 !important'
+                                    }
                                   }}
                                 >
                                   <TableCell 
+                                    className={`status-${entry.status.toLowerCase().replace(/ /g, '-')}`}
                                     sx={{ 
                                       color: entry.statusColor,
                                       fontWeight: 'medium'
