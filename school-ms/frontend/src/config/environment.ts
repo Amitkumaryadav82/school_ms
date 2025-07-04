@@ -11,9 +11,9 @@ interface Config {
 }
 
 const development: Config = {
-  // Point directly to the backend server
-  apiUrl: 'http://localhost:8080',  // Using port 8080 which is typical for Spring Boot apps
-  fallbackApiUrl: 'http://localhost:3000', // Fallback URL in case primary fails
+  // Use relative URLs to leverage Vite proxy configuration
+  apiUrl: '',  // Empty string means use relative URLs with Vite proxy
+  fallbackApiUrl: 'http://localhost:8080', // Direct fallback to backend if proxy fails
   swaggerUrl: 'http://localhost:8080/swagger-ui/index.html',
   apiTimeout: 15000, // Extended to 15 seconds for debugging
   retryAttempts: 2, // Number of times to retry failed requests

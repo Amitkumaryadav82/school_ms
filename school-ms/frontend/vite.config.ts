@@ -35,17 +35,8 @@ export default defineConfig({
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        rewrite: (path) => path.replace(/^\/api/, '')
-      },
-      // Special configuration for fee management API endpoints
-      '/api/fees': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        // Don't rewrite the path - keep /api prefix for Spring Boot
+        // rewrite: (path) => path.replace(/^\/api/, '')
       },
     },
   },

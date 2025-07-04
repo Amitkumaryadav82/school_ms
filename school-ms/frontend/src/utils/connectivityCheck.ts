@@ -31,35 +31,68 @@ export const testBackendConnectivity = async (): Promise<ConnectionStatus> => {
   const originalUrl = config.apiUrl;
   const baseEndpoint = '/api/auth/health';
   
-  console.log(`⏱️ Testing connectivity to backend at ${originalUrl}${baseEndpoint}`);
-  
-  // First try with the configured URL
-  try {
-    const startTime = Date.now();
-    const response = await axios.get(`${originalUrl}${baseEndpoint}`, {
-      timeout: 5000,
-      validateStatus: () => true // Don't throw on any status code
-    });
-    const endTime = Date.now();
+  // If apiUrl is empty, use relative URL (for Vite proxy)
+  if (!originalUrl || originalUrl === '') {
+    console.log(`⏱️ Testing connectivity using Vite proxy: ${baseEndpoint}`);
     
-    if (response.status === 200) {
-      console.log(`✅ Successfully connected to ${originalUrl} in ${endTime - startTime}ms`);
-      return {
-        isConnected: true,
-        workingUrl: originalUrl,
-        originalUrl,
-        serverInfo: {
-          port: parseInt(originalUrl.split(':').pop() || '0'),
-          responseTime: endTime - startTime,
-          status: response.status
-        }
-      };
-    } else {
-      console.log(`⚠️ Connected to ${originalUrl} but received status ${response.status}`);
+    try {
+      const startTime = Date.now();
+      const response = await axios.get(baseEndpoint, {
+        timeout: 5000,
+        validateStatus: () => true // Don't throw on any status code
+      });
+      const endTime = Date.now();
+      
+      if (response.status === 200) {
+        console.log(`✅ Successfully connected via Vite proxy in ${endTime - startTime}ms`);
+        return {
+          isConnected: true,
+          workingUrl: '', // Keep empty for relative URLs
+          originalUrl,
+          serverInfo: {
+            port: 5173, // Vite dev server port
+            responseTime: endTime - startTime,
+            status: response.status
+          }
+        };
+      } else {
+        console.log(`⚠️ Connected via Vite proxy but received status ${response.status}`);
+      }
+    } catch (error) {
+      console.log(`❌ Failed to connect via Vite proxy: ${(error as any)?.message || error}`);
+      // Fall back to trying direct connections
     }
-  } catch (error) {
-    console.log(`❌ Failed to connect to ${originalUrl}: ${error.message}`);
-    // Continue to try alternative ports
+  } else {
+    // First try with the configured URL
+    console.log(`⏱️ Testing connectivity to backend at ${originalUrl}${baseEndpoint}`);
+    
+    try {
+      const startTime = Date.now();
+      const response = await axios.get(`${originalUrl}${baseEndpoint}`, {
+        timeout: 5000,
+        validateStatus: () => true // Don't throw on any status code
+      });
+      const endTime = Date.now();
+      
+      if (response.status === 200) {
+        console.log(`✅ Successfully connected to ${originalUrl} in ${endTime - startTime}ms`);
+        return {
+          isConnected: true,
+          workingUrl: originalUrl,
+          originalUrl,
+          serverInfo: {
+            port: parseInt(originalUrl.split(':').pop() || '0'),
+            responseTime: endTime - startTime,
+            status: response.status
+          }
+        };
+      } else {
+        console.log(`⚠️ Connected to ${originalUrl} but received status ${response.status}`);
+      }
+    } catch (error) {
+      console.log(`❌ Failed to connect to ${originalUrl}: ${(error as any)?.message || error}`);
+      // Continue to try alternative ports
+    }
   }
   
   // Try alternative ports
