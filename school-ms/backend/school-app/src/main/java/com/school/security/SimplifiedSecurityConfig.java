@@ -137,6 +137,11 @@ public class SimplifiedSecurityConfig {
             // Development tools
             auth.antMatchers("/h2-console/**").permitAll();
             auth.antMatchers("/actuator/**").permitAll();
+            
+            // Database test endpoints (for development)
+            if (isDev) {
+                auth.antMatchers("/api/test/**").permitAll();
+            }
                 
             // API docs
             auth.antMatchers(
