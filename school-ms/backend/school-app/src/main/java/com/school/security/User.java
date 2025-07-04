@@ -63,6 +63,15 @@ public class User extends Auditable implements UserDetails {
     }
 
     /**
+     * Gets the password
+     * @return the password
+     */
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    /**
      * Gets the user role
      * @return the user role
      */

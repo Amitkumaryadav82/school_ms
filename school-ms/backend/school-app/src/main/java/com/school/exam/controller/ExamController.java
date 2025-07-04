@@ -6,7 +6,7 @@ import com.school.exam.service.ExamService;
 import com.school.exam.dto.ExamRequest;
 import com.school.exam.dto.ExamResultRequest;
 import com.school.exam.dto.ExamSummary;
-import com.school.exam.dto.ExamTypeDto;
+import com.school.exam.dto.ExamTypeDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -135,9 +135,9 @@ public class ExamController {
     }    @Operation(summary = "Get exam types", description = "Retrieves all available exam types")
     @ApiResponse(responseCode = "200", description = "Exam types retrieved successfully")
     @GetMapping("/types")
-    public ResponseEntity<List<ExamTypeDto>> getExamTypes() {
-        List<ExamTypeDto> examTypeDtos = Arrays.stream(Exam.ExamType.values())
-            .map(type -> new ExamTypeDto(type.name(), formatEnumDisplayName(type.name())))
+    public ResponseEntity<List<ExamTypeDTO>> getExamTypes() {
+        List<ExamTypeDTO> examTypeDtos = Arrays.stream(Exam.ExamType.values())
+            .map(type -> new ExamTypeDTO(type.name(), formatEnumDisplayName(type.name())))
             .collect(java.util.stream.Collectors.toList());
         
         return ResponseEntity.ok(examTypeDtos);

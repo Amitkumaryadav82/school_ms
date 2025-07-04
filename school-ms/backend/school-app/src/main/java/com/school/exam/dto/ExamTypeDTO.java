@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExamTypeDto {
+public class ExamTypeDTO {
     private String name;
     private String displayName;
 }
