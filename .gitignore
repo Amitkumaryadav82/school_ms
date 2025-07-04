@@ -17,7 +17,7 @@ target/*
 */*/*/target/
 build/
 out/
-
+/node_modules/*
 # Package files
 *.jar
 *.war
@@ -66,3 +66,4 @@ coverage/
 # System files
 .DS_Store
 Thumbs.db
+school-ms/frontend/node_modules/
