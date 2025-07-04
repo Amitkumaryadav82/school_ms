@@ -78,6 +78,7 @@ com/school/exam/model/QuestionPaperStructure.class
 com/school/admission/exception/AdmissionNotFoundException.class
 com/school/exam/dto/ExamBlueprintDTO$ChapterDistributionDTO$ChapterDistributionDTOBuilder.class
 com/school/exam/dto/DetailedExamSummary$DetailedExamSummaryBuilder.class
+com/school/controller/DatabaseTestController.class
 com/school/library/service/CourseServiceImpl.class
 com/school/fee/model/FeePaymentSchedule$FeePaymentScheduleBuilder.class
 com/school/hrm/model/Holiday$HolidayType.class
@@ -394,6 +395,7 @@ com/school/exam/model/Exam.class
 com/school/staff/model/EmploymentStatus.class
 com/school/fee/dto/ClassSectionFeeReport$StudentFeeDetail$StudentFeeDetailBuilder.class
 com/school/fee/dto/PaymentMethodDistribution.class
+com/school/service/PostgreSQLHttpService.class
 com/school/security/InitialAdminUserSetup.class
 com/school/fee/model/FeeStructure$FeeStructureBuilder.class
 com/school/security/exception/DuplicateUsernameException.class

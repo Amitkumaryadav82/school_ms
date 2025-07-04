@@ -11,7 +11,7 @@ logs/
 *.gz
 
 # Build directories - use forward slashes for compatibility
-target/
+target/*
 */target/
 */*/target/
 */*/*/target/
