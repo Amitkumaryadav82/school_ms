@@ -72,14 +72,43 @@ INSERT INTO students (created_at, updated_at, created_by, modified_by, student_i
 ('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'STU2024005', 'Sam', 'Lee', '2013-11-20', 3, 'C', 'R3C005', 'sam.lee@email.com', '+1-555-1501', '666 Sixth Street, Springfield, IL 62711', 'Helen Lee', '+1-555-1502', 'helen.lee@email.com', 55000.00, 'Nurse', '500 Hospital Way, Springfield, IL', 'A-', 'None', '2024-04-01', 'ACTIVE', 'Red House', 'WALKING', null, '+1-555-1501', '123456789016', 'UDISE005', 'Mathematics, English, Science, Art, Music', null);
 
 -- ============================================================================
--- 8. ATTENDANCE (5 attendance records for the students)
+-- 8. ATTENDANCE (Comprehensive attendance records with all possible status values)
 -- ============================================================================
+-- Current day attendance (July 1, 2024)
 INSERT INTO attendance (created_at, updated_at, created_by, modified_by, student_id, date, status, check_in_time, check_out_time, remarks) VALUES
 ('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 1, '2024-07-01', 'PRESENT', '08:15:00', '15:30:00', 'On time'),
-('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 2, '2024-07-01', 'PRESENT', '08:20:00', '15:30:00', 'Slightly late'),
-('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 3, '2024-07-01', 'ABSENT', null, null, 'Medical appointment'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 2, '2024-07-01', 'LATE', '08:45:00', '15:30:00', 'Traffic delay - arrived 15 minutes late'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 3, '2024-07-01', 'ABSENT', null, null, 'Medical appointment with doctor'),
 ('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 4, '2024-07-01', 'PRESENT', '08:10:00', '15:30:00', 'Early arrival'),
-('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 5, '2024-07-01', 'LATE', '08:45:00', '15:30:00', 'Traffic delay');
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 5, '2024-07-01', 'HALF_DAY', '08:20:00', '12:00:00', 'Left early for family function'),
+
+-- Previous day attendance (June 30, 2024) - showing different statuses
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 1, '2024-06-30', 'HALF_DAY', '08:15:00', '12:30:00', 'Early dismissal for dental appointment'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 2, '2024-06-30', 'PRESENT', '08:18:00', '15:30:00', 'Regular attendance'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 3, '2024-06-30', 'ON_LEAVE', null, null, 'Pre-approved family vacation'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 4, '2024-06-30', 'LATE', '08:50:00', '15:30:00', 'Bus breakdown delay'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 5, '2024-06-30', 'ABSENT', null, null, 'Sick with fever'),
+
+-- Weekend/Holiday attendance (June 29, 2024 - Saturday)
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', 1, '2024-06-29', 'HOLIDAY', null, null, 'Weekend - Saturday'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', 2, '2024-06-29', 'HOLIDAY', null, null, 'Weekend - Saturday'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', 3, '2024-06-29', 'HOLIDAY', null, null, 'Weekend - Saturday'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', 4, '2024-06-29', 'HOLIDAY', null, null, 'Weekend - Saturday'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', 5, '2024-06-29', 'HOLIDAY', null, null, 'Weekend - Saturday'),
+
+-- Additional day showing more variety (June 28, 2024)
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 1, '2024-06-28', 'LATE', '08:35:00', '15:30:00', 'Overslept - alarm malfunction'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 2, '2024-06-28', 'ON_LEAVE', null, null, 'Family wedding celebration'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 3, '2024-06-28', 'PRESENT', '08:12:00', '15:30:00', 'Perfect attendance'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 4, '2024-06-28', 'HALF_DAY', '08:15:00', '11:45:00', 'Left for medical checkup'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 5, '2024-06-28', 'PRESENT', '08:25:00', '15:30:00', 'Normal day'),
+
+-- One more day for complete coverage (June 27, 2024)
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 1, '2024-06-27', 'ON_LEAVE', null, null, 'Educational field trip approval'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 2, '2024-06-27', 'ABSENT', null, null, 'Stomach flu - contagious'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 3, '2024-06-27', 'HALF_DAY', '08:15:00', '13:00:00', 'Early dismissal for orthodontist'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher2', 'teacher2', 4, '2024-06-27', 'PRESENT', '08:05:00', '15:30:00', 'Excellent punctuality'),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'teacher1', 'teacher1', 5, '2024-06-27', 'LATE', '09:10:00', '15:30:00', 'Car trouble - called parents');
 
 -- ============================================================================
 -- DATA LOADING COMPLETE
@@ -92,8 +121,17 @@ INSERT INTO attendance (created_at, updated_at, created_by, modified_by, student
 -- - 5 Fee Structures (for grades 1, 5, 8, 10, 12)
 -- - 5 Admission records
 -- - 5 Students (4 linked to admissions, 1 direct)
--- - 5 Attendance records
+-- - 25 Attendance records (5 students × 5 days with ALL status types)
+-- 
+-- Attendance Status Coverage:
+-- ✅ PRESENT   - Regular attendance
+-- ✅ ABSENT    - Student not in school  
+-- ✅ LATE      - Arrived after start time
+-- ✅ HALF_DAY  - Left early or came late for half day
+-- ✅ ON_LEAVE  - Pre-approved absence
+-- ✅ HOLIDAY   - School closed day (weekends/holidays)
 -- 
 -- All foreign key relationships are properly maintained
 -- Data includes realistic information with proper constraints
+-- Comprehensive test data for attendance system validation
 -- ============================================================================

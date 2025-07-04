@@ -45,14 +45,39 @@ cd /workspaces/school_ms/school-ms/backend/school-app
 
 # 3. Start Spring Boot application with H2 database
 echo "🏗️  Starting Spring Boot application with H2 database..."
-echo "🔗 H2 Console will be available at: http://localhost:8081/h2-console"
-echo "🔗 Application will be running at: http://localhost:8081"
+echo "🔗 H2 Console will be available at: http://localhost:8080/h2-console"
+echo "🔗 Backend API will be running at: http://localhost:8080"
 echo ""
 echo "📊 H2 Database Connection Details:"
 echo "   JDBC URL: jdbc:h2:mem:school_db"
 echo "   User Name: sa"
 echo "   Password: (leave blank)"
 echo ""
-echo "⏰ Starting application... (this may take a moment)"
+echo "⏰ Starting backend application... (this may take a moment)"
 
-mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dserver.port=8081
+# Start backend in background
+mvn spring-boot:run -Dspring-boot.run.profiles=dev &
+BACKEND_PID=$!
+
+echo "✅ Backend started with PID: $BACKEND_PID"
+echo ""
+
+# 4. Start Frontend Development Server
+echo "🎨 Starting Frontend Development Server..."
+echo "🔗 Frontend will be available at: http://localhost:5173"
+echo ""
+
+# Wait a moment for backend to initialize
+sleep 5
+
+# Navigate to frontend directory and start Vite dev server
+cd /workspaces/school_ms/school-ms/frontend
+
+# Install dependencies if needed
+if [ ! -d "node_modules" ]; then
+    echo "📦 Installing frontend dependencies..."
+    npm install
+fi
+
+echo "⏰ Starting frontend development server..."
+npm run dev
