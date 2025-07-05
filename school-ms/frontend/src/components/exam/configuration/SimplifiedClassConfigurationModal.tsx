@@ -15,7 +15,6 @@ import {
   MenuItem,
   FormHelperText,
   Typography,
-  Divider,
   Table,
   TableBody,
   TableCell,
@@ -25,9 +24,6 @@ import {
   Paper,
   IconButton,
   Chip,
-  Tooltip,
-  Switch,
-  FormControlLabel,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -37,11 +33,13 @@ import {
   ClassConfigurationRequest,
   ClassConfiguration,
   ConfigurationSubject,
+  ConfigurationSubjectRequest,
   SubjectMaster,
   SubjectType,
 } from '../../../types/examConfiguration';
 import classConfigurationService from '../../../services/classConfigurationService';
 import subjectMasterService from '../../../services/subjectMasterService';
+import configurationSubjectService from '../../../services/configurationSubjectService';
 
 interface ClassConfigurationModalProps {
   open: boolean;
@@ -113,7 +111,8 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
           description: configuration.description || '',
           isActive: configuration.isActive,
         });
-        // TODO: Load existing subjects for edit mode
+        // Load existing subjects for edit mode
+        loadExistingSubjects(configuration.id!);
       } else if (sourceConfig && mode === 'copy') {
         const currentYear = new Date().getFullYear();
         const nextYear = currentYear + 1;
@@ -125,7 +124,10 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
           description: sourceConfig.description || '',
           isActive: true,
         });
-        // TODO: Copy subjects from source config
+        // Copy subjects from source config
+        if (sourceConfig.id) {
+          loadExistingSubjects(sourceConfig.id);
+        }
       }
     }
   }, [open, configuration, mode, sourceConfig]);
@@ -136,6 +138,26 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
       setAvailableSubjects(subjects);
     } catch (error) {
       console.error('Failed to load subjects:', error);
+    }
+  };
+
+  const loadExistingSubjects = async (configurationId: number) => {
+    try {
+      const existingSubjects = await configurationSubjectService.getSubjectsByConfiguration(configurationId);
+      
+      // Convert ConfigurationSubject to SubjectFormData
+      const formSubjects: SubjectFormData[] = existingSubjects.map(subject => ({
+        subjectMasterId: subject.subjectMasterId,
+        totalMarks: subject.totalMarks,
+        passingMarks: subject.passingMarks,
+        theoryMarks: subject.theoryMarks || 0,
+        practicalMarks: subject.practicalMarks || 0,
+        subjectType: subject.effectiveSubjectType,
+      }));
+      
+      setAssignedSubjects(formSubjects);
+    } catch (error) {
+      console.error('Failed to load existing subjects:', error);
     }
   };
 
@@ -194,12 +216,36 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
     );
     
     if (availableSubject) {
+      const totalMarks = 100;
+      const passingMarks = 40;
+      
+      let theoryMarks = 0;
+      let practicalMarks = 0;
+      
+      switch (availableSubject.subjectType) {
+        case SubjectType.THEORY:
+          theoryMarks = totalMarks;
+          practicalMarks = 0;
+          break;
+        case SubjectType.PRACTICAL:
+          theoryMarks = 0;
+          practicalMarks = totalMarks;
+          break;
+        case SubjectType.BOTH:
+          theoryMarks = 70;
+          practicalMarks = 30;
+          break;
+        default:
+          theoryMarks = totalMarks;
+          practicalMarks = 0;
+      }
+
       const newSubject: SubjectFormData = {
         subjectMasterId: availableSubject.id!,
-        totalMarks: 100,
-        passingMarks: 40,
-        theoryMarks: availableSubject.subjectType === SubjectType.BOTH ? 70 : 100,
-        practicalMarks: availableSubject.subjectType === SubjectType.BOTH ? 30 : 0,
+        totalMarks,
+        passingMarks,
+        theoryMarks,
+        practicalMarks,
         subjectType: availableSubject.subjectType,
       };
       setAssignedSubjects(prev => [...prev, newSubject]);
@@ -211,9 +257,73 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
   };
 
   const handleSubjectChange = (index: number, field: keyof SubjectFormData, value: any) => {
-    setAssignedSubjects(prev => prev.map((subject, i) => 
-      i === index ? { ...subject, [field]: value } : subject
-    ));
+    setAssignedSubjects(prev => prev.map((subject, i) => {
+      if (i === index) {
+        if (field === 'subjectMasterId') {
+          // When subject is changed, update the subject type and reset marks accordingly
+          const selectedSubject = availableSubjects.find(s => s.id === value);
+          if (selectedSubject) {
+            let theoryMarks = 0;
+            let practicalMarks = 0;
+            
+            switch (selectedSubject.subjectType) {
+              case SubjectType.THEORY:
+                theoryMarks = subject.totalMarks;
+                practicalMarks = 0;
+                break;
+              case SubjectType.PRACTICAL:
+                theoryMarks = 0;
+                practicalMarks = subject.totalMarks;
+                break;
+              case SubjectType.BOTH:
+                theoryMarks = Math.floor(subject.totalMarks * 0.7);
+                practicalMarks = subject.totalMarks - theoryMarks;
+                break;
+            }
+
+            return {
+              ...subject,
+              [field]: value,
+              subjectType: selectedSubject.subjectType,
+              theoryMarks,
+              practicalMarks,
+            };
+          }
+        } else if (field === 'totalMarks') {
+          // When total marks change, update theory/practical proportionally
+          const newTotalMarks = Number(value);
+          let theoryMarks = subject.theoryMarks;
+          let practicalMarks = subject.practicalMarks;
+          
+          if (subject.subjectType === SubjectType.THEORY) {
+            theoryMarks = newTotalMarks;
+            practicalMarks = 0;
+          } else if (subject.subjectType === SubjectType.PRACTICAL) {
+            theoryMarks = 0;
+            practicalMarks = newTotalMarks;
+          } else if (subject.subjectType === SubjectType.BOTH) {
+            // Maintain the same proportion
+            const oldTotal = subject.totalMarks;
+            if (oldTotal > 0) {
+              theoryMarks = Math.floor((subject.theoryMarks / oldTotal) * newTotalMarks);
+              practicalMarks = newTotalMarks - theoryMarks;
+            } else {
+              theoryMarks = Math.floor(newTotalMarks * 0.7);
+              practicalMarks = newTotalMarks - theoryMarks;
+            }
+          }
+
+          return {
+            ...subject,
+            [field]: value,
+            theoryMarks,
+            practicalMarks,
+          };
+        }
+        return { ...subject, [field]: value };
+      }
+      return subject;
+    }));
   };
 
   const getSubjectName = (subjectMasterId: number): string => {
@@ -251,20 +361,85 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
     try {
       // Debug logging to see what's being sent
       console.log('Submitting form data:', formData);
-      console.log('Academic year value:', formData.academicYear);
-      console.log('Academic year type:', typeof formData.academicYear);
-      console.log('Academic year length:', formData.academicYear.length);
+      console.log('Assigned subjects:', assignedSubjects);
 
       let savedConfig: ClassConfiguration;
 
+      // Step 1: Save the basic class configuration
       if (mode === 'edit' && configuration) {
         savedConfig = await classConfigurationService.updateConfiguration(configuration.id!, formData);
       } else {
         savedConfig = await classConfigurationService.createConfiguration(formData);
       }
 
-      // TODO: Save assigned subjects here
-      // For now, just return the basic configuration
+      console.log('Saved configuration:', savedConfig);
+
+      // Step 2: Handle subjects for edit mode vs create mode
+      if (mode === 'edit' && configuration?.id) {
+        // For edit mode: first delete existing subjects, then add new ones
+        try {
+          const existingSubjects = await configurationSubjectService.getSubjectsByConfiguration(configuration.id);
+          
+          // Delete existing subjects
+          for (const subject of existingSubjects) {
+            if (subject.id) {
+              await configurationSubjectService.deleteConfigurationSubject(subject.id);
+            }
+          }
+        } catch (error) {
+          console.warn('Failed to delete some existing subjects:', error);
+        }
+      }
+
+      // Step 3: Save assigned subjects if any
+      if (assignedSubjects.length > 0) {
+        const subjectRequests: ConfigurationSubjectRequest[] = assignedSubjects.map(subject => ({
+          classConfigurationId: savedConfig.id!,
+          subjectMasterId: subject.subjectMasterId,
+          effectiveSubjectType: subject.subjectType,
+          totalMarks: subject.totalMarks,
+          passingMarks: subject.passingMarks,
+          theoryMarks: subject.theoryMarks > 0 ? subject.theoryMarks : undefined,
+          practicalMarks: subject.practicalMarks > 0 ? subject.practicalMarks : undefined,
+          theoryPassingMarks: subject.subjectType !== SubjectType.PRACTICAL && subject.theoryMarks > 0 
+            ? Math.floor(subject.passingMarks * (subject.theoryMarks / subject.totalMarks)) 
+            : undefined,
+          practicalPassingMarks: subject.subjectType !== SubjectType.THEORY && subject.practicalMarks > 0 
+            ? Math.floor(subject.passingMarks * (subject.practicalMarks / subject.totalMarks)) 
+            : undefined,
+          isActive: true,
+        }));
+
+        console.log('Saving subjects:', subjectRequests);
+
+        // Save each subject (could be optimized with batch API if available)
+        const savedSubjects: ConfigurationSubject[] = [];
+        const failedSubjects: string[] = [];
+
+        for (const subjectRequest of subjectRequests) {
+          try {
+            const savedSubject = await configurationSubjectService.createConfigurationSubject(subjectRequest);
+            savedSubjects.push(savedSubject);
+          } catch (error) {
+            console.error('Failed to save subject:', subjectRequest, error);
+            const subject = availableSubjects.find(s => s.id === subjectRequest.subjectMasterId);
+            failedSubjects.push(subject?.subjectName || `Subject ID ${subjectRequest.subjectMasterId}`);
+          }
+        }
+
+        console.log('Saved subjects:', savedSubjects);
+        
+        if (failedSubjects.length > 0) {
+          setSubmitError(
+            `Configuration saved successfully, but failed to save these subjects: ${failedSubjects.join(', ')}. ` +
+            `You can add them later by editing this configuration.`
+          );
+          // Don't close the modal yet, let user see the error
+          return;
+        }
+      }
+
+      // Success - close modal and notify parent
       onSave(savedConfig);
       onClose();
     } catch (error) {
@@ -296,21 +471,25 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
-      <DialogTitle>{getTitle()}</DialogTitle>
-      <DialogContent>
+      <DialogTitle sx={{ pb: 1 }}>
+        <Typography variant="h5" component="div">
+          {getTitle()}
+        </Typography>
+        {mode === 'copy' && sourceConfig && (
+          <Typography variant="body2" color="text.secondary">
+            Copying from {sourceConfig.className} ({sourceConfig.academicYear})
+          </Typography>
+        )}
+      </DialogTitle>
+      <DialogContent sx={{ pt: 2 }}>
         {submitError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {submitError}
           </Alert>
         )}
 
-        {/* Basic Configuration */}
-        <Typography variant="h6" gutterBottom>
-          Basic Configuration
-        </Typography>
-        
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <FormControl fullWidth error={!!errors.className}>
               <InputLabel>Class</InputLabel>
               <Select
@@ -328,7 +507,7 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
               label="Academic Year"
@@ -380,142 +559,164 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid item xs={12} sm={4}>
             <TextField
               fullWidth
-              multiline
-              rows={2}
-              label="Description"
+              label="Description (optional)"
               value={formData.description}
               onChange={(e) => handleFormChange('description', e.target.value)}
               error={!!errors.description}
               helperText={errors.description}
+              placeholder="Brief description..."
             />
           </Grid>
         </Grid>
 
-        <Divider sx={{ my: 3 }} />
-
         {/* Subject Assignment */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">
-            Subject Assignment
+            Subjects & Marks
           </Typography>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleAddSubject}
             disabled={unassignedSubjects.length === 0}
+            size="small"
           >
             Add Subject
           </Button>
         </Box>
 
-        {assignedSubjects.length > 0 && (
-          <Box mb={2}>
-            <Typography variant="body2" color="text.secondary">
-              Total Subjects: {assignedSubjects.length} | Total Marks: {getTotalMarks()}
-            </Typography>
-          </Box>
+        {unassignedSubjects.length === 0 && assignedSubjects.length > 0 && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            All available subjects have been assigned. To add more subjects, first create them in Subject Master.
+          </Alert>
         )}
 
-        <TableContainer component={Paper} variant="outlined">
-          <Table>
+        {availableSubjects.length === 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            No subjects available. Please create subjects in Subject Master before configuring classes.
+          </Alert>
+        )}
+
+        {assignedSubjects.length > 0 && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            <Typography variant="body2">
+              <strong>{assignedSubjects.length}</strong> subjects assigned • Total: <strong>{getTotalMarks()}</strong> marks
+            </Typography>
+          </Alert>
+        )}
+
+        <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
+          <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Subject</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Total Marks</TableCell>
-                <TableCell>Passing Marks</TableCell>
-                <TableCell>Theory</TableCell>
-                <TableCell>Practical</TableCell>
-                <TableCell align="center">Actions</TableCell>
+                <TableCell><strong>Subject</strong></TableCell>
+                <TableCell align="center"><strong>Type</strong></TableCell>
+                <TableCell align="center"><strong>Total</strong></TableCell>
+                <TableCell align="center"><strong>Pass</strong></TableCell>
+                <TableCell align="center"><strong>Theory</strong></TableCell>
+                <TableCell align="center"><strong>Practical</strong></TableCell>
+                <TableCell align="center"><strong>Action</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {assignedSubjects.map((subject, index) => (
-                <TableRow key={index}>
+                <TableRow key={index} hover>
                   <TableCell>
                     <FormControl fullWidth size="small">
                       <Select
                         value={subject.subjectMasterId}
                         onChange={(e) => handleSubjectChange(index, 'subjectMasterId', Number(e.target.value))}
+                        displayEmpty
                       >
                         {availableSubjects
                           .filter(s => s.id === subject.subjectMasterId || 
                                      !assignedSubjects.some(assigned => assigned.subjectMasterId === s.id))
                           .map((s) => (
                           <MenuItem key={s.id} value={s.id}>
-                            {s.subjectName} ({s.subjectCode})
+                            <Box>
+                              <Typography variant="body2" fontWeight="medium">
+                                {s.subjectName}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {s.subjectCode}
+                              </Typography>
+                            </Box>
                           </MenuItem>
                         ))}
                       </Select>
                     </FormControl>
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     {getSubjectTypeChip(subject.subjectType)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <TextField
                       size="small"
                       type="number"
                       value={subject.totalMarks}
                       onChange={(e) => handleSubjectChange(index, 'totalMarks', Number(e.target.value))}
-                      inputProps={{ min: 1 }}
-                      sx={{ width: 80 }}
+                      inputProps={{ min: 1, style: { textAlign: 'center' } }}
+                      sx={{ width: 70 }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <TextField
                       size="small"
                       type="number"
                       value={subject.passingMarks}
                       onChange={(e) => handleSubjectChange(index, 'passingMarks', Number(e.target.value))}
-                      inputProps={{ min: 1, max: subject.totalMarks }}
-                      sx={{ width: 80 }}
+                      inputProps={{ min: 1, max: subject.totalMarks, style: { textAlign: 'center' } }}
+                      sx={{ width: 70 }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <TextField
                       size="small"
                       type="number"
                       value={subject.theoryMarks}
                       onChange={(e) => handleSubjectChange(index, 'theoryMarks', Number(e.target.value))}
-                      inputProps={{ min: 0, max: subject.totalMarks }}
-                      sx={{ width: 80 }}
+                      inputProps={{ min: 0, max: subject.totalMarks, style: { textAlign: 'center' } }}
+                      sx={{ width: 70 }}
                       disabled={subject.subjectType === SubjectType.PRACTICAL}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <TextField
                       size="small"
                       type="number"
                       value={subject.practicalMarks}
                       onChange={(e) => handleSubjectChange(index, 'practicalMarks', Number(e.target.value))}
-                      inputProps={{ min: 0, max: subject.totalMarks }}
-                      sx={{ width: 80 }}
+                      inputProps={{ min: 0, max: subject.totalMarks, style: { textAlign: 'center' } }}
+                      sx={{ width: 70 }}
                       disabled={subject.subjectType === SubjectType.THEORY}
                     />
                   </TableCell>
                   <TableCell align="center">
-                    <Tooltip title="Remove Subject">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleRemoveSubject(index)}
-                        color="error"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveSubject(index)}
+                      color="error"
+                      sx={{ '&:hover': { backgroundColor: 'error.light', color: 'white' } }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}
               {assignedSubjects.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} align="center">
-                    <Typography variant="body2" color="text.secondary">
-                      No subjects assigned. Click "Add Subject" to get started.
-                    </Typography>
+                  <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                    <Box textAlign="center">
+                      <Typography variant="body1" color="text.secondary" gutterBottom>
+                        No subjects assigned yet
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Click "Add Subject" to start building your class configuration
+                      </Typography>
+                    </Box>
                   </TableCell>
                 </TableRow>
               )}
@@ -524,16 +725,22 @@ const SimplifiedClassConfigurationModal: React.FC<ClassConfigurationModalProps> 
         </TableContainer>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
+      <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
+        <Button 
+          onClick={onClose} 
+          disabled={loading}
+          variant="outlined"
+          color="inherit"
+        >
           Cancel
         </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
-          disabled={loading}
+          disabled={loading || !formData.className || !formData.academicYear}
+          sx={{ minWidth: 120 }}
         >
-          {loading ? 'Saving...' : (mode === 'edit' ? 'Update' : 'Create')} Configuration
+          {loading ? 'Saving...' : (mode === 'edit' ? 'Update Configuration' : 'Create Configuration')}
         </Button>
       </DialogActions>
     </Dialog>

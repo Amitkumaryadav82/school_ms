@@ -22,10 +22,6 @@ public class ClassConfigurationRequest {
     @Size(min = 1, max = 50, message = "Class name must be between 1 and 50 characters")
     private String className;
 
-    @NotBlank(message = "Section is required")
-    @Size(min = 1, max = 20, message = "Section must be between 1 and 20 characters")
-    private String section;
-
     @NotBlank(message = "Academic year is required")
     @Pattern(regexp = "\\d{4}-\\d{2}", message = "Academic year must be in format YYYY-YY (e.g., 2023-24)")
     private String academicYear;

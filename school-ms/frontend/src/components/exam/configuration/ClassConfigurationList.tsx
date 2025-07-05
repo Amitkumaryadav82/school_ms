@@ -19,7 +19,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Pagination,
   Alert,
   Dialog,
   DialogTitle,
@@ -28,15 +27,12 @@ import {
   Switch,
   FormControlLabel,
   Tooltip,
-  Tabs,
-  Tab
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Visibility as ViewIcon,
-  Search as SearchIcon,
   Clear as ClearIcon,
   FileCopy as CopyIcon,
   Assignment as AssignmentIcon
@@ -61,18 +57,20 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
   selectedConfigurations = []
 }) => {
   // State management
-  const [configurations, setConfigurations] = useState<ClassConfiguration[]>([]);
+  const [allConfigurations, setAllConfigurations] = useState<ClassConfiguration[]>([]);
+  const [filteredConfigurations, setFilteredConfigurations] = useState<ClassConfiguration[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [academicYearFilter, setAcademicYearFilter] = useState('');
   const [classNameFilter, setClassNameFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  const [pageSize] = useState(10);
-  const [activeTab, setActiveTab] = useState(0);
+
+  // Class options for dropdown
+  const classOptions = [
+    'Pre-KG', 'LKG', 'UKG', 
+    '1st', '2nd', '3rd', '4th', '5th', 
+    '6th', '7th', '8th', '9th', '10th',
+    '11th', '12th'
+  ];
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -83,46 +81,24 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [configurationToDelete, setConfigurationToDelete] = useState<ClassConfiguration | null>(null);
 
+  // Load all configurations once on component mount
   useEffect(() => {
-    loadConfigurations();
-  }, [page, searchTerm, academicYearFilter, classNameFilter, statusFilter, activeTab]);
+    loadAllConfigurations();
+  }, []);
 
-  const loadConfigurations = async () => {
+  // Apply client-side filtering when filters change
+  useEffect(() => {
+    applyFilters();
+  }, [allConfigurations, classNameFilter, statusFilter]);
+
+  const loadAllConfigurations = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const filter: ClassConfigurationFilter = {
-        searchTerm: searchTerm || undefined,
-        academicYear: academicYearFilter || undefined,
-        className: classNameFilter || undefined,
-        isActive: statusFilter === '' ? undefined : statusFilter === 'true'
-      };
-
-      let response;
-      if (activeTab === 0) {
-        // All configurations
-        response = await classConfigurationService.searchConfigurations(filter, page, pageSize);
-      } else if (activeTab === 1) {
-        // Active only
-        response = await classConfigurationService.getAllConfigurationsPaginated(page, pageSize);
-      } else {
-        // In use only
-        const inUseConfigs = await classConfigurationService.getConfigurationsInUse();
-        response = {
-          content: inUseConfigs.slice(page * pageSize, (page + 1) * pageSize),
-          totalElements: inUseConfigs.length,
-          totalPages: Math.ceil(inUseConfigs.length / pageSize),
-          size: pageSize,
-          number: page,
-          first: page === 0,
-          last: page >= Math.ceil(inUseConfigs.length / pageSize) - 1
-        };
-      }
-
-      setConfigurations(response.content);
-      setTotalPages(response.totalPages);
-      setTotalElements(response.totalElements);
+      // Get all active configurations without pagination
+      const allConfigs = await classConfigurationService.getAllActiveConfigurations();
+      setAllConfigurations(allConfigs);
     } catch (err: any) {
       setError(err.message || 'Failed to load configurations');
     } finally {
@@ -130,17 +106,28 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
     }
   };
 
-  const handleSearch = () => {
-    setPage(0);
-    loadConfigurations();
+  const applyFilters = () => {
+    let filtered = [...allConfigurations];
+
+    // Apply class name filter
+    if (classNameFilter) {
+      filtered = filtered.filter(config => 
+        config.className === classNameFilter
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== '') {
+      const isActive = statusFilter === 'true';
+      filtered = filtered.filter(config => config.isActive === isActive);
+    }
+
+    setFilteredConfigurations(filtered);
   };
 
   const handleClearFilters = () => {
-    setSearchTerm('');
-    setAcademicYearFilter('');
     setClassNameFilter('');
     setStatusFilter('');
-    setPage(0);
   };
 
   const handleAddConfiguration = () => {
@@ -178,7 +165,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
     try {
       setLoading(true);
       await classConfigurationService.deleteConfiguration(configurationToDelete.id!);
-      await loadConfigurations();
+      await loadAllConfigurations();
       setDeleteDialogOpen(false);
       setConfigurationToDelete(null);
     } catch (err: any) {
@@ -192,7 +179,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
     try {
       setLoading(true);
       await classConfigurationService.updateConfigurationStatus(configuration.id!, !configuration.isActive);
-      await loadConfigurations();
+      await loadAllConfigurations();
     } catch (err: any) {
       setError(err.message || 'Failed to update configuration status');
     } finally {
@@ -202,7 +189,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
 
   const handleModalSave = async () => {
     setModalOpen(false);
-    await loadConfigurations();
+    await loadAllConfigurations();
   };
 
   const getStatusChip = (isActive: boolean) => {
@@ -219,7 +206,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
     return classConfigurationService.canDeleteConfiguration(config);
   };
 
-  if (loading && configurations.length === 0) {
+  if (loading && allConfigurations.length === 0) {
     return <Loading />;
   }
 
@@ -247,39 +234,23 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
             </Alert>
           )}
 
-          {/* Tabs */}
-          <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 2 }}>
-            <Tab label="All Configurations" />
-            <Tab label="Active Only" />
-            <Tab label="In Use" />
-          </Tabs>
-
           {/* Filters */}
-          <Box display="flex" gap={2} mb={3} flexWrap="wrap">
-            <TextField
-              label="Search configurations..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              size="small"
-              sx={{ minWidth: 200 }}
-            />
-            
-            <TextField
-              label="Academic Year"
-              value={academicYearFilter}
-              onChange={(e) => setAcademicYearFilter(e.target.value)}
-              size="small"
-              sx={{ minWidth: 150 }}
-              placeholder="e.g., 2023-2024"
-            />
-
-            <TextField
-              label="Class Name"
-              value={classNameFilter}
-              onChange={(e) => setClassNameFilter(e.target.value)}
-              size="small"
-              sx={{ minWidth: 120 }}
-            />
+          <Box display="flex" gap={2} mb={3} flexWrap="wrap" alignItems="center">
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Class Name</InputLabel>
+              <Select
+                value={classNameFilter}
+                label="Class Name"
+                onChange={(e) => setClassNameFilter(e.target.value as string)}
+              >
+                <MenuItem value="">All Classes</MenuItem>
+                {classOptions.map((className) => (
+                  <MenuItem key={className} value={className}>
+                    {className}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Status</InputLabel>
@@ -296,25 +267,17 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
 
             <Button
               variant="outlined"
-              startIcon={<SearchIcon />}
-              onClick={handleSearch}
-              disabled={loading}
-            >
-              Search
-            </Button>
-
-            <Button
-              variant="outlined"
               startIcon={<ClearIcon />}
               onClick={handleClearFilters}
+              disabled={loading}
             >
-              Clear
+              Clear Filters
             </Button>
           </Box>
 
           {/* Results info */}
           <Typography variant="body2" color="text.secondary" mb={2}>
-            Showing {configurations.length} of {totalElements} configurations
+            Showing {filteredConfigurations.length} of {allConfigurations.length} configurations
           </Typography>
 
           {/* Table */}
@@ -332,7 +295,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {configurations.map((config) => (
+                {filteredConfigurations.map((config: ClassConfiguration) => (
                   <TableRow
                     key={config.id}
                     hover
@@ -442,11 +405,11 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
                     </TableCell>
                   </TableRow>
                 ))}
-                {configurations.length === 0 && !loading && (
+                {filteredConfigurations.length === 0 && !loading && (
                   <TableRow>
                     <TableCell colSpan={7} align="center">
                       <Typography variant="body2" color="text.secondary">
-                        No configurations found
+                        {allConfigurations.length === 0 ? 'No configurations found' : 'No configurations match the current filters'}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -454,20 +417,6 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
               </TableBody>
             </Table>
           </TableContainer>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <Box display="flex" justifyContent="center" mt={3}>
-              <Pagination
-                count={totalPages}
-                page={page + 1}
-                onChange={(_, value) => setPage(value - 1)}
-                color="primary"
-                showFirstButton
-                showLastButton
-              />
-            </Box>
-          )}
         </CardContent>
       </Card>
 

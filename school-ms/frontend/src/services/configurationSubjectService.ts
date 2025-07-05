@@ -51,7 +51,7 @@ class ConfigurationSubjectService {
    * Get configuration subjects by configuration ID
    */
   async getSubjectsByConfiguration(configurationId: number): Promise<ConfigurationSubject[]> {
-    return await api.get<ConfigurationSubject[]>(`${this.baseUrl}/by-configuration/${configurationId}`);
+    return await api.get<ConfigurationSubject[]>(`${this.baseUrl}/class/${configurationId}`);
   }
 
   /**

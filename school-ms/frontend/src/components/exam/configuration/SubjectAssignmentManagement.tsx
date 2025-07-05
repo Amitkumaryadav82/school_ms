@@ -229,7 +229,7 @@ const SubjectAssignmentManagement: React.FC<SubjectAssignmentManagementProps> = 
                   Subject Assignments
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {selectedConfiguration.className} {selectedConfiguration.section} - {selectedConfiguration.academicYear}
+                  {selectedConfiguration.className} - {selectedConfiguration.academicYear}
                 </Typography>
               </Box>
             </Box>
@@ -402,7 +402,7 @@ const SubjectAssignmentManagement: React.FC<SubjectAssignmentManagementProps> = 
         open={subjectModalOpen}
         onClose={() => setSubjectModalOpen(false)}
         onSave={handleSubjectModalSave}
-        configurationId={selectedConfiguration.id!}
+        classConfiguration={selectedConfiguration}
         configurationSubject={selectedSubject}
         mode={modalMode}
       />

@@ -36,7 +36,11 @@ class ClassConfigurationService {
    * Get all active configurations
    */
   async getAllActiveConfigurations(): Promise<ClassConfiguration[]> {
-    return await api.get<ClassConfiguration[]>(`${this.baseUrl}/active`);
+    // Use the search endpoint with isActive=true to get all active configurations
+    const response = await api.get<PaginatedResponse<ClassConfiguration>>(`${this.baseUrl}/search`, {
+      params: { isActive: true, size: 1000 } // Use large size to get all results
+    });
+    return response.content || [];
   }
 
   /**
@@ -103,9 +107,18 @@ class ClassConfigurationService {
    * Update configuration status
    */
   async updateConfigurationStatus(id: number, isActive: boolean): Promise<ClassConfiguration> {
-    return await api.patch<ClassConfiguration>(`${this.baseUrl}/${id}/status`, {
-      isActive
-    });
+    // Get the current configuration first
+    const currentConfig = await this.getConfigurationById(id);
+    
+    // Update with the new status
+    const updateRequest: ClassConfigurationRequest = {
+      className: currentConfig.className,
+      academicYear: currentConfig.academicYear,
+      description: currentConfig.description,
+      isActive: isActive
+    };
+    
+    return await this.updateConfiguration(id, updateRequest);
   }
 
   /**
@@ -116,36 +129,23 @@ class ClassConfigurationService {
   }
 
   /**
-   * Check if configuration name exists for a class
+   * Check if configuration name exists for a class and academic year
    */
-  async existsByNameAndClass(className: string, section: string, academicYear: string, excludeId?: number): Promise<boolean> {
-    const params: any = { className, section, academicYear };
-    if (excludeId) {
-      params.excludeId = excludeId;
-    }
-    const response = await api.get<{ exists: boolean }>(`${this.baseUrl}/exists/name`, { params });
-    return response.exists;
-  }
-
-  /**
-   * Get configurations that are currently in use (have exams)
-   */
-  async getConfigurationsInUse(): Promise<ClassConfiguration[]> {
-    return await api.get<ClassConfiguration[]>(`${this.baseUrl}/in-use`);
-  }
-
-  /**
-   * Get configurations that are not currently in use
-   */
-  async getConfigurationsNotInUse(): Promise<ClassConfiguration[]> {
-    return await api.get<ClassConfiguration[]>(`${this.baseUrl}/not-in-use`);
-  }
-
-  /**
-   * Get configurations with their exam count
-   */
-  async getConfigurationsWithExamCount(): Promise<ClassConfiguration[]> {
-    return await api.get<ClassConfiguration[]>(`${this.baseUrl}/with-exam-count`);
+  async existsByNameAndClass(className: string, academicYear: string, excludeId?: number): Promise<boolean> {
+    // Use search endpoint to check if configuration already exists
+    const response = await this.searchConfigurations({
+      className,
+      academicYear
+    }, 0, 1000);
+    
+    const existingConfigs = response.content || [];
+    
+    // Check if any configuration matches (excluding the current one if editing)
+    return existingConfigs.some(config => 
+      config.className === className && 
+      config.academicYear === academicYear &&
+      (excludeId ? config.id !== excludeId : true)
+    );
   }
 
   /**
@@ -165,22 +165,6 @@ class ClassConfigurationService {
   }
 
   /**
-   * Validate section
-   */
-  validateSection(section: string): string | null {
-    if (!section || section.trim().length === 0) {
-      return 'Section is required';
-    }
-    
-    const trimmedSection = section.trim();
-    if (trimmedSection.length > 10) {
-      return 'Section cannot exceed 10 characters';
-    }
-    
-    return null;
-  }
-
-  /**
    * Validate academic year
    */
   validateAcademicYear(academicYear: string): string | null {
@@ -188,10 +172,10 @@ class ClassConfigurationService {
       return 'Academic year is required';
     }
     
-    // Basic format validation (e.g., 2023-2024)
-    const academicYearPattern = /^\d{4}-\d{4}$/;
+    // Updated format validation to match backend requirements (YYYY-YY)
+    const academicYearPattern = /^\d{4}-\d{2}$/;
     if (!academicYearPattern.test(academicYear.trim())) {
-      return 'Academic year must be in format YYYY-YYYY (e.g., 2023-2024)';
+      return 'Academic year must be in format YYYY-YY (e.g., 2023-24)';
     }
     
     return null;
@@ -217,9 +201,6 @@ class ClassConfigurationService {
     const nameError = this.validateClassName(request.className);
     if (nameError) errors.push(nameError);
     
-    const sectionError = this.validateSection(request.section);
-    if (sectionError) errors.push(sectionError);
-    
     const yearError = this.validateAcademicYear(request.academicYear);
     if (yearError) errors.push(yearError);
     
@@ -233,7 +214,7 @@ class ClassConfigurationService {
    * Format configuration display name
    */
   formatConfigurationDisplayName(config: ClassConfiguration): string {
-    return `${config.className} ${config.section} - ${config.academicYear}`;
+    return `${config.className} - ${config.academicYear}`;
   }
 
   /**
@@ -265,18 +246,13 @@ class ClassConfigurationService {
   validateCopyRequest(request: CopyConfigurationRequest): string[] {
     const errors: string[] = [];
     
-    if (!request.sourceConfigurationId) {
+    if (!request.sourceClassConfigId) {
       errors.push('Source configuration is required');
     }
     
-    const targetClassError = this.validateClassName(request.targetClassName);
-    if (targetClassError) errors.push(targetClassError);
-    
-    const targetSectionError = this.validateSection(request.targetSection);
-    if (targetSectionError) errors.push(targetSectionError);
-    
-    const targetYearError = this.validateAcademicYear(request.targetAcademicYear);
-    if (targetYearError) errors.push(targetYearError);
+    if (!request.targetClassConfigId) {
+      errors.push('Target configuration is required');
+    }
     
     return errors;
   }
@@ -285,7 +261,7 @@ class ClassConfigurationService {
    * Generate suggested configuration name for copy operation
    */
   generateCopyConfigurationName(sourceConfig: ClassConfiguration, targetClassName: string): string {
-    return `${sourceConfig.className} ${sourceConfig.section} - Copy for ${targetClassName}`;
+    return `${sourceConfig.className} - Copy for ${targetClassName}`;
   }
 }
 
