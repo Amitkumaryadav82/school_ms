@@ -140,6 +140,13 @@ class SubjectMasterService {
   }
 
   /**
+   * Get all subjects without pagination (for client-side filtering)
+   */
+  async getAllSubjects(): Promise<SubjectMaster[]> {
+    return await api.get<SubjectMaster[]>(`${this.baseUrl}/all`);
+  }
+
+  /**
    * Validate subject code format
    */
   validateSubjectCode(code: string): string | null {

@@ -267,4 +267,14 @@ public class SubjectMasterController {
         List<SubjectMasterDTO> subjects = subjectMasterService.getSubjectsWithConfigurationCount();
         return ResponseEntity.ok(subjects);
     }
+
+    @Operation(summary = "Get all subjects (active and inactive)")
+    @ApiResponse(responseCode = "200", description = "All subjects retrieved successfully")
+    @GetMapping("/all")
+    public ResponseEntity<List<SubjectMasterDTO>> getAllSubjects() {
+        log.debug("Fetching all subjects (active and inactive)");
+        
+        List<SubjectMasterDTO> subjects = subjectMasterService.getAllSubjects();
+        return ResponseEntity.ok(subjects);
+    }
 }

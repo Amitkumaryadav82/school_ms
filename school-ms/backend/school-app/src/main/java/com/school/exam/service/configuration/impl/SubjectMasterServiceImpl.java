@@ -300,4 +300,15 @@ public class SubjectMasterServiceImpl implements SubjectMasterService {
                 .updatedAt(subjectMaster.getUpdatedAt())
                 .build();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubjectMasterDTO> getAllSubjects() {
+        log.debug("Fetching all subjects (active and inactive)");
+        
+        List<SubjectMaster> subjects = subjectMasterRepository.findAll();
+        return subjects.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 }

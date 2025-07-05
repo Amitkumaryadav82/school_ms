@@ -38,7 +38,7 @@ import {
   Clear as ClearIcon,
   Download as DownloadIcon
 } from '@mui/icons-material';
-import { SubjectMaster, SubjectType } from '../../../types/examConfiguration';
+import { SubjectMaster, SubjectType, SubjectMasterFilter } from '../../../types/examConfiguration';
 import subjectMasterService from '../../../services/subjectMasterService';
 import SubjectMasterModal from './SubjectMasterModal';
 import Loading from '../../Loading';
@@ -137,10 +137,16 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
   };
 
   const totalPages = Math.ceil(filteredSubjects.length / pageSize);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load subjects');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = () => {
-    // Search is now automatic via useEffect - no need for API call
     setPage(0);
+    loadSubjects();
   };
 
   const handleClearFilters = () => {
@@ -179,7 +185,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
     try {
       setLoading(true);
       await subjectMasterService.deleteSubject(subjectToDelete.id!);
-      await loadAllSubjects(); // Reload all subjects
+      await loadSubjects();
       setDeleteDialogOpen(false);
       setSubjectToDelete(null);
     } catch (err: any) {
@@ -193,7 +199,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
     try {
       setLoading(true);
       await subjectMasterService.updateSubjectStatus(subject.id!, !subject.isActive);
-      await loadAllSubjects(); // Reload all subjects
+      await loadSubjects();
     } catch (err: any) {
       setError(err.message || 'Failed to update subject status');
     } finally {
@@ -203,7 +209,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
 
   const handleModalSave = async () => {
     setModalOpen(false);
-    await loadAllSubjects(); // Reload all subjects
+    await loadSubjects();
   };
 
   const getSubjectTypeChip = (type: SubjectType) => {
@@ -227,25 +233,23 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
     );
   };
 
-  if (loading && allSubjects.length === 0) {
+  if (loading && subjects.length === 0) {
     return <Loading />;
   }
-
-  const paginatedSubjects = getPaginatedSubjects();
 
   return (
     <Box>
       <Card>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-            <Typography variant="h5" component="h2">
-              Subject Master Management
+            <Typography variant="h5" component="h1">
+              Subject Master
             </Typography>
             <Button
               variant="contained"
-              color="primary"
               startIcon={<AddIcon />}
               onClick={handleAddSubject}
+              disabled={loading}
             >
               Add Subject
             </Button>
@@ -257,154 +261,190 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
             </Alert>
           )}
 
-          {/* Search and Filter Section */}
-          <Box mb={3}>
-            <Box display="flex" gap={2} alignItems="center" flexWrap="wrap">
-              <TextField
-                label="Search subjects..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by name, code, or description"
-                size="small"
-                sx={{ minWidth: 250 }}
-                InputProps={{
-                  startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />
-                }}
-              />
-
-              <FormControl size="small" sx={{ minWidth: 150 }}>
-                <InputLabel>Subject Type</InputLabel>
-                <Select
-                  value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value as SubjectType | '')}
-                  label="Subject Type"
-                >
-                  <MenuItem value="">All Types</MenuItem>
-                  <MenuItem value={SubjectType.THEORY}>Theory</MenuItem>
-                  <MenuItem value={SubjectType.PRACTICAL}>Practical</MenuItem>
-                  <MenuItem value={SubjectType.BOTH}>Both</MenuItem>
-                </Select>
-              </FormControl>
-
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  label="Status"
-                >
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="true">Active</MenuItem>
-                  <MenuItem value="false">Inactive</MenuItem>
-                </Select>
-              </FormControl>
-
-              <Button
-                variant="outlined"
-                startIcon={<ClearIcon />}
-                onClick={handleClearFilters}
-                size="small"
+          {/* Filters */}
+          <Box display="flex" gap={2} mb={3} flexWrap="wrap">
+            <TextField
+              label="Search subjects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="small"
+              sx={{ minWidth: 200 }}
+            />
+            
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Type</InputLabel>
+              <Select
+                value={typeFilter}
+                label="Type"
+                onChange={(e) => setTypeFilter(e.target.value as SubjectType | '')}
               >
-                Clear Filters
-              </Button>
-            </Box>
+                <MenuItem value="">All Types</MenuItem>
+                <MenuItem value={SubjectType.THEORY}>Theory</MenuItem>
+                <MenuItem value={SubjectType.PRACTICAL}>Practical</MenuItem>
+                <MenuItem value={SubjectType.BOTH}>Both</MenuItem>
+              </Select>
+            </FormControl>
 
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Showing {paginatedSubjects.length} of {filteredSubjects.length} subjects
-              {searchTerm || typeFilter || statusFilter ? ` (filtered from ${allSubjects.length} total)` : ''}
-            </Typography>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={statusFilter}
+                label="Status"
+                onChange={(e) => setStatusFilter(e.target.value as string)}
+              >
+                <MenuItem value="">All Status</MenuItem>
+                <MenuItem value="true">Active</MenuItem>
+                <MenuItem value="false">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+
+            <Button
+              variant="outlined"
+              startIcon={<SearchIcon />}
+              onClick={handleSearch}
+              disabled={loading}
+            >
+              Search
+            </Button>
+
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={handleClearFilters}
+            >
+              Clear
+            </Button>
           </Box>
 
-          {/* Results Table */}
+          {/* Results info */}
+          <Typography variant="body2" color="text.secondary" mb={2}>
+            Showing {subjects.length} of {totalElements} subjects
+          </Typography>
+
+          {/* Table */}
           <TableContainer component={Paper} variant="outlined">
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Subject Code</TableCell>
-                  <TableCell>Subject Name</TableCell>
+                  <TableCell>Code</TableCell>
+                  <TableCell>Name</TableCell>
                   <TableCell>Type</TableCell>
-                  <TableCell>Description</TableCell>
                   <TableCell>Status</TableCell>
+                  <TableCell>Configurations</TableCell>
+                  <TableCell>Description</TableCell>
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {paginatedSubjects.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center">
-                      <Typography variant="body2" color="text.secondary" py={3}>
-                        {loading ? 'Loading subjects...' : 
-                         filteredSubjects.length === 0 && allSubjects.length === 0 ? 'No subjects found' :
-                         'No subjects match your search criteria'}
+                {subjects.map((subject) => (
+                  <TableRow
+                    key={subject.id}
+                    hover
+                    sx={{
+                      backgroundColor: selectedSubjects.includes(subject.id!)
+                        ? 'action.selected'
+                        : 'inherit'
+                    }}
+                  >
+                    <TableCell>
+                      <Typography variant="body2" fontWeight="medium">
+                        {subject.subjectCode}
                       </Typography>
                     </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedSubjects.map((subject) => (
-                    <TableRow key={subject.id} hover>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight="medium">
-                          {subject.subjectCode}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {subject.subjectName}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {getSubjectTypeChip(subject.subjectType)}
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" noWrap sx={{ maxWidth: 200 }}>
-                          {subject.description || '-'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={subject.isActive}
-                              onChange={() => handleStatusToggle(subject)}
-                              size="small"
-                              disabled={loading}
-                            />
-                          }
-                          label={getStatusChip(subject.isActive)}
-                          labelPlacement="start"
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <Tooltip title="View Details">
+                    <TableCell>
+                      <Typography variant="body2">
+                        {subject.subjectName}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      {getSubjectTypeChip(subject.subjectType)}
+                    </TableCell>
+                    <TableCell>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={subject.isActive}
+                            onChange={() => handleStatusToggle(subject)}
+                            size="small"
+                          />
+                        }
+                        label={getStatusChip(subject.isActive)}
+                        sx={{ margin: 0 }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {subject.configurationCount || 0}
+                        {subject.isInUse && (
+                          <Chip label="In Use" size="small" color="warning" sx={{ ml: 1 }} />
+                        )}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          maxWidth: 200,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {subject.description || '-'}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Box display="flex" gap={1} justifyContent="center">
+                        <Tooltip title="View">
                           <IconButton
                             size="small"
                             onClick={() => handleViewSubject(subject)}
                           >
-                            <ViewIcon fontSize="small" />
+                            <ViewIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Edit Subject">
+                        
+                        <Tooltip title="Edit">
                           <IconButton
                             size="small"
                             onClick={() => handleEditSubject(subject)}
-                            disabled={loading}
                           >
-                            <EditIcon fontSize="small" />
+                            <EditIcon />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Delete Subject">
+                        
+                        <Tooltip title="Delete">
                           <IconButton
                             size="small"
                             onClick={() => handleDeleteSubject(subject)}
-                            disabled={loading}
+                            disabled={subject.isInUse}
                             color="error"
                           >
-                            <DeleteIcon fontSize="small" />
+                            <DeleteIcon />
                           </IconButton>
                         </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))
+
+                        {selectionMode && onSubjectSelect && (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => onSubjectSelect(subject)}
+                          >
+                            Select
+                          </Button>
+                        )}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {subjects.length === 0 && !loading && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center">
+                      <Typography variant="body2" color="text.secondary">
+                        No subjects found
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
@@ -416,7 +456,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
               <Pagination
                 count={totalPages}
                 page={page + 1}
-                onChange={(_, newPage) => setPage(newPage - 1)}
+                onChange={(_, value) => setPage(value - 1)}
                 color="primary"
                 showFirstButton
                 showLastButton
@@ -426,7 +466,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
         </CardContent>
       </Card>
 
-      {/* Subject Modal */}
+      {/* Add/Edit Modal */}
       <SubjectMasterModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -443,14 +483,18 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
             Are you sure you want to delete the subject "{subjectToDelete?.subjectName}"?
             This action cannot be undone.
           </Typography>
+          {subjectToDelete?.isInUse && (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+              This subject is currently in use and cannot be deleted.
+            </Alert>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
           <Button
             onClick={confirmDelete}
             color="error"
-            variant="contained"
-            disabled={loading}
+            disabled={subjectToDelete?.isInUse}
           >
             Delete
           </Button>

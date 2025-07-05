@@ -134,4 +134,10 @@ public interface SubjectMasterService {
      * @throws IllegalArgumentException if validation fails
      */
     void validateSubjectRequest(SubjectMasterRequest request, Long excludeId);
+
+    /**
+     * Get all subjects (active and inactive)
+     * @return List of all subject master DTOs
+     */
+    List<SubjectMasterDTO> getAllSubjects();
 }

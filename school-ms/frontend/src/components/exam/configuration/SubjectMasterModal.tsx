@@ -223,29 +223,47 @@ const SubjectMasterModal: React.FC<SubjectMasterModalProps> = ({
 
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Subject Code"
-              value={formData.subjectCode}
-              onChange={(e) => handleInputChange('subjectCode', e.target.value.toUpperCase())}
-              fullWidth
-              required
-              disabled={isReadOnly}
-              helperText="Unique code for the subject (e.g., MATH101, PHY201)"
-              inputProps={{ maxLength: 20 }}
-            />
+            <Box mb={1}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                Subject Code *
+              </Typography>
+              <TextField
+                value={formData.subjectCode}
+                onChange={(e) => handleInputChange('subjectCode', e.target.value.toUpperCase())}
+                fullWidth
+                required
+                disabled={isReadOnly}
+                placeholder="e.g., MATH101, PHY201"
+                inputProps={{ maxLength: 20 }}
+                variant="outlined"
+                size="small"
+              />
+              <Typography variant="caption" color="text.secondary">
+                Unique code for the subject (e.g., MATH101, PHY201)
+              </Typography>
+            </Box>
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField
-              label="Subject Name"
-              value={formData.subjectName}
-              onChange={(e) => handleInputChange('subjectName', e.target.value)}
-              fullWidth
-              required
-              disabled={isReadOnly}
-              helperText="Full name of the subject"
-              inputProps={{ maxLength: 100 }}
-            />
+            <Box mb={1}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                Subject Name *
+              </Typography>
+              <TextField
+                value={formData.subjectName}
+                onChange={(e) => handleInputChange('subjectName', e.target.value)}
+                fullWidth
+                required
+                disabled={isReadOnly}
+                placeholder="Full name of the subject"
+                inputProps={{ maxLength: 100 }}
+                variant="outlined"
+                size="small"
+              />
+              <Typography variant="caption" color="text.secondary">
+                Full name of the subject
+              </Typography>
+            </Box>
           </Grid>
 
           <Grid item xs={12}>
@@ -273,17 +291,26 @@ const SubjectMasterModal: React.FC<SubjectMasterModalProps> = ({
           </Grid>
 
           <Grid item xs={12}>
-            <TextField
-              label="Description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              fullWidth
-              multiline
-              rows={3}
-              disabled={isReadOnly}
-              helperText="Optional description of the subject"
-              inputProps={{ maxLength: 500 }}
-            />
+            <Box mb={1}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                Description
+              </Typography>
+              <TextField
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                fullWidth
+                multiline
+                rows={3}
+                disabled={isReadOnly}
+                placeholder="Optional description of the subject"
+                inputProps={{ maxLength: 500 }}
+                variant="outlined"
+                size="small"
+              />
+              <Typography variant="caption" color="text.secondary">
+                Optional description of the subject
+              </Typography>
+            </Box>
           </Grid>
 
           <Grid item xs={12}>
