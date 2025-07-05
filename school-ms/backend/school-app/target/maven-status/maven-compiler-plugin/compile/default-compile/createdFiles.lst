@@ -3,10 +3,12 @@ com/school/attendance/dto/MonthlyAttendanceStats$MonthlyAttendanceStatsBuilder.c
 com/school/exam/model/QuestionSection$QuestionSectionBuilder.class
 com/school/security/JwtAuthenticationFilter.class
 com/school/exam/service/impl/ExamBlueprintServiceImpl.class
+com/school/exam/repository/configuration/ConfigurationSubjectRepository.class
 com/school/exam/dto/QuestionPaperStructureRequest.class
 com/school/attendance/dto/AttendanceDTO$AttendanceDTOBuilder.class
 com/school/exam/dto/QuestionPaperRequest.class
 com/school/core/model/Employee.class
+com/school/exam/model/configuration/SubjectType.class
 com/school/exam/repository/ExamBlueprintRepository.class
 com/school/fee/dto/FeePaymentSummary.class
 com/school/hrm/entity/StaffDesignationMapping.class
@@ -22,14 +24,18 @@ com/school/course/controller/CourseController.class
 com/school/library/controller/BookIssueController.class
 com/school/core/adapter/EntityAdapter.class
 com/school/config/CorsConfig.class
+com/school/exam/dto/configuration/SubjectMasterRequest$SubjectMasterRequestBuilder.class
 com/school/exam/model/QuestionWiseMarks.class
+com/school/exam/service/configuration/impl/ConfigurationSubjectServiceImpl$1.class
 com/school/fee/model/PaymentSchedule.class
 com/school/exam/dto/ExamBlueprintRequest.class
 com/school/exam/dto/ExamSummary$ExamSummaryBuilder.class
 com/school/exam/exception/BlueprintNotFoundException.class
 com/school/hrm/entity/Staff$StaffBuilder.class
+com/school/exam/dto/configuration/CopyConfigurationRequest$CopySubjectConfiguration.class
 com/school/fee/model/FeePaymentSchedule$PaymentFrequency.class
 com/school/fee/model/Payment.class
+com/school/exam/model/configuration/ConfigurationSubject.class
 com/school/core/model/Staff$StaffBuilder.class
 com/school/fee/dto/FeePaymentScheduleRequest.class
 com/school/fee/dto/PaymentDistribution.class
@@ -41,8 +47,10 @@ com/school/attendance/model/StaffAttendance$StaffAttendanceBuilder.class
 com/school/student/repository/StudentRepository.class
 com/school/core/service/StaffMigrationService.class
 com/school/exam/dto/TabulationSheetDTO$SubjectMarkSummary$SubjectMarkSummaryBuilder.class
+com/school/exam/dto/configuration/CopyConfigurationResponse.class
 com/school/course/model/Course.class
 com/school/exception/ErrorResponse.class
+com/school/exam/dto/configuration/CopyConfigurationResponse$CopySubjectResult.class
 com/school/course/repository/CourseRepository.class
 com/school/attendance/dto/AttendanceDTO.class
 com/school/exam/dto/QuestionSectionRequest.class
@@ -55,6 +63,8 @@ com/school/core/service/StaffServiceImpl.class
 com/school/exam/model/DetailedExamResult.class
 com/school/exam/model/ExamConfiguration$ExamConfigurationBuilder.class
 com/school/fee/dto/PaymentScheduleDTO.class
+com/school/exam/dto/configuration/ConfigurationSubjectDTO.class
+com/school/exam/model/configuration/SubjectMaster$SubjectMasterBuilder.class
 com/school/exam/dto/MarksEntryDTO$MarksEntryDTOBuilder.class
 com/school/admission/service/AdmissionService.class
 com/school/config/OpenApiConfig.class
@@ -66,6 +76,7 @@ com/school/core/repository/TeacherDetailsRepository.class
 com/school/hrm/model/EmploymentStatus.class
 com/school/hrm/service/HolidayService.class
 com/school/attendance/model/Attendance.class
+com/school/exam/controller/configuration/SubjectMasterController.class
 com/school/hrm/service/impl/HolidayServiceImpl.class
 com/school/exam/dto/ChapterWisePerformanceDTO$ChapterWisePerformanceDTOBuilder.class
 com/school/fee/service/FeeService.class
@@ -82,6 +93,8 @@ com/school/controller/DatabaseTestController.class
 com/school/library/service/CourseServiceImpl.class
 com/school/fee/model/FeePaymentSchedule$FeePaymentScheduleBuilder.class
 com/school/hrm/model/Holiday$HolidayType.class
+com/school/exam/dto/configuration/ClassConfigurationRequest.class
+com/school/exam/controller/configuration/ClassConfigurationController.class
 com/school/fee/dto/PaymentAnalytics.class
 com/school/course/model/Chapter$ChapterBuilder.class
 com/school/fee/model/FeePayment.class
@@ -106,6 +119,7 @@ com/school/fee/model/Fee$FeeFrequency.class
 com/school/fee/dto/OverdueAnalytics.class
 com/school/exam/dto/ChapterWisePerformanceDTO.class
 com/school/staff/service/StaffServiceImpl.class
+com/school/exam/repository/configuration/SubjectMasterRepository.class
 com/school/staff/model/TeacherDetails.class
 com/school/timetable/model/Timetable.class
 com/school/exam/dto/DetailedExamResultRequest.class
@@ -117,6 +131,7 @@ com/school/staff/model/ConsolidatedStaff.class
 com/school/core/controller/StaffController.class
 com/school/exam/model/Question.class
 com/school/fee/controller/FeeAnalyticsController.class
+com/school/exam/dto/configuration/SubjectMasterDTO$1.class
 com/school/communication/model/MessagePriority.class
 com/school/admission/util/AdmissionCsvParser.class
 com/school/fee/service/FeePaymentScheduleService.class
@@ -127,6 +142,7 @@ com/school/security/JwtAuthenticationEntryPoint.class
 com/school/attendance/scheduler/AttendanceScheduler.class
 com/school/hrm/repository/StaffDesignationRepository.class
 com/school/exam/model/QuestionPaper$QuestionPaperBuilder.class
+com/school/exam/repository/configuration/ClassConfigurationRepository.class
 com/school/exam/model/ExamConfiguration.class
 com/school/fee/dto/PaymentRequest.class
 com/school/fee/controller/FeeStructureController.class
@@ -150,6 +166,7 @@ com/school/exam/dto/TabulationSheetDTO$TabulationSheetDTOBuilder.class
 com/school/fee/dto/FeePaymentSummary$FeePaymentSummaryBuilder.class
 com/school/exam/model/Exam$ExamBuilder.class
 com/school/exam/controller/BlueprintController.class
+com/school/exam/service/configuration/impl/SubjectMasterServiceImpl.class
 com/school/attendance/dto/StudentAttendanceSummary.class
 com/school/security/AuthControllerConfig.class
 com/school/library/repository/CourseRepositoryImpl.class
@@ -158,6 +175,7 @@ com/school/course/service/CourseServiceImpl.class
 com/school/fee/dto/LateFeeDTO$LateFeeDTOBuilder.class
 com/school/fee/model/StudentFeeAssignment.class
 com/school/library/model/Book.class
+com/school/exam/dto/configuration/SubjectMasterDTO.class
 com/school/staff/controller/ConsolidatedStaffController.class
 com/school/exam/service/ExamService.class
 com/school/exam/model/ExamResult$ExamResultBuilder.class
@@ -182,6 +200,7 @@ com/school/attendance/exception/AttendanceNotFoundException.class
 com/school/fee/model/Fee$FeeType.class
 com/school/fee/dto/StudentFeeAssignmentDTO$StudentFeeAssignmentDTOBuilder.class
 com/school/admission/model/Admission.class
+com/school/exam/dto/configuration/ConfigurationSubjectDTO$1.class
 com/school/exam/dto/ExamBlueprintDTO$BlueprintValidationResult$ValidationIssue.class
 com/school/core/dto/TeacherDetailsDTO$TeacherDetailsDTOBuilder.class
 com/school/exam/dto/ExamBlueprintDTO$BlueprintValidationResult.class
@@ -202,6 +221,7 @@ com/school/core/model/EmploymentStatus.class
 com/school/exam/dto/DetailedExamSummary$QuestionPerformance$QuestionPerformanceBuilder.class
 com/school/library/repository/BookRepository.class
 com/school/attendance/model/EmployeeAttendanceStatus.class
+com/school/exam/dto/configuration/CopyConfigurationResponse$CopyConfigurationResponseBuilder.class
 com/school/exam/repository/QuestionRepository.class
 com/school/exam/dto/MarksEntryDTO$BulkMarksLockRequest$BulkMarksLockRequestBuilder.class
 com/school/hrm/controller/HolidayAttendanceTestController.class
@@ -238,6 +258,7 @@ com/school/attendance/exception/AttendanceValidationException.class
 com/school/attendance/repository/StaffAttendanceRepository.class
 com/school/fee/repository/StudentFeeAssignmentRepository.class
 com/school/exam/dto/ExamBlueprintDTO$BlueprintValidationResult$BlueprintValidationResultBuilder.class
+com/school/exam/dto/configuration/ConfigurationSubjectRequest$ConfigurationSubjectRequestBuilder.class
 com/school/admission/dto/AdmissionRequest.class
 com/school/library/service/BookIssueServiceImpl.class
 com/school/exam/dto/QuestionRequest.class
@@ -250,6 +271,7 @@ com/school/library/service/CourseService.class
 com/school/exam/dto/DetailedExamSummary$StudentPerformance$StudentPerformanceBuilder.class
 com/school/course/service/ChapterService.class
 com/school/attendance/model/AttendanceStatus.class
+com/school/exam/dto/configuration/CopyConfigurationRequest$CopySubjectConfiguration$CopySubjectConfigurationBuilder.class
 com/school/exception/ResourceNotFoundException.class
 com/school/attendance/model/StaffAttendanceStatus.class
 com/school/staff/model/Staff.class
@@ -261,12 +283,14 @@ com/school/admission/exception/InvalidAdmissionStateException.class
 com/school/attendance/model/StaffAttendance.class
 com/school/communication/model/NotificationType.class
 com/school/exam/service/ExamReportService.class
+com/school/exam/service/configuration/impl/ClassConfigurationServiceImpl.class
 com/school/fee/repository/FeePaymentRepository.class
 com/school/security/exception/DuplicateEmailException.class
 com/school/attendance/service/EmployeeAttendanceService.class
 com/school/library/service/BookServiceImpl.class
 com/school/attendance/dto/AttendanceAlert.class
 com/school/hrm/repository/StaffRepository.class
+com/school/exam/dto/configuration/ConfigurationSubjectRequest.class
 com/school/fee/exception/FeeExceptionHandler.class
 com/school/exam/repository/ChapterDistributionRepository.class
 com/school/security/aspect/AuthLoggingAspect.class
@@ -282,6 +306,7 @@ com/school/hrm/model/Holiday$HolidayBuilder.class
 com/school/library/repository/BookRepositoryImpl.class
 com/school/exam/dto/ExamBlueprintDTO$ChapterDistributionDTO.class
 com/school/hrm/entity/Teacher.class
+com/school/exam/dto/configuration/SubjectMasterRequest.class
 com/school/attendance/repository/AttendanceRepository.class
 com/school/student/util/StudentMapper.class
 com/school/config/JpaAuditingConfig.class
@@ -325,10 +350,14 @@ com/school/attendance/service/impl/EmployeeAttendanceServiceImpl.class
 com/school/hrm/dto/StaffDTO$StaffDTOBuilder.class
 com/school/timetable/model/TimeSlot.class
 com/school/security/User$UserBuilder.class
+com/school/exam/dto/configuration/CopyConfigurationResponse$CopySubjectResult$CopySubjectResultBuilder.class
 com/school/attendance/dto/MonthlyAttendanceReport.class
+com/school/exam/model/configuration/ConfigurationSubject$1.class
 com/school/config/StaticResourceConfiguration.class
+com/school/exam/dto/configuration/SubjectMasterDTO$SubjectMasterDTOBuilder.class
 com/school/common/dto/BulkUploadResponse.class
 com/school/attendance/service/StaffAttendanceService.class
+com/school/exam/model/configuration/ClassConfiguration.class
 com/school/fee/exception/FeePaymentScheduleException.class
 com/school/staff/repository/ConsolidatedStaffRepository.class
 com/school/exam/model/ExamBlueprint.class
@@ -347,6 +376,7 @@ com/school/fee/dto/TransportRouteDTO.class
 com/school/monitoring/PerformanceMonitoringService.class
 com/school/filter/SimpleCorsFilter.class
 com/school/attendance/dto/EmployeeBulkAttendanceRequest.class
+com/school/exam/dto/configuration/CopyConfigurationRequest.class
 com/school/hrm/repository/StaffDesignationMappingRepository.class
 com/school/attendance/service/HolidayAttendanceService.class
 com/school/course/model/ConsolidatedCourse.class
@@ -362,7 +392,9 @@ com/school/staff/repository/StaffRepository.class
 com/school/fee/dto/FeeStructureDTO$FeeStructureDTOBuilder.class
 com/school/admission/controller/AdmissionController.class
 com/school/hrm/entity/Teacher$TeacherBuilder.class
+com/school/exam/model/configuration/SubjectMaster.class
 com/school/attendance/model/Attendance$AttendanceBuilder.class
+com/school/exam/service/configuration/SubjectMasterService.class
 com/school/fee/controller/FeePaymentScheduleController.class
 com/school/library/repository/BookIssueRepository.class
 com/school/library/repository/CourseRepository.class
@@ -372,8 +404,10 @@ com/school/fee/dto/AnalyticsSummary.class
 com/school/notification/service/NotificationService.class
 com/school/fee/repository/FeeStructureRepository.class
 com/school/communication/service/NotificationServiceImpl.class
+com/school/exam/dto/configuration/ClassConfigurationRequest$ClassConfigurationRequestBuilder.class
 com/school/exam/model/QuestionPaper$ApprovalStatus.class
 com/school/exam/repository/QuestionPaperRepository.class
+com/school/exam/model/configuration/ConfigurationSubject$ConfigurationSubjectBuilder.class
 com/school/attendance/controller/AttendanceController.class
 com/school/config/WebMvcConfig.class
 com/school/attendance/controller/EmployeeAttendanceController$TeacherAttendanceRedirectController.class
@@ -386,13 +420,18 @@ com/school/security/dto/AuthResponse$AuthResponseBuilder.class
 com/school/exam/repository/QuestionWiseMarksRepository.class
 com/school/exam/dto/TabulationSheetDTO$SubjectMarks$SubjectMarksBuilder.class
 com/school/exam/dto/ChapterWisePerformanceDTO$QuestionPerformance.class
+com/school/exam/dto/configuration/ClassConfigurationDTO$ClassConfigurationDTOBuilder.class
 com/school/exam/service/ExamConfigurationService.class
+com/school/exam/dto/configuration/ClassConfigurationDTO.class
 com/school/attendance/dto/EmployeeAttendanceDTO.class
+com/school/exam/service/configuration/ConfigurationSubjectService.class
 com/school/communication/model/Message$MessageBuilder.class
 com/school/communication/exception/MessageNotFoundException.class
+com/school/exam/dto/configuration/ConfigurationSubjectDTO$ConfigurationSubjectDTOBuilder.class
 com/school/exception/GlobalExceptionHandler.class
 com/school/exam/model/Exam.class
 com/school/staff/model/EmploymentStatus.class
+com/school/exam/service/configuration/ClassConfigurationService.class
 com/school/fee/dto/ClassSectionFeeReport$StudentFeeDetail$StudentFeeDetailBuilder.class
 com/school/fee/dto/PaymentMethodDistribution.class
 com/school/service/PostgreSQLHttpService.class
@@ -406,6 +445,7 @@ com/school/student/model/StudentStatus.class
 com/school/fee/dto/FeeStructureDTO.class
 com/school/library/repository/BookIssueRepositoryImpl.class
 com/school/security/dto/RegisterRequest.class
+com/school/exam/model/configuration/ClassConfiguration$ClassConfigurationBuilder.class
 com/school/exam/dto/TabulationSheetDTO.class
 com/school/exam/dto/ChapterWisePerformanceDTO$ChapterPerformance$ChapterPerformanceBuilder.class
 com/school/core/model/TeacherDetails$TeacherDetailsBuilder.class
@@ -424,6 +464,8 @@ com/school/attendance/dto/MonthlyAttendanceStats.class
 com/school/security/UserRole.class
 com/school/fee/model/StudentFeeAssignment$StudentFeeAssignmentBuilder.class
 com/school/monitoring/MetricsConfig.class
+com/school/exam/service/configuration/impl/ConfigurationSubjectServiceImpl.class
+com/school/exam/dto/configuration/CopyConfigurationRequest$CopyConfigurationRequestBuilder.class
 com/school/library/service/BookIssueService.class
 com/school/attendance/dto/EmployeeBulkAttendanceRequest$EmployeeBulkAttendanceRequestBuilder.class
 com/school/attendance/dto/AttendanceSummary.class
@@ -441,6 +483,7 @@ com/school/exam/dto/ChapterWisePerformanceDTO$QuestionPerformance$QuestionPerfor
 com/school/core/repository/StaffRepository.class
 com/school/exam/dto/ExamSummary.class
 com/school/student/exception/StudentNotFoundException.class
+com/school/exam/controller/configuration/ConfigurationSubjectController.class
 com/school/library/model/Course.class
 com/school/library/controller/CourseController.class
 com/school/attendance/dto/StudentAttendanceSummary$StudentAttendanceSummaryBuilder.class

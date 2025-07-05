@@ -7,6 +7,7 @@ import Admissions from './pages/Admissions';
 import BlueprintForm from './pages/BlueprintForm';
 import Dashboard from './pages/Dashboard';
 import ExamConfigurationForm from './pages/ExamConfigurationForm';
+import ExamConfigurationPage from './pages/ExamConfigurationPage';
 import ExaminationManagement from './pages/ExaminationManagement';
 import FeeManagement from './pages/FeeManagement'; // Import the FeeManagement page
 import Landing from './pages/Landing';
@@ -221,7 +222,7 @@ function AppRoutes() {
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
               <Layout>
-                <ExamConfigurationForm />
+                <ExamConfigurationPage />
               </Layout>
             </RoleBasedRoute>
           </ProtectedRoute>
@@ -233,7 +234,7 @@ function AppRoutes() {
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
               <Layout>
-                <ExamConfigurationForm />
+                <ExamConfigurationPage />
               </Layout>
             </RoleBasedRoute>
           </ProtectedRoute>

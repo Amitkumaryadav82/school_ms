@@ -122,6 +122,7 @@ INSERT INTO attendance (created_at, updated_at, created_by, modified_by, student
 -- - 5 Admission records
 -- - 5 Students (4 linked to admissions, 1 direct)
 -- - 25 Attendance records (5 students × 5 days with ALL status types)
+-- - 37 Subject Masters (comprehensive subject catalog for exam configuration)
 -- 
 -- Attendance Status Coverage:
 -- ✅ PRESENT   - Regular attendance
@@ -134,4 +135,72 @@ INSERT INTO attendance (created_at, updated_at, created_by, modified_by, student
 -- All foreign key relationships are properly maintained
 -- Data includes realistic information with proper constraints
 -- Comprehensive test data for attendance system validation
+-- ============================================================================
+-- 9. SUBJECT MASTERS (Default subjects for exam configuration)
+-- ============================================================================
+INSERT INTO subject_masters (created_at, updated_at, created_by, modified_by, subject_code, subject_name, description, subject_type, is_active) VALUES
+-- Core Academic Subjects
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'MATH01', 'Mathematics', 'Core mathematics including algebra, geometry, arithmetic, and problem-solving', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'ENG01', 'English Language', 'English language skills including reading, writing, speaking, and comprehension', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'ENG02', 'English Literature', 'Study of English literary works, poetry, prose, and drama', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'HIN01', 'Hindi', 'Hindi language and literature studies', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'SAN01', 'Sanskrit', 'Classical Sanskrit language and literature', 'THEORY', true),
+
+-- Science Subjects
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'PHY01', 'Physics', 'Fundamental physics concepts with theory and practical applications', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'CHEM01', 'Chemistry', 'Chemical principles and laboratory experiments', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'BIO01', 'Biology', 'Life sciences including botany, zoology, and human biology', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'SCI01', 'General Science', 'Integrated science for elementary and middle grades', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'EVS01', 'Environmental Science', 'Environmental studies and sustainability concepts', 'THEORY', true),
+
+-- Social Studies
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'HIST01', 'History', 'World and national history studies', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'GEO01', 'Geography', 'Physical and human geography studies', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'CIV01', 'Civics', 'Citizenship, government, and civic responsibilities', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'ECON01', 'Economics', 'Basic economic principles and concepts', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'SS01', 'Social Studies', 'Integrated social studies for elementary grades', 'THEORY', true),
+
+-- Computer and Technology
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'CS01', 'Computer Science', 'Programming, algorithms, and computer fundamentals', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'IT01', 'Information Technology', 'Computer applications and digital literacy', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'COMP01', 'Computer Applications', 'Practical computer skills and software usage', 'PRACTICAL', true),
+
+-- Languages
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'FRE01', 'French', 'French language studies', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'GER01', 'German', 'German language studies', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'SPA01', 'Spanish', 'Spanish language studies', 'THEORY', true),
+
+-- Arts and Creative Subjects
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'ART01', 'Fine Arts', 'Drawing, painting, and visual arts', 'PRACTICAL', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'MUS01', 'Music', 'Music theory and practical performance', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'DAN01', 'Dance', 'Classical and contemporary dance forms', 'PRACTICAL', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'DRA01', 'Drama', 'Theater arts and dramatic performance', 'PRACTICAL', true),
+
+-- Physical Education and Health
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'PE01', 'Physical Education', 'Sports, fitness, and physical wellness', 'PRACTICAL', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'HE01', 'Health Education', 'Health awareness and wellness concepts', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'YOGA01', 'Yoga', 'Yoga practice and philosophy', 'PRACTICAL', true),
+
+-- Vocational and Technical
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'HE02', 'Home Economics', 'Home management and life skills', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'AGR01', 'Agriculture', 'Agricultural science and farming techniques', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'CRAFT01', 'Craft and Design', 'Handicrafts and design thinking', 'PRACTICAL', true),
+
+-- Business and Commerce
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'ACC01', 'Accountancy', 'Financial accounting principles and practice', 'BOTH', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'BST01', 'Business Studies', 'Business management and entrepreneurship', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'COMM01', 'Commerce', 'Commercial principles and trade studies', 'THEORY', true),
+
+-- Advanced Mathematics and Sciences
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'STAT01', 'Statistics', 'Statistical analysis and data interpretation', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'PSYCHO01', 'Psychology', 'Human behavior and mental processes', 'THEORY', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'SOCIO01', 'Sociology', 'Society and social relationships', 'THEORY', true),
+
+-- Elementary Integrated Subjects
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'LKG01', 'LKG Activities', 'Integrated learning activities for Lower Kindergarten', 'PRACTICAL', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'UKG01', 'UKG Activities', 'Integrated learning activities for Upper Kindergarten', 'PRACTICAL', true),
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'admin', 'admin', 'PREP01', 'Preparatory Studies', 'Foundation skills for primary education', 'BOTH', true);
+
+-- ============================================================================
+-- DATA LOADING COMPLETE
 -- ============================================================================
