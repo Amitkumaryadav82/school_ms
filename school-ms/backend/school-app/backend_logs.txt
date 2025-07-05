@@ -1,653 +1,3159 @@
-[INFO] Scanning for projects...
-[INFO] 
-[INFO] -----------------------< com.school:school-app >------------------------
-[INFO] Building School Management System 1.0.0
-[INFO]   from pom.xml
-[INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
-[INFO] --- clean:3.2.0:clean (default-clean) @ school-app ---
-[INFO] Deleting /workspaces/school_ms/school-ms/backend/school-app/target
-[INFO] 
-[INFO] --- resources:3.2.0:resources (default-resources) @ school-app ---
-[INFO] Using 'UTF-8' encoding to copy filtered resources.
-[INFO] Using 'UTF-8' encoding to copy filtered properties files.
-[INFO] Copying 1 resource
-[INFO] Copying 23 resources
-[INFO] 
-[INFO] --- resources:3.2.0:copy-resources (copy-frontend-build) @ school-app ---
-[INFO] Using 'UTF-8' encoding to copy filtered resources.
-[INFO] Using 'UTF-8' encoding to copy filtered properties files.
-[INFO] Copying 16 resources
-[INFO] 
-[INFO] --- compiler:3.11.0:compile (default-compile) @ school-app ---
-[INFO] Changes detected - recompiling the module! :source
-[INFO] Compiling 355 source files with javac [debug release 17] to target/classes
-[INFO] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/repository/StaffRepository.java: Some input files use or override a deprecated API.
-[INFO] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/repository/StaffRepository.java: Recompile with -Xlint:deprecation for details.
-[INFO] -------------------------------------------------------------
-[ERROR] COMPILATION ERROR : 
-[INFO] -------------------------------------------------------------
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/ExamTypeDTO.java:[13,8] class ExamTypeDto is public, should be declared in a file named ExamTypeDto.java
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/model/Student.java:[325,19] cannot find symbol
-  symbol:   class StudentBuilder
-  location: class com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/Exam.java:[32,19] cannot find symbol
-  symbol:   class ExamBuilder
-  location: class com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/dto/StudentDTO.java:[24,19] cannot find symbol
-  symbol:   class StudentDTOBuilder
-  location: class com.school.student.dto.StudentDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[36,30] cannot find symbol
-  symbol:   method getName()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[37,33] cannot find symbol
-  symbol:   method getSubject()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[38,31] cannot find symbol
-  symbol:   method getGrade()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[39,34] cannot find symbol
-  symbol:   method getExamDate()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[40,37] cannot find symbol
-  symbol:   method getDescription()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[41,36] cannot find symbol
-  symbol:   method getTotalMarks()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[42,38] cannot find symbol
-  symbol:   method getPassingMarks()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[43,34] cannot find symbol
-  symbol:   method getExamType()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[50,29] cannot find symbol
-  symbol:   method getName()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[51,32] cannot find symbol
-  symbol:   method getSubject()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[52,30] cannot find symbol
-  symbol:   method getGrade()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[53,33] cannot find symbol
-  symbol:   method getExamDate()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[54,36] cannot find symbol
-  symbol:   method getDescription()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[55,35] cannot find symbol
-  symbol:   method getTotalMarks()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[56,37] cannot find symbol
-  symbol:   method getPassingMarks()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[57,33] cannot find symbol
-  symbol:   method getExamType()
-  location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[79,36] cannot find symbol
-  symbol:   method getExamId()
-  location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[80,60] cannot find symbol
-  symbol:   method getStudentId()
-  location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[82,39] cannot find symbol
-  symbol:   method builder()
-  location: class com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[85,39] cannot find symbol
-  symbol:   method getMarksObtained()
-  location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[86,33] cannot find symbol
-  symbol:   method getRemarks()
-  location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[96,40] cannot find symbol
-  symbol:   method getMarksObtained()
-  location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[97,34] cannot find symbol
-  symbol:   method getRemarks()
-  location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[110,31] cannot find symbol
-  symbol:   method builder()
-  location: class com.school.exam.dto.ExamSummary
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[112,35] cannot find symbol
-  symbol:   method getName()
-  location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[113,34] cannot find symbol
-  symbol:   method getSubject()
-  location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[114,32] cannot find symbol
-  symbol:   method getGrade()
-  location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[120,30] invalid method reference
-  cannot find symbol
-    symbol:   method getMarksObtained(T)
-    location: class com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[124,31] cannot find symbol
-  symbol:   method getStatus()
-  location: variable r of type com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[130,27] cannot find symbol
-  symbol:   method builder()
-  location: class com.school.exam.dto.ExamSummary
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[132,31] cannot find symbol
-  symbol:   method getName()
-  location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[133,30] cannot find symbol
-  symbol:   method getSubject()
-  location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[134,28] cannot find symbol
-  symbol:   method getGrade()
-  location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[158,52] invalid method reference
-  cannot find symbol
-    symbol:   method getMarksObtained()
-    location: class com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[162,36] cannot find symbol
-  symbol:   method getMarksObtained()
-  location: variable result of type com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[162,64] cannot find symbol
-  symbol:   method getExam()
-  location: variable result of type com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/Exam.java:[25,21] cannot find symbol
-  symbol: method getId()
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/Exam.java:[33,20] cannot find symbol
-  symbol:   class ExamBuilder
-  location: class com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[27,20] cannot find symbol
-  symbol:   method setAdmissionDate(java.time.LocalDate)
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[32,20] cannot find symbol
-  symbol:   method setStatus(com.school.student.model.StudentStatus)
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[36,69] cannot find symbol
-  symbol:   method getStudent()
-  location: class com.school.admission.model.Admission
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[37,35] cannot find symbol
-  symbol:   method setStudent(com.school.student.model.Student)
-  location: class com.school.admission.model.Admission
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[106,16] cannot find symbol
-  symbol:   method setStatus(com.school.student.model.StudentStatus)
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[128,20] cannot find symbol
-  symbol:   method setAdmissionDate(java.time.LocalDate)
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[131,24] cannot find symbol
-  symbol:   method setStatus(com.school.student.model.StudentStatus)
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[165,20] cannot find symbol
-  symbol:   method getContactNumber()
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[165,58] cannot find symbol
-  symbol:   method getContactNumber()
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[169,20] cannot find symbol
-  symbol:   method getGuardianName()
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[169,57] cannot find symbol
-  symbol:   method getGuardianName()
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[173,20] cannot find symbol
-  symbol:   method getGuardianContact()
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[173,60] cannot find symbol
-  symbol:   method getGuardianContact()
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[177,20] cannot find symbol
-  symbol:   method getSection()
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[177,52] cannot find symbol
-  symbol:   method getSection()
-  location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/model/Student.java:[326,20] cannot find symbol
-  symbol:   class StudentBuilder
-  location: class com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/User.java:[20,8] com.school.security.User is not abstract and does not override abstract method getPassword() in org.springframework.security.core.userdetails.UserDetails
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayDebugController.java:[36,19] cannot find symbol
-  symbol:   method setDate(java.time.LocalDate)
-  location: variable holidayDTO of type com.school.hrm.dto.HolidayDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayDebugController.java:[37,19] cannot find symbol
-  symbol:   method setName(java.lang.String)
-  location: variable holidayDTO of type com.school.hrm.dto.HolidayDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayDebugController.java:[38,19] cannot find symbol
-  symbol:   method setDescription(java.lang.String)
-  location: variable holidayDTO of type com.school.hrm.dto.HolidayDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayDebugController.java:[39,19] cannot find symbol
-  symbol:   method setType(com.school.hrm.model.Holiday.HolidayType)
-  location: variable holidayDTO of type com.school.hrm.dto.HolidayDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[47,78] cannot find symbol
-  symbol:   method getExamConfigurationId()
-  location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[50,48] cannot find symbol
-  symbol:   method builder()
-  location: class com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[51,35] cannot find symbol
-  symbol:   method getName()
-  location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[52,42] cannot find symbol
-  symbol:   method getDescription()
-  location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[54,43] cannot find symbol
-  symbol:   method getQuestionPaperStructure()
-  location: variable examConfig of type com.school.exam.model.ExamConfiguration
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[61,63] cannot find symbol
-  symbol:   method getChapterDistributions()
-  location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[70,93] cannot find symbol
-  symbol:   method getQuestionPaperStructure()
-  location: variable examConfig of type com.school.exam.model.ExamConfiguration
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[64,51] cannot find symbol
-  symbol:   method builder()
-  location: class com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[77,23] cannot find symbol
-  symbol:   method setChapterDistributions(java.util.List<com.school.exam.model.ChapterDistribution>)
-  location: variable savedBlueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[89,22] cannot find symbol
-  symbol:   method getIsApproved()
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[93,39] cannot find symbol
-  symbol:   method getName()
-  location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[94,46] cannot find symbol
-  symbol:   method getDescription()
-  location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[97,58] cannot find symbol
-  symbol:   method getChapterDistributions()
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[100,63] cannot find symbol
-  symbol:   method getChapterDistributions()
-  location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[109,92] cannot find symbol
-  symbol:   method getPaperStructure()
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[103,51] cannot find symbol
-  symbol:   method builder()
-  location: class com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[116,18] cannot find symbol
-  symbol:   method setChapterDistributions(java.util.List<com.school.exam.model.ChapterDistribution>)
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[149,21] invalid method reference
-  cannot find symbol
-    symbol:   method getChapterName()
-    location: class com.school.exam.model.Question
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[150,43] invalid method reference
-  cannot find symbol
-    symbol:   method getQuestionType()
-    location: class com.school.exam.model.Question
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[156,58] cannot find symbol
-  symbol:   method getChapterDistributions()
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[157,46] cannot find symbol
-  symbol:   method getChapterName()
-  location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[158,69] cannot find symbol
-  symbol:   method getQuestionType()
-  location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[162,28] constructor ValidationIssue in class com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue cannot be applied to given types;
-  required: no arguments
-  found:    java.lang.String,java.lang.String,java.lang.String,com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue.ValidationSeverity
-  reason: actual and formal argument lists differ in length
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[173,81] constructor ValidationIssue in class com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue cannot be applied to given types;
-  required: no arguments
-  found:    java.lang.String,java.lang.String,java.lang.String,com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue.ValidationSeverity
-  reason: actual and formal argument lists differ in length
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[184,56] cannot find symbol
-  symbol:   method getQuestionCount()
-  location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[188,47] cannot find symbol
-  symbol:   method getQuestionCount()
-  location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[194,71] invalid method reference
-  cannot find symbol
-    symbol:   method getMarks(T)
-    location: class com.school.exam.model.Question
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[195,51] cannot find symbol
-  symbol:   method getTotalMarks()
-  location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[199,47] cannot find symbol
-  symbol:   method getTotalMarks()
-  location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[205,16] constructor BlueprintValidationResult in class com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult cannot be applied to given types;
-  required: no arguments
-  found:    boolean,java.util.List<com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue>
-  reason: actual and formal argument lists differ in length
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[214,18] cannot find symbol
-  symbol:   method setIsApproved(boolean)
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[215,18] cannot find symbol
-  symbol:   method setApprovedBy(java.lang.Long)
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[216,18] cannot find symbol
-  symbol:   method setApprovalDate(java.time.LocalDateTime)
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[227,22] cannot find symbol
-  symbol:   method getIsApproved()
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[237,82] cannot find symbol
-  symbol:   method getChapterDistributions()
-  location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[238,48] invalid method reference
-  cannot find symbol
-    symbol:   method getChapterName()
-    location: class com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[251,33] cannot find symbol
-  symbol:   method getTotalMarks()
-  location: variable dist of type com.school.exam.model.ChapterDistribution
-[INFO] 100 errors 
-[INFO] -------------------------------------------------------------
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD FAILURE
-[INFO] ------------------------------------------------------------------------
-[INFO] Total time:  13.662 s
-[INFO] Finished at: 2025-07-04T09:02:23Z
-[INFO] ------------------------------------------------------------------------
-[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project school-app: Compilation failure: Compilation failure: 
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/ExamTypeDTO.java:[13,8] class ExamTypeDto is public, should be declared in a file named ExamTypeDto.java
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/model/Student.java:[325,19] cannot find symbol
-[ERROR]   symbol:   class StudentBuilder
-[ERROR]   location: class com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/Exam.java:[32,19] cannot find symbol
-[ERROR]   symbol:   class ExamBuilder
-[ERROR]   location: class com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/dto/StudentDTO.java:[24,19] cannot find symbol
-[ERROR]   symbol:   class StudentDTOBuilder
-[ERROR]   location: class com.school.student.dto.StudentDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[36,30] cannot find symbol
-[ERROR]   symbol:   method getName()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[37,33] cannot find symbol
-[ERROR]   symbol:   method getSubject()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[38,31] cannot find symbol
-[ERROR]   symbol:   method getGrade()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[39,34] cannot find symbol
-[ERROR]   symbol:   method getExamDate()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[40,37] cannot find symbol
-[ERROR]   symbol:   method getDescription()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[41,36] cannot find symbol
-[ERROR]   symbol:   method getTotalMarks()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[42,38] cannot find symbol
-[ERROR]   symbol:   method getPassingMarks()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[43,34] cannot find symbol
-[ERROR]   symbol:   method getExamType()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[50,29] cannot find symbol
-[ERROR]   symbol:   method getName()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[51,32] cannot find symbol
-[ERROR]   symbol:   method getSubject()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[52,30] cannot find symbol
-[ERROR]   symbol:   method getGrade()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[53,33] cannot find symbol
-[ERROR]   symbol:   method getExamDate()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[54,36] cannot find symbol
-[ERROR]   symbol:   method getDescription()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[55,35] cannot find symbol
-[ERROR]   symbol:   method getTotalMarks()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[56,37] cannot find symbol
-[ERROR]   symbol:   method getPassingMarks()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[57,33] cannot find symbol
-[ERROR]   symbol:   method getExamType()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[79,36] cannot find symbol
-[ERROR]   symbol:   method getExamId()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[80,60] cannot find symbol
-[ERROR]   symbol:   method getStudentId()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[82,39] cannot find symbol
-[ERROR]   symbol:   method builder()
-[ERROR]   location: class com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[85,39] cannot find symbol
-[ERROR]   symbol:   method getMarksObtained()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[86,33] cannot find symbol
-[ERROR]   symbol:   method getRemarks()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[96,40] cannot find symbol
-[ERROR]   symbol:   method getMarksObtained()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[97,34] cannot find symbol
-[ERROR]   symbol:   method getRemarks()
-[ERROR]   location: variable request of type com.school.exam.dto.ExamResultRequest
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[110,31] cannot find symbol
-[ERROR]   symbol:   method builder()
-[ERROR]   location: class com.school.exam.dto.ExamSummary
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[112,35] cannot find symbol
-[ERROR]   symbol:   method getName()
-[ERROR]   location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[113,34] cannot find symbol
-[ERROR]   symbol:   method getSubject()
-[ERROR]   location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[114,32] cannot find symbol
-[ERROR]   symbol:   method getGrade()
-[ERROR]   location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[120,30] invalid method reference
-[ERROR]   cannot find symbol
-[ERROR]     symbol:   method getMarksObtained(T)
-[ERROR]     location: class com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[124,31] cannot find symbol
-[ERROR]   symbol:   method getStatus()
-[ERROR]   location: variable r of type com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[130,27] cannot find symbol
-[ERROR]   symbol:   method builder()
-[ERROR]   location: class com.school.exam.dto.ExamSummary
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[132,31] cannot find symbol
-[ERROR]   symbol:   method getName()
-[ERROR]   location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[133,30] cannot find symbol
-[ERROR]   symbol:   method getSubject()
-[ERROR]   location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[134,28] cannot find symbol
-[ERROR]   symbol:   method getGrade()
-[ERROR]   location: variable exam of type com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[158,52] invalid method reference
-[ERROR]   cannot find symbol
-[ERROR]     symbol:   method getMarksObtained()
-[ERROR]     location: class com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[162,36] cannot find symbol
-[ERROR]   symbol:   method getMarksObtained()
-[ERROR]   location: variable result of type com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamService.java:[162,64] cannot find symbol
-[ERROR]   symbol:   method getExam()
-[ERROR]   location: variable result of type com.school.exam.model.ExamResult
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/Exam.java:[25,21] cannot find symbol
-[ERROR]   symbol: method getId()
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/Exam.java:[33,20] cannot find symbol
-[ERROR]   symbol:   class ExamBuilder
-[ERROR]   location: class com.school.exam.model.Exam
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[27,20] cannot find symbol
-[ERROR]   symbol:   method setAdmissionDate(java.time.LocalDate)
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[32,20] cannot find symbol
-[ERROR]   symbol:   method setStatus(com.school.student.model.StudentStatus)
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[36,69] cannot find symbol
-[ERROR]   symbol:   method getStudent()
-[ERROR]   location: class com.school.admission.model.Admission
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[37,35] cannot find symbol
-[ERROR]   symbol:   method setStudent(com.school.student.model.Student)
-[ERROR]   location: class com.school.admission.model.Admission
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[106,16] cannot find symbol
-[ERROR]   symbol:   method setStatus(com.school.student.model.StudentStatus)
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[128,20] cannot find symbol
-[ERROR]   symbol:   method setAdmissionDate(java.time.LocalDate)
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[131,24] cannot find symbol
-[ERROR]   symbol:   method setStatus(com.school.student.model.StudentStatus)
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[165,20] cannot find symbol
-[ERROR]   symbol:   method getContactNumber()
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[165,58] cannot find symbol
-[ERROR]   symbol:   method getContactNumber()
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[169,20] cannot find symbol
-[ERROR]   symbol:   method getGuardianName()
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[169,57] cannot find symbol
-[ERROR]   symbol:   method getGuardianName()
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[173,20] cannot find symbol
-[ERROR]   symbol:   method getGuardianContact()
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[173,60] cannot find symbol
-[ERROR]   symbol:   method getGuardianContact()
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[177,20] cannot find symbol
-[ERROR]   symbol:   method getSection()
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java:[177,52] cannot find symbol
-[ERROR]   symbol:   method getSection()
-[ERROR]   location: variable student of type com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/model/Student.java:[326,20] cannot find symbol
-[ERROR]   symbol:   class StudentBuilder
-[ERROR]   location: class com.school.student.model.Student
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/User.java:[20,8] com.school.security.User is not abstract and does not override abstract method getPassword() in org.springframework.security.core.userdetails.UserDetails
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayDebugController.java:[36,19] cannot find symbol
-[ERROR]   symbol:   method setDate(java.time.LocalDate)
-[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.HolidayDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayDebugController.java:[37,19] cannot find symbol
-[ERROR]   symbol:   method setName(java.lang.String)
-[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.HolidayDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayDebugController.java:[38,19] cannot find symbol
-[ERROR]   symbol:   method setDescription(java.lang.String)
-[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.HolidayDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayDebugController.java:[39,19] cannot find symbol
-[ERROR]   symbol:   method setType(com.school.hrm.model.Holiday.HolidayType)
-[ERROR]   location: variable holidayDTO of type com.school.hrm.dto.HolidayDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[47,78] cannot find symbol
-[ERROR]   symbol:   method getExamConfigurationId()
-[ERROR]   location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[50,48] cannot find symbol
-[ERROR]   symbol:   method builder()
-[ERROR]   location: class com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[51,35] cannot find symbol
-[ERROR]   symbol:   method getName()
-[ERROR]   location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[52,42] cannot find symbol
-[ERROR]   symbol:   method getDescription()
-[ERROR]   location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[54,43] cannot find symbol
-[ERROR]   symbol:   method getQuestionPaperStructure()
-[ERROR]   location: variable examConfig of type com.school.exam.model.ExamConfiguration
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[61,63] cannot find symbol
-[ERROR]   symbol:   method getChapterDistributions()
-[ERROR]   location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[70,93] cannot find symbol
-[ERROR]   symbol:   method getQuestionPaperStructure()
-[ERROR]   location: variable examConfig of type com.school.exam.model.ExamConfiguration
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[64,51] cannot find symbol
-[ERROR]   symbol:   method builder()
-[ERROR]   location: class com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[77,23] cannot find symbol
-[ERROR]   symbol:   method setChapterDistributions(java.util.List<com.school.exam.model.ChapterDistribution>)
-[ERROR]   location: variable savedBlueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[89,22] cannot find symbol
-[ERROR]   symbol:   method getIsApproved()
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[93,39] cannot find symbol
-[ERROR]   symbol:   method getName()
-[ERROR]   location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[94,46] cannot find symbol
-[ERROR]   symbol:   method getDescription()
-[ERROR]   location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[97,58] cannot find symbol
-[ERROR]   symbol:   method getChapterDistributions()
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[100,63] cannot find symbol
-[ERROR]   symbol:   method getChapterDistributions()
-[ERROR]   location: variable blueprintDTO of type com.school.exam.dto.ExamBlueprintDTO
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[109,92] cannot find symbol
-[ERROR]   symbol:   method getPaperStructure()
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[103,51] cannot find symbol
-[ERROR]   symbol:   method builder()
-[ERROR]   location: class com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[116,18] cannot find symbol
-[ERROR]   symbol:   method setChapterDistributions(java.util.List<com.school.exam.model.ChapterDistribution>)
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[149,21] invalid method reference
-[ERROR]   cannot find symbol
-[ERROR]     symbol:   method getChapterName()
-[ERROR]     location: class com.school.exam.model.Question
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[150,43] invalid method reference
-[ERROR]   cannot find symbol
-[ERROR]     symbol:   method getQuestionType()
-[ERROR]     location: class com.school.exam.model.Question
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[156,58] cannot find symbol
-[ERROR]   symbol:   method getChapterDistributions()
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[157,46] cannot find symbol
-[ERROR]   symbol:   method getChapterName()
-[ERROR]   location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[158,69] cannot find symbol
-[ERROR]   symbol:   method getQuestionType()
-[ERROR]   location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[162,28] constructor ValidationIssue in class com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue cannot be applied to given types;
-[ERROR]   required: no arguments
-[ERROR]   found:    java.lang.String,java.lang.String,java.lang.String,com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue.ValidationSeverity
-[ERROR]   reason: actual and formal argument lists differ in length
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[173,81] constructor ValidationIssue in class com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue cannot be applied to given types;
-[ERROR]   required: no arguments
-[ERROR]   found:    java.lang.String,java.lang.String,java.lang.String,com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue.ValidationSeverity
-[ERROR]   reason: actual and formal argument lists differ in length
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[184,56] cannot find symbol
-[ERROR]   symbol:   method getQuestionCount()
-[ERROR]   location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[188,47] cannot find symbol
-[ERROR]   symbol:   method getQuestionCount()
-[ERROR]   location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[194,71] invalid method reference
-[ERROR]   cannot find symbol
-[ERROR]     symbol:   method getMarks(T)
-[ERROR]     location: class com.school.exam.model.Question
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[195,51] cannot find symbol
-[ERROR]   symbol:   method getTotalMarks()
-[ERROR]   location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[199,47] cannot find symbol
-[ERROR]   symbol:   method getTotalMarks()
-[ERROR]   location: variable distribution of type com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[205,16] constructor BlueprintValidationResult in class com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult cannot be applied to given types;
-[ERROR]   required: no arguments
-[ERROR]   found:    boolean,java.util.List<com.school.exam.dto.ExamBlueprintDTO.BlueprintValidationResult.ValidationIssue>
-[ERROR]   reason: actual and formal argument lists differ in length
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[214,18] cannot find symbol
-[ERROR]   symbol:   method setIsApproved(boolean)
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[215,18] cannot find symbol
-[ERROR]   symbol:   method setApprovedBy(java.lang.Long)
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[216,18] cannot find symbol
-[ERROR]   symbol:   method setApprovalDate(java.time.LocalDateTime)
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[227,22] cannot find symbol
-[ERROR]   symbol:   method getIsApproved()
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[237,82] cannot find symbol
-[ERROR]   symbol:   method getChapterDistributions()
-[ERROR]   location: variable blueprint of type com.school.exam.model.ExamBlueprint
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[238,48] invalid method reference
-[ERROR]   cannot find symbol
-[ERROR]     symbol:   method getChapterName()
-[ERROR]     location: class com.school.exam.model.ChapterDistribution
-[ERROR] /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/impl/ExamBlueprintServiceImpl.java:[251,33] cannot find symbol
-[ERROR]   symbol:   method getTotalMarks()
-[ERROR]   location: variable dist of type com.school.exam.model.ChapterDistribution
-[ERROR] -> [Help 1]
-[ERROR] 
-[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
-[ERROR] Re-run Maven using the -X switch to enable full debug logging.
-[ERROR] 
-[ERROR] For more information about the errors and possible solutions, please read the following articles:
-[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v2.7.18)
+
+2025-07-05 14:28:03 [main] INFO  com.school.SchoolApplication - Starting SchoolApplication v1.0.0 using Java 17.0.15 on codespaces-e0ed2d with PID 80521 (/workspaces/school_ms/school-ms/backend/school-app/target/school-app-1.0.0.jar started by codespace in /workspaces/school_ms/school-ms/backend/school-app)
+2025-07-05 14:28:03 [main] INFO  com.school.SchoolApplication - No active profile set, falling back to 1 default profile: "default"
+2025-07-05 14:28:05 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-05 14:28:06 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 364 ms. Found 45 JPA repository interfaces.
+2025-07-05 14:28:07 [main] INFO  o.s.cloud.context.scope.GenericScope - BeanFactory id=655ded64-1726-358c-9982-308bd5777306
+2025-07-05 14:28:08 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2025-07-05 14:28:08 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-05 14:28:08 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.83]
+2025-07-05 14:28:08 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-05 14:28:08 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 4964 ms
+CORS Filter registration applied with highest precedence
+2025-07-05 14:28:09 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-07-05 14:28:09 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-07-05 14:28:09 [main] INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:school_db'
+CORS: Added allowed origin: http://localhost:8080
+CORS: Added allowed origin: http://localhost:5173
+CORS: Added allowed origin: http://localhost:5174
+CORS: Added allowed origin: http://localhost:3000
+CORS: Configured methods: [GET, POST, PUT, DELETE, OPTIONS, PATCH]
+CORS filter configured successfully with 4 origins
+2025-07-05 14:28:10 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-05 14:28:10 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.15.Final
+2025-07-05 14:28:10 [main] INFO  o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2025-07-05 14:28:10 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists admissions CASCADE 
+Hibernate: 
+    
+    drop table if exists admissions CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists attendance CASCADE 
+Hibernate: 
+    
+    drop table if exists attendance CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists chapter_distributions CASCADE 
+Hibernate: 
+    
+    drop table if exists chapter_distributions CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists chapters CASCADE 
+Hibernate: 
+    
+    drop table if exists chapters CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists class_configurations CASCADE 
+Hibernate: 
+    
+    drop table if exists class_configurations CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists class_room CASCADE 
+Hibernate: 
+    
+    drop table if exists class_room CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists configuration_subjects CASCADE 
+Hibernate: 
+    
+    drop table if exists configuration_subjects CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists consolidated_staff CASCADE 
+Hibernate: 
+    
+    drop table if exists consolidated_staff CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists courses CASCADE 
+Hibernate: 
+    
+    drop table if exists courses CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists detailed_exam_results CASCADE 
+Hibernate: 
+    
+    drop table if exists detailed_exam_results CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists employees CASCADE 
+Hibernate: 
+    
+    drop table if exists employees CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists exam_blueprints CASCADE 
+Hibernate: 
+    
+    drop table if exists exam_blueprints CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists exam_configurations CASCADE 
+Hibernate: 
+    
+    drop table if exists exam_configurations CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists exam_results CASCADE 
+Hibernate: 
+    
+    drop table if exists exam_results CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists exams CASCADE 
+Hibernate: 
+    
+    drop table if exists exams CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists fee_payment_schedules CASCADE 
+Hibernate: 
+    
+    drop table if exists fee_payment_schedules CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists fee_payments CASCADE 
+Hibernate: 
+    
+    drop table if exists fee_payments CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists fee_structures CASCADE 
+Hibernate: 
+    
+    drop table if exists fee_structures CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists fees CASCADE 
+Hibernate: 
+    
+    drop table if exists fees CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists hrm_staff CASCADE 
+Hibernate: 
+    
+    drop table if exists hrm_staff CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists hrm_staff_designation_mappings CASCADE 
+Hibernate: 
+    
+    drop table if exists hrm_staff_designation_mappings CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists hrm_staff_designations CASCADE 
+Hibernate: 
+    
+    drop table if exists hrm_staff_designations CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists hrm_staff_roles CASCADE 
+Hibernate: 
+    
+    drop table if exists hrm_staff_roles CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists in_app_notifications CASCADE 
+Hibernate: 
+    
+    drop table if exists in_app_notifications CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists late_fees CASCADE 
+Hibernate: 
+    
+    drop table if exists late_fees CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists message_read_status CASCADE 
+Hibernate: 
+    
+    drop table if exists message_read_status CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists message_recipients CASCADE 
+Hibernate: 
+    
+    drop table if exists message_recipients CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists messages CASCADE 
+Hibernate: 
+    
+    drop table if exists messages CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists payment_schedules CASCADE 
+Hibernate: 
+    
+    drop table if exists payment_schedules CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists payments CASCADE 
+Hibernate: 
+    
+    drop table if exists payments CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists question_paper_structures CASCADE 
+Hibernate: 
+    
+    drop table if exists question_paper_structures CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists question_papers CASCADE 
+Hibernate: 
+    
+    drop table if exists question_papers CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists question_sections CASCADE 
+Hibernate: 
+    
+    drop table if exists question_sections CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists question_wise_marks CASCADE 
+Hibernate: 
+    
+    drop table if exists question_wise_marks CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists questions CASCADE 
+Hibernate: 
+    
+    drop table if exists questions CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists school_holidays CASCADE 
+Hibernate: 
+    
+    drop table if exists school_holidays CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists school_staff CASCADE 
+Hibernate: 
+    
+    drop table if exists school_staff CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists staff CASCADE 
+Hibernate: 
+    
+    drop table if exists staff CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists staff_attendance CASCADE 
+Hibernate: 
+    
+    drop table if exists staff_attendance CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists staff_roles CASCADE 
+Hibernate: 
+    
+    drop table if exists staff_roles CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists student_fee_assignments CASCADE 
+Hibernate: 
+    
+    drop table if exists student_fee_assignments CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists students CASCADE 
+Hibernate: 
+    
+    drop table if exists students CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists subject_masters CASCADE 
+Hibernate: 
+    
+    drop table if exists subject_masters CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists teacher_details CASCADE 
+Hibernate: 
+    
+    drop table if exists teacher_details CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists teachers CASCADE 
+Hibernate: 
+    
+    drop table if exists teachers CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists time_slots CASCADE 
+Hibernate: 
+    
+    drop table if exists time_slots CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists timetable CASCADE 
+Hibernate: 
+    
+    drop table if exists timetable CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists transport_routes CASCADE 
+Hibernate: 
+    
+    drop table if exists transport_routes CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists users CASCADE 
+Hibernate: 
+    
+    drop table if exists users CASCADE 
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table admissions (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        address varchar(255),
+        applicant_name varchar(255),
+        application_date date not null,
+        blood_group varchar(255),
+        contact_number varchar(255),
+        date_of_birth date not null,
+        documents blob,
+        documents_format varchar(255),
+        email varchar(255),
+        grade_applying integer not null,
+        guardian_contact varchar(255),
+        guardian_email varchar(255),
+        guardian_name varchar(255),
+        medical_conditions varchar(255),
+        previous_grade varchar(255),
+        previous_percentage varchar(255),
+        previous_school varchar(255),
+        rejection_reason varchar(255),
+        status varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table admissions (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        address varchar(255),
+        applicant_name varchar(255),
+        application_date date not null,
+        blood_group varchar(255),
+        contact_number varchar(255),
+        date_of_birth date not null,
+        documents blob,
+        documents_format varchar(255),
+        email varchar(255),
+        grade_applying integer not null,
+        guardian_contact varchar(255),
+        guardian_email varchar(255),
+        guardian_name varchar(255),
+        medical_conditions varchar(255),
+        previous_grade varchar(255),
+        previous_percentage varchar(255),
+        previous_school varchar(255),
+        rejection_reason varchar(255),
+        status varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table attendance (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        check_in_time time,
+        check_out_time time,
+        date date not null,
+        remarks varchar(255),
+        status varchar(255) not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table attendance (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        check_in_time time,
+        check_out_time time,
+        date date not null,
+        remarks varchar(255),
+        status varchar(255) not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table chapter_distributions (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        chapter_name varchar(255) not null,
+        question_count integer not null,
+        question_type varchar(255),
+        total_marks double not null,
+        weightage_percentage double not null,
+        blueprint_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table chapter_distributions (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        chapter_name varchar(255) not null,
+        question_count integer not null,
+        question_type varchar(255),
+        total_marks double not null,
+        weightage_percentage double not null,
+        blueprint_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table chapters (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        academic_year integer not null,
+        description varchar(255),
+        grade integer not null,
+        is_active boolean,
+        name varchar(255) not null,
+        order_number integer not null,
+        subject varchar(255),
+        weightage double not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table chapters (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        academic_year integer not null,
+        description varchar(255),
+        grade integer not null,
+        is_active boolean,
+        name varchar(255) not null,
+        order_number integer not null,
+        subject varchar(255),
+        weightage double not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table class_configurations (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        academic_year varchar(10) not null,
+        class_name varchar(50) not null,
+        description varchar(500),
+        is_active boolean not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table class_configurations (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        academic_year varchar(10) not null,
+        class_name varchar(50) not null,
+        description varchar(500),
+        is_active boolean not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table class_room (
+       id bigint generated by default as identity,
+        building varchar(255),
+        capacity integer not null,
+        is_active boolean not null,
+        room_number varchar(255),
+        room_type varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table class_room (
+       id bigint generated by default as identity,
+        building varchar(255),
+        capacity integer not null,
+        is_active boolean not null,
+        room_number varchar(255),
+        room_type varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table configuration_subjects (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        effective_subject_type varchar(255) not null,
+        is_active boolean not null,
+        passing_marks integer not null check (passing_marks>=1),
+        practical_marks integer check (practical_marks>=1),
+        practical_passing_marks integer check (practical_passing_marks>=1),
+        theory_marks integer check (theory_marks>=1),
+        theory_passing_marks integer check (theory_passing_marks>=1),
+        total_marks integer not null check (total_marks>=1),
+        class_configuration_id bigint not null,
+        subject_master_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table configuration_subjects (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        effective_subject_type varchar(255) not null,
+        is_active boolean not null,
+        passing_marks integer not null check (passing_marks>=1),
+        practical_marks integer check (practical_marks>=1),
+        practical_passing_marks integer check (practical_passing_marks>=1),
+        theory_marks integer check (theory_marks>=1),
+        theory_passing_marks integer check (theory_passing_marks>=1),
+        total_marks integer not null check (total_marks>=1),
+        class_configuration_id bigint not null,
+        subject_master_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table consolidated_staff (
+       id bigint generated by default as identity,
+        address TEXT,
+        bank_name varchar(255),
+        basic_salary double,
+        blood_group varchar(255),
+        created_at timestamp,
+        da double,
+        date_of_birth date,
+        email varchar(255) not null,
+        emergency_contact varchar(255),
+        employment_status varchar(255),
+        first_name varchar(255) not null,
+        gender varchar(255),
+        gratuity varchar(255),
+        hra double,
+        ifsc_code varchar(255),
+        is_active boolean,
+        join_date date not null,
+        last_name varchar(255) not null,
+        net_salary double,
+        other_allowances double,
+        pf_contribution double,
+        pf_uan varchar(255),
+        phone_number varchar(255),
+        profile_image varchar(255),
+        qualifications TEXT,
+        role_id bigint not null,
+        salary_account_number varchar(255),
+        service_end_date date,
+        staff_id varchar(255) not null,
+        ta double,
+        tax_deduction double,
+        termination_date date,
+        updated_at timestamp,
+        user_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table consolidated_staff (
+       id bigint generated by default as identity,
+        address TEXT,
+        bank_name varchar(255),
+        basic_salary double,
+        blood_group varchar(255),
+        created_at timestamp,
+        da double,
+        date_of_birth date,
+        email varchar(255) not null,
+        emergency_contact varchar(255),
+        employment_status varchar(255),
+        first_name varchar(255) not null,
+        gender varchar(255),
+        gratuity varchar(255),
+        hra double,
+        ifsc_code varchar(255),
+        is_active boolean,
+        join_date date not null,
+        last_name varchar(255) not null,
+        net_salary double,
+        other_allowances double,
+        pf_contribution double,
+        pf_uan varchar(255),
+        phone_number varchar(255),
+        profile_image varchar(255),
+        qualifications TEXT,
+        role_id bigint not null,
+        salary_account_number varchar(255),
+        service_end_date date,
+        staff_id varchar(255) not null,
+        ta double,
+        tax_deduction double,
+        termination_date date,
+        updated_at timestamp,
+        user_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table courses (
+       id bigint generated by default as identity,
+        capacity integer,
+        created_at timestamp,
+        credits integer,
+        department varchar(255),
+        enrolled integer,
+        name varchar(255),
+        teacher_id bigint,
+        teacher_name varchar(255),
+        updated_at timestamp,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table courses (
+       id bigint generated by default as identity,
+        capacity integer,
+        created_at timestamp,
+        credits integer,
+        department varchar(255),
+        enrolled integer,
+        name varchar(255),
+        teacher_id bigint,
+        teacher_name varchar(255),
+        updated_at timestamp,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table detailed_exam_results (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        is_locked boolean not null,
+        is_partial_marking boolean not null,
+        is_reviewed boolean not null,
+        locked_at timestamp,
+        locked_by bigint,
+        marked_at timestamp not null,
+        marked_by bigint not null,
+        marks_obtained double not null,
+        reviewed_at timestamp,
+        reviewed_by bigint,
+        teacher_remarks varchar(1000),
+        exam_result_id bigint not null,
+        question_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table detailed_exam_results (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        is_locked boolean not null,
+        is_partial_marking boolean not null,
+        is_reviewed boolean not null,
+        locked_at timestamp,
+        locked_by bigint,
+        marked_at timestamp not null,
+        marked_by bigint not null,
+        marks_obtained double not null,
+        reviewed_at timestamp,
+        reviewed_by bigint,
+        teacher_remarks varchar(1000),
+        exam_result_id bigint not null,
+        question_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table employees (
+       id bigint generated by default as identity,
+        department varchar(255),
+        email varchar(255),
+        first_name varchar(255),
+        is_active boolean not null,
+        last_name varchar(255),
+        name varchar(255),
+        position varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table employees (
+       id bigint generated by default as identity,
+        department varchar(255),
+        email varchar(255),
+        first_name varchar(255),
+        is_active boolean not null,
+        last_name varchar(255),
+        name varchar(255),
+        position varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table exam_blueprints (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        approval_date timestamp not null,
+        approved_by bigint not null,
+        comments varchar(255),
+        description varchar(255) not null,
+        is_approved boolean not null,
+        name varchar(255) not null,
+        exam_configuration_id bigint not null,
+        paper_structure_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table exam_blueprints (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        approval_date timestamp not null,
+        approved_by bigint not null,
+        comments varchar(255),
+        description varchar(255) not null,
+        is_approved boolean not null,
+        name varchar(255) not null,
+        exam_configuration_id bigint not null,
+        paper_structure_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table exam_configurations (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        academic_year integer not null,
+        approval_status varchar(255),
+        description varchar(255),
+        exam_type varchar(255),
+        grade integer not null,
+        is_active boolean,
+        name varchar(255) not null,
+        passing_percentage double not null,
+        practical_max_marks double not null,
+        requires_approval boolean not null,
+        subject varchar(255),
+        theory_max_marks double not null,
+        exam_id bigint,
+        paper_structure_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table exam_configurations (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        academic_year integer not null,
+        approval_status varchar(255),
+        description varchar(255),
+        exam_type varchar(255),
+        grade integer not null,
+        is_active boolean,
+        name varchar(255) not null,
+        passing_percentage double not null,
+        practical_max_marks double not null,
+        requires_approval boolean not null,
+        subject varchar(255),
+        theory_max_marks double not null,
+        exam_id bigint,
+        paper_structure_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table exam_results (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        marks_obtained double not null,
+        remarks varchar(255),
+        status varchar(255),
+        exam_id bigint not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table exam_results (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        marks_obtained double not null,
+        remarks varchar(255),
+        status varchar(255),
+        exam_id bigint not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table exams (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        description varchar(255),
+        exam_date timestamp not null,
+        exam_type varchar(255),
+        grade integer not null,
+        name varchar(255) not null,
+        passing_marks double not null,
+        subject varchar(255),
+        total_marks double not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table exams (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        description varchar(255),
+        exam_date timestamp not null,
+        exam_type varchar(255),
+        grade integer not null,
+        name varchar(255) not null,
+        passing_marks double not null,
+        subject varchar(255),
+        total_marks double not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table fee_payment_schedules (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        academic_year integer not null,
+        change_reason varchar(255),
+        effective_from date not null,
+        effective_until date,
+        frequency_change_count integer not null,
+        is_active boolean not null,
+        payment_frequency varchar(255) not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table fee_payment_schedules (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        academic_year integer not null,
+        change_reason varchar(255),
+        effective_from date not null,
+        effective_until date,
+        frequency_change_count integer not null,
+        is_active boolean not null,
+        payment_frequency varchar(255) not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table fee_payments (
+       id bigint generated by default as identity,
+        amount_paid numeric(19,2) not null,
+        created_at timestamp,
+        payment_date date not null,
+        payment_mode varchar(255) not null,
+        remarks varchar(255),
+        transaction_reference varchar(255),
+        updated_at timestamp,
+        fee_structure_id bigint not null,
+        payment_schedule_id bigint not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table fee_payments (
+       id bigint generated by default as identity,
+        amount_paid numeric(19,2) not null,
+        created_at timestamp,
+        payment_date date not null,
+        payment_mode varchar(255) not null,
+        remarks varchar(255),
+        transaction_reference varchar(255),
+        updated_at timestamp,
+        fee_structure_id bigint not null,
+        payment_schedule_id bigint not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table fee_structures (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        annual_fees numeric(19,2) not null,
+        building_fees numeric(19,2) not null,
+        class_grade integer not null,
+        lab_fees numeric(19,2) not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table fee_structures (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        annual_fees numeric(19,2) not null,
+        building_fees numeric(19,2) not null,
+        class_grade integer not null,
+        lab_fees numeric(19,2) not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table fees (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        amount double not null,
+        description varchar(255),
+        due_date date not null,
+        fee_type varchar(255) not null,
+        frequency varchar(255) not null,
+        grade integer not null,
+        name varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table fees (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        amount double not null,
+        description varchar(255),
+        due_date date not null,
+        fee_type varchar(255) not null,
+        frequency varchar(255) not null,
+        grade integer not null,
+        name varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table hrm_staff (
+       id bigint generated by default as identity,
+        address TEXT,
+        bank_name varchar(255),
+        basic_salary double,
+        blood_group varchar(255),
+        created_at timestamp,
+        da double,
+        hrm_date_of_birth date,
+        department varchar(255),
+        email varchar(255) not null,
+        emergency_contact varchar(255),
+        employment_status varchar(255),
+        first_name varchar(255) not null,
+        gender varchar(255),
+        gratuity varchar(255),
+        hra double,
+        ifsc_code varchar(255),
+        is_active boolean,
+        join_date date not null,
+        last_name varchar(255) not null,
+        net_salary double,
+        other_allowances double,
+        pf_contribution double,
+        pf_uan varchar(255),
+        phone_number varchar(255),
+        profile_image varchar(255),
+        qualifications TEXT,
+        salary_account_number varchar(255),
+        service_end_date date,
+        staff_id varchar(255) not null,
+        ta double,
+        tax_deduction double,
+        termination_date date,
+        updated_at timestamp,
+        user_id bigint,
+        role_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table hrm_staff (
+       id bigint generated by default as identity,
+        address TEXT,
+        bank_name varchar(255),
+        basic_salary double,
+        blood_group varchar(255),
+        created_at timestamp,
+        da double,
+        hrm_date_of_birth date,
+        department varchar(255),
+        email varchar(255) not null,
+        emergency_contact varchar(255),
+        employment_status varchar(255),
+        first_name varchar(255) not null,
+        gender varchar(255),
+        gratuity varchar(255),
+        hra double,
+        ifsc_code varchar(255),
+        is_active boolean,
+        join_date date not null,
+        last_name varchar(255) not null,
+        net_salary double,
+        other_allowances double,
+        pf_contribution double,
+        pf_uan varchar(255),
+        phone_number varchar(255),
+        profile_image varchar(255),
+        qualifications TEXT,
+        salary_account_number varchar(255),
+        service_end_date date,
+        staff_id varchar(255) not null,
+        ta double,
+        tax_deduction double,
+        termination_date date,
+        updated_at timestamp,
+        user_id bigint,
+        role_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table hrm_staff_designation_mappings (
+       id bigint generated by default as identity,
+        assigned_date date,
+        created_at timestamp,
+        end_date date,
+        is_active boolean,
+        is_primary boolean,
+        start_date date,
+        updated_at timestamp,
+        designation_id bigint not null,
+        staff_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table hrm_staff_designation_mappings (
+       id bigint generated by default as identity,
+        assigned_date date,
+        created_at timestamp,
+        end_date date,
+        is_active boolean,
+        is_primary boolean,
+        start_date date,
+        updated_at timestamp,
+        designation_id bigint not null,
+        staff_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table hrm_staff_designations (
+       id bigint generated by default as identity,
+        description varchar(255),
+        is_active boolean,
+        name varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table hrm_staff_designations (
+       id bigint generated by default as identity,
+        description varchar(255),
+        is_active boolean,
+        name varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table hrm_staff_roles (
+       id bigint generated by default as identity,
+        description varchar(255),
+        is_active boolean,
+        role_name varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table hrm_staff_roles (
+       id bigint generated by default as identity,
+        description varchar(255),
+        is_active boolean,
+        role_name varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table in_app_notifications (
+       id bigint generated by default as identity,
+        content TEXT,
+        created_at timestamp,
+        read_at timestamp,
+        recipient varchar(255) not null,
+        status varchar(255),
+        subject varchar(255) not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table in_app_notifications (
+       id bigint generated by default as identity,
+        content TEXT,
+        created_at timestamp,
+        read_at timestamp,
+        recipient varchar(255) not null,
+        status varchar(255),
+        subject varchar(255) not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table late_fees (
+       id bigint generated by default as identity,
+        created_at timestamp,
+        fine_amount numeric(19,2) not null,
+        fine_description varchar(255),
+        late_fee_amount numeric(19,2) not null,
+        late_fee_description varchar(255),
+        month_value integer not null,
+        updated_at timestamp,
+        fee_structure_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table late_fees (
+       id bigint generated by default as identity,
+        created_at timestamp,
+        fine_amount numeric(19,2) not null,
+        fine_description varchar(255),
+        late_fee_amount numeric(19,2) not null,
+        late_fee_description varchar(255),
+        month_value integer not null,
+        updated_at timestamp,
+        fee_structure_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table message_read_status (
+       message_id bigint not null,
+        read_by varchar(255)
+    )
+Hibernate: 
+    
+    create table message_read_status (
+       message_id bigint not null,
+        read_by varchar(255)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table message_recipients (
+       message_id bigint not null,
+        recipients varchar(255)
+    )
+Hibernate: 
+    
+    create table message_recipients (
+       message_id bigint not null,
+        recipients varchar(255)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table messages (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        content TEXT not null,
+        message_type varchar(255) not null,
+        priority varchar(255) not null,
+        send_time timestamp not null,
+        subject varchar(255) not null,
+        sender_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table messages (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        content TEXT not null,
+        message_type varchar(255) not null,
+        priority varchar(255) not null,
+        send_time timestamp not null,
+        subject varchar(255) not null,
+        sender_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table payment_schedules (
+       id bigint generated by default as identity,
+        amount numeric(19,2) not null,
+        created_at timestamp,
+        is_enabled boolean not null,
+        schedule_type varchar(255) not null,
+        updated_at timestamp,
+        fee_structure_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table payment_schedules (
+       id bigint generated by default as identity,
+        amount numeric(19,2) not null,
+        created_at timestamp,
+        is_enabled boolean not null,
+        schedule_type varchar(255) not null,
+        updated_at timestamp,
+        fee_structure_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table payments (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        amount double not null,
+        payer_contact_info varchar(255),
+        payer_name varchar(255),
+        payer_relation_to_student varchar(255),
+        payment_date timestamp not null,
+        payment_method varchar(255) not null,
+        receipt_number varchar(255),
+        remarks varchar(255),
+        status varchar(255) not null,
+        transaction_reference varchar(255),
+        fee_id bigint not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table payments (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        amount double not null,
+        payer_contact_info varchar(255),
+        payer_name varchar(255),
+        payer_relation_to_student varchar(255),
+        payment_date timestamp not null,
+        payment_method varchar(255) not null,
+        receipt_number varchar(255),
+        remarks varchar(255),
+        status varchar(255) not null,
+        transaction_reference varchar(255),
+        fee_id bigint not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table question_paper_structures (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        mandatory_questions integer not null,
+        name varchar(255) not null,
+        optional_questions integer not null,
+        total_marks double not null,
+        total_questions integer not null,
+        exam_configuration_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table question_paper_structures (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        mandatory_questions integer not null,
+        name varchar(255) not null,
+        optional_questions integer not null,
+        total_marks double not null,
+        total_questions integer not null,
+        exam_configuration_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table question_papers (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        approval_date timestamp,
+        approval_status varchar(255),
+        approved_by bigint,
+        comments varchar(255),
+        created_by bigint not null,
+        time_allotted integer not null,
+        title varchar(255) not null,
+        blueprint_id bigint,
+        exam_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table question_papers (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        approval_date timestamp,
+        approval_status varchar(255),
+        approved_by bigint,
+        comments varchar(255),
+        created_by bigint not null,
+        time_allotted integer not null,
+        title varchar(255) not null,
+        blueprint_id bigint,
+        exam_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table question_sections (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        is_mandatory boolean not null,
+        marks_per_question double not null,
+        question_count integer not null,
+        question_type varchar(255),
+        section_name varchar(255) not null,
+        question_paper_structure_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table question_sections (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        is_mandatory boolean not null,
+        marks_per_question double not null,
+        question_count integer not null,
+        question_type varchar(255),
+        section_name varchar(255) not null,
+        question_paper_structure_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table question_wise_marks (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        absence_reason TEXT,
+        edit_reason TEXT,
+        edited_at timestamp,
+        edited_by bigint,
+        evaluator_comments varchar(255),
+        is_absent boolean not null,
+        is_locked boolean not null,
+        locked_at timestamp,
+        locked_by bigint,
+        obtained_marks double not null,
+        was_edited boolean,
+        exam_id bigint not null,
+        question_id bigint not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table question_wise_marks (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        absence_reason TEXT,
+        edit_reason TEXT,
+        edited_at timestamp,
+        edited_by bigint,
+        evaluator_comments varchar(255),
+        is_absent boolean not null,
+        is_locked boolean not null,
+        locked_at timestamp,
+        locked_by bigint,
+        obtained_marks double not null,
+        was_edited boolean,
+        exam_id bigint not null,
+        question_id bigint not null,
+        student_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table questions (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        answer_key varchar(2000),
+        chapter_name varchar(255) not null,
+        is_compulsory boolean,
+        marking_scheme varchar(1000),
+        marks double not null,
+        question_number integer not null,
+        question_text varchar(1000) not null,
+        question_type varchar(255),
+        section_number integer not null,
+        question_paper_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table questions (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        answer_key varchar(2000),
+        chapter_name varchar(255) not null,
+        is_compulsory boolean,
+        marking_scheme varchar(1000),
+        marks double not null,
+        question_number integer not null,
+        question_text varchar(1000) not null,
+        question_type varchar(255),
+        section_number integer not null,
+        question_paper_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table school_holidays (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        date date not null,
+        description varchar(255),
+        name varchar(100) not null,
+        type varchar(255) not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table school_holidays (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        date date not null,
+        description varchar(255),
+        name varchar(100) not null,
+        type varchar(255) not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table school_staff (
+       id bigint generated by default as identity,
+        active boolean not null,
+        address TEXT,
+        basic_salary double,
+        blood_group varchar(255),
+        da double,
+        date_of_birth date,
+        date_of_joining date,
+        department varchar(255),
+        designation varchar(255),
+        email varchar(255) not null,
+        emergency_contact varchar(255),
+        employment_status varchar(255),
+        first_name varchar(255) not null,
+        gender varchar(255),
+        gratuity varchar(255),
+        hra double,
+        is_active boolean not null,
+        join_date date,
+        joining_date date,
+        last_name varchar(255) not null,
+        middle_name varchar(255),
+        pf_uan varchar(255),
+        phone varchar(255),
+        phone_number varchar(255),
+        profile_image varchar(255),
+        qualifications TEXT,
+        role varchar(255),
+        service_end_date date,
+        staff_id varchar(255) not null,
+        termination_date date,
+        user_id bigint,
+        role_id bigint,
+        teacher_details_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table school_staff (
+       id bigint generated by default as identity,
+        active boolean not null,
+        address TEXT,
+        basic_salary double,
+        blood_group varchar(255),
+        da double,
+        date_of_birth date,
+        date_of_joining date,
+        department varchar(255),
+        designation varchar(255),
+        email varchar(255) not null,
+        emergency_contact varchar(255),
+        employment_status varchar(255),
+        first_name varchar(255) not null,
+        gender varchar(255),
+        gratuity varchar(255),
+        hra double,
+        is_active boolean not null,
+        join_date date,
+        joining_date date,
+        last_name varchar(255) not null,
+        middle_name varchar(255),
+        pf_uan varchar(255),
+        phone varchar(255),
+        phone_number varchar(255),
+        profile_image varchar(255),
+        qualifications TEXT,
+        role varchar(255),
+        service_end_date date,
+        staff_id varchar(255) not null,
+        termination_date date,
+        user_id bigint,
+        role_id bigint,
+        teacher_details_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table staff (
+       id bigint generated by default as identity,
+        active boolean not null,
+        address varchar(255),
+        basic_salary double,
+        blood_group varchar(255),
+        da double,
+        staff_date_of_birth date,
+        department varchar(255),
+        designation varchar(255),
+        email varchar(255) not null,
+        emergency_contact varchar(255),
+        first_name varchar(255) not null,
+        gender varchar(255),
+        gratuity varchar(255),
+        hra double,
+        joining_date date,
+        last_name varchar(255) not null,
+        middle_name varchar(255),
+        pfuan varchar(255),
+        phone varchar(255),
+        phone_number varchar(255),
+        profile_image varchar(255),
+        qualifications varchar(255),
+        role varchar(255) not null,
+        service_end_date date,
+        staff_id varchar(255),
+        teacher_details_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table staff (
+       id bigint generated by default as identity,
+        active boolean not null,
+        address varchar(255),
+        basic_salary double,
+        blood_group varchar(255),
+        da double,
+        staff_date_of_birth date,
+        department varchar(255),
+        designation varchar(255),
+        email varchar(255) not null,
+        emergency_contact varchar(255),
+        first_name varchar(255) not null,
+        gender varchar(255),
+        gratuity varchar(255),
+        hra double,
+        joining_date date,
+        last_name varchar(255) not null,
+        middle_name varchar(255),
+        pfuan varchar(255),
+        phone varchar(255),
+        phone_number varchar(255),
+        profile_image varchar(255),
+        qualifications varchar(255),
+        role varchar(255) not null,
+        service_end_date date,
+        staff_id varchar(255),
+        teacher_details_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table staff_attendance (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        attendance_date date not null,
+        note varchar(255),
+        status varchar(255) not null,
+        staff_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table staff_attendance (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        attendance_date date not null,
+        note varchar(255),
+        status varchar(255) not null,
+        staff_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table staff_roles (
+       id bigint generated by default as identity,
+        description varchar(255),
+        is_active boolean,
+        name varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table staff_roles (
+       id bigint generated by default as identity,
+        description varchar(255),
+        is_active boolean,
+        name varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table student_fee_assignments (
+       id bigint generated by default as identity,
+        created_at timestamp,
+        effective_from date not null,
+        effective_to date,
+        is_active boolean not null,
+        updated_at timestamp,
+        fee_structure_id bigint not null,
+        payment_schedule_id bigint not null,
+        student_id bigint not null,
+        transport_route_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table student_fee_assignments (
+       id bigint generated by default as identity,
+        created_at timestamp,
+        effective_from date not null,
+        effective_to date,
+        is_active boolean not null,
+        updated_at timestamp,
+        fee_structure_id bigint not null,
+        payment_schedule_id bigint not null,
+        student_id bigint not null,
+        transport_route_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table students (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        aadhar_number varchar(255),
+        address varchar(255),
+        admission_date date,
+        blood_group varchar(255),
+        bus_route_number varchar(255),
+        contact_number varchar(255),
+        date_of_birth date not null,
+        email varchar(255),
+        first_name varchar(255),
+        gender varchar(255),
+        grade integer not null,
+        guardian_annual_income numeric(19,2),
+        guardian_contact varchar(255),
+        guardian_email varchar(255),
+        guardian_name varchar(255),
+        guardian_occupation varchar(255),
+        guardian_office_address varchar(255),
+        house_alloted varchar(255),
+        last_name varchar(255),
+        medical_conditions varchar(255),
+        photo_url varchar(255),
+        previous_school varchar(255),
+        roll_number varchar(255),
+        section varchar(255),
+        status varchar(255),
+        student_id varchar(255),
+        subjects varchar(255),
+        tc_date date,
+        tc_number varchar(255),
+        tc_reason varchar(255),
+        transport_mode varchar(255),
+        udise_number varchar(255),
+        whatsapp_number varchar(255),
+        admission_id bigint,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table students (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        aadhar_number varchar(255),
+        address varchar(255),
+        admission_date date,
+        blood_group varchar(255),
+        bus_route_number varchar(255),
+        contact_number varchar(255),
+        date_of_birth date not null,
+        email varchar(255),
+        first_name varchar(255),
+        gender varchar(255),
+        grade integer not null,
+        guardian_annual_income numeric(19,2),
+        guardian_contact varchar(255),
+        guardian_email varchar(255),
+        guardian_name varchar(255),
+        guardian_occupation varchar(255),
+        guardian_office_address varchar(255),
+        house_alloted varchar(255),
+        last_name varchar(255),
+        medical_conditions varchar(255),
+        photo_url varchar(255),
+        previous_school varchar(255),
+        roll_number varchar(255),
+        section varchar(255),
+        status varchar(255),
+        student_id varchar(255),
+        subjects varchar(255),
+        tc_date date,
+        tc_number varchar(255),
+        tc_reason varchar(255),
+        transport_mode varchar(255),
+        udise_number varchar(255),
+        whatsapp_number varchar(255),
+        admission_id bigint,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table subject_masters (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        description varchar(500),
+        is_active boolean not null,
+        subject_code varchar(20) not null,
+        subject_name varchar(100) not null,
+        subject_type varchar(20) not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table subject_masters (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        description varchar(500),
+        is_active boolean not null,
+        subject_code varchar(20) not null,
+        subject_name varchar(100) not null,
+        subject_type varchar(20) not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table teacher_details (
+       id bigint generated by default as identity,
+        created_at timestamp,
+        department varchar(255),
+        qualification varchar(255),
+        specialization varchar(255),
+        subjects varchar(255),
+        updated_at timestamp,
+        years_of_experience integer,
+        certifications varchar(255),
+        educational_background varchar(255),
+        professional_development varchar(255),
+        subjects_taught varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table teacher_details (
+       id bigint generated by default as identity,
+        created_at timestamp,
+        department varchar(255),
+        qualification varchar(255),
+        specialization varchar(255),
+        subjects varchar(255),
+        updated_at timestamp,
+        years_of_experience integer,
+        certifications varchar(255),
+        educational_background varchar(255),
+        professional_development varchar(255),
+        subjects_taught varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table teachers (
+       id bigint generated by default as identity,
+        class_assigned_id bigint,
+        created_at timestamp,
+        department varchar(255),
+        is_class_teacher boolean,
+        specialization varchar(255),
+        subjects TEXT,
+        teaching_experience integer,
+        updated_at timestamp,
+        staff_id bigint not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table teachers (
+       id bigint generated by default as identity,
+        class_assigned_id bigint,
+        created_at timestamp,
+        department varchar(255),
+        is_class_teacher boolean,
+        specialization varchar(255),
+        subjects TEXT,
+        teaching_experience integer,
+        updated_at timestamp,
+        staff_id bigint not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table time_slots (
+       id bigint generated by default as identity,
+        day_of_week varchar(255) not null,
+        end_time time not null,
+        is_break boolean not null,
+        slot_name varchar(255),
+        start_time time not null,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table time_slots (
+       id bigint generated by default as identity,
+        day_of_week varchar(255) not null,
+        end_time time not null,
+        is_break boolean not null,
+        slot_name varchar(255),
+        start_time time not null,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table timetable (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        academic_year varchar(255),
+        class_name varchar(255),
+        is_active boolean not null,
+        section varchar(255),
+        valid_from date,
+        valid_to date,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table timetable (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        updated_at timestamp not null,
+        academic_year varchar(255),
+        class_name varchar(255),
+        is_active boolean not null,
+        section varchar(255),
+        valid_from date,
+        valid_to date,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table transport_routes (
+       id bigint generated by default as identity,
+        created_at timestamp,
+        fee_amount numeric(19,2) not null,
+        route_description varchar(255),
+        route_name varchar(255) not null,
+        updated_at timestamp,
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table transport_routes (
+       id bigint generated by default as identity,
+        created_at timestamp,
+        fee_amount numeric(19,2) not null,
+        route_description varchar(255),
+        route_name varchar(255) not null,
+        updated_at timestamp,
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    create table users (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        account_non_expired boolean not null,
+        account_non_locked boolean not null,
+        credentials_non_expired boolean not null,
+        email varchar(255),
+        enabled boolean not null,
+        full_name varchar(255),
+        password varchar(255),
+        role varchar(255),
+        username varchar(255),
+        primary key (id)
+    )
+Hibernate: 
+    
+    create table users (
+       id bigint generated by default as identity,
+        created_at timestamp not null,
+        created_by varchar(255),
+        modified_by varchar(255),
+        updated_at timestamp not null,
+        account_non_expired boolean not null,
+        account_non_locked boolean not null,
+        credentials_non_expired boolean not null,
+        email varchar(255),
+        enabled boolean not null,
+        full_name varchar(255),
+        password varchar(255),
+        role varchar(255),
+        username varchar(255),
+        primary key (id)
+    )
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table attendance 
+       add constraint UKfh0r5sfdt16udyw5quf5syvwh unique (student_id, date)
+Hibernate: 
+    
+    alter table attendance 
+       add constraint UKfh0r5sfdt16udyw5quf5syvwh unique (student_id, date)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - create index idx_class_name on class_configurations (class_name)
+Hibernate: create index idx_class_name on class_configurations (class_name)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - create index idx_academic_year on class_configurations (academic_year)
+Hibernate: create index idx_academic_year on class_configurations (academic_year)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - create index idx_class_is_active on class_configurations (is_active)
+Hibernate: create index idx_class_is_active on class_configurations (is_active)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table class_configurations 
+       add constraint uk_class_year unique (class_name, academic_year)
+Hibernate: 
+    
+    alter table class_configurations 
+       add constraint uk_class_year unique (class_name, academic_year)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - create index idx_class_config on configuration_subjects (class_configuration_id)
+Hibernate: create index idx_class_config on configuration_subjects (class_configuration_id)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - create index idx_subject_master on configuration_subjects (subject_master_id)
+Hibernate: create index idx_subject_master on configuration_subjects (subject_master_id)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - create index idx_config_is_active on configuration_subjects (is_active)
+Hibernate: create index idx_config_is_active on configuration_subjects (is_active)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table configuration_subjects 
+       add constraint uk_config_subject unique (class_configuration_id, subject_master_id)
+Hibernate: 
+    
+    alter table configuration_subjects 
+       add constraint uk_config_subject unique (class_configuration_id, subject_master_id)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table consolidated_staff 
+       add constraint UK_6venvwwru3po7a6qajm5gwd6n unique (email)
+Hibernate: 
+    
+    alter table consolidated_staff 
+       add constraint UK_6venvwwru3po7a6qajm5gwd6n unique (email)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table consolidated_staff 
+       add constraint UK_ab570ji5al85n0ck9lcbn4dei unique (staff_id)
+Hibernate: 
+    
+    alter table consolidated_staff 
+       add constraint UK_ab570ji5al85n0ck9lcbn4dei unique (staff_id)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table fee_structures 
+       add constraint UK_aah48ovq4we0avcmdfofdxa8 unique (class_grade)
+Hibernate: 
+    
+    alter table fee_structures 
+       add constraint UK_aah48ovq4we0avcmdfofdxa8 unique (class_grade)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table hrm_staff 
+       add constraint UK_sv3pquyiuesqhcs80ql81j4q8 unique (email)
+Hibernate: 
+    
+    alter table hrm_staff 
+       add constraint UK_sv3pquyiuesqhcs80ql81j4q8 unique (email)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table hrm_staff 
+       add constraint UK_tapms513pr56e9erf9p5f08ep unique (staff_id)
+Hibernate: 
+    
+    alter table hrm_staff 
+       add constraint UK_tapms513pr56e9erf9p5f08ep unique (staff_id)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table school_staff 
+       add constraint UK_bty2oqrkagehhleybiylsgsc3 unique (email)
+Hibernate: 
+    
+    alter table school_staff 
+       add constraint UK_bty2oqrkagehhleybiylsgsc3 unique (email)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table school_staff 
+       add constraint UK_nkvj584f5jom0apldd005hewv unique (staff_id)
+Hibernate: 
+    
+    alter table school_staff 
+       add constraint UK_nkvj584f5jom0apldd005hewv unique (staff_id)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table staff 
+       add constraint UK_pvctx4dbua9qh4p4s3gm3scrh unique (email)
+Hibernate: 
+    
+    alter table staff 
+       add constraint UK_pvctx4dbua9qh4p4s3gm3scrh unique (email)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table staff 
+       add constraint UK_mk0g966eihj1xyrbh0bpe4und unique (staff_id)
+Hibernate: 
+    
+    alter table staff 
+       add constraint UK_mk0g966eihj1xyrbh0bpe4und unique (staff_id)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table staff_attendance 
+       add constraint UK560dvvh0nlno8mtexb147hib4 unique (staff_id, attendance_date)
+Hibernate: 
+    
+    alter table staff_attendance 
+       add constraint UK560dvvh0nlno8mtexb147hib4 unique (staff_id, attendance_date)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table students 
+       add constraint UK_e2rndfrsx22acpq2ty1caeuyw unique (email)
+Hibernate: 
+    
+    alter table students 
+       add constraint UK_e2rndfrsx22acpq2ty1caeuyw unique (email)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table students 
+       add constraint UK_5mbus2m1tm2acucrp6t627jmx unique (student_id)
+Hibernate: 
+    
+    alter table students 
+       add constraint UK_5mbus2m1tm2acucrp6t627jmx unique (student_id)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - create index idx_subject_type on subject_masters (subject_type)
+Hibernate: create index idx_subject_type on subject_masters (subject_type)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - create index idx_subject_is_active on subject_masters (is_active)
+Hibernate: create index idx_subject_is_active on subject_masters (is_active)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table subject_masters 
+       add constraint uk_subject_name_active unique (subject_name, is_active)
+Hibernate: 
+    
+    alter table subject_masters 
+       add constraint uk_subject_name_active unique (subject_name, is_active)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table subject_masters 
+       add constraint UK_kheru7jgr6j1lirphnxspffn unique (subject_code)
+Hibernate: 
+    
+    alter table subject_masters 
+       add constraint UK_kheru7jgr6j1lirphnxspffn unique (subject_code)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table transport_routes 
+       add constraint UK_jrsd5niovubpy5y00a4flxjse unique (route_name)
+Hibernate: 
+    
+    alter table transport_routes 
+       add constraint UK_jrsd5niovubpy5y00a4flxjse unique (route_name)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table users 
+       add constraint UK_6dotkott2kjsp8vw4d0m25fb7 unique (email)
+Hibernate: 
+    
+    alter table users 
+       add constraint UK_6dotkott2kjsp8vw4d0m25fb7 unique (email)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table users 
+       add constraint UK_r43af9ap4edm43mmtq01oddj6 unique (username)
+Hibernate: 
+    
+    alter table users 
+       add constraint UK_r43af9ap4edm43mmtq01oddj6 unique (username)
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table attendance 
+       add constraint FK7121lveuhtmu9wa6m90ayd5yg 
+       foreign key (student_id) 
+       references students
+Hibernate: 
+    
+    alter table attendance 
+       add constraint FK7121lveuhtmu9wa6m90ayd5yg 
+       foreign key (student_id) 
+       references students
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table chapter_distributions 
+       add constraint FK7frt4penv6klpadxj1nc3esoh 
+       foreign key (blueprint_id) 
+       references exam_blueprints
+Hibernate: 
+    
+    alter table chapter_distributions 
+       add constraint FK7frt4penv6klpadxj1nc3esoh 
+       foreign key (blueprint_id) 
+       references exam_blueprints
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table configuration_subjects 
+       add constraint fk_config_subject_class 
+       foreign key (class_configuration_id) 
+       references class_configurations
+Hibernate: 
+    
+    alter table configuration_subjects 
+       add constraint fk_config_subject_class 
+       foreign key (class_configuration_id) 
+       references class_configurations
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table configuration_subjects 
+       add constraint fk_config_subject_master 
+       foreign key (subject_master_id) 
+       references subject_masters
+Hibernate: 
+    
+    alter table configuration_subjects 
+       add constraint fk_config_subject_master 
+       foreign key (subject_master_id) 
+       references subject_masters
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table detailed_exam_results 
+       add constraint FKemnjwjo6eobr68hw889ae3ggu 
+       foreign key (exam_result_id) 
+       references exam_results
+Hibernate: 
+    
+    alter table detailed_exam_results 
+       add constraint FKemnjwjo6eobr68hw889ae3ggu 
+       foreign key (exam_result_id) 
+       references exam_results
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table detailed_exam_results 
+       add constraint FKam6y92dlsek9snhpcnawikq1l 
+       foreign key (question_id) 
+       references questions
+Hibernate: 
+    
+    alter table detailed_exam_results 
+       add constraint FKam6y92dlsek9snhpcnawikq1l 
+       foreign key (question_id) 
+       references questions
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table exam_blueprints 
+       add constraint FK8nmkgxvb5nveu4kprfp2v3xyn 
+       foreign key (exam_configuration_id) 
+       references exam_configurations
+Hibernate: 
+    
+    alter table exam_blueprints 
+       add constraint FK8nmkgxvb5nveu4kprfp2v3xyn 
+       foreign key (exam_configuration_id) 
+       references exam_configurations
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table exam_blueprints 
+       add constraint FK4gco7u71dd0ou646umer8c5f9 
+       foreign key (paper_structure_id) 
+       references question_paper_structures
+Hibernate: 
+    
+    alter table exam_blueprints 
+       add constraint FK4gco7u71dd0ou646umer8c5f9 
+       foreign key (paper_structure_id) 
+       references question_paper_structures
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table exam_configurations 
+       add constraint FKl5737msojqc6nfvgpjp9d26im 
+       foreign key (exam_id) 
+       references exams
+Hibernate: 
+    
+    alter table exam_configurations 
+       add constraint FKl5737msojqc6nfvgpjp9d26im 
+       foreign key (exam_id) 
+       references exams
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table exam_configurations 
+       add constraint FKji6kt5fh9u4uedc052o6qu0yw 
+       foreign key (paper_structure_id) 
+       references question_paper_structures
+Hibernate: 
+    
+    alter table exam_configurations 
+       add constraint FKji6kt5fh9u4uedc052o6qu0yw 
+       foreign key (paper_structure_id) 
+       references question_paper_structures
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table exam_results 
+       add constraint FKtf85ht7yquiorwjx2xbdx3fxw 
+       foreign key (exam_id) 
+       references exams
+Hibernate: 
+    
+    alter table exam_results 
+       add constraint FKtf85ht7yquiorwjx2xbdx3fxw 
+       foreign key (exam_id) 
+       references exams
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table exam_results 
+       add constraint FKr7qgl670f47u65kkdm8ex5119 
+       foreign key (student_id) 
+       references students
+Hibernate: 
+    
+    alter table exam_results 
+       add constraint FKr7qgl670f47u65kkdm8ex5119 
+       foreign key (student_id) 
+       references students
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table fee_payment_schedules 
+       add constraint FKkq3igjix8m97icd5k1r8hi0hv 
+       foreign key (student_id) 
+       references students
+Hibernate: 
+    
+    alter table fee_payment_schedules 
+       add constraint FKkq3igjix8m97icd5k1r8hi0hv 
+       foreign key (student_id) 
+       references students
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table fee_payments 
+       add constraint FKm0gdar1j14en6am9pe6dlmt7w 
+       foreign key (fee_structure_id) 
+       references fee_structures
+Hibernate: 
+    
+    alter table fee_payments 
+       add constraint FKm0gdar1j14en6am9pe6dlmt7w 
+       foreign key (fee_structure_id) 
+       references fee_structures
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table fee_payments 
+       add constraint FKbuph2wfjvdo27ax7oltp5n5sq 
+       foreign key (payment_schedule_id) 
+       references payment_schedules
+Hibernate: 
+    
+    alter table fee_payments 
+       add constraint FKbuph2wfjvdo27ax7oltp5n5sq 
+       foreign key (payment_schedule_id) 
+       references payment_schedules
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table fee_payments 
+       add constraint FK6k0lkod8mk082lnbapghhrx0j 
+       foreign key (student_id) 
+       references students
+Hibernate: 
+    
+    alter table fee_payments 
+       add constraint FK6k0lkod8mk082lnbapghhrx0j 
+       foreign key (student_id) 
+       references students
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table hrm_staff 
+       add constraint FK94hw4marhk2clb8xkxv8cja2v 
+       foreign key (role_id) 
+       references hrm_staff_roles
+Hibernate: 
+    
+    alter table hrm_staff 
+       add constraint FK94hw4marhk2clb8xkxv8cja2v 
+       foreign key (role_id) 
+       references hrm_staff_roles
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table hrm_staff_designation_mappings 
+       add constraint FKbskuosr3h584uie6wkad21vlu 
+       foreign key (designation_id) 
+       references hrm_staff_designations
+Hibernate: 
+    
+    alter table hrm_staff_designation_mappings 
+       add constraint FKbskuosr3h584uie6wkad21vlu 
+       foreign key (designation_id) 
+       references hrm_staff_designations
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table hrm_staff_designation_mappings 
+       add constraint FKo95hjsivs8hwmhjtrpju7yf2k 
+       foreign key (staff_id) 
+       references hrm_staff
+Hibernate: 
+    
+    alter table hrm_staff_designation_mappings 
+       add constraint FKo95hjsivs8hwmhjtrpju7yf2k 
+       foreign key (staff_id) 
+       references hrm_staff
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table late_fees 
+       add constraint FKfmcbtxnvq92uoy8hh0vwp805i 
+       foreign key (fee_structure_id) 
+       references fee_structures
+Hibernate: 
+    
+    alter table late_fees 
+       add constraint FKfmcbtxnvq92uoy8hh0vwp805i 
+       foreign key (fee_structure_id) 
+       references fee_structures
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table message_read_status 
+       add constraint FK6v2gsesvjkhu2n73ye3qig78 
+       foreign key (message_id) 
+       references messages
+Hibernate: 
+    
+    alter table message_read_status 
+       add constraint FK6v2gsesvjkhu2n73ye3qig78 
+       foreign key (message_id) 
+       references messages
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table message_recipients 
+       add constraint FK1v4eg8ytqvjrfbfw63mwpmtf5 
+       foreign key (message_id) 
+       references messages
+Hibernate: 
+    
+    alter table message_recipients 
+       add constraint FK1v4eg8ytqvjrfbfw63mwpmtf5 
+       foreign key (message_id) 
+       references messages
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table messages 
+       add constraint FKi616yg0cf7kyvc0ydknq3f5hn 
+       foreign key (sender_id) 
+       references employees
+Hibernate: 
+    
+    alter table messages 
+       add constraint FKi616yg0cf7kyvc0ydknq3f5hn 
+       foreign key (sender_id) 
+       references employees
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table payment_schedules 
+       add constraint FKo4ulejegle1cuvm40fa3903yp 
+       foreign key (fee_structure_id) 
+       references fee_structures
+Hibernate: 
+    
+    alter table payment_schedules 
+       add constraint FKo4ulejegle1cuvm40fa3903yp 
+       foreign key (fee_structure_id) 
+       references fee_structures
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table payments 
+       add constraint FKmnudkcsqmeel6ig92115cl6pm 
+       foreign key (fee_id) 
+       references fees
+Hibernate: 
+    
+    alter table payments 
+       add constraint FKmnudkcsqmeel6ig92115cl6pm 
+       foreign key (fee_id) 
+       references fees
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table payments 
+       add constraint FK6ooq278k2bs5xi8t5o6oort1v 
+       foreign key (student_id) 
+       references students
+Hibernate: 
+    
+    alter table payments 
+       add constraint FK6ooq278k2bs5xi8t5o6oort1v 
+       foreign key (student_id) 
+       references students
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table question_paper_structures 
+       add constraint FKe8rb2h6yq1xejohgbh98so58o 
+       foreign key (exam_configuration_id) 
+       references exam_configurations
+Hibernate: 
+    
+    alter table question_paper_structures 
+       add constraint FKe8rb2h6yq1xejohgbh98so58o 
+       foreign key (exam_configuration_id) 
+       references exam_configurations
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table question_papers 
+       add constraint FK4dfr32xv0gp0vrq76r3mcfqvc 
+       foreign key (blueprint_id) 
+       references exam_blueprints
+Hibernate: 
+    
+    alter table question_papers 
+       add constraint FK4dfr32xv0gp0vrq76r3mcfqvc 
+       foreign key (blueprint_id) 
+       references exam_blueprints
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table question_papers 
+       add constraint FK6akic72atotbw1lw9wa30jc9c 
+       foreign key (exam_id) 
+       references exams
+Hibernate: 
+    
+    alter table question_papers 
+       add constraint FK6akic72atotbw1lw9wa30jc9c 
+       foreign key (exam_id) 
+       references exams
+2025-07-05 14:28:13 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table question_sections 
+       add constraint FK9cjtio5tyo8gwyaqx5abok8sa 
+       foreign key (question_paper_structure_id) 
+       references question_paper_structures
+Hibernate: 
+    
+    alter table question_sections 
+       add constraint FK9cjtio5tyo8gwyaqx5abok8sa 
+       foreign key (question_paper_structure_id) 
+       references question_paper_structures
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table question_wise_marks 
+       add constraint FK1ihqxr74bes0oeaf2n6tlpbmf 
+       foreign key (exam_id) 
+       references exams
+Hibernate: 
+    
+    alter table question_wise_marks 
+       add constraint FK1ihqxr74bes0oeaf2n6tlpbmf 
+       foreign key (exam_id) 
+       references exams
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table question_wise_marks 
+       add constraint FK7jfsk4luklg4g0boq35ntexrk 
+       foreign key (question_id) 
+       references questions
+Hibernate: 
+    
+    alter table question_wise_marks 
+       add constraint FK7jfsk4luklg4g0boq35ntexrk 
+       foreign key (question_id) 
+       references questions
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table question_wise_marks 
+       add constraint FKa8pf93fuiopvgruwr6hd4epmi 
+       foreign key (student_id) 
+       references students
+Hibernate: 
+    
+    alter table question_wise_marks 
+       add constraint FKa8pf93fuiopvgruwr6hd4epmi 
+       foreign key (student_id) 
+       references students
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table questions 
+       add constraint FKg9bluntn6l5x4fvmr6f1x8l18 
+       foreign key (question_paper_id) 
+       references question_papers
+Hibernate: 
+    
+    alter table questions 
+       add constraint FKg9bluntn6l5x4fvmr6f1x8l18 
+       foreign key (question_paper_id) 
+       references question_papers
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table school_staff 
+       add constraint FKl466ha1r1yt9ymlqrmme8rkj3 
+       foreign key (role_id) 
+       references staff_roles
+Hibernate: 
+    
+    alter table school_staff 
+       add constraint FKl466ha1r1yt9ymlqrmme8rkj3 
+       foreign key (role_id) 
+       references staff_roles
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table school_staff 
+       add constraint FKcdil1wiuwd69dcuxr7pgp1oq4 
+       foreign key (teacher_details_id) 
+       references teacher_details
+Hibernate: 
+    
+    alter table school_staff 
+       add constraint FKcdil1wiuwd69dcuxr7pgp1oq4 
+       foreign key (teacher_details_id) 
+       references teacher_details
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table staff 
+       add constraint FKpos05yku9lb6o2tdd8o1kxb1f 
+       foreign key (teacher_details_id) 
+       references teacher_details
+Hibernate: 
+    
+    alter table staff 
+       add constraint FKpos05yku9lb6o2tdd8o1kxb1f 
+       foreign key (teacher_details_id) 
+       references teacher_details
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table staff_attendance 
+       add constraint FKtonfo3capriqyog8upbeqml0h 
+       foreign key (staff_id) 
+       references school_staff
+Hibernate: 
+    
+    alter table staff_attendance 
+       add constraint FKtonfo3capriqyog8upbeqml0h 
+       foreign key (staff_id) 
+       references school_staff
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table student_fee_assignments 
+       add constraint FK6jbnej4moqp2w2wew59m2i0p2 
+       foreign key (fee_structure_id) 
+       references fee_structures
+Hibernate: 
+    
+    alter table student_fee_assignments 
+       add constraint FK6jbnej4moqp2w2wew59m2i0p2 
+       foreign key (fee_structure_id) 
+       references fee_structures
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table student_fee_assignments 
+       add constraint FKq0bfesw88nt3x1bm25ld1hhpu 
+       foreign key (payment_schedule_id) 
+       references payment_schedules
+Hibernate: 
+    
+    alter table student_fee_assignments 
+       add constraint FKq0bfesw88nt3x1bm25ld1hhpu 
+       foreign key (payment_schedule_id) 
+       references payment_schedules
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table student_fee_assignments 
+       add constraint FK9i10wgfs8su5ui9drgna5wyyk 
+       foreign key (student_id) 
+       references students
+Hibernate: 
+    
+    alter table student_fee_assignments 
+       add constraint FK9i10wgfs8su5ui9drgna5wyyk 
+       foreign key (student_id) 
+       references students
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table student_fee_assignments 
+       add constraint FKk91vy0gf649dq7een4cicbkr8 
+       foreign key (transport_route_id) 
+       references transport_routes
+Hibernate: 
+    
+    alter table student_fee_assignments 
+       add constraint FKk91vy0gf649dq7een4cicbkr8 
+       foreign key (transport_route_id) 
+       references transport_routes
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table students 
+       add constraint FK91agi1kr1u3d6jhvrlb9tgop0 
+       foreign key (admission_id) 
+       references admissions
+Hibernate: 
+    
+    alter table students 
+       add constraint FK91agi1kr1u3d6jhvrlb9tgop0 
+       foreign key (admission_id) 
+       references admissions
+2025-07-05 14:28:14 [main] DEBUG org.hibernate.SQL - 
+    
+    alter table teachers 
+       add constraint FKfsj7fu0cvc6quxtg80ki7pmql 
+       foreign key (staff_id) 
+       references hrm_staff
+Hibernate: 
+    
+    alter table teachers 
+       add constraint FKfsj7fu0cvc6quxtg80ki7pmql 
+       foreign key (staff_id) 
+       references hrm_staff
+2025-07-05 14:28:14 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2025-07-05 14:28:14 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-05 14:28:15 [main] INFO  o.s.b.web.servlet.RegistrationBean - Filter corsFilter was not registered (possibly already registered?)
+2025-07-05 14:28:17 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'configurationSubjectServiceImpl' defined in URL [jar:file:/workspaces/school_ms/school-ms/backend/school-app/target/school-app-1.0.0.jar!/BOOT-INF/classes!/com/school/exam/service/configuration/impl/ConfigurationSubjectServiceImpl.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'configurationSubjectRepository' defined in com.school.exam.repository.configuration.ConfigurationSubjectRepository defined in @EnableJpaRepositories declared on SchoolApplication: Invocation of init method failed; nested exception is org.springframework.data.repository.query.QueryCreationException: Could not create query for public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails(); Reason: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!; nested exception is java.lang.IllegalArgumentException: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!
+2025-07-05 14:28:17 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-05 14:28:17 [main] INFO  o.h.t.s.i.SchemaDropperImpl$DelayedDropActionImpl - HHH000477: Starting delayed evictData of schema as part of SessionFactory shut-down'
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists admissions CASCADE 
+Hibernate: 
+    
+    drop table if exists admissions CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists attendance CASCADE 
+Hibernate: 
+    
+    drop table if exists attendance CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists chapter_distributions CASCADE 
+Hibernate: 
+    
+    drop table if exists chapter_distributions CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists chapters CASCADE 
+Hibernate: 
+    
+    drop table if exists chapters CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists class_configurations CASCADE 
+Hibernate: 
+    
+    drop table if exists class_configurations CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists class_room CASCADE 
+Hibernate: 
+    
+    drop table if exists class_room CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists configuration_subjects CASCADE 
+Hibernate: 
+    
+    drop table if exists configuration_subjects CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists consolidated_staff CASCADE 
+Hibernate: 
+    
+    drop table if exists consolidated_staff CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists courses CASCADE 
+Hibernate: 
+    
+    drop table if exists courses CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists detailed_exam_results CASCADE 
+Hibernate: 
+    
+    drop table if exists detailed_exam_results CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists employees CASCADE 
+Hibernate: 
+    
+    drop table if exists employees CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists exam_blueprints CASCADE 
+Hibernate: 
+    
+    drop table if exists exam_blueprints CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists exam_configurations CASCADE 
+Hibernate: 
+    
+    drop table if exists exam_configurations CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists exam_results CASCADE 
+Hibernate: 
+    
+    drop table if exists exam_results CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists exams CASCADE 
+Hibernate: 
+    
+    drop table if exists exams CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists fee_payment_schedules CASCADE 
+Hibernate: 
+    
+    drop table if exists fee_payment_schedules CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists fee_payments CASCADE 
+Hibernate: 
+    
+    drop table if exists fee_payments CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists fee_structures CASCADE 
+Hibernate: 
+    
+    drop table if exists fee_structures CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists fees CASCADE 
+Hibernate: 
+    
+    drop table if exists fees CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists hrm_staff CASCADE 
+Hibernate: 
+    
+    drop table if exists hrm_staff CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists hrm_staff_designation_mappings CASCADE 
+Hibernate: 
+    
+    drop table if exists hrm_staff_designation_mappings CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists hrm_staff_designations CASCADE 
+Hibernate: 
+    
+    drop table if exists hrm_staff_designations CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists hrm_staff_roles CASCADE 
+Hibernate: 
+    
+    drop table if exists hrm_staff_roles CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists in_app_notifications CASCADE 
+Hibernate: 
+    
+    drop table if exists in_app_notifications CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists late_fees CASCADE 
+Hibernate: 
+    
+    drop table if exists late_fees CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists message_read_status CASCADE 
+Hibernate: 
+    
+    drop table if exists message_read_status CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists message_recipients CASCADE 
+Hibernate: 
+    
+    drop table if exists message_recipients CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists messages CASCADE 
+Hibernate: 
+    
+    drop table if exists messages CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists payment_schedules CASCADE 
+Hibernate: 
+    
+    drop table if exists payment_schedules CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists payments CASCADE 
+Hibernate: 
+    
+    drop table if exists payments CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists question_paper_structures CASCADE 
+Hibernate: 
+    
+    drop table if exists question_paper_structures CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists question_papers CASCADE 
+Hibernate: 
+    
+    drop table if exists question_papers CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists question_sections CASCADE 
+Hibernate: 
+    
+    drop table if exists question_sections CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists question_wise_marks CASCADE 
+Hibernate: 
+    
+    drop table if exists question_wise_marks CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists questions CASCADE 
+Hibernate: 
+    
+    drop table if exists questions CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists school_holidays CASCADE 
+Hibernate: 
+    
+    drop table if exists school_holidays CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists school_staff CASCADE 
+Hibernate: 
+    
+    drop table if exists school_staff CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists staff CASCADE 
+Hibernate: 
+    
+    drop table if exists staff CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists staff_attendance CASCADE 
+Hibernate: 
+    
+    drop table if exists staff_attendance CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists staff_roles CASCADE 
+Hibernate: 
+    
+    drop table if exists staff_roles CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists student_fee_assignments CASCADE 
+Hibernate: 
+    
+    drop table if exists student_fee_assignments CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists students CASCADE 
+Hibernate: 
+    
+    drop table if exists students CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists subject_masters CASCADE 
+Hibernate: 
+    
+    drop table if exists subject_masters CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists teacher_details CASCADE 
+Hibernate: 
+    
+    drop table if exists teacher_details CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists teachers CASCADE 
+Hibernate: 
+    
+    drop table if exists teachers CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists time_slots CASCADE 
+Hibernate: 
+    
+    drop table if exists time_slots CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists timetable CASCADE 
+Hibernate: 
+    
+    drop table if exists timetable CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists transport_routes CASCADE 
+Hibernate: 
+    
+    drop table if exists transport_routes CASCADE 
+2025-07-05 14:28:17 [main] DEBUG org.hibernate.SQL - 
+    
+    drop table if exists users CASCADE 
+Hibernate: 
+    
+    drop table if exists users CASCADE 
+2025-07-05 14:28:17 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-07-05 14:28:17 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-07-05 14:28:17 [main] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2025-07-05 14:28:17 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLoggingListener - 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2025-07-05 14:28:17 [main] ERROR o.s.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'configurationSubjectServiceImpl' defined in URL [jar:file:/workspaces/school_ms/school-ms/backend/school-app/target/school-app-1.0.0.jar!/BOOT-INF/classes!/com/school/exam/service/configuration/impl/ConfigurationSubjectServiceImpl.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'configurationSubjectRepository' defined in com.school.exam.repository.configuration.ConfigurationSubjectRepository defined in @EnableJpaRepositories declared on SchoolApplication: Invocation of init method failed; nested exception is org.springframework.data.repository.query.QueryCreationException: Could not create query for public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails(); Reason: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!; nested exception is java.lang.IllegalArgumentException: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:801)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:224)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1372)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1222)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:582)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:542)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:208)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:955)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:929)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:591)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:147)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:732)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:409)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:308)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1300)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1289)
+	at com.school.SchoolApplication.main(SchoolApplication.java:40)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.boot.loader.MainMethodRunner.run(MainMethodRunner.java:49)
+	at org.springframework.boot.loader.Launcher.launch(Launcher.java:108)
+	at org.springframework.boot.loader.Launcher.launch(Launcher.java:58)
+	at org.springframework.boot.loader.JarLauncher.main(JarLauncher.java:65)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'configurationSubjectRepository' defined in com.school.exam.repository.configuration.ConfigurationSubjectRepository defined in @EnableJpaRepositories declared on SchoolApplication: Invocation of init method failed; nested exception is org.springframework.data.repository.query.QueryCreationException: Could not create query for public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails(); Reason: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!; nested exception is java.lang.IllegalArgumentException: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1804)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:620)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:542)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:208)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:276)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1391)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1311)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:911)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:788)
+	... 27 common frames omitted
+Caused by: org.springframework.data.repository.query.QueryCreationException: Could not create query for public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails(); Reason: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!; nested exception is java.lang.IllegalArgumentException: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!
+	at org.springframework.data.repository.query.QueryCreationException.create(QueryCreationException.java:101)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.lookupQuery(QueryExecutorMethodInterceptor.java:107)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.lambda$mapMethodsToQuery$1(QueryExecutorMethodInterceptor.java:95)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.Iterator.forEachRemaining(Iterator.java:133)
+	at java.base/java.util.Collections$UnmodifiableCollection$1.forEachRemaining(Collections.java:1061)
+	at java.base/java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1845)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.mapMethodsToQuery(QueryExecutorMethodInterceptor.java:97)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.lambda$new$0(QueryExecutorMethodInterceptor.java:87)
+	at java.base/java.util.Optional.map(Optional.java:260)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.<init>(QueryExecutorMethodInterceptor.java:87)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport.getRepository(RepositoryFactorySupport.java:365)
+	at org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport.lambda$afterPropertiesSet$5(RepositoryFactoryBeanSupport.java:323)
+	at org.springframework.data.util.Lazy.getNullable(Lazy.java:231)
+	at org.springframework.data.util.Lazy.get(Lazy.java:115)
+	at org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport.afterPropertiesSet(RepositoryFactoryBeanSupport.java:329)
+	at org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean.afterPropertiesSet(JpaRepositoryFactoryBean.java:144)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1863)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1800)
+	... 38 common frames omitted
+Caused by: java.lang.IllegalArgumentException: Validation failed for query for method public abstract java.util.List com.school.exam.repository.configuration.ConfigurationSubjectRepository.findAllWithDetails()!
+	at org.springframework.data.jpa.repository.query.SimpleJpaQuery.validateQuery(SimpleJpaQuery.java:96)
+	at org.springframework.data.jpa.repository.query.SimpleJpaQuery.<init>(SimpleJpaQuery.java:66)
+	at org.springframework.data.jpa.repository.query.JpaQueryFactory.fromMethodWithQueryString(JpaQueryFactory.java:51)
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$DeclaredQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:169)
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$CreateIfNotFoundQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:253)
+	at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$AbstractQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:93)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.lookupQuery(QueryExecutorMethodInterceptor.java:103)
+	... 60 common frames omitted
+Caused by: java.lang.IllegalArgumentException: org.hibernate.QueryException: could not resolve property: section of: com.school.exam.model.configuration.ClassConfiguration [SELECT cs FROM com.school.exam.model.configuration.ConfigurationSubject cs JOIN FETCH cs.subjectMaster sm JOIN FETCH cs.classConfiguration cc WHERE cs.isActive = true ORDER BY cc.className, cc.section, sm.subjectName]
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:138)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:181)
+	at org.hibernate.internal.ExceptionConverterImpl.convert(ExceptionConverterImpl.java:188)
+	at org.hibernate.internal.AbstractSharedSessionContract.createQuery(AbstractSharedSessionContract.java:757)
+	at org.hibernate.internal.AbstractSharedSessionContract.createQuery(AbstractSharedSessionContract.java:114)
+	at jdk.internal.reflect.GeneratedMethodAccessor54.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.springframework.orm.jpa.ExtendedEntityManagerCreator$ExtendedEntityManagerInvocationHandler.invoke(ExtendedEntityManagerCreator.java:362)
+	at jdk.proxy2/jdk.proxy2.$Proxy206.createQuery(Unknown Source)
+	at org.springframework.data.jpa.repository.query.SimpleJpaQuery.validateQuery(SimpleJpaQuery.java:90)
+	... 66 common frames omitted
+Caused by: org.hibernate.QueryException: could not resolve property: section of: com.school.exam.model.configuration.ClassConfiguration [SELECT cs FROM com.school.exam.model.configuration.ConfigurationSubject cs JOIN FETCH cs.subjectMaster sm JOIN FETCH cs.classConfiguration cc WHERE cs.isActive = true ORDER BY cc.className, cc.section, sm.subjectName]
+	at org.hibernate.QueryException.generateQueryException(QueryException.java:120)
+	at org.hibernate.QueryException.wrapWithQueryString(QueryException.java:103)
+	at org.hibernate.hql.internal.ast.QueryTranslatorImpl.doCompile(QueryTranslatorImpl.java:220)
+	at org.hibernate.hql.internal.ast.QueryTranslatorImpl.compile(QueryTranslatorImpl.java:144)
+	at org.hibernate.engine.query.spi.HQLQueryPlan.<init>(HQLQueryPlan.java:112)
+	at org.hibernate.engine.query.spi.HQLQueryPlan.<init>(HQLQueryPlan.java:73)
+	at org.hibernate.engine.query.spi.QueryPlanCache.getHQLQueryPlan(QueryPlanCache.java:162)
+	at org.hibernate.internal.AbstractSharedSessionContract.getQueryPlan(AbstractSharedSessionContract.java:636)
+	at org.hibernate.internal.AbstractSharedSessionContract.createQuery(AbstractSharedSessionContract.java:748)
+	... 73 common frames omitted
+Caused by: org.hibernate.QueryException: could not resolve property: section of: com.school.exam.model.configuration.ClassConfiguration
+	at org.hibernate.persister.entity.AbstractPropertyMapping.propertyException(AbstractPropertyMapping.java:78)
+	at org.hibernate.persister.entity.AbstractPropertyMapping.toType(AbstractPropertyMapping.java:72)
+	at org.hibernate.persister.entity.AbstractEntityPersister.toType(AbstractEntityPersister.java:2053)
+	at org.hibernate.hql.internal.ast.tree.FromElementType.getPropertyType(FromElementType.java:412)
+	at org.hibernate.hql.internal.ast.tree.FromElement.getPropertyType(FromElement.java:524)
+	at org.hibernate.hql.internal.ast.tree.DotNode.getDataType(DotNode.java:723)
+	at org.hibernate.hql.internal.ast.tree.DotNode.prepareLhs(DotNode.java:268)
+	at org.hibernate.hql.internal.ast.tree.DotNode.resolve(DotNode.java:208)
+	at org.hibernate.hql.internal.ast.HqlSqlWalker.resolve(HqlSqlWalker.java:1066)
+	at org.hibernate.hql.internal.antlr.HqlSqlBaseWalker.expr(HqlSqlBaseWalker.java:1319)
+	at org.hibernate.hql.internal.antlr.HqlSqlBaseWalker.orderExpr(HqlSqlBaseWalker.java:1906)
+	at org.hibernate.hql.internal.antlr.HqlSqlBaseWalker.orderExprs(HqlSqlBaseWalker.java:1697)
+	at org.hibernate.hql.internal.antlr.HqlSqlBaseWalker.orderExprs(HqlSqlBaseWalker.java:1865)
+	at org.hibernate.hql.internal.antlr.HqlSqlBaseWalker.orderClause(HqlSqlBaseWalker.java:1670)
+	at org.hibernate.hql.internal.antlr.HqlSqlBaseWalker.query(HqlSqlBaseWalker.java:680)
+	at org.hibernate.hql.internal.antlr.HqlSqlBaseWalker.selectStatement(HqlSqlBaseWalker.java:339)
+	at org.hibernate.hql.internal.antlr.HqlSqlBaseWalker.statement(HqlSqlBaseWalker.java:287)
+	at org.hibernate.hql.internal.ast.QueryTranslatorImpl.analyze(QueryTranslatorImpl.java:276)
+	at org.hibernate.hql.internal.ast.QueryTranslatorImpl.doCompile(QueryTranslatorImpl.java:192)
+	... 79 common frames omitted

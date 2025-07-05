@@ -21,7 +21,7 @@ import javax.validation.constraints.Size;
        },
        indexes = {
            @Index(name = "idx_subject_type", columnList = "subject_type"),
-           @Index(name = "idx_is_active", columnList = "is_active")
+           @Index(name = "idx_subject_is_active", columnList = "is_active")
        })
 @Getter
 @Setter

@@ -27,10 +27,6 @@ public class CopyConfigurationRequest {
     @Size(min = 1, max = 50, message = "Class name must be between 1 and 50 characters")
     private String targetClassName;
 
-    @NotBlank(message = "Target section is required")
-    @Size(min = 1, max = 20, message = "Section must be between 1 and 20 characters")
-    private String targetSection;
-
     @NotBlank(message = "Target academic year is required")
     @Pattern(regexp = "\\d{4}-\\d{2}", message = "Academic year must be in format YYYY-YY (e.g., 2023-24)")
     private String targetAcademicYear;

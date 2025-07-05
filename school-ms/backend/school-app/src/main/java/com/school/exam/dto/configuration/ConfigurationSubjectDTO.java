@@ -22,7 +22,8 @@ public class ConfigurationSubjectDTO {
     private Long subjectMasterId;
     private String subjectCode;
     private String subjectName;
-    private SubjectType subjectType;
+    private SubjectType subjectType; // Original subject type from Subject Master
+    private SubjectType effectiveSubjectType; // Effective type for this configuration
     private Integer totalMarks;
     private Integer passingMarks;
     private Integer theoryMarks;
@@ -35,20 +36,20 @@ public class ConfigurationSubjectDTO {
     
     // Class configuration details
     private String className;
-    private String section;
     private String academicYear;
     
     // Helper methods for UI display
     public String getDisplayName() {
-        return String.format("%s - %s (%s) - %s", 
-                           className, section, academicYear, subjectName);
+        return String.format("%s (%s) - %s", 
+                           className, academicYear, subjectName);
     }
     
     public String getSubjectTypeDisplay() {
-        if (subjectType == null) {
+        SubjectType displayType = effectiveSubjectType != null ? effectiveSubjectType : subjectType;
+        if (displayType == null) {
             return "Unknown";
         }
-        switch (subjectType) {
+        switch (displayType) {
             case THEORY:
                 return "Theory Only";
             case PRACTICAL:
@@ -56,7 +57,7 @@ public class ConfigurationSubjectDTO {
             case BOTH:
                 return "Theory & Practical";
             default:
-                return subjectType.toString();
+                return displayType.toString();
         }
     }
     
@@ -72,11 +73,12 @@ public class ConfigurationSubjectDTO {
     }
     
     public String getMarksDistribution() {
-        if (subjectType == null) {
+        SubjectType displayType = effectiveSubjectType != null ? effectiveSubjectType : subjectType;
+        if (displayType == null) {
             return "N/A";
         }
         
-        switch (subjectType) {
+        switch (displayType) {
             case THEORY:
                 return String.format("Theory: %d marks", totalMarks);
             case PRACTICAL:

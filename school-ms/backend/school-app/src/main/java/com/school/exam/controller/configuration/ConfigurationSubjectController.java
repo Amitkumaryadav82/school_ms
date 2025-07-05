@@ -87,4 +87,33 @@ public class ConfigurationSubjectController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @Operation(summary = "Get copy preview - subjects that can be copied from source to target class")
+    @GetMapping("/copy-preview/{sourceClassConfigId}/{targetClassConfigId}")
+    public ResponseEntity<List<ConfigurationSubjectDTO>> getCopyPreview(
+            @PathVariable Long sourceClassConfigId,
+            @PathVariable Long targetClassConfigId) {
+        try {
+            List<ConfigurationSubjectDTO> preview = configurationSubjectService.getCopyPreview(sourceClassConfigId, targetClassConfigId);
+            return ResponseEntity.ok(preview);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @Operation(summary = "Copy configuration subjects from source to target class")
+    @PostMapping("/copy/{sourceClassConfigId}/{targetClassConfigId}")
+    public ResponseEntity<List<ConfigurationSubjectDTO>> copyConfiguration(
+            @PathVariable Long sourceClassConfigId,
+            @PathVariable Long targetClassConfigId,
+            @RequestParam(required = false) List<Long> subjectIds,
+            @RequestParam(defaultValue = "false") boolean overwriteExisting) {
+        try {
+            List<ConfigurationSubjectDTO> copied = configurationSubjectService.copyConfiguration(
+                    sourceClassConfigId, targetClassConfigId, subjectIds, overwriteExisting);
+            return ResponseEntity.ok(copied);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

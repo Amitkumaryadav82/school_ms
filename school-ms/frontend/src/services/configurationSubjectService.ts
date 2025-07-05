@@ -149,6 +149,29 @@ class ConfigurationSubjectService {
   }
 
   /**
+   * Preview copy subjects from one configuration to another
+   */
+  async previewCopySubjects(sourceConfigId: number, targetConfigId: number): Promise<ConfigurationSubject[]> {
+    return await api.get<ConfigurationSubject[]>(`${this.baseUrl}/copy-preview/${sourceConfigId}/${targetConfigId}`);
+  }
+
+  /**
+   * Copy subjects from one configuration to another
+   */
+  async copySubjects(
+    sourceConfigId: number, 
+    targetConfigId: number, 
+    subjectIds?: number[], 
+    overwriteExisting = false
+  ): Promise<ConfigurationSubject[]> {
+    const params: any = { overwriteExisting };
+    if (subjectIds && subjectIds.length > 0) {
+      params.subjectIds = subjectIds;
+    }
+    return await api.post<ConfigurationSubject[]>(`${this.baseUrl}/copy/${sourceConfigId}/${targetConfigId}`, null, { params });
+  }
+
+  /**
    * Validate total marks
    */
   validateTotalMarks(totalMarks: number): string | null {

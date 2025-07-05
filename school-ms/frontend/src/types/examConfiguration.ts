@@ -30,7 +30,6 @@ export interface SubjectMasterRequest {
 export interface ClassConfiguration {
   id?: number;
   className: string;
-  section: string;
   academicYear: string;
   description?: string;
   isActive: boolean;
@@ -43,7 +42,6 @@ export interface ClassConfiguration {
 
 export interface ClassConfigurationRequest {
   className: string;
-  section: string;
   academicYear: string;
   description?: string;
   isActive?: boolean;
@@ -56,7 +54,8 @@ export interface ConfigurationSubject {
   subjectMasterId: number;
   subjectCode: string;
   subjectName: string;
-  subjectType: SubjectType;
+  subjectType: SubjectType; // Original subject type from Subject Master
+  effectiveSubjectType: SubjectType; // Effective type for this configuration (can override)
   totalMarks: number;
   passingMarks: number;
   theoryMarks?: number;
@@ -74,6 +73,7 @@ export interface ConfigurationSubject {
 export interface ConfigurationSubjectRequest {
   classConfigurationId: number;
   subjectMasterId: number;
+  effectiveSubjectType: SubjectType;
   totalMarks: number;
   passingMarks: number;
   theoryMarks?: number;
@@ -84,6 +84,39 @@ export interface ConfigurationSubjectRequest {
 }
 
 // Copy Configuration Types
+export interface CopyConfigurationRequest {
+  sourceClassConfigId: number;
+  targetClassConfigId: number;
+  subjectIds?: number[]; // Optional: specific subjects to copy
+  overwriteExisting: boolean;
+}
+
+export interface CopyConfigurationResponse {
+  copiedSubjects: ConfigurationSubject[];
+  totalCopied: number;
+  skippedCount: number;
+  overwrittenCount: number;
+}
+
+// Copy subjects types
+export interface CopySubjectsRequest {
+  sourceConfigurationId: number;
+  targetConfigurationId: number;
+  includeInactive?: boolean;
+  adjustMarks?: boolean;
+  marksAdjustmentFactor?: number;
+}
+
+export interface CopySubjectsPreview {
+  sourceConfiguration: ClassConfiguration;
+  targetConfiguration: ClassConfiguration;
+  subjectsToAdd: ConfigurationSubject[];
+  existingSubjects: ConfigurationSubject[];
+  conflictCount: number;
+  totalSubjects: number;
+}
+
+// Legacy copy types (keeping for backward compatibility)
 export interface CopySubjectConfiguration {
   subjectMasterId: number;
   include: boolean;
@@ -95,18 +128,6 @@ export interface CopySubjectConfiguration {
   newPracticalPassingMarks?: number;
 }
 
-export interface CopyConfigurationRequest {
-  sourceConfigurationId: number;
-  targetClassName: string;
-  targetSection: string;
-  targetAcademicYear: string;
-  description?: string;
-  subjectConfigurations?: CopySubjectConfiguration[];
-  copyAllSubjects?: boolean;
-  preserveMarks?: boolean;
-  overwriteExisting?: boolean;
-}
-
 export interface CopySubjectResult {
   subjectMasterId: number;
   subjectName: string;
@@ -116,7 +137,7 @@ export interface CopySubjectResult {
   newConfigurationSubjectId?: number;
 }
 
-export interface CopyConfigurationResponse {
+export interface CopyConfigurationResponseLegacy {
   newConfigurationId?: number;
   targetClassName: string;
   targetSection: string;

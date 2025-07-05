@@ -25,7 +25,7 @@ public class LateFee {
     @JoinColumn(name = "fee_structure_id", nullable = false)
     private FeeStructure feeStructure;
 
-    @Column(name = "month", nullable = false)
+    @Column(name = "month_value", nullable = false)
     private Integer month;
 
     @Column(name = "late_fee_amount", nullable = false)

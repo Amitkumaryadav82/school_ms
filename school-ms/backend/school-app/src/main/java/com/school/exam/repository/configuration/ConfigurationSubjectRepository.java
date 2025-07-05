@@ -103,7 +103,7 @@ public interface ConfigurationSubjectRepository extends JpaRepository<Configurat
            "JOIN FETCH cs.subjectMaster sm " +
            "JOIN FETCH cs.classConfiguration cc " +
            "WHERE cs.isActive = true " +
-           "ORDER BY cc.className, cc.section, sm.subjectName")
+           "ORDER BY cc.className, sm.subjectName")
     List<ConfigurationSubject> findAllWithDetails();
 
     /**

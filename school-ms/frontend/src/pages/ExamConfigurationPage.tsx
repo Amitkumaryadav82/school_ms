@@ -13,6 +13,8 @@ import {
   SubjectMasterList, 
   ClassConfigurationList 
 } from '../components/exam/configuration';
+import SubjectAssignmentManagement from '../components/exam/configuration/SubjectAssignmentManagement';
+import { ClassConfiguration } from '../types/examConfiguration';
 import { useNavigate } from 'react-router-dom';
 
 interface TabPanelProps {
@@ -50,10 +52,24 @@ function a11yProps(index: number) {
 
 const ExamConfigurationPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
+  const [selectedConfiguration, setSelectedConfiguration] = useState<ClassConfiguration | null>(null);
   const navigate = useNavigate();
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    if (newValue !== 2) {
+      setSelectedConfiguration(null);
+    }
+  };
+
+  const handleManageSubjects = (configuration: ClassConfiguration) => {
+    setSelectedConfiguration(configuration);
+    setTabValue(2);
+  };
+
+  const handleBackFromSubjects = () => {
+    setSelectedConfiguration(null);
+    setTabValue(1);
   };
 
   return (
@@ -119,26 +135,35 @@ const ExamConfigurationPage: React.FC = () => {
               <Typography variant="body2" color="text.secondary" paragraph>
                 Set up exam configurations for specific classes, sections, and academic years.
               </Typography>
-              <ClassConfigurationList />
+              <ClassConfigurationList onManageSubjects={handleManageSubjects} />
             </Box>
           </TabPanel>
 
           <TabPanel value={tabValue} index={2}>
             <Box px={3}>
-              <Typography variant="h6" gutterBottom>
-                Subject Assignments
-              </Typography>
-              <Typography variant="body2" color="text.secondary" paragraph>
-                Assign subjects to class configurations and set theory/practical marks distribution.
-              </Typography>
-              <Box py={4} textAlign="center">
-                <Typography variant="h6" color="text.secondary">
-                  Subject Assignment Management
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Coming soon - Select a class configuration from the previous tab to manage its subjects.
-                </Typography>
-              </Box>
+              {selectedConfiguration ? (
+                <SubjectAssignmentManagement
+                  selectedConfiguration={selectedConfiguration}
+                  onBack={handleBackFromSubjects}
+                />
+              ) : (
+                <Box>
+                  <Typography variant="h6" gutterBottom>
+                    Subject Assignments
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" paragraph>
+                    Select a class configuration from the previous tab to manage its subjects.
+                  </Typography>
+                  <Box py={4} textAlign="center">
+                    <Typography variant="h6" color="text.secondary">
+                      No Configuration Selected
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Go to Class Configurations and click "Manage Subjects" for any configuration.
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
             </Box>
           </TabPanel>
 

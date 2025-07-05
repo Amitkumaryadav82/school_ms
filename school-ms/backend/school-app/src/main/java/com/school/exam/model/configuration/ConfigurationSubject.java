@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
        indexes = {
            @Index(name = "idx_class_config", columnList = "class_configuration_id"),
            @Index(name = "idx_subject_master", columnList = "subject_master_id"),
-           @Index(name = "idx_is_active", columnList = "is_active")
+           @Index(name = "idx_config_is_active", columnList = "is_active")
        })
 @Getter
 @Setter
@@ -52,6 +52,17 @@ public class ConfigurationSubject extends Auditable {
                 foreignKey = @ForeignKey(name = "fk_config_subject_master"))
     @NotNull(message = "Subject master is required")
     private SubjectMaster subjectMaster;
+
+    /**
+     * Effective subject type for this class configuration
+     * This allows overriding the Subject Master's default type per class
+     * For example, a "Theory Only" subject in Subject Master can be configured
+     * as "Theory + Practical" for a specific class
+     */
+    @Column(name = "effective_subject_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Effective subject type is required")
+    private SubjectType effectiveSubjectType;
 
     /**
      * Total marks for this subject in examinations
@@ -108,16 +119,14 @@ public class ConfigurationSubject extends Auditable {
     private Boolean isActive = true;
 
     /**
-     * Business logic method to validate marks distribution based on subject type
+     * Business logic method to validate marks distribution based on effective subject type
      */
     public boolean isValidMarksDistribution() {
-        if (subjectMaster == null || totalMarks == null) {
+        if (effectiveSubjectType == null || totalMarks == null) {
             return false;
         }
 
-        SubjectType type = subjectMaster.getSubjectType();
-        
-        switch (type) {
+        switch (effectiveSubjectType) {
             case THEORY:
                 // Theory subjects should have theory marks equal to total marks
                 // Practical marks should be null
@@ -190,21 +199,21 @@ public class ConfigurationSubject extends Auditable {
      * Business logic method to check if this configuration supports theory
      */
     public boolean supportsTheory() {
-        return subjectMaster != null && subjectMaster.supportsTheory();
+        return effectiveSubjectType == SubjectType.THEORY || effectiveSubjectType == SubjectType.BOTH;
     }
 
     /**
      * Business logic method to check if this configuration supports practical
      */
     public boolean supportsPractical() {
-        return subjectMaster != null && subjectMaster.supportsPractical();
+        return effectiveSubjectType == SubjectType.PRACTICAL || effectiveSubjectType == SubjectType.BOTH;
     }
 
     /**
      * Business logic method to check if both components are required
      */
     public boolean requiresBothComponents() {
-        return subjectMaster != null && subjectMaster.requiresBothComponents();
+        return effectiveSubjectType == SubjectType.BOTH;
     }
 
     /**
@@ -215,7 +224,7 @@ public class ConfigurationSubject extends Auditable {
     private void validateBeforeSave() {
         if (!isValidMarksDistribution()) {
             throw new IllegalStateException("Invalid marks distribution for subject type: " + 
-                                          (subjectMaster != null ? subjectMaster.getSubjectType() : "Unknown"));
+                                          (effectiveSubjectType != null ? effectiveSubjectType : "Unknown"));
         }
         
         if (!isValidPassingMarks()) {

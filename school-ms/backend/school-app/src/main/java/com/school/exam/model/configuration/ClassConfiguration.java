@@ -13,25 +13,26 @@ import java.util.List;
 
 /**
  * Entity representing a class configuration for examination management.
- * This defines the examination setup for a specific class, section, and academic year.
+ * This defines the examination setup for a specific class and academic year.
+ * Configuration is shared across all sections of the class.
  */
 @Entity
 @Table(name = "class_configurations",
        uniqueConstraints = {
-           @UniqueConstraint(name = "uk_class_section_year", 
-                           columnNames = {"class_name", "section", "academic_year"})
+           @UniqueConstraint(name = "uk_class_year", 
+                           columnNames = {"class_name", "academic_year"})
        },
        indexes = {
            @Index(name = "idx_class_name", columnList = "class_name"),
            @Index(name = "idx_academic_year", columnList = "academic_year"),
-           @Index(name = "idx_is_active", columnList = "is_active")
+           @Index(name = "idx_class_is_active", columnList = "is_active")
        })
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(callSuper = true, of = {"className", "section", "academicYear"})
+@EqualsAndHashCode(callSuper = true, of = {"className", "academicYear"})
 @ToString(exclude = {"subjects"})
 public class ClassConfiguration extends Auditable {
 
@@ -46,14 +47,6 @@ public class ClassConfiguration extends Auditable {
     @NotBlank(message = "Class name is required")
     @Size(min = 1, max = 50, message = "Class name must be between 1 and 50 characters")
     private String className;
-
-    /**
-     * Section within the class (e.g., "A", "B", "Science", "Commerce")
-     */
-    @Column(name = "section", nullable = false, length = 20)
-    @NotBlank(message = "Section is required")
-    @Size(min = 1, max = 20, message = "Section must be between 1 and 20 characters")
-    private String section;
 
     /**
      * Academic year for this configuration (e.g., "2023-24", "2024-25")
@@ -90,7 +83,7 @@ public class ClassConfiguration extends Auditable {
      * Business logic method to get the full display name of the configuration
      */
     public String getFullDisplayName() {
-        return String.format("%s - %s (%s)", className, section, academicYear);
+        return String.format("%s (%s)", className, academicYear);
     }
 
     /**

@@ -41,14 +41,13 @@ public interface ClassConfigurationService {
     ClassConfigurationDTO getConfigurationById(Long id);
 
     /**
-     * Get class configuration by class, section, and academic year
+     * Get class configuration by class and academic year
      * @param className Class name
-     * @param section Section
      * @param academicYear Academic year
      * @return Class configuration DTO
      * @throws IllegalArgumentException if configuration not found
      */
-    ClassConfigurationDTO getConfigurationByDetails(String className, String section, String academicYear);
+    ClassConfigurationDTO getConfigurationByDetails(String className, String academicYear);
 
     /**
      * Get all active configurations
@@ -78,7 +77,7 @@ public interface ClassConfigurationService {
     List<ClassConfigurationDTO> getConfigurationsByClassName(String className);
 
     /**
-     * Search configurations by class name or section
+     * Search configurations by class name
      * @param searchTerm Search term
      * @param isActive Filter by active status (null for all)
      * @param academicYear Academic year filter
@@ -119,13 +118,12 @@ public interface ClassConfigurationService {
     List<ClassConfigurationDTO> getCopyableConfigurations();
 
     /**
-     * Get similar configurations (same class name, different section/year)
+     * Get similar configurations (same class name, different year)
      * @param className Class name
-     * @param section Section
      * @param academicYear Academic year
      * @return List of similar configurations
      */
-    List<ClassConfigurationDTO> getSimilarConfigurations(String className, String section, String academicYear);
+    List<ClassConfigurationDTO> getSimilarConfigurations(String className, String academicYear);
 
     /**
      * Get configurations with subject count
@@ -154,21 +152,12 @@ public interface ClassConfigurationService {
     List<String> getDistinctClassNames(String academicYear);
 
     /**
-     * Get sections for a specific class and academic year
-     * @param className Class name
-     * @param academicYear Academic year
-     * @return List of sections
-     */
-    List<String> getSections(String className, String academicYear);
-
-    /**
      * Check if a configuration exists
      * @param className Class name
-     * @param section Section
      * @param academicYear Academic year
      * @return true if exists, false otherwise
      */
-    boolean existsByDetails(String className, String section, String academicYear);
+    boolean existsByDetails(String className, String academicYear);
 
     /**
      * Validate class configuration request

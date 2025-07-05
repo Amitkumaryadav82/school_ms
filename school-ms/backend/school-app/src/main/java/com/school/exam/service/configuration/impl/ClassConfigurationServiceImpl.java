@@ -35,14 +35,13 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
 
     @Override
     public ClassConfigurationDTO createConfiguration(ClassConfigurationRequest request) {
-        log.info("Creating new class configuration: {} - {} ({})", 
-                request.getClassName(), request.getSection(), request.getAcademicYear());
+        log.info("Creating new class configuration: {} ({})", 
+                request.getClassName(), request.getAcademicYear());
         
         validateConfigurationRequest(request, null);
         
         ClassConfiguration configuration = ClassConfiguration.builder()
                 .className(request.getClassName().trim())
-                .section(request.getSection().trim())
                 .academicYear(request.getAcademicYear().trim())
                 .description(StringUtils.hasText(request.getDescription()) ? request.getDescription().trim() : null)
                 .isActive(request.getIsActive() != null ? request.getIsActive() : true)
@@ -65,7 +64,6 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
         validateConfigurationRequest(request, id);
         
         existingConfiguration.setClassName(request.getClassName().trim());
-        existingConfiguration.setSection(request.getSection().trim());
         existingConfiguration.setAcademicYear(request.getAcademicYear().trim());
         existingConfiguration.setDescription(StringUtils.hasText(request.getDescription()) ? request.getDescription().trim() : null);
         existingConfiguration.setIsActive(request.getIsActive() != null ? request.getIsActive() : existingConfiguration.getIsActive());
@@ -89,13 +87,13 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
 
     @Override
     @Transactional(readOnly = true)
-    public ClassConfigurationDTO getConfigurationByDetails(String className, String section, String academicYear) {
-        log.debug("Fetching configuration by details: {} - {} ({})", className, section, academicYear);
+    public ClassConfigurationDTO getConfigurationByDetails(String className, String academicYear) {
+        log.debug("Fetching configuration by details: {} ({})", className, academicYear);
         
         ClassConfiguration configuration = classConfigurationRepository
-                .findByClassNameAndSectionAndAcademicYear(className.trim(), section.trim(), academicYear.trim())
+                .findByClassNameAndAcademicYear(className.trim(), academicYear.trim())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("Configuration not found: %s - %s (%s)", className, section, academicYear)));
+                        String.format("Configuration not found: %s (%s)", className, academicYear)));
         
         return convertToDTOWithSubjects(configuration);
     }
@@ -166,7 +164,7 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
             }
         }
         
-        Page<ClassConfiguration> configurations = classConfigurationRepository.searchByClassOrSection(
+        Page<ClassConfiguration> configurations = classConfigurationRepository.searchByClass(
                 searchTerm.trim(), isActive != null ? isActive : true, 
                 academicYear != null ? academicYear.trim() : "", pageable);
         return configurations.map(this::convertToDTO);
@@ -209,9 +207,9 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
 
     @Override
     public CopyConfigurationResponse copyConfiguration(CopyConfigurationRequest request) {
-        log.info("Copying configuration from ID: {} to {} - {} ({})", 
+        log.info("Copying configuration from ID: {} to {} ({})", 
                 request.getSourceConfigurationId(), request.getTargetClassName(), 
-                request.getTargetSection(), request.getTargetAcademicYear());
+                request.getTargetAcademicYear());
         
         // Validate request
         if (request.getSourceConfigurationId() == null) {
@@ -220,7 +218,7 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
         
         // Check if target already exists
         boolean targetExists = existsByDetails(request.getTargetClassName(), 
-                request.getTargetSection(), request.getTargetAcademicYear());
+                request.getTargetAcademicYear());
         
         if (targetExists && !Boolean.TRUE.equals(request.getOverwriteExisting())) {
             throw new IllegalArgumentException("Target configuration already exists");
@@ -232,7 +230,6 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
         
         CopyConfigurationResponse.CopyConfigurationResponseBuilder responseBuilder = CopyConfigurationResponse.builder()
                 .targetClassName(request.getTargetClassName())
-                .targetSection(request.getTargetSection())
                 .targetAcademicYear(request.getTargetAcademicYear())
                 .subjectResults(new ArrayList<>())
                 .warnings(new ArrayList<>())
@@ -244,15 +241,14 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
             ClassConfiguration targetConfig;
             if (targetExists) {
                 targetConfig = classConfigurationRepository
-                        .findByClassNameAndSectionAndAcademicYear(
-                                request.getTargetClassName(), request.getTargetSection(), request.getTargetAcademicYear())
+                        .findByClassNameAndAcademicYear(
+                                request.getTargetClassName(), request.getTargetAcademicYear())
                         .orElseThrow();
                 // Clear existing subjects if overwriting
                 configurationSubjectService.deleteSubjectsByConfigurationId(targetConfig.getId());
             } else {
                 ClassConfigurationRequest configRequest = ClassConfigurationRequest.builder()
                         .className(request.getTargetClassName())
-                        .section(request.getTargetSection())
                         .academicYear(request.getTargetAcademicYear())
                         .description(request.getDescription())
                         .isActive(true)
@@ -399,11 +395,11 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
 
     @Override
     @Transactional(readOnly = true)
-    public List<ClassConfigurationDTO> getSimilarConfigurations(String className, String section, String academicYear) {
-        log.debug("Fetching similar configurations for: {} - {} ({})", className, section, academicYear);
+    public List<ClassConfigurationDTO> getSimilarConfigurations(String className, String academicYear) {
+        log.debug("Fetching similar configurations for: {} ({})", className, academicYear);
         
         List<ClassConfiguration> configurations = classConfigurationRepository
-                .findSimilarConfigurations(className.trim(), section.trim(), academicYear.trim());
+                .findSimilarConfigurations(className.trim(), academicYear.trim());
         return configurations.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -451,15 +447,9 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
 
     @Override
     @Transactional(readOnly = true)
-    public List<String> getSections(String className, String academicYear) {
-        return classConfigurationRepository.findSectionsByClassNameAndAcademicYear(className, academicYear);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public boolean existsByDetails(String className, String section, String academicYear) {
-        return classConfigurationRepository.existsByClassNameAndSectionAndAcademicYear(
-                className.trim(), section.trim(), academicYear.trim());
+    public boolean existsByDetails(String className, String academicYear) {
+        return classConfigurationRepository.existsByClassNameAndAcademicYear(
+                className.trim(), academicYear.trim());
     }
 
     @Override
@@ -471,11 +461,6 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
         if (!StringUtils.hasText(request.getClassName())) {
             throw new IllegalArgumentException("Class name is required");
         }
-        
-        if (!StringUtils.hasText(request.getSection())) {
-            throw new IllegalArgumentException("Section is required");
-        }
-        
         if (!StringUtils.hasText(request.getAcademicYear())) {
             throw new IllegalArgumentException("Academic year is required");
         }
@@ -486,21 +471,20 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
         }
         
         String className = request.getClassName().trim();
-        String section = request.getSection().trim();
         String academicYear = request.getAcademicYear().trim();
         
         // Check for duplicate configuration
         if (excludeId != null) {
-            if (classConfigurationRepository.existsByClassNameAndSectionAndAcademicYearAndIdNot(
-                    className, section, academicYear, excludeId)) {
+            if (classConfigurationRepository.existsByClassNameAndAcademicYearAndIdNot(
+                    className, academicYear, excludeId)) {
                 throw new IllegalArgumentException(
-                        String.format("Configuration already exists: %s - %s (%s)", className, section, academicYear));
+                        String.format("Configuration already exists: %s (%s)", className, academicYear));
             }
         } else {
-            if (classConfigurationRepository.existsByClassNameAndSectionAndAcademicYear(
-                    className, section, academicYear)) {
+            if (classConfigurationRepository.existsByClassNameAndAcademicYear(
+                    className, academicYear)) {
                 throw new IllegalArgumentException(
-                        String.format("Configuration already exists: %s - %s (%s)", className, section, academicYear));
+                        String.format("Configuration already exists: %s (%s)", className, academicYear));
             }
         }
     }
@@ -512,7 +496,6 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
         return ClassConfigurationDTO.builder()
                 .id(configuration.getId())
                 .className(configuration.getClassName())
-                .section(configuration.getSection())
                 .academicYear(configuration.getAcademicYear())
                 .description(configuration.getDescription())
                 .isActive(configuration.getIsActive())
@@ -561,7 +544,6 @@ public class ClassConfigurationServiceImpl implements ClassConfigurationService 
                 .createdAt(configurationSubject.getCreatedAt())
                 .updatedAt(configurationSubject.getUpdatedAt())
                 .className(configurationSubject.getClassConfiguration().getClassName())
-                .section(configurationSubject.getClassConfiguration().getSection())
                 .academicYear(configurationSubject.getClassConfiguration().getAcademicYear())
                 .build();
     }

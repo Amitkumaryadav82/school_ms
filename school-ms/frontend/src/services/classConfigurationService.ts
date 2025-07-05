@@ -9,7 +9,7 @@ import {
 } from '../types/examConfiguration';
 
 class ClassConfigurationService {
-  private readonly baseUrl = '/api/configurations';
+  private readonly baseUrl = '/api/class-configurations';
 
   /**
    * Create a new class configuration

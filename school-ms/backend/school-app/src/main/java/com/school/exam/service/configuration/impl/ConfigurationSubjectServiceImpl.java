@@ -17,7 +17,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -49,6 +52,7 @@ public class ConfigurationSubjectServiceImpl implements ConfigurationSubjectServ
         ConfigurationSubject configurationSubject = ConfigurationSubject.builder()
                 .classConfiguration(classConfiguration)
                 .subjectMaster(subjectMaster)
+                .effectiveSubjectType(request.getEffectiveSubjectType())
                 .totalMarks(request.getTotalMarks())
                 .passingMarks(request.getPassingMarks())
                 .theoryMarks(request.getTheoryMarks())
@@ -86,6 +90,7 @@ public class ConfigurationSubjectServiceImpl implements ConfigurationSubjectServ
         
         validateMarksDistribution(validationRequest);
         
+        existingConfigurationSubject.setEffectiveSubjectType(request.getEffectiveSubjectType());
         existingConfigurationSubject.setTotalMarks(request.getTotalMarks());
         existingConfigurationSubject.setPassingMarks(request.getPassingMarks());
         existingConfigurationSubject.setTheoryMarks(request.getTheoryMarks());
@@ -419,6 +424,7 @@ public class ConfigurationSubjectServiceImpl implements ConfigurationSubjectServ
                 .subjectCode(configurationSubject.getSubjectMaster().getSubjectCode())
                 .subjectName(configurationSubject.getSubjectMaster().getSubjectName())
                 .subjectType(configurationSubject.getSubjectMaster().getSubjectType())
+                .effectiveSubjectType(configurationSubject.getEffectiveSubjectType())
                 .totalMarks(configurationSubject.getTotalMarks())
                 .passingMarks(configurationSubject.getPassingMarks())
                 .theoryMarks(configurationSubject.getTheoryMarks())
@@ -429,8 +435,110 @@ public class ConfigurationSubjectServiceImpl implements ConfigurationSubjectServ
                 .createdAt(configurationSubject.getCreatedAt())
                 .updatedAt(configurationSubject.getUpdatedAt())
                 .className(configurationSubject.getClassConfiguration().getClassName())
-                .section(configurationSubject.getClassConfiguration().getSection())
                 .academicYear(configurationSubject.getClassConfiguration().getAcademicYear())
                 .build();
     }
+
+    @Override
+    public List<ConfigurationSubjectDTO> getCopyPreview(Long sourceClassConfigId, Long targetClassConfigId) {
+        log.info("Getting copy preview from class {} to class {}", sourceClassConfigId, targetClassConfigId);
+        
+        // Validate that both class configurations exist
+        classConfigurationRepository.findById(sourceClassConfigId)
+                .orElseThrow(() -> new IllegalArgumentException("Source class configuration not found with ID: " + sourceClassConfigId));
+        classConfigurationRepository.findById(targetClassConfigId)
+                .orElseThrow(() -> new IllegalArgumentException("Target class configuration not found with ID: " + targetClassConfigId));
+        
+        // Get source configuration subjects
+        List<ConfigurationSubject> sourceSubjects = configurationSubjectRepository
+                .findByClassConfigurationIdAndIsActiveTrue(sourceClassConfigId);
+        
+        // Get existing target configuration subjects for comparison
+        List<ConfigurationSubject> targetSubjects = configurationSubjectRepository
+                .findByClassConfigurationIdAndIsActiveTrue(targetClassConfigId);
+        
+        // Create a set of subject master IDs that already exist in target
+        Set<Long> existingSubjectIds = targetSubjects.stream()
+                .map(cs -> cs.getSubjectMaster().getId())
+                .collect(Collectors.toSet());
+        
+        // Return source subjects that can be copied (not already in target)
+        return sourceSubjects.stream()
+                .filter(cs -> !existingSubjectIds.contains(cs.getSubjectMaster().getId()))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ConfigurationSubjectDTO> copyConfiguration(Long sourceClassConfigId, Long targetClassConfigId, 
+                                                         List<Long> subjectIds, boolean overwriteExisting) {
+        log.info("Copying configuration from class {} to class {}, subjects: {}, overwrite: {}", 
+                sourceClassConfigId, targetClassConfigId, subjectIds, overwriteExisting);
+        
+        // Validate that both class configurations exist
+        ClassConfiguration targetClassConfig = classConfigurationRepository.findById(targetClassConfigId)
+                .orElseThrow(() -> new IllegalArgumentException("Target class configuration not found with ID: " + targetClassConfigId));
+        classConfigurationRepository.findById(sourceClassConfigId)
+                .orElseThrow(() -> new IllegalArgumentException("Source class configuration not found with ID: " + sourceClassConfigId));
+        
+        // Get source configuration subjects
+        List<ConfigurationSubject> sourceSubjects = configurationSubjectRepository
+                .findByClassConfigurationIdAndIsActiveTrue(sourceClassConfigId);
+        
+        // Filter by specific subject IDs if provided
+        if (subjectIds != null && !subjectIds.isEmpty()) {
+            sourceSubjects = sourceSubjects.stream()
+                    .filter(cs -> subjectIds.contains(cs.getSubjectMaster().getId()))
+                    .collect(Collectors.toList());
+        }
+        
+        List<ConfigurationSubjectDTO> copiedSubjects = new ArrayList<>();
+        
+        for (ConfigurationSubject sourceSubject : sourceSubjects) {
+            // Check if subject already exists in target
+            Optional<ConfigurationSubject> existingTarget = configurationSubjectRepository
+                    .findByClassConfigurationIdAndSubjectMasterId(targetClassConfigId, sourceSubject.getSubjectMaster().getId());
+            
+            if (existingTarget.isPresent()) {
+                if (overwriteExisting) {
+                    // Update existing configuration
+                    ConfigurationSubject existing = existingTarget.get();
+                    existing.setEffectiveSubjectType(sourceSubject.getEffectiveSubjectType());
+                    existing.setTotalMarks(sourceSubject.getTotalMarks());
+                    existing.setPassingMarks(sourceSubject.getPassingMarks());
+                    existing.setTheoryMarks(sourceSubject.getTheoryMarks());
+                    existing.setPracticalMarks(sourceSubject.getPracticalMarks());
+                    existing.setTheoryPassingMarks(sourceSubject.getTheoryPassingMarks());
+                    existing.setPracticalPassingMarks(sourceSubject.getPracticalPassingMarks());
+                    existing.setIsActive(sourceSubject.getIsActive());
+                    
+                    ConfigurationSubject saved = configurationSubjectRepository.save(existing);
+                    copiedSubjects.add(convertToDTO(saved));
+                }
+                // Skip if not overwriting
+            } else {
+                // Create new configuration subject
+                ConfigurationSubject newConfigSubject = ConfigurationSubject.builder()
+                        .classConfiguration(targetClassConfig)
+                        .subjectMaster(sourceSubject.getSubjectMaster())
+                        .effectiveSubjectType(sourceSubject.getEffectiveSubjectType())
+                        .totalMarks(sourceSubject.getTotalMarks())
+                        .passingMarks(sourceSubject.getPassingMarks())
+                        .theoryMarks(sourceSubject.getTheoryMarks())
+                        .practicalMarks(sourceSubject.getPracticalMarks())
+                        .theoryPassingMarks(sourceSubject.getTheoryPassingMarks())
+                        .practicalPassingMarks(sourceSubject.getPracticalPassingMarks())
+                        .isActive(sourceSubject.getIsActive())
+                        .build();
+                
+                ConfigurationSubject saved = configurationSubjectRepository.save(newConfigSubject);
+                copiedSubjects.add(convertToDTO(saved));
+            }
+        }
+        
+        log.info("Successfully copied {} configuration subjects", copiedSubjects.size());
+        return copiedSubjects;
+    }
+
+    // ...existing code...
 }

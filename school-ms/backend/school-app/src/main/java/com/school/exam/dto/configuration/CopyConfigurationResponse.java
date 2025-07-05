@@ -18,7 +18,6 @@ public class CopyConfigurationResponse {
 
     private Long newConfigurationId;
     private String targetClassName;
-    private String targetSection;
     private String targetAcademicYear;
     private Integer copiedSubjectsCount;
     private Integer skippedSubjectsCount;
@@ -46,8 +45,8 @@ public class CopyConfigurationResponse {
 
     public String getSummary() {
         if (Boolean.TRUE.equals(success)) {
-            return String.format("Successfully copied %d subjects to %s - %s (%s)", 
-                               copiedSubjectsCount, targetClassName, targetSection, targetAcademicYear);
+            return String.format("Successfully copied %d subjects to %s (%s)", 
+                               copiedSubjectsCount, targetClassName, targetAcademicYear);
         } else {
             return String.format("Copy operation failed: %s", message);
         }

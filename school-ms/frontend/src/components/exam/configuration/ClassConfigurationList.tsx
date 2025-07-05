@@ -38,22 +38,25 @@ import {
   Visibility as ViewIcon,
   Search as SearchIcon,
   Clear as ClearIcon,
-  FileCopy as CopyIcon
+  FileCopy as CopyIcon,
+  Assignment as AssignmentIcon
 } from '@mui/icons-material';
 import { ClassConfiguration, ClassConfigurationFilter } from '../../../types/examConfiguration';
 import classConfigurationService from '../../../services/classConfigurationService';
-import ClassConfigurationModal from './ClassConfigurationModal';
+import ClassConfigurationModal from './SimplifiedClassConfigurationModal';
 import Loading from '../../Loading';
 import ErrorMessage from '../../ErrorMessage';
 
 interface ClassConfigurationListProps {
   onConfigurationSelect?: (configuration: ClassConfiguration) => void;
+  onManageSubjects?: (configuration: ClassConfiguration) => void;
   selectionMode?: boolean;
   selectedConfigurations?: number[];
 }
 
 const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
   onConfigurationSelect,
+  onManageSubjects,
   selectionMode = false,
   selectedConfigurations = []
 }) => {
@@ -74,7 +77,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedConfiguration, setSelectedConfiguration] = useState<ClassConfiguration | undefined>();
-  const [modalMode, setModalMode] = useState<'add' | 'edit' | 'view' | 'copy'>('add');
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'copy'>('create');
 
   // Delete confirmation
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -142,7 +145,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
 
   const handleAddConfiguration = () => {
     setSelectedConfiguration(undefined);
-    setModalMode('add');
+    setModalMode('create');
     setModalOpen(true);
   };
 
@@ -153,9 +156,9 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
   };
 
   const handleViewConfiguration = (configuration: ClassConfiguration) => {
-    setSelectedConfiguration(configuration);
-    setModalMode('view');
-    setModalOpen(true);
+    if (onManageSubjects) {
+      onManageSubjects(configuration);
+    }
   };
 
   const handleCopyConfiguration = (configuration: ClassConfiguration) => {
@@ -319,7 +322,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Class & Section</TableCell>
+                  <TableCell>Class</TableCell>
                   <TableCell>Academic Year</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Subjects</TableCell>
@@ -341,7 +344,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
                   >
                     <TableCell>
                       <Typography variant="body2" fontWeight="medium">
-                        {config.className} {config.section}
+                        {config.className}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -387,12 +390,13 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
                     </TableCell>
                     <TableCell align="center">
                       <Box display="flex" gap={1} justifyContent="center">
-                        <Tooltip title="View">
+                        <Tooltip title="Manage Subjects">
                           <IconButton
                             size="small"
                             onClick={() => handleViewConfiguration(config)}
+                            color="primary"
                           >
-                            <ViewIcon />
+                            <AssignmentIcon />
                           </IconButton>
                         </Tooltip>
                         
@@ -481,7 +485,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete the configuration "{configurationToDelete?.className} {configurationToDelete?.section} - {configurationToDelete?.academicYear}"?
+            Are you sure you want to delete the configuration "{configurationToDelete?.className} - {configurationToDelete?.academicYear}"?
             This action cannot be undone.
           </Typography>
           {configurationToDelete && !canDeleteConfiguration(configurationToDelete).canDelete && (
@@ -495,7 +499,7 @@ const ClassConfigurationList: React.FC<ClassConfigurationListProps> = ({
           <Button
             onClick={confirmDelete}
             color="error"
-            disabled={configurationToDelete && !canDeleteConfiguration(configurationToDelete).canDelete}
+            disabled={configurationToDelete ? !canDeleteConfiguration(configurationToDelete).canDelete : true}
           >
             Delete
           </Button>

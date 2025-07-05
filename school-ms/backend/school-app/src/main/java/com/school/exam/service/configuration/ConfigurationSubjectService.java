@@ -178,4 +178,23 @@ public interface ConfigurationSubjectService {
      * @throws IllegalArgumentException if marks distribution is invalid
      */
     void validateMarksDistribution(ConfigurationSubjectRequest request);
+
+    /**
+     * Get configuration subjects that can be copied from source class to target class
+     * @param sourceClassConfigId Source class configuration ID
+     * @param targetClassConfigId Target class configuration ID
+     * @return List of configuration subjects that can be copied
+     */
+    List<ConfigurationSubjectDTO> getCopyPreview(Long sourceClassConfigId, Long targetClassConfigId);
+
+    /**
+     * Copy configuration subjects from source class to target class
+     * @param sourceClassConfigId Source class configuration ID
+     * @param targetClassConfigId Target class configuration ID
+     * @param subjectIds List of subject IDs to copy (null to copy all)
+     * @param overwriteExisting Whether to overwrite existing configurations
+     * @return List of copied configuration subjects
+     */
+    List<ConfigurationSubjectDTO> copyConfiguration(Long sourceClassConfigId, Long targetClassConfigId, 
+                                                   List<Long> subjectIds, boolean overwriteExisting);
 }

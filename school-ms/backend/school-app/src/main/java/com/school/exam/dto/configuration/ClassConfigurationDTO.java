@@ -19,7 +19,6 @@ public class ClassConfigurationDTO {
 
     private Long id;
     private String className;
-    private String section;
     private String academicYear;
     private String description;
     private Boolean isActive;
@@ -33,7 +32,7 @@ public class ClassConfigurationDTO {
     
     // Helper methods for UI display
     public String getFullDisplayName() {
-        return String.format("%s - %s (%s)", className, section, academicYear);
+        return String.format("%s (%s)", className, academicYear);
     }
     
     public String getStatusDisplay() {

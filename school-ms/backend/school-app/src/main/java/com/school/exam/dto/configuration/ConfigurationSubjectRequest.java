@@ -1,5 +1,6 @@
 package com.school.exam.dto.configuration;
 
+import com.school.exam.model.configuration.SubjectType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,9 @@ public class ConfigurationSubjectRequest {
 
     @NotNull(message = "Subject master ID is required")
     private Long subjectMasterId;
+
+    @NotNull(message = "Effective subject type is required")
+    private SubjectType effectiveSubjectType;
 
     @NotNull(message = "Total marks is required")
     @Min(value = 1, message = "Total marks must be at least 1")

@@ -19,10 +19,10 @@ import java.util.Optional;
 public interface ClassConfigurationRepository extends JpaRepository<ClassConfiguration, Long> {
 
     /**
-     * Find configuration by class, section, and academic year
+     * Find configuration by class and academic year
      */
-    Optional<ClassConfiguration> findByClassNameAndSectionAndAcademicYear(
-            String className, String section, String academicYear);
+    Optional<ClassConfiguration> findByClassNameAndAcademicYear(
+            String className, String academicYear);
 
     /**
      * Find all active configurations
@@ -55,31 +55,25 @@ public interface ClassConfigurationRepository extends JpaRepository<ClassConfigu
     List<ClassConfiguration> findByClassNameAndIsActiveTrue(String className);
 
     /**
-     * Find configurations by class name and academic year
+     * Check if a configuration exists for class and year (excluding specific ID)
      */
-    List<ClassConfiguration> findByClassNameAndAcademicYear(String className, String academicYear);
+    boolean existsByClassNameAndAcademicYearAndIdNot(
+            String className, String academicYear, Long id);
 
     /**
-     * Check if a configuration exists for class, section, and year (excluding specific ID)
+     * Check if a configuration exists for class and year
      */
-    boolean existsByClassNameAndSectionAndAcademicYearAndIdNot(
-            String className, String section, String academicYear, Long id);
+    boolean existsByClassNameAndAcademicYear(
+            String className, String academicYear);
 
     /**
-     * Check if a configuration exists for class, section, and year
-     */
-    boolean existsByClassNameAndSectionAndAcademicYear(
-            String className, String section, String academicYear);
-
-    /**
-     * Search configurations by class name or section (case-insensitive)
+     * Search configurations by class name (case-insensitive)
      */
     @Query("SELECT cc FROM ClassConfiguration cc WHERE " +
-           "(LOWER(cc.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(cc.section) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) AND " +
+           "LOWER(cc.className) LIKE LOWER(CONCAT('%', :searchTerm, '%')) AND " +
            "cc.isActive = :isActive AND " +
            "cc.academicYear = :academicYear")
-    Page<ClassConfiguration> searchByClassOrSection(@Param("searchTerm") String searchTerm,
+    Page<ClassConfiguration> searchByClass(@Param("searchTerm") String searchTerm,
                                                    @Param("isActive") Boolean isActive,
                                                    @Param("academicYear") String academicYear,
                                                    Pageable pageable);
@@ -91,7 +85,7 @@ public interface ClassConfigurationRepository extends JpaRepository<ClassConfigu
            "LEFT JOIN cc.subjects cs " +
            "WHERE cc.isActive = true AND cc.academicYear = :academicYear " +
            "GROUP BY cc " +
-           "ORDER BY cc.className, cc.section")
+           "ORDER BY cc.className")
     List<Object[]> findConfigurationsWithSubjectCount(@Param("academicYear") String academicYear);
 
     /**
@@ -126,15 +120,6 @@ public interface ClassConfigurationRepository extends JpaRepository<ClassConfigu
     List<String> findDistinctClassNamesByAcademicYear(@Param("academicYear") String academicYear);
 
     /**
-     * Get sections for a specific class and academic year
-     */
-    @Query("SELECT cc.section FROM ClassConfiguration cc " +
-           "WHERE cc.className = :className AND cc.academicYear = :academicYear AND cc.isActive = true " +
-           "ORDER BY cc.section")
-    List<String> findSectionsByClassNameAndAcademicYear(@Param("className") String className,
-                                                       @Param("academicYear") String academicYear);
-
-    /**
      * Count configurations by academic year
      */
     long countByAcademicYearAndIsActiveTrue(String academicYear);
@@ -145,17 +130,16 @@ public interface ClassConfigurationRepository extends JpaRepository<ClassConfigu
     @Query("SELECT cc FROM ClassConfiguration cc " +
            "WHERE cc.isActive = true AND " +
            "EXISTS (SELECT 1 FROM ConfigurationSubject cs WHERE cs.classConfiguration = cc AND cs.isActive = true) " +
-           "ORDER BY cc.academicYear DESC, cc.className, cc.section")
+           "ORDER BY cc.academicYear DESC, cc.className")
     List<ClassConfiguration> findCopyableConfigurations();
 
     /**
-     * Find similar configurations (same class name, different section/year)
+     * Find similar configurations (same class name, different year)
      */
     @Query("SELECT cc FROM ClassConfiguration cc " +
            "WHERE cc.className = :className AND cc.isActive = true AND " +
-           "(cc.section != :section OR cc.academicYear != :academicYear) " +
-           "ORDER BY cc.academicYear DESC, cc.section")
+           "cc.academicYear != :academicYear " +
+           "ORDER BY cc.academicYear DESC")
     List<ClassConfiguration> findSimilarConfigurations(@Param("className") String className,
-                                                      @Param("section") String section,
                                                       @Param("academicYear") String academicYear);
 }
