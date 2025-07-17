@@ -1,4 +1,5 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/CustomUserDetailsService.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/ExamConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/admission/OpenApiConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/PaymentMethodDistribution.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/service/EmployeeAttendanceService.java
@@ -140,6 +141,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/service/impl/StaffAttendanceServiceImpl.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/config/ResilienceConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/FeeRequest.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/controller/ExamConfigController.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/config/CacheConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/exception/DuplicateStudentException.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/service/StudentService.java
@@ -161,6 +163,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exception/ErrorResponse.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exception/StudentNotFoundException.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/ClassWiseCollection.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/Subject.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/SemesterFeeReport.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/model/StudentFeeAssignment.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/dto/AuthResponse.java
@@ -182,6 +185,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/repository/StudentRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/util/StudentMapper.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/library/service/BookIssueService.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/ExamConfigService.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/monitoring/MetricsConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/model/EmployeeAttendanceStatus.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/repository/StaffDesignationRepository.java
@@ -232,6 +236,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/exception/AttendanceNotFoundException.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/SchoolApplication.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/AuthController.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/repository/SubjectRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/AuthControllerConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/model/EmploymentStatus.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/repository/TransportRouteRepository.java
@@ -247,6 +252,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/model/MessagePriority.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/admission/AdmissionApplication.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/repository/FeePaymentScheduleRepository.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/SchoolClass.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/library/model/Course.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/repository/StaffRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/admission/model/Admission.java
@@ -256,6 +262,8 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/dto/TeacherDetailsDTO.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/service/AttendanceService.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/communication/exception/MessageNotFoundException.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/repository/SchoolClassRepository.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/repository/ExamConfigRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/dto/BulkStaffAttendanceRequest.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/dto/StudentDTO.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/library/repository/BookIssueRepository.java
