@@ -49,6 +49,20 @@ public class ExamConfigService {
     }
 
     public Subject saveSubject(Subject subject) {
+        // Debug log: incoming subject
+        System.out.println("[DEBUG] Incoming subject code: " + subject.getCode() + ", id: " + subject.getId());
+        List<Subject> existing = subjectRepository.findAll();
+        for (Subject s : existing) {
+            System.out.println("[DEBUG] Checking existing subject: id=" + s.getId() + ", code=" + s.getCode());
+            if (s.getCode() != null && s.getCode().equals(subject.getCode()) && (subject.getId() == null || !s.getId().equals(subject.getId()))) {
+                System.out.println("[DEBUG] Duplicate code found: " + s.getCode());
+                throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.CONFLICT,
+                    "Subject code must be unique"
+                );
+            }
+        }
+        System.out.println("[DEBUG] No duplicate found, saving subject.");
         return subjectRepository.save(subject);
     }
 

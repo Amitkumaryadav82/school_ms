@@ -66,7 +66,11 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
   // Add or update subject with error handling
   const handleSubjectSave = () => {
     const { id, name, code, description, maxMarks, theoryMarks, practicalMarks } = subjectDialog.subject;
-    console.log('[Subject Save] name:', name, 'code:', code, 'maxMarks:', maxMarks, 'theoryMarks:', theoryMarks, 'practicalMarks:', practicalMarks);
+    const m = parseInt(maxMarks) || 0;
+    const t = parseInt(theoryMarks) || 0;
+    const p = parseInt(practicalMarks) || 0;
+    const payload = { name, code, description, maxMarks: m, theoryMarks: t, practicalMarks: p };
+    console.log('[DEBUG] handleSubjectSave payload:', payload);
     if (!name || name.trim() === '') {
       setError('Subject name is required');
       return;
@@ -75,9 +79,6 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
       setError('Subject code must be unique');
       return;
     }
-    const m = parseInt(maxMarks) || 0;
-    const t = parseInt(theoryMarks) || 0;
-    const p = parseInt(practicalMarks) || 0;
     if (t + p !== m) {
       console.log('[Subject Save] Validation failed:', { m, t, p });
       setError('Theory + Practical must equal Max Marks');
@@ -88,7 +89,7 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
     fetch(url, {
       method,
       headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, code, description, maxMarks: m, theoryMarks: t, practicalMarks: p })
+      body: JSON.stringify(payload)
     })
       .then(r => r.ok ? r.json() : Promise.reject('Failed to save subject'))
       .then(() => {
