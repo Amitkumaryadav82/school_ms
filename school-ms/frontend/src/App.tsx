@@ -6,9 +6,6 @@ import RoleBasedRoute from './components/RoleBasedRoute';
 import Admissions from './pages/Admissions';
 import BlueprintForm from './pages/BlueprintForm';
 import Dashboard from './pages/Dashboard';
-import ExamConfigurationForm from './pages/ExamConfigurationForm';
-import ExamConfigurationPage from './pages/ExamConfigurationPage';
-import ExaminationManagement from './pages/ExaminationManagement';
 import FeeManagement from './pages/FeeManagement'; // Import the FeeManagement page
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -184,63 +181,6 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/exams"
-        element={
-          <ProtectedRoute>
-            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <ExaminationManagement />
-            </RoleBasedRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/exams/blueprint/new"
-        element={
-          <ProtectedRoute>
-            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <Layout>
-                <BlueprintForm mode="create" />
-              </Layout>
-            </RoleBasedRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/exams/blueprint/edit/:id"
-        element={
-          <ProtectedRoute>
-            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <Layout>
-                <BlueprintForm mode="edit" />
-              </Layout>
-            </RoleBasedRoute>
-          </ProtectedRoute>
-        }
-      />      <Route
-        path="/exams/configuration/new"
-        element={
-          <ProtectedRoute>
-            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <Layout>
-                <ExamConfigurationPage />
-              </Layout>
-            </RoleBasedRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/exams/configuration/edit/:id"
-        element={
-          <ProtectedRoute>
-            <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
-              <Layout>
-                <ExamConfigurationPage />
-              </Layout>
-            </RoleBasedRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/exams/marks/entry"
         element={
           <ProtectedRoute>
@@ -333,12 +273,11 @@ function App() {
     setConnectionStatus(prev => ({ ...prev, showNotification: false }));
   };
     return (
-    <ErrorBoundary>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <NotificationProvider>
-          <Router>
-            <ErrorBoundary>
+      <ErrorBoundary>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <NotificationProvider>
+            <Router>
               {/* Backend connection notification */}
               <Snackbar 
                 open={connectionStatus.showNotification} 
@@ -354,13 +293,13 @@ function App() {
                   {connectionStatus.message}
                 </Alert>
               </Snackbar>
-            
               {authFailed ? (
                 <Routes>
                   <Route path="*" element={<Landing />} />
                 </Routes>
               ) : (
-                <React.Suspense fallback={<div>Loading...</div>}>                  <AuthProvider>
+                <React.Suspense fallback={<div>Loading...</div>}>
+                  <AuthProvider>
                     {/* Add ConnectionProvider to make connection management available throughout the app */}
                     <ConnectionProvider>
                       <AppRoutes />
@@ -370,11 +309,10 @@ function App() {
                   </AuthProvider>
                 </React.Suspense>
               )}
-            </ErrorBoundary>
-          </Router>
-        </NotificationProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+            </Router>
+          </NotificationProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
   );
 }
 
