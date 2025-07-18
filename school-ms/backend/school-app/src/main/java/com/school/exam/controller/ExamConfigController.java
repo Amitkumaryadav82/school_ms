@@ -1,4 +1,5 @@
 
+
 package com.school.exam.controller;
 
 import com.school.exam.model.SchoolClass;
@@ -87,5 +88,11 @@ public class ExamConfigController {
     @GetMapping("/exam-configs/subjects")
     public List<Subject> getSubjectsForClass(@RequestParam Long classId) {
         return service.getSubjectsForClass(classId);
+    }
+    // Bulk subject upload endpoint (moved inside class)
+    @PostMapping("/subjects/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<Subject> createSubjectsBulk(@RequestBody com.school.exam.dto.BulkSubjectRequest request) {
+        return service.saveSubjectsBulk(request.getSubjects(), request.getExpectedCount());
     }
 }

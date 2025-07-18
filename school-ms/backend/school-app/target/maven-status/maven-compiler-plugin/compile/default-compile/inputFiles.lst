@@ -130,6 +130,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/DefaultUserInitializer.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/repository/StudentFeeAssignmentRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/FeePaymentScheduleResponse.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/BulkSubjectRequest.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/config/AuditConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/course/controller/ConsolidatedCourseController.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/PaymentDistribution.java

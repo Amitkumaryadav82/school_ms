@@ -113,6 +113,7 @@ com/school/common/model/Auditable.class
 com/school/attendance/dto/StudentAttendanceSummaryDTO.class
 com/school/attendance/dto/MonthlyAttendanceReport$StudentAttendanceDetail$StudentAttendanceDetailBuilder.class
 com/school/fee/model/Fee$FeeBuilder.class
+com/school/exam/dto/BulkSubjectRequest.class
 com/school/fee/dto/FeePaymentSummary$FeePaymentSummaryBuilder.class
 com/school/exam/controller/BlueprintController.class
 com/school/attendance/dto/StudentAttendanceSummary.class

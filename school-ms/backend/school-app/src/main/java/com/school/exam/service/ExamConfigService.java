@@ -1,3 +1,4 @@
+
 package com.school.exam.service;
 
 import com.school.exam.model.ExamConfig;
@@ -93,7 +94,38 @@ public class ExamConfigService {
         return examConfigRepository.findDistinctSchoolClass();
     }
 
+
     public List<Subject> getSubjectsForClass(Long classId) {
         return examConfigRepository.findDistinctSubjectBySchoolClassId(classId);
+    }
+
+    // Bulk subject upload method (moved inside class)
+    public List<Subject> saveSubjectsBulk(List<Subject> subjects, int expectedCount) {
+        if (subjects.size() != expectedCount) {
+            throw new IllegalArgumentException("Expected count does not match the number of subjects provided");
+        }
+        // Validate uniqueness of subject codes in the request
+        java.util.Set<String> codes = new java.util.HashSet<>();
+        for (Subject s : subjects) {
+            if (s.getCode() == null || s.getCode().trim().isEmpty()) {
+                throw new IllegalArgumentException("Subject code is required for all subjects");
+            }
+            if (!codes.add(s.getCode())) {
+                throw new IllegalArgumentException("Duplicate subject code in upload: " + s.getCode());
+            }
+        }
+        // Validate against existing codes in DB
+        List<Subject> existing = subjectRepository.findAll();
+        for (Subject s : subjects) {
+            for (Subject e : existing) {
+                if (e.getCode() != null && e.getCode().equals(s.getCode())) {
+                    throw new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.CONFLICT,
+                        "Subject code already exists: " + s.getCode()
+                    );
+                }
+            }
+        }
+        return subjectRepository.saveAll(subjects);
     }
 }

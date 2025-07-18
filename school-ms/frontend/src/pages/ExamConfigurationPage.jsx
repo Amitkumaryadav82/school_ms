@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import Papa from 'papaparse';
+
+
 import {
   Box, Button, Card, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, MenuItem, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Tabs, Tab
 } from '@mui/material';
@@ -25,7 +28,76 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
   const [error, setError] = useState('');
   const [tabIndex, setTabIndex] = useState(0);
   const [subjectSearch, setSubjectSearch] = useState('');
+
   const [subjectFeedback, setSubjectFeedback] = useState('');
+
+  // Bulk upload state and handlers
+  const [bulkDialog, setBulkDialog] = useState(false);
+  const [bulkSubjects, setBulkSubjects] = useState([]);
+  const [bulkErrors, setBulkErrors] = useState([]);
+  const fileInputRef = useRef();
+
+  const handleBulkTemplateDownload = () => {
+    window.open('/subject_bulk_template.csv', '_blank');
+  };
+
+  const handleBulkFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const data = results.data;
+        const errors = [];
+        const codes = new Set();
+        data.forEach((row, idx) => {
+          if (!row.name || !row.code) errors.push(`Row ${idx + 2}: Name and Code are required.`);
+          if (codes.has(row.code)) errors.push(`Row ${idx + 2}: Duplicate code in file: ${row.code}`);
+          codes.add(row.code);
+          if (isNaN(Number(row.max_marks)) || isNaN(Number(row.theory_marks)) || isNaN(Number(row.practical_marks))) {
+            errors.push(`Row ${idx + 2}: Marks fields must be numbers.`);
+          }
+        });
+        setBulkSubjects(data);
+        setBulkErrors(errors);
+      },
+      error: (err) => setBulkErrors([err.message])
+    });
+  };
+
+  const handleBulkUpload = async () => {
+    setSubjectFeedback('');
+    try {
+      const payload = {
+        subjects: bulkSubjects.map(s => ({
+          name: s.name,
+          code: s.code,
+          description: s.description,
+          maxMarks: Number(s.max_marks),
+          theoryMarks: Number(s.theory_marks),
+          practicalMarks: Number(s.practical_marks)
+        })),
+        expectedCount: bulkSubjects.length
+      };
+      const res = await fetch(`${API_BASE}/subjects/bulk`, {
+        method: 'POST',
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Bulk upload failed');
+      setBulkDialog(false);
+      setBulkSubjects([]);
+      setBulkErrors([]);
+      setSubjectFeedback('Bulk upload successful!');
+      // Refresh subjects
+      fetch(`${API_BASE}/subjects`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } })
+        .then(r => r.ok ? r.json() : Promise.reject('Failed to load subjects'))
+        .then(setSubjects);
+    } catch (err) {
+      setBulkErrors([err.message]);
+    }
+  };
 
   // Always get latest token for every request
   const getAuthHeaders = () => {
@@ -324,9 +396,58 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
               size="small"
               sx={{ mr: 2, width: 250 }}
             />
-            <Button startIcon={<AddIcon />} onClick={() => setSubjectDialog({ open: true, mode: 'add', subject: { maxMarks: 100, theoryMarks: 100, practicalMarks: 0 } })}>Add Subject</Button>
+            <Button startIcon={<AddIcon />} onClick={() => setSubjectDialog({ open: true, mode: 'add', subject: { maxMarks: 100, theoryMarks: 100, practicalMarks: 0 } })} sx={{ mr: 2 }}>Add Subject</Button>
+            <Button variant="outlined" onClick={() => setBulkDialog(true)}>Bulk Upload</Button>
             {subjectFeedback && <Typography color="success.main" sx={{ ml: 2 }}>{subjectFeedback}</Typography>}
           </Box>
+          {/* Bulk Upload Dialog */}
+          <Dialog open={bulkDialog} onClose={() => { setBulkDialog(false); setBulkSubjects([]); setBulkErrors([]); }} maxWidth="md" fullWidth>
+            <DialogTitle>Bulk Upload Subjects</DialogTitle>
+            <DialogContent>
+              <Button variant="outlined" onClick={handleBulkTemplateDownload} sx={{ mb: 2, mr: 2 }}>Download Template</Button>
+              <Button variant="outlined" component="label" sx={{ mb: 2 }}>
+                Select CSV File
+                <input type="file" accept=".csv" hidden ref={fileInputRef} onChange={handleBulkFileChange} />
+              </Button>
+              {bulkErrors.length > 0 && (
+                <Box color="error.main" mb={2}>
+                  {bulkErrors.map((err, i) => <div key={i}>{err}</div>)}
+                </Box>
+              )}
+              {bulkSubjects.length > 0 && (
+                <TableContainer component={Card} sx={{ mb: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Code</TableCell>
+                        <TableCell>Description</TableCell>
+                        <TableCell>Max Marks</TableCell>
+                        <TableCell>Theory Marks</TableCell>
+                        <TableCell>Practical Marks</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {bulkSubjects.map((row, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell>{row.name}</TableCell>
+                          <TableCell>{row.code}</TableCell>
+                          <TableCell>{row.description}</TableCell>
+                          <TableCell>{row.max_marks}</TableCell>
+                          <TableCell>{row.theory_marks}</TableCell>
+                          <TableCell>{row.practical_marks}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setBulkDialog(false); setBulkSubjects([]); setBulkErrors([]); }}>Cancel</Button>
+              <Button onClick={handleBulkUpload} disabled={bulkErrors.length > 0 || bulkSubjects.length === 0} variant="contained">Upload</Button>
+            </DialogActions>
+          </Dialog>
           <TableContainer component={Card} sx={{ mt: 2 }}>
             <Table>
               <TableHead>
