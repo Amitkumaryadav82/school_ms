@@ -108,11 +108,13 @@ com/school/hrm/controller/HolidayController.class
 com/school/core/repository/EmployeeRepository.class
 com/school/fee/service/TransportRouteService.class
 com/school/core/model/Staff.class
+com/school/exam/repository/BlueprintUnitQuestionRepository.class
 com/school/common/model/Auditable.class
 com/school/attendance/dto/StudentAttendanceSummaryDTO.class
 com/school/attendance/dto/MonthlyAttendanceReport$StudentAttendanceDetail$StudentAttendanceDetailBuilder.class
 com/school/fee/model/Fee$FeeBuilder.class
 com/school/fee/dto/FeePaymentSummary$FeePaymentSummaryBuilder.class
+com/school/exam/controller/BlueprintController.class
 com/school/attendance/dto/StudentAttendanceSummary.class
 com/school/security/AuthControllerConfig.class
 com/school/library/repository/CourseRepositoryImpl.class
@@ -159,6 +161,7 @@ com/school/student/exception/DuplicateStudentException.class
 com/school/security/JwtTokenProvider.class
 com/school/staff/controller/StaffBulkController.class
 com/school/communication/model/Message.class
+com/school/exam/model/BlueprintUnitQuestion.class
 com/school/common/model/BaseEntity.class
 com/school/fee/dto/SemesterFeeReport$SemesterFeeReportBuilder.class
 com/school/admission/dto/BulkAdmissionRequest.class
@@ -189,6 +192,7 @@ com/school/library/service/CourseService.class
 com/school/course/service/ChapterService.class
 com/school/attendance/model/AttendanceStatus.class
 com/school/exception/ResourceNotFoundException.class
+com/school/exam/repository/BlueprintUnitRepository.class
 com/school/attendance/model/StaffAttendanceStatus.class
 com/school/staff/model/Staff.class
 com/school/admission/model/Admission$AdmissionBuilder.class
@@ -276,6 +280,7 @@ com/school/attendance/dto/BulkStaffAttendanceRequest.class
 com/school/exception/StudentNotFoundException.class
 com/school/fee/dto/StudentFeeAssignmentDTO.class
 com/school/core/dto/StaffDTO$StaffDTOBuilder.class
+com/school/exam/service/BlueprintService.class
 com/school/course/service/ConsolidatedCourseServiceImpl.class
 com/school/exam/repository/SchoolClassRepository.class
 com/school/student/dto/BulkStudentRequest.class
@@ -300,6 +305,7 @@ com/school/attendance/service/impl/StaffAttendanceServiceImpl.class
 com/school/core/model/legacy/LegacyStaff.class
 com/school/exception/InvalidDateRangeException.class
 com/school/security/dto/AuthResponse$AuthResponseBuilder.class
+com/school/exam/model/BlueprintUnit.class
 com/school/attendance/dto/EmployeeAttendanceDTO.class
 com/school/communication/model/Message$MessageBuilder.class
 com/school/communication/exception/MessageNotFoundException.class

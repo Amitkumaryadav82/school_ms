@@ -6,6 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import BlueprintTab from './BlueprintTab';
 
 
 const ExamConfigurationPage = ({ apiBaseUrl }) => {
@@ -187,6 +188,7 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
       <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} sx={{ mb: 2 }}>
         <Tab label="Exam Configuration" />
         <Tab label="Manage Subjects" />
+        <Tab label="Blueprint" />
       </Tabs>
       {tabIndex === 0 && (
         <>
@@ -360,6 +362,9 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
             </Table>
           </TableContainer>
         </Box>
+      )}
+      {tabIndex === 2 && (
+        <BlueprintTab selectedClass={selectedClass} subjects={subjects} />
       )}
       {/* Subject Dialog */}
       <Dialog open={subjectDialog.open} onClose={() => setSubjectDialog({ open: false, mode: 'add', subject: { maxMarks: 100, theoryMarks: 100, practicalMarks: 0 } })}>

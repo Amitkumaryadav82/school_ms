@@ -24,6 +24,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/service/StaffServiceImpl.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/repository/PaymentScheduleRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/service/impl/StaffServiceImpl.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/BlueprintUnitQuestion.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/SecurityConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/controller/FeeController.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/repository/StaffRepository.java
@@ -99,6 +100,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/dto/MonthlyAttendanceStats.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/common/model/BaseEntity.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/service/StaffService.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/repository/BlueprintUnitRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/repository/StaffAttendanceRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/monitoring/RequestTracingFilter.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/model/LateFee.java
@@ -113,6 +115,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/admission/dto/AdmissionRequest.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/model/FeePaymentSchedule.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/student/model/Gender.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/repository/BlueprintUnitQuestionRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/repository/FeeStructureRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/JwtAuthenticationFilter.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/config/WebServerCustomizer.java
@@ -192,6 +195,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/notification/service/NotificationService.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/dto/BulkStaffRequest.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/JwtAuthenticationEntryPoint.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/model/BlueprintUnit.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/config/WebSecurityConfig.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/exception/AttendanceValidationException.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/FeePaymentDTO.java
@@ -215,6 +219,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/PaymentScheduleDTO.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/controller/HolidayAttendanceTestController.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/controller/FeeStructureController.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/service/BlueprintService.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/common/model/Auditable.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/model/legacy/LegacyStaff.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/controller/AttendanceController.java
@@ -276,6 +281,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/hrm/repository/TeacherRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/admission/util/AdmissionCsvParser.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/controller/StaffBulkController.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/controller/BlueprintController.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/adapter/StaffAdapter.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/core/model/TeacherDetails.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/repository/PaymentRepository.java
