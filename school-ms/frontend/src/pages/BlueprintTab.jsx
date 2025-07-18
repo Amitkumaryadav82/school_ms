@@ -74,7 +74,6 @@ const BlueprintTab = ({ subjects }) => {
 
   return (
     <Box mt={2}>
-      <Typography variant="h6">Blueprint</Typography>
       <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
         <Grid item xs={12} md={4}>
           <TextField
