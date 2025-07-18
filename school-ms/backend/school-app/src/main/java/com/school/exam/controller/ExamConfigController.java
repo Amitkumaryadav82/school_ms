@@ -1,3 +1,4 @@
+
 package com.school.exam.controller;
 
 import com.school.exam.model.SchoolClass;
@@ -76,5 +77,15 @@ public class ExamConfigController {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteSubject(@PathVariable Long id) {
         service.deleteSubject(id);
+    }
+    // --- Blueprint tab endpoints ---
+    @GetMapping("/exam-configs/classes")
+    public List<SchoolClass> getClassesWithExamConfig() {
+        return service.getClassesWithExamConfig();
+    }
+
+    @GetMapping("/exam-configs/subjects")
+    public List<Subject> getSubjectsForClass(@RequestParam Long classId) {
+        return service.getSubjectsForClass(classId);
     }
 }

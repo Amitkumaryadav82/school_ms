@@ -4,13 +4,30 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { getBlueprint, addUnit, updateUnit, deleteUnit } from '../services/blueprintService';
+import { getClassesWithExamConfig, getSubjectsForClass } from '../services/examConfigService';
 
-const BlueprintTab = ({ subjects }) => {
+
+const BlueprintTab = () => {
+  const [classOptions, setClassOptions] = useState([]);
+  const [subjectOptions, setSubjectOptions] = useState([]);
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [units, setUnits] = useState([]);
   const [unitDialog, setUnitDialog] = useState({ open: false, mode: 'add', unit: { name: '', marks: 0, questions: [] } });
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    getClassesWithExamConfig().then(setClassOptions);
+  }, []);
+
+  useEffect(() => {
+    if (selectedClass) {
+      getSubjectsForClass(selectedClass).then(setSubjectOptions);
+    } else {
+      setSubjectOptions([]);
+      setSelectedSubject('');
+    }
+  }, [selectedClass]);
 
   useEffect(() => {
     if (selectedClass && selectedSubject) {
@@ -21,7 +38,7 @@ const BlueprintTab = ({ subjects }) => {
   }, [selectedClass, selectedSubject]);
 
   // Ensure selectedSubject is a number for correct lookup
-  const theoryMarks = subjects.find(s => s.id === Number(selectedSubject))?.theoryMarks ?? 0;
+  const theoryMarks = subjectOptions.find(s => s.id === Number(selectedSubject))?.theoryMarks ?? 0;
   const totalUnitMarks = units.reduce((sum, u) => sum + (u.marks || 0), 0);
 
   // Ensure totalMarks is always defined at the top of the component
@@ -85,8 +102,8 @@ const BlueprintTab = ({ subjects }) => {
             SelectProps={{ native: true }}
           >
             <option value="">Select Class</option>
-            {[1,2,3].map(cls => (
-              <option key={cls} value={cls}>{`Class ${cls}`}</option>
+            {classOptions.map(cls => (
+              <option key={cls.id} value={cls.id}>{cls.name}</option>
             ))}
           </TextField>
         </Grid>
@@ -101,7 +118,7 @@ const BlueprintTab = ({ subjects }) => {
             disabled={!selectedClass}
           >
             <option value="">Select Subject</option>
-            {subjects.map(subj => (
+            {subjectOptions.map(subj => (
               <option key={subj.id} value={subj.id}>{subj.name}</option>
             ))}
           </TextField>
@@ -116,6 +133,7 @@ const BlueprintTab = ({ subjects }) => {
             <TableHead>
               <TableRow>
                 <TableCell>Unit/Chapter Name</TableCell>
+                <TableCell>Number of Questions</TableCell>
                 <TableCell>Marks</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
@@ -124,6 +142,7 @@ const BlueprintTab = ({ subjects }) => {
               {units.map(unit => (
                 <TableRow key={unit.id}>
                   <TableCell>{unit.name}</TableCell>
+                  <TableCell>{Array.isArray(unit.questions) ? unit.questions.reduce((sum, q) => sum + (q.count || 0), 0) : 0}</TableCell>
                   <TableCell>{unit.marks}</TableCell>
                   <TableCell>
                     <IconButton onClick={() => setUnitDialog({ open: true, mode: 'edit', unit: { ...unit, questions: unit.questions || [] } })}><EditIcon /></IconButton>
@@ -133,6 +152,7 @@ const BlueprintTab = ({ subjects }) => {
               ))}
               <TableRow>
                 <TableCell><strong>Total</strong></TableCell>
+                <TableCell></TableCell>
                 <TableCell><strong>{totalUnitMarks} / {theoryMarks}</strong></TableCell>
                 <TableCell></TableCell>
               </TableRow>

@@ -89,4 +89,11 @@ public class ExamConfigService {
             }
         }
     }
+    public List<SchoolClass> getClassesWithExamConfig() {
+        return examConfigRepository.findDistinctSchoolClass();
+    }
+
+    public List<Subject> getSubjectsForClass(Long classId) {
+        return examConfigRepository.findDistinctSubjectBySchoolClassId(classId);
+    }
 }
