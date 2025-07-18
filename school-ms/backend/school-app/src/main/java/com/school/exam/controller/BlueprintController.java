@@ -2,6 +2,7 @@ package com.school.exam.controller;
 
 import com.school.exam.model.BlueprintUnit;
 import com.school.exam.service.BlueprintService;
+import com.school.exam.dto.BlueprintUnitDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -13,7 +14,7 @@ public class BlueprintController {
     private BlueprintService blueprintService;
 
     @GetMapping
-    public List<BlueprintUnit> getBlueprint(@RequestParam Long classId, @RequestParam Long subjectId) {
+    public List<BlueprintUnitDTO> getBlueprint(@RequestParam Long classId, @RequestParam Long subjectId) {
         return blueprintService.getBlueprint(classId, subjectId);
     }
 

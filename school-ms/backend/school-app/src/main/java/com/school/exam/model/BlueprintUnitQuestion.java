@@ -1,6 +1,7 @@
 package com.school.exam.model;
 
 import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class BlueprintUnitQuestion {
@@ -13,6 +14,7 @@ public class BlueprintUnitQuestion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_id")
+    @JsonBackReference
     private BlueprintUnit unit;
 
     // Getters and setters

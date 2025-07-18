@@ -20,7 +20,8 @@ const BlueprintTab = ({ subjects }) => {
     }
   }, [selectedClass, selectedSubject]);
 
-  const theoryMarks = subjects.find(s => s.id === selectedSubject)?.theoryMarks ?? 0;
+  // Ensure selectedSubject is a number for correct lookup
+  const theoryMarks = subjects.find(s => s.id === Number(selectedSubject))?.theoryMarks ?? 0;
   const totalUnitMarks = units.reduce((sum, u) => sum + (u.marks || 0), 0);
 
   // Ensure totalMarks is always defined at the top of the component
@@ -38,16 +39,24 @@ const BlueprintTab = ({ subjects }) => {
       return;
     }
     const newTotal = totalUnitMarks - (unitDialog.mode === 'edit' ? units.find(u => u.id === unitDialog.unit.id)?.marks || 0 : 0) + totalMarks;
+    // Debug log for validation values
+    console.log('[DEBUG] totalUnitMarks:', totalUnitMarks, 'totalMarks:', totalMarks, 'theoryMarks:', theoryMarks, 'newTotal:', newTotal);
     if (newTotal > theoryMarks) {
       setError('Total unit marks cannot exceed theory marks');
       return;
     }
     setError('');
+    // Remove id from unit and questions for new records
+    const { id, ...unitWithoutId } = unitDialog.unit;
+    const questions = Array.isArray(unitDialog.unit.questions)
+      ? unitDialog.unit.questions.map(({ id, ...q }) => q)
+      : [];
     const payload = {
-      ...unitDialog.unit,
+      ...unitWithoutId,
       marks: totalMarks,
-      classId: selectedClass,
-      subjectId: selectedSubject
+      schoolClass: { id: Number(selectedClass) },
+      subject: { id: Number(selectedSubject) },
+      questions
     };
     if (unitDialog.mode === 'add') {
       await addUnit(payload);
@@ -140,7 +149,6 @@ const BlueprintTab = ({ subjects }) => {
               <TableHead>
                 <TableRow>
                   <TableCell>Unit/Chapter Name</TableCell>
-                  <TableCell>Max Marks</TableCell>
                   <TableCell>Number of Questions</TableCell>
                   <TableCell>Marks per Question</TableCell>
                   <TableCell>Actions</TableCell>
@@ -157,15 +165,6 @@ const BlueprintTab = ({ subjects }) => {
                   <TableCell>
                     <TextField
                       type="number"
-                      value={unitDialog.unit.marks}
-                      onChange={e => setUnitDialog({ ...unitDialog, unit: { ...unitDialog.unit, marks: parseInt(e.target.value) || 0 } })}
-                      placeholder="Max Marks"
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      type="number"
                       value={unitDialog.unit.questions && unitDialog.unit.questions[0] ? unitDialog.unit.questions[0].count : ''}
                       onChange={e => {
                         const val = parseInt(e.target.value) || 0;
@@ -174,6 +173,20 @@ const BlueprintTab = ({ subjects }) => {
                         setUnitDialog({ ...unitDialog, unit: { ...unitDialog.unit, questions } });
                       }}
                       placeholder="Questions"
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <TextField
+                      type="number"
+                      value={unitDialog.unit.questions && unitDialog.unit.questions[0] ? unitDialog.unit.questions[0].marksPerQuestion : ''}
+                      onChange={e => {
+                        const val = parseInt(e.target.value) || 0;
+                        const questions = unitDialog.unit.questions && unitDialog.unit.questions.length > 0 ? [...unitDialog.unit.questions] : [{ count: 0, marksPerQuestion: 0 }];
+                        questions[0].marksPerQuestion = val;
+                        setUnitDialog({ ...unitDialog, unit: { ...unitDialog.unit, questions } });
+                      }}
+                      placeholder="Marks/Question"
                       size="small"
                     />
                   </TableCell>

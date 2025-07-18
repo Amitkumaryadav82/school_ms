@@ -72,6 +72,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/dto/StudentAttendanceSummaryDTO.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/staff/repository/ConsolidatedStaffRepository.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/course/service/CourseServiceImpl.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/BlueprintUnitDTO.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/dto/FeeStructureDTO.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/security/UserRepositoryLoggingWrapper.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/fee/controller/FeeAnalyticsController.java
@@ -289,6 +290,7 @@
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/timetable/model/TimeSlot.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/config/StaticResourceConfiguration.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/course/repository/CourseRepository.java
+/workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/exam/dto/BlueprintUnitQuestionDTO.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/course/model/Course.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/dto/AttendanceSummary.java
 /workspaces/school_ms/school-ms/backend/school-app/src/main/java/com/school/attendance/dto/MonthlyAttendanceReport.java

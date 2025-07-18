@@ -1,6 +1,7 @@
 package com.school.exam.model;
 
 import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
 
 @Entity
@@ -25,6 +26,7 @@ public class BlueprintUnit {
     private Subject subject;
 
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<BlueprintUnitQuestion> questions;
 
     // Getters and setters

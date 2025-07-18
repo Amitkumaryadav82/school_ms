@@ -211,6 +211,7 @@ com/school/hrm/repository/StaffRepository.class
 com/school/fee/exception/FeeExceptionHandler.class
 com/school/security/aspect/AuthLoggingAspect.class
 com/school/security/dto/LoginRequest.class
+com/school/exam/dto/BlueprintUnitQuestionDTO.class
 com/school/exam/controller/ExamConfigController.class
 com/school/student/dto/StudentDTO$StudentDTOBuilder.class
 com/school/student/controller/StudentController.class
@@ -223,6 +224,7 @@ com/school/hrm/entity/Teacher.class
 com/school/attendance/repository/AttendanceRepository.class
 com/school/student/util/StudentMapper.class
 com/school/config/JpaAuditingConfig.class
+com/school/exam/dto/BlueprintUnitDTO.class
 com/school/fee/model/PaymentSchedule$ScheduleType.class
 com/school/fee/exception/InvalidPaymentException.class
 com/school/config/AuditConfig.class
