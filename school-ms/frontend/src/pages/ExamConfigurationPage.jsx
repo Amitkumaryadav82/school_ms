@@ -9,7 +9,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
 import BlueprintTab from './BlueprintTab';
+import ExamManagementTab from './ExamManagementTab';
+import ExamConfigTab from './ExamConfigTab';
+import ManageSubjectsTab from './ManageSubjectsTab';
 
 
 const ExamConfigurationPage = ({ apiBaseUrl }) => {
@@ -258,235 +262,52 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
     <Box p={2}>
       <Typography variant="h5" gutterBottom>Examinations</Typography>
       <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} sx={{ mb: 2 }}>
+        <Tab label="Exam Management" />
         <Tab label="Exam Configuration" />
         <Tab label="Manage Subjects" />
         <Tab label="Blueprint" />
       </Tabs>
-      {tabIndex === 0 && (
-        <>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={4}>
-              <Select
-                value={selectedClass}
-                onChange={e => setSelectedClass(e.target.value)}
-                displayEmpty
-                fullWidth
-              >
-                <MenuItem value=""><em>Select Class</em></MenuItem>
-                {classes.map(cls => (
-                  <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
-                ))}
-              </Select>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Button variant="contained" startIcon={<ContentCopyIcon />} onClick={() => setCopyDialog(true)} disabled={!selectedClass}>
-                Copy Configuration
-              </Button>
-            </Grid>
-          </Grid>
-          {selectedClass && (
-            <>
-              <Box mt={3} mb={2}>
-                <Typography variant="h6">Assign Subject</Typography>
-                <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }}>
-                  <Grid item xs={12} md={3}>
-                    <Typography variant="subtitle2" align="center">Subject</Typography>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <Typography variant="subtitle2" align="center">Max Marks</Typography>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <Typography variant="subtitle2" align="center">Theory</Typography>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <Typography variant="subtitle2" align="center">Practical</Typography>
-                  </Grid>
-                </Grid>
-                <Grid container spacing={2} alignItems="center">
-                  <Grid item xs={12} md={3}>
-                    <Select
-                      value={newConfig.subjectId}
-                      onChange={e => {
-                        const subjectId = e.target.value;
-                        const subj = subjects.find(s => s.id === subjectId);
-                        setNewConfig({
-                          subjectId,
-                          maxMarks: subj?.maxMarks ?? '',
-                          theoryMarks: subj?.theoryMarks ?? '',
-                          practicalMarks: subj?.practicalMarks ?? ''
-                        });
-                      }}
-                      displayEmpty
-                      fullWidth
-                    >
-                      <MenuItem value=""><em>Select Subject</em></MenuItem>
-                      {subjects.map(subj => (
-                        <MenuItem key={subj.id} value={subj.id}>{subj.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <TextField
-                      type="number"
-                      value={newConfig.maxMarks}
-                      InputProps={{ readOnly: true }}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <TextField
-                      type="number"
-                      value={newConfig.theoryMarks}
-                      InputProps={{ readOnly: true }}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <TextField
-                      type="number"
-                      value={newConfig.practicalMarks}
-                      InputProps={{ readOnly: true }}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={2}>
-                    <Button variant="contained" onClick={handleConfigSave}>Assign</Button>
-                  </Grid>
-                </Grid>
-                {error && <Typography color="error">{error}</Typography>}
-              </Box>
-              <TableContainer component={Card}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Subject</TableCell>
-                      <TableCell>Max Marks</TableCell>
-                      <TableCell>Theory</TableCell>
-                      <TableCell>Practical</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {configs.map(cfg => (
-                      <TableRow key={cfg.id}>
-                        <TableCell>{cfg.subject.name}</TableCell>
-                        <TableCell>{cfg.maxMarks}</TableCell>
-                        <TableCell>{cfg.theoryMarks}</TableCell>
-                        <TableCell>{cfg.practicalMarks}</TableCell>
-                        <TableCell>
-                          <IconButton onClick={() => setConfirmDialog({ open: true, type: 'deleteConfig', payload: cfg.id })}><DeleteIcon /></IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </>
-          )}
-        </>
-      )}
+      {tabIndex === 0 && <ExamManagementTab />}
       {tabIndex === 1 && (
-        <Box>
-          <Typography variant="h6">Manage Subjects</Typography>
-          <Box display="flex" alignItems="center" mb={2} mt={1}>
-            <TextField
-              label="Search Subjects"
-              value={subjectSearch}
-              onChange={e => setSubjectSearch(e.target.value)}
-              size="small"
-              sx={{ mr: 2, width: 250 }}
-            />
-            <Button startIcon={<AddIcon />} onClick={() => setSubjectDialog({ open: true, mode: 'add', subject: { maxMarks: 100, theoryMarks: 100, practicalMarks: 0 } })} sx={{ mr: 2 }}>Add Subject</Button>
-            <Button variant="outlined" onClick={() => setBulkDialog(true)}>Bulk Upload</Button>
-            {subjectFeedback && <Typography color="success.main" sx={{ ml: 2 }}>{subjectFeedback}</Typography>}
-          </Box>
-          {/* Bulk Upload Dialog */}
-          <Dialog open={bulkDialog} onClose={() => { setBulkDialog(false); setBulkSubjects([]); setBulkErrors([]); }} maxWidth="md" fullWidth>
-            <DialogTitle>Bulk Upload Subjects</DialogTitle>
-            <DialogContent>
-              <Button variant="outlined" onClick={handleBulkTemplateDownload} sx={{ mb: 2, mr: 2 }}>Download Template</Button>
-              <Button variant="outlined" component="label" sx={{ mb: 2 }}>
-                Select CSV File
-                <input type="file" accept=".csv" hidden ref={fileInputRef} onChange={handleBulkFileChange} />
-              </Button>
-              {bulkErrors.length > 0 && (
-                <Box color="error.main" mb={2}>
-                  {bulkErrors.map((err, i) => <div key={i}>{err}</div>)}
-                </Box>
-              )}
-              {bulkSubjects.length > 0 && (
-                <TableContainer component={Card} sx={{ mb: 2 }}>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Code</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell>Max Marks</TableCell>
-                        <TableCell>Theory Marks</TableCell>
-                        <TableCell>Practical Marks</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {bulkSubjects.map((row, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>{row.name}</TableCell>
-                          <TableCell>{row.code}</TableCell>
-                          <TableCell>{row.description}</TableCell>
-                          <TableCell>{row.max_marks}</TableCell>
-                          <TableCell>{row.theory_marks}</TableCell>
-                          <TableCell>{row.practical_marks}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => { setBulkDialog(false); setBulkSubjects([]); setBulkErrors([]); }}>Cancel</Button>
-              <Button onClick={handleBulkUpload} disabled={bulkErrors.length > 0 || bulkSubjects.length === 0} variant="contained">Upload</Button>
-            </DialogActions>
-          </Dialog>
-          <TableContainer component={Card} sx={{ mt: 2 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Code</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>Max Marks</TableCell>
-                  <TableCell>Theory</TableCell>
-                  <TableCell>Practical</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {subjects.filter(subj =>
-                  subj.name.toLowerCase().includes(subjectSearch.toLowerCase()) ||
-                  (subj.code || '').toLowerCase().includes(subjectSearch.toLowerCase())
-                ).map(subj => (
-                  <TableRow key={subj.id}>
-                    <TableCell>{subj.name}</TableCell>
-                    <TableCell>{subj.code}</TableCell>
-                    <TableCell>{subj.description}</TableCell>
-                    <TableCell>{subj.maxMarks ?? 100}</TableCell>
-                    <TableCell>{subj.theoryMarks ?? subj.maxMarks ?? 100}</TableCell>
-                    <TableCell>{subj.practicalMarks ?? 0}</TableCell>
-                    <TableCell>
-                      <IconButton onClick={() => setSubjectDialog({ open: true, mode: 'edit', subject: { ...subj, maxMarks: subj.maxMarks ?? 100, theoryMarks: subj.theoryMarks ?? subj.maxMarks ?? 100, practicalMarks: subj.practicalMarks ?? 0 } })}><EditIcon /></IconButton>
-                      <IconButton onClick={() => setConfirmDialog({ open: true, type: 'deleteSubject', payload: subj.id })}><DeleteIcon /></IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+        <ExamConfigTab
+          classes={classes}
+          selectedClass={selectedClass}
+          setSelectedClass={setSelectedClass}
+          subjects={subjects}
+          newConfig={newConfig}
+          setNewConfig={setNewConfig}
+          handleConfigSave={handleConfigSave}
+          configs={configs}
+          setConfirmDialog={setConfirmDialog}
+          error={error}
+          setCopyDialog={setCopyDialog}
+          copyDialog={copyDialog}
+          copySource={copySource}
+          setCopySource={setCopySource}
+          copyTargets={copyTargets}
+          setCopyTargets={setCopyTargets}
+          handleCopyConfig={handleCopyConfig}
+        />
       )}
       {tabIndex === 2 && (
-        <BlueprintTab selectedClass={selectedClass} subjects={subjects} />
+        <ManageSubjectsTab
+          subjectSearch={subjectSearch}
+          setSubjectSearch={setSubjectSearch}
+          subjectFeedback={subjectFeedback}
+          setSubjectDialog={setSubjectDialog}
+          setBulkDialog={setBulkDialog}
+          bulkDialog={bulkDialog}
+          handleBulkTemplateDownload={handleBulkTemplateDownload}
+          fileInputRef={fileInputRef}
+          handleBulkFileChange={handleBulkFileChange}
+          bulkErrors={bulkErrors}
+          bulkSubjects={bulkSubjects}
+          handleBulkUpload={handleBulkUpload}
+          subjects={subjects}
+          setConfirmDialog={setConfirmDialog}
+        />
       )}
+      {tabIndex === 3 && <BlueprintTab selectedClass={selectedClass} subjects={subjects} />}
       {/* Subject Dialog */}
       <Dialog open={subjectDialog.open} onClose={() => setSubjectDialog({ open: false, mode: 'add', subject: { maxMarks: 100, theoryMarks: 100, practicalMarks: 0 } })}>
         <DialogTitle>{subjectDialog.mode === 'add' ? 'Add Subject' : 'Edit Subject'}</DialogTitle>
