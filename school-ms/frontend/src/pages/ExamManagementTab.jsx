@@ -6,24 +6,15 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
-const mockClasses = [
-  { id: 1, name: 'Class 1' },
-  { id: 2, name: 'Class 2' },
-  { id: 3, name: 'Class 3' },
-  { id: 4, name: 'Class 4' },
-  { id: 5, name: 'Class 5' },
-  { id: 6, name: 'Class 6' },
-  { id: 7, name: 'Class 7' },
-  { id: 8, name: 'Class 8' },
-  { id: 9, name: 'Class 9' },
-  { id: 10, name: 'Class 10' },
-  { id: 11, name: 'Class 11' },
-  { id: 12, name: 'Class 12' },
-];
+
 
 const initialExams = [];
 
-const ExamManagementTab = () => {
+
+// TODO: Replace with real class data from backend
+const placeholderClasses = [];
+
+const ExamManagementTab = ({ classes = placeholderClasses }) => {
   const [exams, setExams] = useState(initialExams);
   const [modalOpen, setModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
@@ -31,56 +22,60 @@ const ExamManagementTab = () => {
   const [error, setError] = useState('');
   const [deleteIndex, setDeleteIndex] = useState(null);
 
-  // Validation helpers
-  const isNameUnique = (name, idx) => !exams.some((e, i) => e.name === name && i !== idx);
-  const isDateValid = (start, end) => start && end && new Date(start) < new Date(end);
-
-  // Handlers
+  // Handler to open the modal for add/edit
   const handleOpenModal = (exam = null, idx = null) => {
+    if (exam) {
+      setForm({ ...exam });
+      setEditIndex(idx);
+    } else {
+      setForm({ name: '', startDate: '', endDate: '', classIds: [] });
+      setEditIndex(null);
+    }
     setError('');
-    setEditIndex(idx);
-    setForm(
-      exam
-        ? { ...exam, classIds: [...exam.classIds] }
-        : { name: '', startDate: '', endDate: '', classIds: [] }
-    );
     setModalOpen(true);
   };
 
+  // Handler to close the modal
   const handleCloseModal = () => {
     setModalOpen(false);
-    setEditIndex(null);
     setForm({ name: '', startDate: '', endDate: '', classIds: [] });
+    setEditIndex(null);
     setError('');
   };
 
+  // Handler for form field changes
   const handleFormChange = (field, value) => {
-    setForm(f => ({ ...f, [field]: value }));
+    setForm(prev => ({ ...prev, [field]: value }));
   };
 
+  // Handler to save (add or update) an exam
   const handleSave = () => {
-    if (!form.name.trim()) return setError('Exam Name is required.');
-    if (!isNameUnique(form.name, editIndex)) return setError('Exam Name must be unique.');
-    if (!form.startDate || !form.endDate) return setError('Start and End Date are required.');
-    if (!isDateValid(form.startDate, form.endDate)) return setError('Start Date must be before End Date.');
-    if (!form.classIds.length) return setError('At least one class must be selected.');
-    const newExam = { ...form };
+    if (!form.name || !form.startDate || !form.endDate || !form.classIds.length) {
+      setError('All fields are required.');
+      return;
+    }
     if (editIndex !== null) {
-      setExams(exams => exams.map((e, i) => (i === editIndex ? newExam : e)));
+      // Update existing exam
+      setExams(prev => prev.map((ex, idx) => idx === editIndex ? { ...form } : ex));
     } else {
-      setExams(exams => [...exams, newExam]);
+      // Add new exam
+      setExams(prev => [...prev, { ...form }]);
     }
     handleCloseModal();
   };
 
-  const handleDelete = idx => {
+  // Handler to delete an exam (open confirmation dialog)
+  const handleDelete = (idx) => {
     setDeleteIndex(idx);
   };
 
+  // Handler to confirm deletion
   const confirmDelete = () => {
-    setExams(exams => exams.filter((_, i) => i !== deleteIndex));
+    setExams(prev => prev.filter((_, idx) => idx !== deleteIndex));
     setDeleteIndex(null);
   };
+
+  // ...existing code...
 
   return (
     <Box>
@@ -114,7 +109,7 @@ const ExamManagementTab = () => {
                   <TableCell>{exam.endDate}</TableCell>
                   <TableCell>
                     {exam.classIds.map(cid => {
-                      const cls = mockClasses.find(c => c.id === cid);
+                      const cls = classes.find(c => c.id === cid);
                       return cls ? <Chip key={cid} label={cls.name} size="small" sx={{ mr: 0.5 }} /> : null;
                     })}
                   </TableCell>
@@ -165,16 +160,16 @@ const ExamManagementTab = () => {
               onChange={e => {
                 const value = e.target.value;
                 if (value.includes('all')) {
-                  handleFormChange('classIds', form.classIds.length === mockClasses.length ? [] : mockClasses.map(c => c.id));
+                  handleFormChange('classIds', form.classIds.length === classes.length ? [] : classes.map(c => c.id));
                 } else {
                   handleFormChange('classIds', value);
                 }
               }}
               renderValue={selected =>
-                selected.length === mockClasses.length
+                selected.length === classes.length
                   ? 'All Classes'
                   : selected.map(cid => {
-                      const cls = mockClasses.find(c => c.id === cid);
+                      const cls = classes.find(c => c.id === cid);
                       return cls ? cls.name : cid;
                     }).join(', ')
               }
@@ -182,10 +177,10 @@ const ExamManagementTab = () => {
               required
             >
               <MenuItem value="all">
-                <Checkbox checked={form.classIds.length === mockClasses.length} indeterminate={form.classIds.length > 0 && form.classIds.length < mockClasses.length} />
+                <Checkbox checked={form.classIds.length === classes.length} indeterminate={form.classIds.length > 0 && form.classIds.length < classes.length} />
                 <ListItemText primary="Select All" />
               </MenuItem>
-              {mockClasses.map(cls => (
+              {classes.map(cls => (
                 <MenuItem key={cls.id} value={cls.id}>
                   <Checkbox checked={form.classIds.indexOf(cls.id) > -1} />
                   <ListItemText primary={cls.name} />

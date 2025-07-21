@@ -29,6 +29,7 @@ com\school\exception\DuplicateStudentException.class
 com\school\student\controller\StudentController.class
 com\school\fee\model\Fee$FeeType.class
 com\school\attendance\dto\AttendanceAlert$AttendanceAlertBuilder.class
+com\school\exam\repository\ExamRepository.class
 com\school\core\dto\TeacherDetailsDTO.class
 com\school\attendance\dto\StudentAttendanceSummaryDTO.class
 com\school\monitoring\ControllerMonitoringAspect.class
@@ -41,6 +42,7 @@ com\school\communication\model\NotificationType.class
 com\school\fee\dto\TransportRouteDTO.class
 com\school\security\aspect\AuthLoggingAspect.class
 com\school\staff\adapter\StaffEntityAdapter.class
+com\school\exam\controller\ExamController.class
 com\school\SchoolApplication.class
 com\school\attendance\controller\EmployeeAttendanceController$TeacherAttendanceRedirectController.class
 com\school\core\model\TeacherDetails$TeacherDetailsBuilder.class
@@ -149,6 +151,7 @@ com\school\fee\model\Payment$PaymentBuilder.class
 com\school\config\AuditConfig.class
 com\school\filter\SimpleCorsFilter.class
 com\school\exam\repository\BlueprintUnitQuestionRepository.class
+com\school\exam\service\ExamService.class
 com\school\exception\InvalidAttendanceException.class
 com\school\admission\service\AdmissionService$1.class
 com\school\fee\controller\FeeReportController.class
@@ -281,6 +284,7 @@ com\school\common\util\DateConverter.class
 com\school\attendance\dto\AttendanceAlert.class
 com\school\config\JacksonConfig.class
 com\school\attendance\dto\ClassAttendanceRequest.class
+com\school\exam\dto\ExamDTO.class
 com\school\fee\controller\TransportRouteController.class
 com\school\attendance\dto\AttendanceSummary$AttendanceSummaryBuilder.class
 com\school\security\ErrorResponse.class
@@ -298,6 +302,7 @@ com\school\hrm\repository\StaffRepository.class
 com\school\security\JwtAuthenticationFilter.class
 com\school\hrm\entity\StaffRole.class
 com\school\core\service\StaffMigrationService.class
+com\school\exam\model\Exam.class
 com\school\fee\controller\FeeStructureController.class
 com\school\security\SimplifiedSecurityConfig.class
 com\school\hrm\repository\StaffRoleRepository.class

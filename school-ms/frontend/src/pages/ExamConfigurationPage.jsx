@@ -267,7 +267,7 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
         <Tab label="Manage Subjects" />
         <Tab label="Blueprint" />
       </Tabs>
-      {tabIndex === 0 && <ExamManagementTab />}
+      {tabIndex === 0 && <ExamManagementTab classes={classes} />}
       {tabIndex === 1 && (
         <ExamConfigTab
           classes={classes}
