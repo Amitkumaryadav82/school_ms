@@ -1,7 +1,7 @@
-package com.school.exam.dto;
+package com.example.school.dto;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 public class ExamDTO {
     private Long id;
@@ -9,7 +9,7 @@ public class ExamDTO {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
-    private List<Integer> classIds;
+    private Set<Long> classIds;
 
     // Getters and setters
     public Long getId() { return id; }
@@ -22,6 +22,6 @@ public class ExamDTO {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-    public List<Integer> getClassIds() { return classIds; }
-    public void setClassIds(List<Integer> classIds) { this.classIds = classIds; }
+    public Set<Long> getClassIds() { return classIds; }
+    public void setClassIds(Set<Long> classIds) { this.classIds = classIds; }
 }

@@ -1,6 +1,7 @@
 package com.school.exam.controller;
 
 import com.school.exam.model.Exam;
+import com.school.exam.dto.ExamDTO;
 import com.school.exam.service.ExamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,24 +17,28 @@ public class ExamController {
     private ExamService examService;
 
     @GetMapping
-    public List<Exam> getAllExams() {
-        return examService.getAllExams();
+
+    public List<ExamDTO> getAllExams() {
+        return examService.getAllExamDTOs();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Exam> getExam(@PathVariable Long id) {
-        Optional<Exam> exam = examService.getExam(id);
+
+    public ResponseEntity<ExamDTO> getExam(@PathVariable Long id) {
+        Optional<ExamDTO> exam = examService.getExamDTO(id);
         return exam.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Exam createExam(@RequestBody Exam exam) {
-        return examService.createExam(exam);
+
+    public ExamDTO createExam(@RequestBody ExamDTO examDTO) {
+        return examService.createExamFromDTO(examDTO);
     }
 
     @PutMapping("/{id}")
-    public Exam updateExam(@PathVariable Long id, @RequestBody Exam exam) {
-        return examService.updateExam(id, exam);
+
+    public ExamDTO updateExam(@PathVariable Long id, @RequestBody ExamDTO examDTO) {
+        return examService.updateExamFromDTO(id, examDTO);
     }
 
     @DeleteMapping("/{id}")

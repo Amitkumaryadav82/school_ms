@@ -8,19 +8,28 @@ import AddIcon from '@mui/icons-material/Add';
 
 
 
-const initialExams = [];
-
-
-// TODO: Replace with real class data from backend
-const placeholderClasses = [];
-
-const ExamManagementTab = ({ classes = placeholderClasses }) => {
-  const [exams, setExams] = useState(initialExams);
+const API_BASE = '/api';
+const ExamManagementTab = ({ classes = [] }) => {
+  const [exams, setExams] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const [form, setForm] = useState({ name: '', startDate: '', endDate: '', classIds: [] });
   const [error, setError] = useState('');
   const [deleteIndex, setDeleteIndex] = useState(null);
+
+  // Fetch exams from backend
+  useEffect(() => {
+    fetch(`${API_BASE}/exams`, { headers: getAuthHeaders() })
+      .then(r => r.ok ? r.json() : Promise.reject('Failed to load exams'))
+      .then(setExams)
+      .catch(() => setExams([]));
+  }, []);
+
+  // Always get latest token for every request
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
 
   // Handler to open the modal for add/edit
   const handleOpenModal = (exam = null, idx = null) => {
@@ -54,14 +63,29 @@ const ExamManagementTab = ({ classes = placeholderClasses }) => {
       setError('All fields are required.');
       return;
     }
-    if (editIndex !== null) {
-      // Update existing exam
-      setExams(prev => prev.map((ex, idx) => idx === editIndex ? { ...form } : ex));
-    } else {
-      // Add new exam
-      setExams(prev => [...prev, { ...form }]);
-    }
-    handleCloseModal();
+    const payload = {
+      name: form.name,
+      description: form.description || '',
+      startDate: form.startDate,
+      endDate: form.endDate,
+      classIds: form.classIds
+    };
+    const method = editIndex !== null ? 'PUT' : 'POST';
+    const url = editIndex !== null && exams[editIndex]?.id ? `${API_BASE}/exams/${exams[editIndex].id}` : `${API_BASE}/exams`;
+    fetch(url, {
+      method,
+      headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(r => r.ok ? r.json() : Promise.reject('Failed to save exam'))
+      .then(() => {
+        // Refresh exams
+        fetch(`${API_BASE}/exams`, { headers: getAuthHeaders() })
+          .then(r => r.ok ? r.json() : [])
+          .then(setExams);
+        handleCloseModal();
+      })
+      .catch(() => setError('Unable to save exam.'));
   };
 
   // Handler to delete an exam (open confirmation dialog)
@@ -71,8 +95,22 @@ const ExamManagementTab = ({ classes = placeholderClasses }) => {
 
   // Handler to confirm deletion
   const confirmDelete = () => {
-    setExams(prev => prev.filter((_, idx) => idx !== deleteIndex));
-    setDeleteIndex(null);
+    const exam = exams[deleteIndex];
+    if (!exam?.id) {
+      setDeleteIndex(null);
+      return;
+    }
+    fetch(`${API_BASE}/exams/${exam.id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    })
+      .then(() => {
+        fetch(`${API_BASE}/exams`, { headers: getAuthHeaders() })
+          .then(r => r.ok ? r.json() : [])
+          .then(setExams);
+        setDeleteIndex(null);
+      })
+      .catch(() => setDeleteIndex(null));
   };
 
   // ...existing code...
@@ -153,40 +191,43 @@ const ExamManagementTab = ({ classes = placeholderClasses }) => {
               fullWidth
               required
             />
-            <Select
-              label="Classes"
-              multiple
-              value={form.classIds}
-              onChange={e => {
-                const value = e.target.value;
-                if (value.includes('all')) {
-                  handleFormChange('classIds', form.classIds.length === classes.length ? [] : classes.map(c => c.id));
-                } else {
-                  handleFormChange('classIds', value);
+            <Box>
+              <Typography variant="body2" sx={{ mb: 0.5, ml: 0.2 }} color="text.secondary">Classes *</Typography>
+              <Select
+                label="Classes"
+                multiple
+                value={form.classIds}
+                onChange={e => {
+                  const value = e.target.value;
+                  if (value.includes('all')) {
+                    handleFormChange('classIds', form.classIds.length === classes.length ? [] : classes.map(c => c.id));
+                  } else {
+                    handleFormChange('classIds', value);
+                  }
+                }}
+                renderValue={selected =>
+                  selected.length === classes.length
+                    ? 'All Classes'
+                    : selected.map(cid => {
+                        const cls = classes.find(c => c.id === cid);
+                        return cls ? cls.name : cid;
+                      }).join(', ')
                 }
-              }}
-              renderValue={selected =>
-                selected.length === classes.length
-                  ? 'All Classes'
-                  : selected.map(cid => {
-                      const cls = classes.find(c => c.id === cid);
-                      return cls ? cls.name : cid;
-                    }).join(', ')
-              }
-              fullWidth
-              required
-            >
-              <MenuItem value="all">
-                <Checkbox checked={form.classIds.length === classes.length} indeterminate={form.classIds.length > 0 && form.classIds.length < classes.length} />
-                <ListItemText primary="Select All" />
-              </MenuItem>
-              {classes.map(cls => (
-                <MenuItem key={cls.id} value={cls.id}>
-                  <Checkbox checked={form.classIds.indexOf(cls.id) > -1} />
-                  <ListItemText primary={cls.name} />
+                fullWidth
+                required
+              >
+                <MenuItem value="all">
+                  <Checkbox checked={form.classIds.length === classes.length} indeterminate={form.classIds.length > 0 && form.classIds.length < classes.length} />
+                  <ListItemText primary="Select All" />
                 </MenuItem>
-              ))}
-            </Select>
+                {classes.map(cls => (
+                  <MenuItem key={cls.id} value={cls.id}>
+                    <Checkbox checked={form.classIds.indexOf(cls.id) > -1} />
+                    <ListItemText primary={cls.name} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </Box>
             {error && <Typography color="error">{error}</Typography>}
           </Box>
         </DialogContent>

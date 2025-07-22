@@ -2,9 +2,11 @@ package com.school.exam.model;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @Entity
+@Table(name = "exams")
 public class Exam {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,23 +14,64 @@ public class Exam {
 
     private String name;
     private String description;
-    private LocalDate date;
-    private String term;
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
-    @ElementCollection
-    private List<Integer> classIds;
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @ManyToMany
+    @JoinTable(name = "exam_classes", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "class_id"))
+    private Set<SchoolClass> classes = new HashSet<>();
 
     // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
-    public String getTerm() { return term; }
-    public void setTerm(String term) { this.term = term; }
-    public List<Integer> getClassIds() { return classIds; }
-    public void setClassIds(List<Integer> classIds) { this.classIds = classIds; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+
+    public Set<SchoolClass> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(Set<SchoolClass> classes) {
+        this.classes = classes;
+    }
 }

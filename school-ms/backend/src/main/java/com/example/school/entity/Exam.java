@@ -1,15 +1,35 @@
-package com.school.exam.dto;
+package com.example.school.entity;
 
+import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-public class ExamDTO {
+@Entity
+@Table(name = "exams")
+public class Exam {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
     private String description;
+
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
+
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
-    private List<Integer> classIds;
+
+    @ManyToMany
+    @JoinTable(
+        name = "exam_classes",
+        joinColumns = @JoinColumn(name = "exam_id"),
+        inverseJoinColumns = @JoinColumn(name = "class_id")
+    )
+    private Set<SchoolClass> classes = new HashSet<>();
 
     // Getters and setters
     public Long getId() { return id; }
@@ -22,6 +42,6 @@ public class ExamDTO {
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public LocalDate getEndDate() { return endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-    public List<Integer> getClassIds() { return classIds; }
-    public void setClassIds(List<Integer> classIds) { this.classIds = classIds; }
+    public Set<SchoolClass> getClasses() { return classes; }
+    public void setClasses(Set<SchoolClass> classes) { this.classes = classes; }
 }
