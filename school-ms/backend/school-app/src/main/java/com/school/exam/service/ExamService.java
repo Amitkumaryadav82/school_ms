@@ -23,16 +23,13 @@ public class ExamService {
     @Autowired
     private SchoolClassRepository classRepository;
 
-
     public List<ExamDTO> getAllExamDTOs() {
         return examRepository.findAll().stream().map(this::toDTO).toList();
     }
 
-
     public Optional<ExamDTO> getExamDTO(Long id) {
         return examRepository.findById(id).map(this::toDTO);
     }
-
 
     public ExamDTO createExamFromDTO(ExamDTO dto) {
         Exam exam = new Exam();
@@ -44,7 +41,8 @@ public class ExamService {
         exam = examRepository.saveAndFlush(exam);
         // Now set classes and save again
         if (dto.getClassIds() != null && !dto.getClassIds().isEmpty()) {
-            Set<Long> ids = dto.getClassIds().stream().map(Integer::longValue).collect(java.util.stream.Collectors.toSet());
+            Set<Long> ids = dto.getClassIds().stream().map(Integer::longValue)
+                    .collect(java.util.stream.Collectors.toSet());
             log.info("Associating Exam with class IDs: {}", ids);
             Set<SchoolClass> classes = new HashSet<>(classRepository.findAllById(ids));
             log.info("Loaded SchoolClass entities: {}", classes.stream().map(SchoolClass::getId).toList());
@@ -54,13 +52,13 @@ public class ExamService {
         return toDTO(exam);
     }
 
-
     public ExamDTO updateExamFromDTO(Long id, ExamDTO dto) {
         Exam exam = fromDTO(dto);
         exam.setId(id);
         exam = examRepository.save(exam);
         return toDTO(exam);
     }
+
     private ExamDTO toDTO(Exam exam) {
         ExamDTO dto = new ExamDTO();
         dto.setId(exam.getId());
@@ -82,7 +80,8 @@ public class ExamService {
         exam.setEndDate(dto.getEndDate());
         // Map List<Integer> of class IDs to Set<SchoolClass>
         if (dto.getClassIds() != null && !dto.getClassIds().isEmpty()) {
-            Set<Long> ids = dto.getClassIds().stream().map(Integer::longValue).collect(java.util.stream.Collectors.toSet());
+            Set<Long> ids = dto.getClassIds().stream().map(Integer::longValue)
+                    .collect(java.util.stream.Collectors.toSet());
             Set<SchoolClass> classes = new HashSet<>(classRepository.findAllById(ids));
             exam.setClasses(classes);
         } else {

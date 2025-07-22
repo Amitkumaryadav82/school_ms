@@ -49,7 +49,6 @@ public class Exam {
         this.description = description;
     }
 
-
     public LocalDate getStartDate() {
         return startDate;
     }
@@ -65,7 +64,6 @@ public class Exam {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
-
 
     public Set<SchoolClass> getClasses() {
         return classes;
