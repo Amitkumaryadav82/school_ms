@@ -7,10 +7,14 @@ import { getBlueprint, addUnit, updateUnit, deleteUnit } from '../services/bluep
 import { getClassesWithExamConfig, getSubjectsForClass } from '../services/examConfigService';
 
 
-const BlueprintTab = () => {
+const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass: selectedClassProp, subjects }) => {
+  // Exam selection for blueprint
+  const handleExamSelect = (e) => {
+    setSelectedExam(e.target.value);
+  };
   const [classOptions, setClassOptions] = useState([]);
   const [subjectOptions, setSubjectOptions] = useState([]);
-  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedClass, setSelectedClass] = useState(selectedClassProp || '');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [units, setUnits] = useState([]);
   const [unitDialog, setUnitDialog] = useState({ open: false, mode: 'add', unit: { name: '', marks: 0, questions: [] } });
@@ -30,12 +34,19 @@ const BlueprintTab = () => {
   }, [selectedClass]);
 
   useEffect(() => {
-    if (selectedClass && selectedSubject) {
-      getBlueprint(selectedClass, selectedSubject).then(setUnits).catch(() => setUnits([]));
+    if (selectedExam && selectedClass && selectedSubject) {
+      getBlueprint(Number(selectedExam), Number(selectedClass), Number(selectedSubject)).then(setUnits).catch(() => setUnits([]));
     } else {
       setUnits([]);
     }
-  }, [selectedClass, selectedSubject]);
+  }, [selectedExam, selectedClass, selectedSubject]);
+
+  // Sync prop to local state if it changes
+  useEffect(() => {
+    if (selectedClassProp && selectedClassProp !== selectedClass) {
+      setSelectedClass(selectedClassProp);
+    }
+  }, [selectedClassProp]);
 
   // Ensure selectedSubject is a number for correct lookup
   const theoryMarks = subjectOptions.find(s => s.id === Number(selectedSubject))?.theoryMarks ?? 0;
@@ -71,8 +82,9 @@ const BlueprintTab = () => {
     const payload = {
       ...unitWithoutId,
       marks: totalMarks,
-      schoolClass: { id: Number(selectedClass) },
-      subject: { id: Number(selectedSubject) },
+      classId: Number(selectedClass),
+      subjectId: Number(selectedSubject),
+      examId: Number(selectedExam),
       questions
     };
     if (unitDialog.mode === 'add') {
@@ -80,7 +92,7 @@ const BlueprintTab = () => {
     } else {
       await updateUnit(unitDialog.unit.id, payload);
     }
-    getBlueprint(selectedClass, selectedSubject).then(setUnits);
+    getBlueprint(Number(selectedExam), Number(selectedClass), Number(selectedSubject)).then(setUnits);
     setUnitDialog({ open: false, mode: 'add', unit: { name: '', marks: 0, questions: [] } });
   };
 
@@ -91,6 +103,22 @@ const BlueprintTab = () => {
 
   return (
     <Box mt={2}>
+      <Box display="flex" alignItems="center" gap={2} mb={2}>
+        <TextField
+          select
+          label="Select Exam"
+          value={selectedExam}
+          onChange={handleExamSelect}
+          size="small"
+          sx={{ minWidth: 180 }}
+          SelectProps={{ native: true }}
+        >
+          <option value="">Select Exam</option>
+          {exams.map(exam => (
+            <option key={exam.id} value={exam.id}>{exam.name}</option>
+          ))}
+        </TextField>
+      </Box>
       <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
         <Grid item xs={12} md={4}>
           <TextField

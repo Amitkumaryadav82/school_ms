@@ -10,6 +10,8 @@ public class BlueprintUnitDTO {
     private String className;
     private Long subjectId;
     private String subjectName;
+    private Long examId;
+    private String examName;
     private List<BlueprintUnitQuestionDTO> questions;
 
     // Getters and setters
@@ -27,6 +29,10 @@ public class BlueprintUnitDTO {
     public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
     public String getSubjectName() { return subjectName; }
     public void setSubjectName(String subjectName) { this.subjectName = subjectName; }
+    public Long getExamId() { return examId; }
+    public void setExamId(Long examId) { this.examId = examId; }
+    public String getExamName() { return examName; }
+    public void setExamName(String examName) { this.examName = examName; }
     public List<BlueprintUnitQuestionDTO> getQuestions() { return questions; }
     public void setQuestions(List<BlueprintUnitQuestionDTO> questions) { this.questions = questions; }
 }

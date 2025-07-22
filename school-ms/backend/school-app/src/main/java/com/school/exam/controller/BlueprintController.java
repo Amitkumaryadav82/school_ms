@@ -13,18 +13,23 @@ public class BlueprintController {
     @Autowired
     private BlueprintService blueprintService;
 
+
     @GetMapping
-    public List<BlueprintUnitDTO> getBlueprint(@RequestParam Long classId, @RequestParam Long subjectId) {
-        return blueprintService.getBlueprint(classId, subjectId);
+    public List<BlueprintUnitDTO> getBlueprint(@RequestParam Long examId, @RequestParam Long classId, @RequestParam Long subjectId) {
+        return blueprintService.getBlueprint(examId, classId, subjectId);
     }
+
 
     @PostMapping
     public BlueprintUnit addUnit(@RequestBody BlueprintUnit unit) {
+        // exam must be set in the request body
         return blueprintService.addUnit(unit);
     }
 
+
     @PutMapping("/{id}")
     public BlueprintUnit updateUnit(@PathVariable Long id, @RequestBody BlueprintUnit unit) {
+        // exam must be set in the request body
         return blueprintService.updateUnit(id, unit);
     }
 
@@ -33,8 +38,9 @@ public class BlueprintController {
         blueprintService.deleteUnit(id);
     }
 
+
     @DeleteMapping
-    public void deleteAllUnits(@RequestParam Long classId, @RequestParam Long subjectId) {
-        blueprintService.deleteAllUnits(classId, subjectId);
+    public void deleteAllUnits(@RequestParam Long examId, @RequestParam Long classId, @RequestParam Long subjectId) {
+        blueprintService.deleteAllUnits(examId, classId, subjectId);
     }
 }

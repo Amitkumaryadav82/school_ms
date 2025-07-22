@@ -20,8 +20,9 @@ public class BlueprintService {
     @Autowired
     private BlueprintUnitQuestionRepository blueprintUnitQuestionRepository;
 
-    public List<BlueprintUnitDTO> getBlueprint(Long classId, Long subjectId) {
-        List<BlueprintUnit> units = blueprintUnitRepository.findBySchoolClassIdAndSubjectId(classId, subjectId);
+
+    public List<BlueprintUnitDTO> getBlueprint(Long examId, Long classId, Long subjectId) {
+        List<BlueprintUnit> units = blueprintUnitRepository.findByExamIdAndSchoolClassIdAndSubjectId(examId, classId, subjectId);
         return units.stream().map(this::toDTO).toList();
     }
 
@@ -40,6 +41,10 @@ public class BlueprintService {
             dto.setSubjectId(subject.getId());
             dto.setSubjectName(subject.getName());
         }
+        if (unit.getExam() != null) {
+            dto.setExamId(unit.getExam().getId());
+            dto.setExamName(unit.getExam().getName());
+        }
         if (unit.getQuestions() != null) {
             dto.setQuestions(unit.getQuestions().stream().map(this::toQuestionDTO).toList());
         }
@@ -54,14 +59,17 @@ public class BlueprintService {
         return dto;
     }
 
+
     public BlueprintUnit addUnit(BlueprintUnit unit) {
         if (unit.getQuestions() != null) {
             for (BlueprintUnitQuestion q : unit.getQuestions()) {
                 q.setUnit(unit);
             }
         }
+        // exam must be set in the unit before calling this
         return blueprintUnitRepository.save(unit);
     }
+
 
     public BlueprintUnit updateUnit(Long id, BlueprintUnit unit) {
         unit.setId(id);
@@ -70,6 +78,7 @@ public class BlueprintService {
                 q.setUnit(unit);
             }
         }
+        // exam must be set in the unit before calling this
         return blueprintUnitRepository.save(unit);
     }
 
@@ -77,7 +86,7 @@ public class BlueprintService {
         blueprintUnitRepository.deleteById(id);
     }
 
-    public void deleteAllUnits(Long classId, Long subjectId) {
-        blueprintUnitRepository.deleteBySchoolClassIdAndSubjectId(classId, subjectId);
+    public void deleteAllUnits(Long examId, Long classId, Long subjectId) {
+        blueprintUnitRepository.deleteByExamIdAndSchoolClassIdAndSubjectId(examId, classId, subjectId);
     }
 }

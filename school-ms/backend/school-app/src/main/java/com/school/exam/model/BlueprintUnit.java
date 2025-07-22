@@ -25,6 +25,10 @@ public class BlueprintUnit {
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exam_id", nullable = false)
+    private Exam exam;
+
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<BlueprintUnitQuestion> questions;
@@ -40,6 +44,8 @@ public class BlueprintUnit {
     public void setSchoolClass(SchoolClass schoolClass) { this.schoolClass = schoolClass; }
     public Subject getSubject() { return subject; }
     public void setSubject(Subject subject) { this.subject = subject; }
+    public Exam getExam() { return exam; }
+    public void setExam(Exam exam) { this.exam = exam; }
     public List<BlueprintUnitQuestion> getQuestions() { return questions; }
     public void setQuestions(List<BlueprintUnitQuestion> questions) { this.questions = questions; }
 }

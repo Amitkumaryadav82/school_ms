@@ -17,6 +17,16 @@ import ManageSubjectsTab from './ManageSubjectsTab';
 
 
 const ExamConfigurationPage = ({ apiBaseUrl }) => {
+  const [selectedExam, setSelectedExam] = useState('');
+  const [exams, setExams] = useState([]);
+  // Reset selectedClass when selectedExam changes
+  useEffect(() => {
+    setSelectedClass('');
+  }, [selectedExam]);
+  // Fetch exams for BlueprintTab
+  // getAuthHeaders is declared below, do not redeclare here
+
+  // ...existing code...
   // Always use /api as the base for backend requests
   const API_BASE = '/api';
   const [classes, setClasses] = useState([]);
@@ -29,9 +39,23 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
   const [copySource, setCopySource] = useState('');
   const [copyTargets, setCopyTargets] = useState([]);
   const [newConfig, setNewConfig] = useState({ subjectId: '', maxMarks: '', theoryMarks: '', practicalMarks: '' });
+
   const [error, setError] = useState('');
   const [tabIndex, setTabIndex] = useState(0);
   const [subjectSearch, setSubjectSearch] = useState('');
+
+  // Refetch exams whenever the Blueprint tab is selected
+  useEffect(() => {
+    if (tabIndex === 3) {
+      fetch('/api/exams', {
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        credentials: 'include',
+      })
+        .then(r => r.ok ? r.json() : [])
+        .then(setExams)
+        .catch(() => setExams([]));
+    }
+  }, [tabIndex]);
 
   const [subjectFeedback, setSubjectFeedback] = useState('');
 
@@ -307,7 +331,17 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
           setConfirmDialog={setConfirmDialog}
         />
       )}
-      {tabIndex === 3 && <BlueprintTab selectedClass={selectedClass} subjects={subjects} />}
+      {tabIndex === 3 && (
+        <BlueprintTab
+          exams={exams}
+          selectedExam={selectedExam}
+          setSelectedExam={setSelectedExam}
+          classes={classes}
+          selectedClass={selectedClass}
+          setSelectedClass={setSelectedClass}
+          subjects={subjects}
+        />
+      )}
       {/* Subject Dialog */}
       <Dialog open={subjectDialog.open} onClose={() => setSubjectDialog({ open: false, mode: 'add', subject: { maxMarks: 100, theoryMarks: 100, practicalMarks: 0 } })}>
         <DialogTitle>{subjectDialog.mode === 'add' ? 'Add Subject' : 'Edit Subject'}</DialogTitle>

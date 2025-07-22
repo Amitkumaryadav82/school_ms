@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface BlueprintUnitRepository extends JpaRepository<BlueprintUnit, Long> {
-    @Query("SELECT u FROM BlueprintUnit u JOIN FETCH u.schoolClass JOIN FETCH u.subject LEFT JOIN FETCH u.questions WHERE u.schoolClass.id = :classId AND u.subject.id = :subjectId")
-    List<BlueprintUnit> findBySchoolClassIdAndSubjectId(@Param("classId") Long classId, @Param("subjectId") Long subjectId);
+    @Query("SELECT u FROM BlueprintUnit u JOIN FETCH u.schoolClass JOIN FETCH u.subject JOIN FETCH u.exam LEFT JOIN FETCH u.questions WHERE u.exam.id = :examId AND u.schoolClass.id = :classId AND u.subject.id = :subjectId")
+    List<BlueprintUnit> findByExamIdAndSchoolClassIdAndSubjectId(@Param("examId") Long examId, @Param("classId") Long classId, @Param("subjectId") Long subjectId);
 
-    void deleteBySchoolClassIdAndSubjectId(Long classId, Long subjectId);
+    void deleteByExamIdAndSchoolClassIdAndSubjectId(Long examId, Long classId, Long subjectId);
 }
