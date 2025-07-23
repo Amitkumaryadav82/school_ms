@@ -20,6 +20,7 @@ public class ExamService {
     public boolean hasBlueprints(Long examId) {
         return blueprintUnitRepository.countByExamId(examId) > 0;
     }
+
     private static final Logger log = LoggerFactory.getLogger(ExamService.class);
     @Autowired
     private ExamRepository examRepository;
@@ -96,7 +97,8 @@ public class ExamService {
     }
 
     public void deleteExam(Long id) {
-        // Directly delete exam; related blueprints will be deleted via ON DELETE CASCADE
+        // Directly delete exam; related blueprints will be deleted via ON DELETE
+        // CASCADE
         examRepository.deleteById(id);
     }
 }

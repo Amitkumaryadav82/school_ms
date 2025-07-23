@@ -21,6 +21,7 @@ public class ExamController {
         boolean hasBlueprints = examService.hasBlueprints(id);
         return ResponseEntity.ok(hasBlueprints);
     }
+
     @Autowired
     private ExamService examService;
 

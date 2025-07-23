@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface BlueprintUnitRepository extends JpaRepository<BlueprintUnit, Long> {
     long countByExamId(Long examId);
+
     @Query("SELECT u FROM BlueprintUnit u JOIN FETCH u.schoolClass JOIN FETCH u.subject JOIN FETCH u.exam LEFT JOIN FETCH u.questions WHERE u.id = :id")
     BlueprintUnit findByIdWithRelations(@Param("id") Long id);
 
