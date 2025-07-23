@@ -6,6 +6,9 @@ import com.school.exam.service.ExamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import com.school.exam.exception.BlueprintAttachedException;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +16,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/exams")
 public class ExamController {
+    @GetMapping("/{id}/has-blueprints")
+    public ResponseEntity<Boolean> hasBlueprints(@PathVariable Long id) {
+        boolean hasBlueprints = examService.hasBlueprints(id);
+        return ResponseEntity.ok(hasBlueprints);
+    }
     @Autowired
     private ExamService examService;
 
@@ -42,8 +50,12 @@ public class ExamController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExam(@PathVariable Long id) {
-        examService.deleteExam(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteExam(@PathVariable Long id) {
+        try {
+            examService.deleteExam(id);
+            return ResponseEntity.noContent().build();
+        } catch (BlueprintAttachedException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 }

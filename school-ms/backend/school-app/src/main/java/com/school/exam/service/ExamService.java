@@ -17,11 +17,16 @@ import java.util.Optional;
 
 @Service
 public class ExamService {
+    public boolean hasBlueprints(Long examId) {
+        return blueprintUnitRepository.countByExamId(examId) > 0;
+    }
     private static final Logger log = LoggerFactory.getLogger(ExamService.class);
     @Autowired
     private ExamRepository examRepository;
     @Autowired
     private SchoolClassRepository classRepository;
+    @Autowired
+    private com.school.exam.repository.BlueprintUnitRepository blueprintUnitRepository;
 
     public List<ExamDTO> getAllExamDTOs() {
         return examRepository.findAll().stream().map(this::toDTO).toList();
@@ -91,6 +96,7 @@ public class ExamService {
     }
 
     public void deleteExam(Long id) {
+        // Directly delete exam; related blueprints will be deleted via ON DELETE CASCADE
         examRepository.deleteById(id);
     }
 }

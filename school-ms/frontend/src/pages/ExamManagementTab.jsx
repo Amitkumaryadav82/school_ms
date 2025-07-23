@@ -89,7 +89,13 @@ const ExamManagementTab = ({ classes = [] }) => {
   };
 
   // Handler to delete an exam (open confirmation dialog)
+  // Handler to delete an exam (open confirmation dialog)
   const handleDelete = (idx) => {
+    const exam = exams[idx];
+    if (!exam?.id) {
+      setError('Invalid exam selected.');
+      return;
+    }
     setDeleteIndex(idx);
   };
 
@@ -123,6 +129,9 @@ const ExamManagementTab = ({ classes = [] }) => {
           Add Exam
         </Button>
       </Box>
+      {error && (
+        <Box mb={2}><Typography color="error">{error}</Typography></Box>
+      )}
       <TableContainer component={Card}>
         <Table>
           <TableHead>
@@ -240,7 +249,7 @@ const ExamManagementTab = ({ classes = [] }) => {
       <Dialog open={deleteIndex !== null} onClose={() => setDeleteIndex(null)}>
         <DialogTitle>Delete Exam</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this exam?</Typography>
+          <Typography>Deleting this exam will also delete all related blueprints. Are you sure you want to proceed?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteIndex(null)}>Cancel</Button>

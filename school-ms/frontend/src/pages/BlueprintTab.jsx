@@ -99,8 +99,16 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
       setError('Please select exam, class, and subject before deleting a unit.');
       return;
     }
-    await deleteUnit(id);
-    getBlueprint(Number(selectedExam), Number(selectedClass), Number(selectedSubject)).then(setUnits);
+    try {
+      await deleteUnit(id);
+      getBlueprint(Number(selectedExam), Number(selectedClass), Number(selectedSubject)).then(setUnits);
+    } catch (err) {
+      if (err?.response?.status === 409) {
+        setError('Cannot delete exam: blueprints are attached. Please delete all blueprints first.');
+      } else {
+        setError('Failed to delete unit. Please try again.');
+      }
+    }
   };
 
   return (

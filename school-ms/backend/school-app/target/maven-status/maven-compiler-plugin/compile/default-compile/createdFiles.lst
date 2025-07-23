@@ -25,8 +25,10 @@ com\school\staff\model\TeacherDetails.class
 com\school\attendance\dto\StudentAttendanceSummary.class
 com\school\config\OpenApiConfig.class
 com\school\fee\model\PaymentSchedule$ScheduleType.class
+com\school\attendance\service\impl\EmployeeAttendanceServiceImpl.java.bak
 com\school\exception\DuplicateStudentException.class
 com\school\student\controller\StudentController.class
+com\school\attendance\COMPILATION-FIX-SUMMARY.md
 com\school\fee\model\Fee$FeeType.class
 com\school\attendance\dto\AttendanceAlert$AttendanceAlertBuilder.class
 com\school\exam\repository\ExamRepository.class
@@ -85,9 +87,11 @@ com\school\common\model\Auditable.class
 com\school\security\exception\DuplicateEmailException.class
 com\school\core\model\legacy\LegacyStaff.class
 com\school\hrm\repository\HolidayRepository.class
+com\school\core\service\StaffServiceImpl.java.bak
 com\school\exception\StudentNotFoundException.class
 com\school\security\CustomUserDetailsService.class
 com\school\attendance\model\AttendanceStatus.class
+com\school\attendance\ATTENDANCE-CONSOLIDATION.md
 com\school\timetable\model\TimeSlot.class
 com\school\student\service\StudentService.class
 com\school\communication\dto\MessageDTO$MessageDTOBuilder.class
@@ -123,7 +127,9 @@ com\school\exception\InvalidDateRangeException.class
 com\school\security\UserRole.class
 com\school\communication\service\NotificationService.class
 com\school\staff\util\CsvXlsParserAdapter.class
+com\school\attendance\service\impl\EmployeeAttendanceServiceImpl.java.fixed
 com\school\core\model\StaffRole.class
+com\school\attendance\IMPLEMENTATION-PLAN.md
 com\school\security\exception\DuplicateUsernameException.class
 com\school\timetable\model\Timetable.class
 com\school\exam\dto\BulkSubjectRequest.class
@@ -167,6 +173,7 @@ com\school\fee\controller\FeeAnalyticsController.class
 com\school\hrm\dto\TeacherDetailsDTO.class
 com\school\course\model\Course.class
 com\school\monitoring\MetricsConfig.class
+com\school\staff\adapter\StaffAdapter.java.new
 com\school\core\adapter\EntityAdapter.class
 com\school\library\model\Book.class
 com\school\admission\dto\AdmissionRequest.class
@@ -186,6 +193,7 @@ com\school\fee\exception\FeeNotFoundException.class
 com\school\hrm\model\EmploymentStatus.class
 com\school\library\service\BookIssueService.class
 com\school\library\service\BookServiceImpl.class
+com\school\core\adapter\EntityAdapter.java.new
 com\school\exam\model\Subject.class
 com\school\fee\model\Payment$PaymentMethod.class
 com\school\hrm\dto\StaffDTO$StaffDTOBuilder.class
@@ -194,10 +202,12 @@ com\school\library\repository\BookIssueRepositoryImpl.class
 com\school\exam\model\SchoolClass.class
 com\school\fee\model\FeeStructure$FeeStructureBuilder.class
 com\school\core\dto\TeacherDetailsDTO$TeacherDetailsDTOBuilder.class
+com\school\exam\exception\BlueprintAttachedException.class
 com\school\communication\service\NotificationServiceImpl$1.class
 com\school\exam\controller\BlueprintController.class
 com\school\fee\dto\TransportRouteDTO$TransportRouteDTOBuilder.class
 com\school\library\repository\CourseRepository.class
+com\school\attendance\service\impl\EmployeeAttendanceServiceImpl.java.new
 com\school\attendance\model\StaffAttendanceStatus.class
 com\school\attendance\service\AttendanceServiceImpl.class
 com\school\security\JwtAuthenticationEntryPoint.class
@@ -254,6 +264,7 @@ com\school\security\dto\RegisterRequest$RegisterRequestBuilder.class
 com\school\attendance\validation\AttendanceValidator.class
 com\school\exam\service\BlueprintService.class
 com\school\attendance\dto\BulkAttendanceRequest.class
+com\school\staff\adapter\StaffEntityAdapter.java.new
 com\school\exam\controller\ExamConfigController.class
 com\school\fee\repository\PaymentRepository.class
 com\school\staff\service\StaffService.class
@@ -341,6 +352,7 @@ com\school\core\dto\StaffDTO$StaffDTOBuilder.class
 com\school\communication\model\Message.class
 com\school\monitoring\DatabaseHealthIndicator.class
 com\school\admission\dto\AdmissionResponse$AdmissionResponseBuilder.class
+com\school\attendance\CLASS-NAME-FIX-SUMMARY.md
 com\school\fee\dto\ClassSectionFeeReport$ClassSectionFeeReportBuilder.class
 com\school\fee\model\Fee.class
 com\school\communication\repository\NotificationRepository.class
