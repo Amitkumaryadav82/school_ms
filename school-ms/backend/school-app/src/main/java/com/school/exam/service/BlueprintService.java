@@ -20,9 +20,9 @@ public class BlueprintService {
     @Autowired
     private BlueprintUnitQuestionRepository blueprintUnitQuestionRepository;
 
-
     public List<BlueprintUnitDTO> getBlueprint(Long examId, Long classId, Long subjectId) {
-        List<BlueprintUnit> units = blueprintUnitRepository.findByExamIdAndSchoolClassIdAndSubjectId(examId, classId, subjectId);
+        List<BlueprintUnit> units = blueprintUnitRepository.findByExamIdAndSchoolClassIdAndSubjectId(examId, classId,
+                subjectId);
         return units.stream().map(this::toDTO).toList();
     }
 
@@ -59,17 +59,16 @@ public class BlueprintService {
         return dto;
     }
 
-
     public BlueprintUnit addUnit(BlueprintUnit unit) {
         if (unit.getQuestions() != null) {
             for (BlueprintUnitQuestion q : unit.getQuestions()) {
                 q.setUnit(unit);
             }
         }
-        // exam must be set in the unit before calling this
-        return blueprintUnitRepository.save(unit);
+        BlueprintUnit saved = blueprintUnitRepository.save(unit);
+        // Re-fetch with relations initialized
+        return blueprintUnitRepository.findByIdWithRelations(saved.getId());
     }
-
 
     public BlueprintUnit updateUnit(Long id, BlueprintUnit unit) {
         unit.setId(id);
@@ -78,8 +77,9 @@ public class BlueprintService {
                 q.setUnit(unit);
             }
         }
-        // exam must be set in the unit before calling this
-        return blueprintUnitRepository.save(unit);
+        BlueprintUnit updated = blueprintUnitRepository.save(unit);
+        // Re-fetch with relations initialized
+        return blueprintUnitRepository.findByIdWithRelations(updated.getId());
     }
 
     public void deleteUnit(Long id) {

@@ -19,7 +19,7 @@ import ManageSubjectsTab from './ManageSubjectsTab';
 const ExamConfigurationPage = ({ apiBaseUrl }) => {
   const [selectedExam, setSelectedExam] = useState('');
   const [exams, setExams] = useState([]);
-  // Reset selectedClass when selectedExam changes
+  // Reset selectedClass and only populate classes after exam is selected
   useEffect(() => {
     setSelectedClass('');
   }, [selectedExam]);
@@ -52,7 +52,14 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
         credentials: 'include',
       })
         .then(r => r.ok ? r.json() : [])
-        .then(setExams)
+        .then(data => {
+          if (Array.isArray(data)) {
+            console.log(`[API] /api/exams: count=${data.length}`, data.length > 0 ? data[0] : '(empty)');
+          } else {
+            console.log('[API] /api/exams: response not array', data);
+          }
+          setExams(data);
+        })
         .catch(() => setExams([]));
     }
   }, [tabIndex]);
@@ -133,20 +140,26 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
     return token ? { 'Authorization': `Bearer ${token}` } : {};
   };
 
-  // Fetch classes and subjects with error handling
+  // Fetch subjects always, but fetch classes only for selected exam
   useEffect(() => {
     setError('');
-    Promise.all([
-      fetch(`${API_BASE}/classes`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } }).then(r => r.ok ? r.json() : Promise.reject('Failed to load classes')),
-      fetch(`${API_BASE}/subjects`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } }).then(r => r.ok ? r.json() : Promise.reject('Failed to load subjects'))
-    ])
-      .then(([classesData, subjectsData]) => {
-        setClasses(classesData);
-        setSubjects(subjectsData);
+    // Always fetch subjects
+    fetch(`${API_BASE}/subjects`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } })
+      .then(r => r.ok ? r.json() : Promise.reject('Failed to load subjects'))
+      .then(setSubjects)
+      .catch(err => setError(typeof err === 'string' ? err : 'Unable to load subjects.'));
+  }, [API_BASE]);
+
+  // Always fetch all classes on mount
+  useEffect(() => {
+    setError('');
+    fetch(`${API_BASE}/classes`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } })
+      .then(r => r.ok ? r.json() : Promise.reject('Failed to load classes'))
+      .then(data => {
+        console.log('[DEBUG] /api/classes payload:', data);
+        setClasses(data);
       })
-      .catch(err => {
-        setError(typeof err === 'string' ? err : 'Unable to load initial data. Please try again later.');
-      });
+      .catch(err => setError(typeof err === 'string' ? err : 'Unable to load classes.'));
   }, [API_BASE]);
 
   // Fetch configs for selected class with error handling
@@ -336,8 +349,13 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
           exams={exams}
           selectedExam={selectedExam}
           setSelectedExam={setSelectedExam}
-          classes={classes}
-          selectedClass={selectedClass}
+          classes={(() => {
+            const exam = exams.find(e => String(e.id) === String(selectedExam));
+            const filtered = exam && exam.classIds ? classes.filter(cls => exam.classIds.includes(cls.id)) : [];
+            console.log('[DEBUG] BlueprintTab classes for selectedExam', selectedExam, filtered);
+            return filtered;
+          })()}
+          selectedClass={selectedExam ? selectedClass : ''}
           setSelectedClass={setSelectedClass}
           subjects={subjects}
         />

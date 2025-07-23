@@ -4,25 +4,22 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { getBlueprint, addUnit, updateUnit, deleteUnit } from '../services/blueprintService';
-import { getClassesWithExamConfig, getSubjectsForClass } from '../services/examConfigService';
+import { getSubjectsForClass } from '../services/examConfigService';
 
 
-const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass: selectedClassProp, subjects }) => {
+const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass, setSelectedClass, classes = [], subjects }) => {
   // Exam selection for blueprint
   const handleExamSelect = (e) => {
     setSelectedExam(e.target.value);
   };
-  const [classOptions, setClassOptions] = useState([]);
+  // Use classes prop for class dropdown options
   const [subjectOptions, setSubjectOptions] = useState([]);
-  const [selectedClass, setSelectedClass] = useState(selectedClassProp || '');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [units, setUnits] = useState([]);
   const [unitDialog, setUnitDialog] = useState({ open: false, mode: 'add', unit: { name: '', marks: 0, questions: [] } });
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    getClassesWithExamConfig().then(setClassOptions);
-  }, []);
+
 
   useEffect(() => {
     if (selectedClass) {
@@ -41,12 +38,7 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
     }
   }, [selectedExam, selectedClass, selectedSubject]);
 
-  // Sync prop to local state if it changes
-  useEffect(() => {
-    if (selectedClassProp && selectedClassProp !== selectedClass) {
-      setSelectedClass(selectedClassProp);
-    }
-  }, [selectedClassProp]);
+  // No need to sync prop to local state, use selectedClass prop directly
 
   // Ensure selectedSubject is a number for correct lookup
   const theoryMarks = subjectOptions.find(s => s.id === Number(selectedSubject))?.theoryMarks ?? 0;
@@ -58,6 +50,10 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
     : 0;
 
   const handleSaveUnit = async () => {
+    if (!selectedExam) {
+      setError('Please select an exam before saving a unit.');
+      return;
+    }
     if (!unitDialog.unit.name.trim()) {
       setError('Unit name is required');
       return;
@@ -82,11 +78,12 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
     const payload = {
       ...unitWithoutId,
       marks: totalMarks,
-      classId: Number(selectedClass),
-      subjectId: Number(selectedSubject),
-      examId: Number(selectedExam),
+      schoolClass: { id: Number(selectedClass) },
+      subject: { id: Number(selectedSubject) },
+      exam: { id: Number(selectedExam) },
       questions
     };
+    console.log('[DEBUG] Saving unit with payload:', payload);
     if (unitDialog.mode === 'add') {
       await addUnit(payload);
     } else {
@@ -130,7 +127,7 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
             SelectProps={{ native: true }}
           >
             <option value="">Select Class</option>
-            {classOptions.map(cls => (
+            {classes.map(cls => (
               <option key={cls.id} value={cls.id}>{cls.name}</option>
             ))}
           </TextField>
@@ -173,7 +170,19 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
                   <TableCell>{Array.isArray(unit.questions) ? unit.questions.reduce((sum, q) => sum + (q.count || 0), 0) : 0}</TableCell>
                   <TableCell>{unit.marks}</TableCell>
                   <TableCell>
-                    <IconButton onClick={() => setUnitDialog({ open: true, mode: 'edit', unit: { ...unit, questions: unit.questions || [] } })}><EditIcon /></IconButton>
+                    <IconButton onClick={() => {
+                      // Ensure only nested structure is used, strip flat fields
+                      const cleanedUnit = {
+                        id: unit.id,
+                        name: unit.name,
+                        marks: unit.marks,
+                        questions: unit.questions || [],
+                        schoolClass: unit.schoolClass && unit.schoolClass.id ? { id: unit.schoolClass.id } : undefined,
+                        subject: unit.subject && unit.subject.id ? { id: unit.subject.id } : undefined,
+                        exam: unit.exam && unit.exam.id ? { id: unit.exam.id } : undefined,
+                      };
+                      setUnitDialog({ open: true, mode: 'edit', unit: cleanedUnit });
+                    }}><EditIcon /></IconButton>
                     <IconButton onClick={() => handleDeleteUnit(unit.id)}><DeleteIcon /></IconButton>
                   </TableCell>
                 </TableRow>
@@ -198,7 +207,7 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
                   <TableCell>Unit/Chapter Name</TableCell>
                   <TableCell>Number of Questions</TableCell>
                   <TableCell>Marks per Question</TableCell>
-                  <TableCell>Actions</TableCell>
+                  {/* No Actions column in dialog */}
                 </TableRow>
                 <TableRow>
                   <TableCell>
@@ -237,36 +246,16 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>
-                    <TextField
-                      type="number"
-                      value={unitDialog.unit.questions && unitDialog.unit.questions[0] ? unitDialog.unit.questions[0].marksPerQuestion : ''}
-                      onChange={e => {
-                        const val = parseInt(e.target.value) || 0;
-                        const questions = unitDialog.unit.questions && unitDialog.unit.questions.length > 0 ? [...unitDialog.unit.questions] : [{ count: 0, marksPerQuestion: 0 }];
-                        questions[0].marksPerQuestion = val;
-                        setUnitDialog({ ...unitDialog, unit: { ...unitDialog.unit, questions } });
-                      }}
-                      placeholder="Marks/Question"
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="contained" onClick={handleSaveUnit} size="small">Add</Button>
-                  </TableCell>
+                  {/* No Actions column in dialog */}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {units.map(unit => (
                   <TableRow key={unit.id}>
                     <TableCell>{unit.name}</TableCell>
-                    <TableCell>{unit.marks}</TableCell>
                     <TableCell>{unit.questions && unit.questions[0] ? unit.questions[0].count : ''}</TableCell>
                     <TableCell>{unit.questions && unit.questions[0] ? unit.questions[0].marksPerQuestion : ''}</TableCell>
-                    <TableCell>
-                      <IconButton onClick={() => setUnitDialog({ open: true, mode: 'edit', unit: { ...unit, questions: unit.questions || [{ count: 0, marksPerQuestion: 0 }] } })}><EditIcon /></IconButton>
-                      <IconButton onClick={() => handleDeleteUnit(unit.id)}><DeleteIcon /></IconButton>
-                    </TableCell>
+                    {/* No edit/delete icons in dialog */}
                   </TableRow>
                 ))}
               </TableBody>

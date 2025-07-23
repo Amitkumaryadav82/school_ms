@@ -10,9 +10,9 @@ export interface BlueprintUnit {
   id?: number;
   name: string;
   marks: number;
-  classId: number;
-  subjectId: number;
-  examId: number;
+  schoolClass: { id: number };
+  subject: { id: number };
+  exam: { id: number };
   questions: QuestionSpec[];
 }
 
@@ -23,12 +23,26 @@ export const getBlueprint = async (examId: number, classId: number, subjectId: n
 
 
 export const addUnit = async (unit: BlueprintUnit): Promise<BlueprintUnit> => {
-  return api.post('/api/blueprint', unit);
+  // Only send required fields in nested objects
+  const payload = {
+    ...unit,
+    schoolClass: { id: unit.schoolClass.id },
+    subject: { id: unit.subject.id },
+    exam: { id: unit.exam.id },
+  };
+  return api.post('/api/blueprint', payload);
 };
 
 
 export const updateUnit = async (id: number, unit: BlueprintUnit): Promise<BlueprintUnit> => {
-  return api.put(`/api/blueprint/${id}`, unit);
+  // Only send required fields in nested objects
+  const payload = {
+    ...unit,
+    schoolClass: { id: unit.schoolClass.id },
+    subject: { id: unit.subject.id },
+    exam: { id: unit.exam.id },
+  };
+  return api.put(`/api/blueprint/${id}`, payload);
 };
 
 export const deleteUnit = async (id: number): Promise<void> => {
