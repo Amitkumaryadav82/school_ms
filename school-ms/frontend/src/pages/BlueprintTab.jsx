@@ -4,7 +4,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { getBlueprint, addUnit, updateUnit, deleteUnit } from '../services/blueprintService';
-import { getSubjectsForClass } from '../services/examConfigService';
+  import { getSubjectsForClass } from '../services/examConfigService';
 
 
 const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass, setSelectedClass, classes = [], subjects }) => {
@@ -94,8 +94,13 @@ const BlueprintTab = ({ exams = [], selectedExam, setSelectedExam, selectedClass
   };
 
   const handleDeleteUnit = async (id) => {
+    // Prevent API call if subject is not selected
+    if (!selectedExam || !selectedClass || !selectedSubject) {
+      setError('Please select exam, class, and subject before deleting a unit.');
+      return;
+    }
     await deleteUnit(id);
-    getBlueprint(selectedClass, selectedSubject).then(setUnits);
+    getBlueprint(Number(selectedExam), Number(selectedClass), Number(selectedSubject)).then(setUnits);
   };
 
   return (

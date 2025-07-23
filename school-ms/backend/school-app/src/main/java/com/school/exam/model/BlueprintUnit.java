@@ -34,18 +34,59 @@ public class BlueprintUnit {
     private List<BlueprintUnitQuestion> questions;
 
     // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public Integer getMarks() { return marks; }
-    public void setMarks(Integer marks) { this.marks = marks; }
-    public SchoolClass getSchoolClass() { return schoolClass; }
-    public void setSchoolClass(SchoolClass schoolClass) { this.schoolClass = schoolClass; }
-    public Subject getSubject() { return subject; }
-    public void setSubject(Subject subject) { this.subject = subject; }
-    public Exam getExam() { return exam; }
-    public void setExam(Exam exam) { this.exam = exam; }
-    public List<BlueprintUnitQuestion> getQuestions() { return questions; }
-    public void setQuestions(List<BlueprintUnitQuestion> questions) { this.questions = questions; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getMarks() {
+        return marks;
+    }
+
+    public void setMarks(Integer marks) {
+        this.marks = marks;
+    }
+
+    public SchoolClass getSchoolClass() {
+        return schoolClass;
+    }
+
+    public void setSchoolClass(SchoolClass schoolClass) {
+        this.schoolClass = schoolClass;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
+    public Exam getExam() {
+        return exam;
+    }
+
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
+
+    public List<BlueprintUnitQuestion> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<BlueprintUnitQuestion> questions) {
+        this.questions = questions;
+    }
 }
