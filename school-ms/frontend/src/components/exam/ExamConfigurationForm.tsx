@@ -250,9 +250,12 @@ const ExamConfigurationForm: React.FC<ExamConfigurationFormProps> = ({ initialDa
         <Divider my={4} />
         
         <Heading size="sm">Question Paper Structure</Heading>
-        <QuestionPaperStructureForm 
-          initialData={formData.questionPaperStructure} 
-          onChange={handleQuestionPaperStructureChange} 
+        <QuestionPaperStructureForm
+          initialData={formData.questionPaperStructure}
+          onChange={handleQuestionPaperStructureChange}
+          examId={initialData?.id}
+          classId={formData.grade}
+          subjectId={formData.subject}
         />
 
         <Button 

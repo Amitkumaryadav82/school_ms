@@ -64,7 +64,7 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
     async function fetchBlueprintUnits() {
       if (selectedExam && selectedClass && selectedSubject) {
         try {
-          const res = await fetch(`/api/blueprints/units?examId=${selectedExam}&classId=${selectedClass}&subjectId=${selectedSubject}`, {
+          const res = await fetch(`/api/blueprint?examId=${selectedExam}&classId=${selectedClass}&subjectId=${selectedSubject}`, {
             headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' }
           });
           const data = await res.json();

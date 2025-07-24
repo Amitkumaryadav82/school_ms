@@ -17,8 +17,8 @@ public class QuestionPaperFormatController {
 
     @GetMapping
     public List<QuestionPaperFormat> getByExamClassSubject(@RequestParam Long examId,
-                                                          @RequestParam Long classId,
-                                                          @RequestParam Long subjectId) {
+            @RequestParam Long classId,
+            @RequestParam Long subjectId) {
         return service.getByExamClassSubject(examId, classId, subjectId);
     }
 

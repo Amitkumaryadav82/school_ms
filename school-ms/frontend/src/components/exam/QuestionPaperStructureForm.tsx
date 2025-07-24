@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Box,
   Button,
@@ -30,15 +31,46 @@ import {
 import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { QuestionPaperStructure, QuestionSection, QuestionType } from '../../services/examService';
 
+
 interface QuestionPaperStructureFormProps {
   initialData?: QuestionPaperStructure;
   onChange: (structure: QuestionPaperStructure) => void;
+  examId?: number;
+  classId?: number;
+  subjectId?: number | string;
 }
 
 const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
   initialData,
   onChange,
+  examId,
+  classId,
+  subjectId,
 }) => {
+  const [units, setUnits] = useState<{ id: number; name: string }[]>([]);
+  // Fetch units/chapters from Blueprint API when examId, classId, or subjectId changes
+  useEffect(() => {
+    if (examId && classId && subjectId) {
+      axios
+        .get('/api/blueprint', {
+          params: {
+            examId,
+            classId,
+            subjectId,
+          },
+        })
+        .then((res) => {
+          if (Array.isArray(res.data)) {
+            setUnits(res.data.map((u: any) => ({ id: u.id, name: u.name })));
+          } else {
+            setUnits([]);
+          }
+        })
+        .catch(() => setUnits([]));
+    } else {
+      setUnits([]);
+    }
+  }, [examId, classId, subjectId]);
   const [structure, setStructure] = useState<QuestionPaperStructure>({
     name: '',
     totalQuestions: 0,
@@ -265,14 +297,28 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
           <ModalCloseButton />
           <ModalBody>
             <Stack spacing={4}>
+
               <FormControl isRequired>
-                <FormLabel>Section Name</FormLabel>
-                <Input
+                <FormLabel>Unit Name</FormLabel>
+                <Select
                   name="name"
-                  placeholder="e.g., Multiple Choice Questions"
+                  placeholder={
+                    !examId
+                      ? 'Save exam configuration to select units'
+                      : units.length === 0
+                        ? 'No units available'
+                        : 'Select unit'
+                  }
                   value={currentSection.name}
                   onChange={handleSectionChange}
-                />
+                  isDisabled={!examId || units.length === 0}
+                >
+                  {units.map((unit) => (
+                    <option key={unit.id} value={unit.name}>
+                      {unit.name}
+                    </option>
+                  ))}
+                </Select>
               </FormControl>
 
               <FormControl isRequired>
