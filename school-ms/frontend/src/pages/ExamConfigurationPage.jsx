@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import Papa from 'papaparse';
-
 
 import {
   Box, Button, Card, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, MenuItem, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Tabs, Tab
@@ -11,27 +10,78 @@ import AddIcon from '@mui/icons-material/Add';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 import BlueprintTab from './BlueprintTab';
+import QuestionPaperFormatTab from './QuestionPaperFormatTab';
 import ExamManagementTab from './ExamManagementTab';
 import ExamConfigTab from './ExamConfigTab';
 import ManageSubjectsTab from './ManageSubjectsTab';
 
 
+const API_BASE = '/api';
 const ExamConfigurationPage = ({ apiBaseUrl }) => {
+  // State declarations at the top
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedExam, setSelectedExam] = useState('');
+  const [classSubjects, setClassSubjects] = useState([]);
   const [exams, setExams] = useState([]);
+  // Fetch exam-config for selected class (consolidated)
+  useEffect(() => {
+    setError('');
+    if (selectedClass && selectedClass !== '' && !isNaN(Number(selectedClass))) {
+      fetch(`${API_BASE}/exam-configs?classId=${selectedClass}`, {
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+        credentials: 'include',
+      })
+        .then(r => r.ok ? r.json() : Promise.reject('Failed to load exam configs'))
+        .then(data => {
+          setClassSubjects(Array.isArray(data) ? data : []);
+          setConfigs(Array.isArray(data) ? data : []);
+          console.log('[QPF] examConfig for class', selectedClass, data);
+        })
+        .catch(err => {
+          setClassSubjects([]);
+          setConfigs([]);
+          setError(typeof err === 'string' ? err : 'Unable to load exam configs.');
+        });
+    } else {
+      setClassSubjects([]);
+      setConfigs([]);
+    }
+  }, [selectedClass, API_BASE]);
+  // Debug log: log exams state whenever it changes
+  useEffect(() => {
+    console.log('[DEBUG] exams state:', exams);
+  }, [exams]);
   // Reset selectedClass and only populate classes after exam is selected
   useEffect(() => {
     setSelectedClass('');
   }, [selectedExam]);
   // Fetch exams for BlueprintTab
   // getAuthHeaders is declared below, do not redeclare here
+  const [blueprintUnits, setBlueprintUnits] = useState([]);
+
+  useEffect(() => {
+    async function fetchBlueprintUnits() {
+      if (selectedExam && selectedClass && selectedSubject) {
+        try {
+          const res = await fetch(`/api/blueprints/units?examId=${selectedExam}&classId=${selectedClass}&subjectId=${selectedSubject}`, {
+            headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' }
+          });
+          const data = await res.json();
+          setBlueprintUnits(Array.isArray(data) ? data : []);
+        } catch {
+          setBlueprintUnits([]);
+        }
+      } else {
+        setBlueprintUnits([]);
+      }
+    }
+    fetchBlueprintUnits();
+  }, [selectedExam, selectedClass, selectedSubject]);
 
   // ...existing code...
-  // Always use /api as the base for backend requests
-  const API_BASE = '/api';
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  const [selectedClass, setSelectedClass] = useState('');
   const [configs, setConfigs] = useState([]);
   const [subjectDialog, setSubjectDialog] = useState({ open: false, mode: 'add', subject: { maxMarks: 100, theoryMarks: 100, practicalMarks: 0 } });
   const [confirmDialog, setConfirmDialog] = useState({ open: false, type: '', payload: null });
@@ -46,23 +96,21 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
 
   // Refetch exams whenever the Blueprint tab is selected
   useEffect(() => {
-    if (tabIndex === 3) {
-      fetch('/api/exams', {
-        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-        credentials: 'include',
+    fetch('/api/exams', {
+      headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+      credentials: 'include',
+    })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          console.log(`[API] /api/exams: count=${data.length}`, data.length > 0 ? data[0] : '(empty)');
+        } else {
+          console.log('[API] /api/exams: response not array', data);
+        }
+        setExams(data);
       })
-        .then(r => r.ok ? r.json() : [])
-        .then(data => {
-          if (Array.isArray(data)) {
-            console.log(`[API] /api/exams: count=${data.length}`, data.length > 0 ? data[0] : '(empty)');
-          } else {
-            console.log('[API] /api/exams: response not array', data);
-          }
-          setExams(data);
-        })
-        .catch(() => setExams([]));
-    }
-  }, [tabIndex]);
+      .catch(() => setExams([]));
+  }, []);
 
   const [subjectFeedback, setSubjectFeedback] = useState('');
 
@@ -162,20 +210,7 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
       .catch(err => setError(typeof err === 'string' ? err : 'Unable to load classes.'));
   }, [API_BASE]);
 
-  // Fetch configs for selected class with error handling
-  useEffect(() => {
-    setError('');
-    if (selectedClass) {
-      fetch(`${API_BASE}/exam-configs?classId=${selectedClass}`, { headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' } })
-        .then(r => r.ok ? r.json() : Promise.reject('Failed to load exam configs'))
-        .then(setConfigs)
-        .catch(err => {
-          setError(typeof err === 'string' ? err : 'Unable to load exam configs.');
-        });
-    } else {
-      setConfigs([]);
-    }
-  }, [selectedClass, API_BASE]);
+  // ...existing code...
 
   // Add or update subject with error handling
   const handleSubjectSave = () => {
@@ -303,6 +338,7 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
         <Tab label="Exam Configuration" />
         <Tab label="Manage Subjects" />
         <Tab label="Blueprint" />
+        <Tab label="Question Paper Format" />
       </Tabs>
       {tabIndex === 0 && <ExamManagementTab classes={classes} />}
       {tabIndex === 1 && (
@@ -352,12 +388,40 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
           classes={(() => {
             const exam = exams.find(e => String(e.id) === String(selectedExam));
             const filtered = exam && exam.classIds ? classes.filter(cls => exam.classIds.includes(cls.id)) : [];
-            console.log('[DEBUG] BlueprintTab classes for selectedExam', selectedExam, filtered);
             return filtered;
           })()}
           selectedClass={selectedExam ? selectedClass : ''}
           setSelectedClass={setSelectedClass}
           subjects={subjects}
+        />
+      )}
+      {tabIndex === 4 && (
+        <QuestionPaperFormatTab
+          exams={exams}
+          classes={(() => {
+            const exam = exams.find(e => String(e.id) === String(selectedExam));
+            const filtered = exam && exam.classIds ? classes.filter(cls => exam.classIds.includes(cls.id)) : [];
+            return filtered;
+          })()}
+          subjects={(() => {
+            // Only filter if both arrays are loaded
+            if (!subjects || !classSubjects) return [];
+            const subjectIds = classSubjects.map(cfg => cfg.subject?.id).filter(Boolean);
+            if (subjectIds.length === 0) {
+              console.log('[QPF] No subjects linked to selected class.');
+              return [];
+            }
+            const filtered = subjects.filter(subj => subjectIds.some(id => String(id) === String(subj.id)));
+            console.log('[QPF] filtered subjects for dropdown:', filtered);
+            return filtered;
+          })()}
+          selectedExam={selectedExam}
+          setSelectedExam={setSelectedExam}
+          selectedClass={selectedClass}
+          setSelectedClass={setSelectedClass}
+          selectedSubject={selectedSubject}
+          setSelectedSubject={setSelectedSubject}
+          blueprintUnits={blueprintUnits}
         />
       )}
       {/* Subject Dialog */}
