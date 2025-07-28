@@ -79,7 +79,6 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
     fetchBlueprintUnits();
   }, [selectedExam, selectedClass, selectedSubject]);
 
-  // ...existing code...
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [configs, setConfigs] = useState([]);
@@ -210,8 +209,6 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
       .catch(err => setError(typeof err === 'string' ? err : 'Unable to load classes.'));
   }, [API_BASE]);
 
-  // ...existing code...
-
   // Add or update subject with error handling
   const handleSubjectSave = () => {
     const { id, name, code, description, maxMarks, theoryMarks, practicalMarks } = subjectDialog.subject;
@@ -333,13 +330,23 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
   return (
     <Box p={2}>
       <Typography variant="h5" gutterBottom>Examinations</Typography>
-      <Tabs value={tabIndex} onChange={(_, v) => setTabIndex(v)} sx={{ mb: 2 }}>
-        <Tab label="Exam Management" />
-        <Tab label="Exam Configuration" />
-        <Tab label="Manage Subjects" />
-        <Tab label="Blueprint" />
-        <Tab label="Question Paper Format" />
-      </Tabs>
+      {/* Wrap the tab bar in a horizontally scrollable container */}
+      <Box sx={{ overflowX: 'auto', whiteSpace: 'nowrap', width: '100%' }}>
+        <Tabs
+          value={tabIndex}
+          onChange={(e, newValue) => setTabIndex(newValue)}
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="Examination Tabs"
+          sx={{ minWidth: 600 }} // optional: ensures tabs don't collapse too much
+        >
+          <Tab label="Exam Management" />
+          <Tab label="Exam Configuration" />
+          <Tab label="Manage Subjects" />
+          <Tab label="Blueprint" />
+          <Tab label="Question Paper Format" />
+        </Tabs>
+      </Box>
       {tabIndex === 0 && <ExamManagementTab classes={classes} />}
       {tabIndex === 1 && (
         <ExamConfigTab
@@ -579,7 +586,5 @@ const ExamConfigurationPage = ({ apiBaseUrl }) => {
     </Box>
   );
 };
-
-// ...existing code...
 
 export default ExamConfigurationPage;
