@@ -62,8 +62,15 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
 
   // Update questions array when totalQuestions changes
   const handleTotalQuestionsChange = (e) => {
-    let n = parseInt(e.target.value) || 1;
-    if (n < 1) n = 1;
+    let val = e.target.value.replace(/[^0-9]/g, '');
+    // Allow empty input for editing
+    if (val === '') {
+      setTotalQuestions('');
+      setQuestions([{ marks: '', unit: '' }]);
+      return;
+    }
+    let n = parseInt(val, 10);
+    if (isNaN(n) || n < 1) n = 1;
     setTotalQuestions(n);
     setQuestions(qs => {
       const arr = [...qs];
@@ -130,6 +137,37 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
     return token ? { 'Authorization': `Bearer ${token}` } : {};
   };
 
+  // Fetch existing question paper format when exam/class/subject changes
+  useEffect(() => {
+    if (selectedExam && selectedClass && selectedSubject) {
+      axios.get('/api/question-paper-format', {
+        params: { examId: selectedExam, classId: selectedClass, subjectId: selectedSubject },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+      })
+        .then(res => {
+          if (Array.isArray(res.data) && res.data.length > 0) {
+            setQuestions(res.data.map(row => ({
+              marks: row.marks,
+              unit: row.unitName,
+              // If you want to support editing/deleting, you can also keep row.id
+              id: row.id,
+            })));
+            setTotalQuestions(res.data.length);
+          } else {
+            setQuestions([{ marks: '', unit: '' }]);
+            setTotalQuestions(1);
+          }
+        })
+        .catch(() => {
+          setQuestions([{ marks: '', unit: '' }]);
+          setTotalQuestions(1);
+        });
+    } else {
+      setQuestions([{ marks: '', unit: '' }]);
+      setTotalQuestions(1);
+    }
+  }, [selectedExam, selectedClass, selectedSubject]);
+
   return (
     <Box>
       <Typography variant="h6" sx={{ mb: 2 }}>Question Paper Format</Typography>
@@ -194,9 +232,16 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
             value={totalQuestions}
             onChange={e => {
               const val = e.target.value.replace(/[^0-9]/g, '');
-              setTotalQuestions(val === '' ? 1 : Math.max(1, parseInt(val)));
+              // Allow empty input for editing
+              if (val === '') {
+                setTotalQuestions('');
+                setQuestions([{ marks: '', unit: '' }]);
+                return;
+              }
+              let n = parseInt(val, 10);
+              if (isNaN(n) || n < 1) n = 1;
+              setTotalQuestions(n);
               setQuestions(qs => {
-                const n = val === '' ? 1 : Math.max(1, parseInt(val));
                 const arr = [...qs];
                 while (arr.length < n) arr.push({ marks: '', unit: '' });
                 return arr.slice(0, n);
