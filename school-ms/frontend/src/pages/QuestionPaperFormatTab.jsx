@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, Typography, Grid, TextField, Button, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Card, IconButton, Select, InputLabel, FormControl } from '@mui/material';
+import axios from 'axios';
+import { Box, Typography, Grid, TextField, Button, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Card, IconButton, Select, InputLabel, FormControl, Snackbar, Alert, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSelectedExam, selectedClass, setSelectedClass, selectedSubject, setSelectedSubject, blueprintUnits }) => {
   // Always log exams prop for debugging
@@ -7,6 +8,49 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
   const [totalQuestions, setTotalQuestions] = useState(1);
   const [questions, setQuestions] = useState([{ marks: '', unit: '' }]);
   const [error, setError] = useState('');
+  const [saveStatus, setSaveStatus] = useState({ open: false, success: true, message: '' });
+  const [isSaving, setIsSaving] = useState(false);
+  // Save all questions to backend (batch save)
+  const handleSave = async () => {
+    if (!selectedExam || !selectedClass || !selectedSubject) {
+      setSaveStatus({ open: true, success: false, message: 'Please select exam, class, and subject.' });
+      return;
+    }
+    setIsSaving(true);
+    try {
+      // Prepare rows for backend
+      const rows = questions.map((q, idx) => ({
+        examId: selectedExam,
+        classId: selectedClass,
+        subjectId: selectedSubject,
+        questionNumber: idx + 1,
+        unitName: q.unit,
+        marks: q.marks,
+      }));
+      await axios.post('/api/question-paper-format/batch', rows, {
+        params: { examId: selectedExam, classId: selectedClass, subjectId: selectedSubject },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+      });
+      setSaveStatus({ open: true, success: true, message: 'Question paper format saved successfully.' });
+      // Optionally reload data here
+    } catch (err) {
+      // Enhanced error logging
+      let message = 'Failed to save question paper format.';
+      if (err.response) {
+        console.error('Backend error:', err.response.status, err.response.data);
+        message = err.response.data?.message || JSON.stringify(err.response.data) || message;
+      } else if (err.request) {
+        console.error('No response received:', err.request);
+        message = 'No response from server.';
+      } else {
+        console.error('Error setting up request:', err.message);
+        message = err.message;
+      }
+      setSaveStatus({ open: true, success: false, message });
+    } finally {
+      setIsSaving(false);
+    }
+  };
   const [showSummary, setShowSummary] = useState(false);
 
   // Get theory marks for selected subject, default to 100 if not selected
@@ -79,6 +123,12 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
     question: idx + 1,
     marks: q.marks
   }));
+
+  // Always get latest token for every request (like ExamManagementTab)
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
 
   return (
     <Box>
@@ -210,7 +260,15 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
         </Table>
       </TableContainer>
       <Button variant="outlined" onClick={handleAddQuestion} sx={{ mb: 2, mr: 2 }}>Add Question</Button>
-      <Button variant="contained" onClick={() => setShowSummary(true)} sx={{ mb: 2 }}>Show Summary</Button>
+      <Button variant="contained" onClick={() => setShowSummary(true)} sx={{ mb: 2, mr: 2 }}>Show Summary</Button>
+      <Button variant="contained" color="primary" onClick={handleSave} sx={{ mb: 2 }} disabled={isSaving} startIcon={isSaving ? <CircularProgress size={18} /> : null}>
+        Save
+      </Button>
+      <Snackbar open={saveStatus.open} autoHideDuration={3000} onClose={() => setSaveStatus(s => ({ ...s, open: false }))}>
+        <Alert onClose={() => setSaveStatus(s => ({ ...s, open: false }))} severity={saveStatus.success ? 'success' : 'error'} sx={{ width: '100%' }}>
+          {saveStatus.message}
+        </Alert>
+      </Snackbar>
       {showSummary && (
         <>
           <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Summary</Typography>

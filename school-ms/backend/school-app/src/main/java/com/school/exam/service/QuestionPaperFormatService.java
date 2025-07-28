@@ -28,4 +28,31 @@ public class QuestionPaperFormatService {
     public void delete(Long id) {
         repository.deleteById(id);
     }
+
+    /**
+     * Batch save: Overwrites all rows for given exam/class/subject, deletes removed
+     * rows, and saves new/updated ones.
+     */
+    public List<QuestionPaperFormat> saveBatch(Long examId, Long classId, Long subjectId,
+            List<QuestionPaperFormat> rows) {
+        // Fetch existing rows
+        List<QuestionPaperFormat> existing = repository.findByExamIdAndClassIdAndSubjectId(examId, classId, subjectId);
+        // Find IDs to keep and delete
+        List<Long> incomingIds = rows.stream()
+                .filter(r -> r.getId() != null)
+                .map(QuestionPaperFormat::getId)
+                .toList();
+        // Delete rows that are not in the incoming list
+        existing.stream()
+                .filter(e -> e.getId() != null && !incomingIds.contains(e.getId()))
+                .forEach(e -> repository.deleteById(e.getId()));
+        // Set exam/class/subject for all rows (in case frontend omits)
+        for (QuestionPaperFormat row : rows) {
+            row.setExamId(examId);
+            row.setClassId(classId);
+            row.setSubjectId(subjectId);
+        }
+        // Save all (JPA will update or insert as needed)
+        return repository.saveAll(rows);
+    }
 }

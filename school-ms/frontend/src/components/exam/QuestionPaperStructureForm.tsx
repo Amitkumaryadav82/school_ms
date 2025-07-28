@@ -27,6 +27,8 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalFooter,
+  useToast,
+  Spinner,
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { QuestionPaperStructure, QuestionSection, QuestionType } from '../../services/examService';
@@ -47,6 +49,39 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
   classId,
   subjectId,
 }) => {
+  const toast = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+  // Save all rows to backend (batch save)
+  const handleSave = async () => {
+    if (!examId || !classId || !subjectId) {
+      toast({ status: 'error', title: 'Missing exam, class, or subject', description: 'Please select and save exam configuration first.' });
+      return;
+    }
+    setIsSaving(true);
+    try {
+      // Prepare rows for backend (flatten sections to rows)
+      const rows = structure.sections.map((section, idx) => ({
+        // Backend expects: id (if editing), examId, classId, subjectId, questionNumber, unitName, marks
+        id: section.id,
+        examId,
+        classId,
+        subjectId,
+        questionNumber: idx + 1,
+        unitName: section.name,
+        marks: section.marksPerQuestion * section.totalQuestions,
+        // Optionally add more fields if backend expects
+      }));
+      const res = await axios.post('/api/question-paper-format/batch', rows, {
+        params: { examId, classId, subjectId },
+      });
+      toast({ status: 'success', title: 'Saved', description: 'Question paper format saved successfully.' });
+      // Optionally reload data or call onChange
+    } catch (err: any) {
+      toast({ status: 'error', title: 'Save failed', description: err?.response?.data?.message || 'Could not save question paper format.' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
   const [units, setUnits] = useState<{ id: number; name: string }[]>([]);
   // Fetch units/chapters from Blueprint API when examId, classId, or subjectId changes
   useEffect(() => {
@@ -286,6 +321,13 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
           </Box>
         </Box>
       </Stack>
+
+      {/* Save Button */}
+      <Box mt={6} textAlign="right">
+        <Button colorScheme="blue" onClick={handleSave} isLoading={isSaving} leftIcon={isSaving ? <Spinner size="sm" /> : undefined}>
+          Save
+        </Button>
+      </Box>
 
       {/* Question Section Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
