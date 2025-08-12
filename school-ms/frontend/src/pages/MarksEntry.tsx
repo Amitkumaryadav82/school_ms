@@ -19,8 +19,7 @@ import {
     InputLabel,
     MenuItem,
     Paper,
-    Select,
-    SelectChangeEvent,
+  Select,
     Snackbar,
     Tab,
     Table,
@@ -34,8 +33,6 @@ import {
     Typography
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
 import Loading from '../components/Loading';
 import api from '../services/api';
 
@@ -64,6 +61,16 @@ interface Subject {
   maxTheoryMarks: number;
   maxPracticalMarks: number;
   hasPractical: boolean;
+}
+
+interface ClassItem {
+  id: number;
+  name: string;
+}
+
+interface SectionItem {
+  id: number;
+  name: string;
 }
 
 interface QuestionMark {
@@ -113,19 +120,20 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const MarksEntry: React.FC = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [tabValue, setTabValue] = useState(0);
   
   // Selection states
-  const [grades, setGrades] = useState<number[]>([]);
-  const [selectedGrade, setSelectedGrade] = useState<number>(0);
   const [exams, setExams] = useState<Exam[]>([]);
   const [selectedExam, setSelectedExam] = useState<number>(0);
+  const [classes, setClasses] = useState<ClassItem[]>([]);
+  const [selectedClass, setSelectedClass] = useState<number>(0);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<number>(0);
+  const [sections, setSections] = useState<SectionItem[]>([]);
+  const [selectedSection, setSelectedSection] = useState<number>(0);
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<number>(0);
   
@@ -141,160 +149,112 @@ const MarksEntry: React.FC = () => {
   // Marks lock state
   const [isLocked, setIsLocked] = useState(false);
   
+  // Load exams on mount
   useEffect(() => {
-    // Load grades (classes) for selection
-    setGrades([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    const fetchExams = async () => {
+      try {
+        setLoading(true);
+  const examsData = await api.get<Exam[]>('/api/exams');
+  setExams(examsData);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load exams');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchExams();
   }, []);
-  
-  // Load exams when grade changes
+
+  // Load classes when exam changes
   useEffect(() => {
-    if (selectedGrade) {
-      const fetchExams = async () => {
+    if (selectedExam) {
+      const fetchClasses = async () => {
         try {
           setLoading(true);
-          const response = await api.get(`/api/exams?grade=${selectedGrade}`);
-          setExams(response.data);
-          setSelectedExam(0); // Reset selection
-          setSubjects([]);
-          setStudents([]);
+          const classesData = await api.get<ClassItem[]>(`/api/classes?examId=${selectedExam}`);
+          setClasses(classesData);
         } catch (err: any) {
-          setError(err.message || 'Failed to load exams');
+          setError(err.message || 'Failed to load classes');
         } finally {
           setLoading(false);
         }
       };
-      
-      fetchExams();
+      fetchClasses();
     } else {
-      setExams([]);
-      setSelectedExam(0);
+      setClasses([]);
+      setSelectedClass(0);
     }
-  }, [selectedGrade]);
-  
-  // Load subjects when exam changes
+    setSelectedClass(0);
+    setSelectedSubject(0);
+    setSelectedSection(0);
+    setSelectedStudent(0);
+    setSubjects([]);
+    setSections([]);
+    setStudents([]);
+  }, [selectedExam]);
+
+  // Load subjects and sections when class changes
   useEffect(() => {
-    if (selectedExam) {
+    if (selectedClass) {
       const fetchSubjects = async () => {
         try {
           setLoading(true);
-          const response = await api.get(`/api/exams/${selectedExam}/subjects`);
-          setSubjects(response.data);
-          setSelectedSubject(0); // Reset selection
+          const subjectsData = await api.get<Subject[]>(`/api/classes/${selectedClass}/subjects`);
+          setSubjects(subjectsData);
         } catch (err: any) {
           setError(err.message || 'Failed to load subjects');
         } finally {
           setLoading(false);
         }
       };
-      
+      const fetchSections = async () => {
+        try {
+          setLoading(true);
+          const sectionsData = await api.get<SectionItem[]>(`/api/classes/${selectedClass}/sections`);
+          setSections(sectionsData);
+        } catch (err: any) {
+          setError(err.message || 'Failed to load sections');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchSubjects();
+      fetchSections();
+    } else {
+      setSubjects([]);
+      setSections([]);
+      setSelectedSubject(0);
+      setSelectedSection(0);
+      setSelectedStudent(0);
+      setStudents([]);
+    }
+  }, [selectedClass]);
+
+  // Load students when section changes
+  useEffect(() => {
+    if (selectedClass && selectedSection) {
       const fetchStudents = async () => {
         try {
           setLoading(true);
-          const exam = exams.find(e => e.id === selectedExam);
-          if (exam) {
-            const response = await api.get(`/api/students?grade=${exam.grade}`);
-            setStudents(response.data);
-            setSelectedStudent(0); // Reset selection
-          }
+          const studentsData = await api.get<Student[]>(`/api/students?classId=${selectedClass}&sectionId=${selectedSection}`);
+          setStudents(studentsData);
         } catch (err: any) {
           setError(err.message || 'Failed to load students');
         } finally {
           setLoading(false);
         }
       };
-      
-      fetchSubjects();
       fetchStudents();
     } else {
-      setSubjects([]);
       setStudents([]);
-      setSelectedSubject(0);
       setSelectedStudent(0);
     }
-  }, [selectedExam, exams]);
-  
-  // Load marks data when student and subject are selected
-  useEffect(() => {
-    if (selectedStudent && selectedExam && selectedSubject) {
-      const fetchMarks = async () => {
-        try {
-          setLoading(true);
-          const response = await api.get(`/api/exams/marks?studentId=${selectedStudent}&examId=${selectedExam}&subjectId=${selectedSubject}`);
-          
-          if (response.data) {
-            setStudentMarks(response.data);
-            // Check if marks are locked
-            setIsLocked(response.data.isLocked || false);
-          } else {
-            // Create new marks object if none exists
-            const student = students.find(s => s.id === selectedStudent);
-            const subject = subjects.find(s => s.id === selectedSubject);
-            
-            if (student && subject) {
-              // Fetch question structure to create empty marks entries
-              const questionsResponse = await api.get(`/api/exams/${selectedExam}/papers/${selectedSubject}/questions`);
-              
-              const emptyMarks: StudentMarks = {
-                studentId: student.id,
-                studentName: student.name,
-                rollNumber: student.rollNumber,
-                examId: selectedExam,
-                subjectId: selectedSubject,
-                subjectName: subject.name,
-                isAbsent: false,
-                absenceReason: '',
-                questionMarks: questionsResponse.data.map((q: any, index: number) => ({
-                  questionId: q.id,
-                  questionNumber: q.questionNumber || (index + 1),
-                  questionType: q.questionType,
-                  chapterName: q.chapterName,
-                  maxMarks: q.marks,
-                  obtainedMarks: 0,
-                  evaluatorComments: ''
-                })),
-                totalTheoryMarks: 0,
-                maxTheoryMarks: subject.maxTheoryMarks,
-                totalPracticalMarks: 0,
-                maxPracticalMarks: subject.maxPracticalMarks
-              };
-              
-              setStudentMarks(emptyMarks);
-              setIsLocked(false);
-            }
-          }
-        } catch (err: any) {
-          setError(err.message || 'Failed to load marks data');
-          setStudentMarks(null);
-        } finally {
-          setLoading(false);
-        }
-      };
-      
-      fetchMarks();
-    } else {
-      setStudentMarks(null);
-    }
-  }, [selectedStudent, selectedExam, selectedSubject, students, subjects]);
+  }, [selectedSection, selectedClass]);
   
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
-  
-  const handleGradeChange = (event: SelectChangeEvent<number>) => {
-    setSelectedGrade(event.target.value as number);
-  };
-  
-  const handleExamChange = (event: SelectChangeEvent<number>) => {
-    setSelectedExam(event.target.value as number);
-  };
-  
-  const handleSubjectChange = (event: SelectChangeEvent<number>) => {
-    setSelectedSubject(event.target.value as number);
-  };
-  
-  const handleStudentChange = (event: SelectChangeEvent<number>) => {
-    setSelectedStudent(event.target.value as number);
-  };
+
   
   const handleMarksChange = (questionId: number, value: number) => {
     if (!studentMarks || isLocked) return;
@@ -399,8 +359,8 @@ const MarksEntry: React.FC = () => {
       });
       
       // Refresh marks data
-      const response = await api.get(`/api/exams/marks?studentId=${selectedStudent}&examId=${selectedExam}&subjectId=${selectedSubject}`);
-      setStudentMarks(response.data);
+  const marksData = await api.get<StudentMarks>(`/api/exams/marks?studentId=${selectedStudent}&examId=${selectedExam}&subjectId=${selectedSubject}`);
+  setStudentMarks(marksData);
       
       setSuccess('Mark updated successfully');
       handleEditDialogClose();
@@ -460,105 +420,117 @@ const MarksEntry: React.FC = () => {
   };
   
   return (
-    <Layout>
-      <Box sx={{ flexGrow: 1, p: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          Exam Marks Entry
-        </Typography>
-        
-        <Snackbar open={!!error} autoHideDuration={6000} onClose={handleErrorClose}>
-          <Alert onClose={handleErrorClose} severity="error" sx={{ width: '100%' }}>
-            {error}
-          </Alert>
-        </Snackbar>
-        
-        <Snackbar open={!!success} autoHideDuration={6000} onClose={handleSuccessClose}>
-          <Alert onClose={handleSuccessClose} severity="success" sx={{ width: '100%' }}>
-            {success}
-          </Alert>
-        </Snackbar>
-        
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth>
-                <InputLabel id="grade-select-label">Class/Grade</InputLabel>
-                <Select
-                  labelId="grade-select-label"
-                  id="grade-select"
-                  value={selectedGrade}
-                  label="Class/Grade"
-                  onChange={handleGradeChange}
-                >
-                  <MenuItem value={0}>Select Class</MenuItem>
-                  {grades.map((grade) => (
-                    <MenuItem key={grade} value={grade}>Class {grade}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth disabled={!selectedGrade}>
-                <InputLabel id="exam-select-label">Exam</InputLabel>
-                <Select
-                  labelId="exam-select-label"
-                  id="exam-select"
-                  value={selectedExam}
-                  label="Exam"
-                  onChange={handleExamChange}
-                >
-                  <MenuItem value={0}>Select Exam</MenuItem>
-                  {exams.map((exam) => (
-                    <MenuItem key={exam.id} value={exam.id}>
-                      {exam.name} ({exam.examType})
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth disabled={!selectedExam}>
-                <InputLabel id="subject-select-label">Subject</InputLabel>
-                <Select
-                  labelId="subject-select-label"
-                  id="subject-select"
-                  value={selectedSubject}
-                  label="Subject"
-                  onChange={handleSubjectChange}
-                >
-                  <MenuItem value={0}>Select Subject</MenuItem>
-                  {subjects.map((subject) => (
-                    <MenuItem key={subject.id} value={subject.id}>
-                      {subject.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <FormControl fullWidth disabled={!selectedExam || !selectedSubject}>
-                <InputLabel id="student-select-label">Student</InputLabel>
-                <Select
-                  labelId="student-select-label"
-                  id="student-select"
-                  value={selectedStudent}
-                  label="Student"
-                  onChange={handleStudentChange}
-                >
-                  <MenuItem value={0}>Select Student</MenuItem>
-                  {students.map((student) => (
-                    <MenuItem key={student.id} value={student.id}>
-                      {student.rollNumber} - {student.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
+    <Box sx={{ flexGrow: 1, p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Exam Marks Entry
+      </Typography>
+      
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={handleErrorClose}>
+        <Alert onClose={handleErrorClose} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
+      
+      <Snackbar open={!!success} autoHideDuration={6000} onClose={handleSuccessClose}>
+        <Alert onClose={handleSuccessClose} severity="success" sx={{ width: '100%' }}>
+          {success}
+        </Alert>
+      </Snackbar>
+      
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Grid container spacing={2}>
+          {/* Exam dropdown */}
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth>
+              <InputLabel id="exam-select-label">Exam</InputLabel>
+              <Select
+                labelId="exam-select-label"
+                id="exam-select"
+                value={selectedExam}
+                label="Exam"
+                onChange={e => setSelectedExam(Number(e.target.value))}
+              >
+                <MenuItem value={0}>Select Exam</MenuItem>
+                {exams.map((exam) => (
+                  <MenuItem key={exam.id} value={exam.id}>{exam.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
-        </Paper>
+          {/* Class dropdown */}
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth disabled={!selectedExam}>
+              <InputLabel id="class-select-label">Class</InputLabel>
+              <Select
+                labelId="class-select-label"
+                id="class-select"
+                value={selectedClass}
+                label="Class"
+                onChange={e => setSelectedClass(Number(e.target.value))}
+              >
+                <MenuItem value={0}>Select Class</MenuItem>
+                {classes.map((cls) => (
+                  <MenuItem key={cls.id} value={cls.id}>{cls.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          {/* Subject dropdown */}
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth disabled={!selectedClass}>
+              <InputLabel id="subject-select-label">Subject</InputLabel>
+              <Select
+                labelId="subject-select-label"
+                id="subject-select"
+                value={selectedSubject}
+                label="Subject"
+                onChange={e => setSelectedSubject(Number(e.target.value))}
+              >
+                <MenuItem value={0}>Select Subject</MenuItem>
+                {subjects.map((subject) => (
+                  <MenuItem key={subject.id} value={subject.id}>{subject.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          {/* Section dropdown */}
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth disabled={!selectedSubject}>
+              <InputLabel id="section-select-label">Section</InputLabel>
+              <Select
+                labelId="section-select-label"
+                id="section-select"
+                value={selectedSection}
+                label="Section"
+                onChange={e => setSelectedSection(Number(e.target.value))}
+              >
+                <MenuItem value={0}>Select Section</MenuItem>
+                {sections.map((section) => (
+                  <MenuItem key={section.id} value={section.id}>{section.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          {/* Student dropdown */}
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl fullWidth disabled={!selectedSection}>
+              <InputLabel id="student-select-label">Student</InputLabel>
+              <Select
+                labelId="student-select-label"
+                id="student-select"
+                value={selectedStudent}
+                label="Student"
+                onChange={e => setSelectedStudent(Number(e.target.value))}
+              >
+                <MenuItem value={0}>Select Student</MenuItem>
+                {students.map((student) => (
+                  <MenuItem key={student.id} value={student.id}>{student.id} - {student.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+      </Paper>
         
         {loading ? (
           <Loading />
@@ -950,9 +922,9 @@ const MarksEntry: React.FC = () => {
             </Paper>
           )
         )}
-      </Box>
-    </Layout>
-  );
-};
 
+
+      </Box>
+  );
+}
 export default MarksEntry;
