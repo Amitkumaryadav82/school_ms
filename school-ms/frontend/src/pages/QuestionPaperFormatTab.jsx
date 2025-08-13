@@ -51,7 +51,95 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
       setIsSaving(false);
     }
   };
-  const [showSummary, setShowSummary] = useState(false);
+  // Download/Print helpers
+  const getLabelParts = () => {
+    const examName = (exams || []).find(e => String(e.id) === String(selectedExam))?.name || '';
+    const className = (classes || []).find(c => String(c.id) === String(selectedClass))?.name || '';
+    const subjectName = (subjects || []).find(s => String(s.id) === String(selectedSubject))?.name || '';
+    return { examName, className, subjectName };
+  };
+
+  const handleDownloadCsv = () => {
+    if (!selectedExam || !selectedClass || !selectedSubject) return;
+    const { examName, className, subjectName } = getLabelParts();
+    const escapeCsv = (val) => {
+      if (val == null) return '';
+      const s = String(val);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const headerMeta = [
+      ['Exam', examName],
+      ['Class', className],
+      ['Subject', subjectName],
+      ['Total Questions', totalQuestions],
+      ['Total Marks', totalMarks],
+    ].map(r => r.map(escapeCsv).join(',')).join('\n');
+    const header = ['Question', 'Marks', 'Unit'].join(',');
+    const rows = questions.map((q, idx) => [idx + 1, q.marks || 0, q.unit || ''].map(escapeCsv).join(',')).join('\n');
+    const csv = headerMeta + '\n\n' + header + '\n' + rows + '\n';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const fname = `QPF_${examName || 'Exam'}_${className || 'Class'}_${subjectName || 'Subject'}.csv`.replace(/\s+/g, '_');
+    a.href = url; a.download = fname; a.style.display = 'none';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handlePrint = () => {
+    if (!selectedExam || !selectedClass || !selectedSubject) return;
+    const { examName, className, subjectName } = getLabelParts();
+    const win = window.open('', '_blank', 'noopener,noreferrer');
+    if (!win) {
+      // Likely blocked by popup blocker
+      alert('Popup blocked. Please allow popups for this site to use Print, or use your browser\'s print (Ctrl+P).');
+      return;
+    }
+    const rowsHtml = questions.map((q, idx) => `
+      <tr>
+        <td style="text-align:center">${idx + 1}</td>
+        <td style="text-align:center">${q.marks || ''}</td>
+        <td>${q.unit || ''}</td>
+      </tr>`).join('');
+    const doc = `<!doctype html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Question Paper Format - ${examName}</title>
+        <style>
+          body{font-family:Arial,Helvetica,sans-serif;padding:24px;}
+          h1{font-size:20px;margin:0 0 4px 0}
+          .meta{margin-bottom:16px;color:#444}
+          table{width:100%;border-collapse:collapse}
+          th,td{border:1px solid #999;padding:6px}
+          th{background:#f3f3f3}
+          .footer{margin-top:16px;color:#444}
+        </style>
+      </head>
+      <body>
+        <h1>Question Paper Format</h1>
+        <div class="meta"><strong>Exam:</strong> ${examName} &nbsp; | &nbsp; <strong>Class:</strong> ${className} &nbsp; | &nbsp; <strong>Subject:</strong> ${subjectName}</div>
+        <table>
+          <thead>
+            <tr><th style="width:90px">Q#</th><th style="width:120px">Marks</th><th>Unit Name</th></tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+        <div class="footer">Total Questions: ${totalQuestions} &nbsp; | &nbsp; Total Marks: ${totalMarks}</div>
+      </body></html>`;
+    win.document.open();
+    win.document.write(doc);
+    win.document.close();
+    // Give the document a tick to finish rendering before printing
+    setTimeout(() => {
+      try {
+        win.focus();
+        win.print();
+      } catch {}
+    }, 100);
+  };
 
   // Get theory marks for selected subject, default to 100 if not selected
   const theoryMarks = useMemo(() => {
@@ -304,8 +392,9 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
           </TableBody>
         </Table>
       </TableContainer>
-      <Button variant="outlined" onClick={handleAddQuestion} sx={{ mb: 2, mr: 2 }}>Add Question</Button>
-      <Button variant="contained" onClick={() => setShowSummary(true)} sx={{ mb: 2, mr: 2 }}>Show Summary</Button>
+  <Button variant="outlined" onClick={handleAddQuestion} sx={{ mb: 2, mr: 2 }}>Add Question</Button>
+  <Button variant="outlined" onClick={handleDownloadCsv} sx={{ mb: 2, mr: 2 }} disabled={!selectedExam || !selectedClass || !selectedSubject}>Download CSV</Button>
+  <Button variant="outlined" onClick={handlePrint} sx={{ mb: 2, mr: 2 }} disabled={!selectedExam || !selectedClass || !selectedSubject}>Print</Button>
       <Button variant="contained" color="primary" onClick={handleSave} sx={{ mb: 2 }} disabled={isSaving} startIcon={isSaving ? <CircularProgress size={18} /> : null}>
         Save
       </Button>
@@ -314,31 +403,7 @@ const QuestionPaperFormatTab = ({ exams, classes, subjects, selectedExam, setSel
           {saveStatus.message}
         </Alert>
       </Snackbar>
-      {showSummary && (
-        <>
-          <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Summary</Typography>
-          <TableContainer component={Card}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Unit Name</TableCell>
-                  <TableCell>Question #</TableCell>
-                  <TableCell>Marks</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {summary.map((row, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>{row.unit}</TableCell>
-                    <TableCell>{row.question}</TableCell>
-                    <TableCell>{row.marks}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </>
-      )}
+  {/* Summary view removed per requirement. Download/Print provide external sharing. */}
     </Box>
   );
 };

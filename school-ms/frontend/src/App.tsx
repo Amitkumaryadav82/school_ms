@@ -6,7 +6,7 @@ import { ConnectionProvider } from './context/ConnectionContext';
 import Layout from './components/Layout';
 import RoleBasedRoute from './components/RoleBasedRoute';
 import Admissions from './pages/Admissions';
-import BlueprintForm from './pages/BlueprintForm';
+import BlueprintForm from './components/exam/BlueprintForm';
 import ExamConfigurationPage from './pages/ExamConfigurationPage';
 import ExamsLandingPage from './pages/ExamsLandingPage';
 import Dashboard from './pages/Dashboard';
@@ -21,6 +21,7 @@ import ConsolidatedCourseView from './pages/ConsolidatedCourseView';
 import StaffAttendance from './pages/StaffAttendance';
 import Reports from './pages/Reports';
 import TeacherAttendance from './pages/TeacherAttendance';
+import ReportCards from './pages/ReportCards';
 
 const ROLES = {
   ADMIN: 'ADMIN',
@@ -32,7 +33,8 @@ const ROLES = {
 };
 
 // Dummy ProtectedRoute for demonstration; replace with your actual implementation
-const ProtectedRoute = ({ children }) => {
+type ProtectedProps = { children: React.ReactNode };
+const ProtectedRoute = ({ children }: ProtectedProps) => {
   // Add your authentication logic here
   // For now, always allow
   return children;
@@ -130,6 +132,15 @@ function App() {
                       <Reports />
                     </RoleBasedRoute>
                   </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/exams/report-cards" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]}>
+                    <Layout>
+                      <ReportCards />
+                    </Layout>
+                  </RoleBasedRoute>
                 </ProtectedRoute>
               } />
               <Route path="/exams/marks/entry" element={

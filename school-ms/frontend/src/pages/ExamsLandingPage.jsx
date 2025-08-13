@@ -37,6 +37,20 @@ const ExamsLandingPage = () => (
           </CardActionArea>
         </Card>
       </Grid>
+      <Grid item xs={12} sm={6} md={4}>
+        <Card elevation={3}>
+          <CardActionArea component={Link} to="/exams/report-cards">
+            <CardContent>
+              <Typography variant="h6" color="primary" gutterBottom>
+                Report Cards
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Generate and print report cards for a class across selected exams.
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+      </Grid>
     </Grid>
   </Box>
 );

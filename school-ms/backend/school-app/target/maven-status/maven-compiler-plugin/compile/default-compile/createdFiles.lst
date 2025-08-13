@@ -30,6 +30,7 @@ com\school\staff\model\TeacherDetails.class
 com\school\attendance\dto\StudentAttendanceSummary.class
 com\school\config\OpenApiConfig.class
 com\school\fee\model\PaymentSchedule$ScheduleType.class
+com\school\exam\dto\QPFSummaryDTO.class
 com\school\exam\repository\QuestionPaperFormatRepository.class
 com\school\exception\DuplicateStudentException.class
 com\school\student\controller\StudentController.class
