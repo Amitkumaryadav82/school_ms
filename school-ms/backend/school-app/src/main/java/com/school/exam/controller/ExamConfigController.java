@@ -50,7 +50,7 @@ public class ExamConfigController {
     private ExamConfigService service;
 
     @GetMapping("/classes")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public List<SchoolClass> getAllClasses() {
         return service.getAllClasses();
     }

@@ -44,8 +44,9 @@ interface TabPanelProps {
 
 interface Student {
   id: number;
-  name: string;
-  rollNumber: string;
+  firstName: string;
+  lastName: string;
+  studentId?: string; // school roll/student code if present
 }
 
 interface Exam {
@@ -99,6 +100,30 @@ interface StudentMarks {
   maxPracticalMarks: number;
 }
 
+// Matrix types (subjects across columns, students as rows)
+interface MatrixSubject {
+  subjectId: number;
+  subjectName: string;
+  totalMaxMarks: number; // QPF sum for validation
+}
+interface MatrixCell {
+  subjectId: number;
+  theoryMarks?: number;
+  practicalMarks?: number;
+  absent?: boolean;
+  absenceReason?: string;
+}
+interface MatrixRow {
+  studentId: number;
+  studentName: string;
+  rollNumber: string;
+  cells: MatrixCell[];
+}
+interface MarksMatrixResponse {
+  subjects: MatrixSubject[];
+  students: MatrixRow[];
+}
+
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
@@ -120,6 +145,14 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const MarksEntry: React.FC = () => {
+  // Constants for special selections
+  const ALL_SUBJECTS = -1;
+  const ALL_STUDENTS = -1;
+  // Layout constants for matrix table (used for sticky columns and min width)
+  const STUDENT_COL_W = 240;
+  const ROLL_COL_W = 120;
+  const PER_MARK_COL_W = 80; // width per Th/Pr cell
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -131,7 +164,7 @@ const MarksEntry: React.FC = () => {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [selectedClass, setSelectedClass] = useState<number>(0);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [selectedSubject, setSelectedSubject] = useState<number>(0);
+  const [selectedSubject, setSelectedSubject] = useState<number>(ALL_SUBJECTS);
   const [sections, setSections] = useState<SectionItem[]>([]);
   const [selectedSection, setSelectedSection] = useState<number>(0);
   const [students, setStudents] = useState<Student[]>([]);
@@ -139,6 +172,10 @@ const MarksEntry: React.FC = () => {
   
   // Marks data
   const [studentMarks, setStudentMarks] = useState<StudentMarks | null>(null);
+  // Matrix data
+  const [matrixSubjects, setMatrixSubjects] = useState<MatrixSubject[]>([]);
+  const [matrixRows, setMatrixRows] = useState<MatrixRow[]>([]);
+  const [matrixLoading, setMatrixLoading] = useState(false);
   
   // Dialog states
   const [absenceDialogOpen, setAbsenceDialogOpen] = useState(false);
@@ -168,10 +205,10 @@ const MarksEntry: React.FC = () => {
   // Load classes when exam changes
   useEffect(() => {
     if (selectedExam) {
-      const fetchClasses = async () => {
+    const fetchClasses = async () => {
         try {
           setLoading(true);
-          const classesData = await api.get<ClassItem[]>(`/api/classes?examId=${selectedExam}`);
+      const classesData = await api.get<ClassItem[]>(`/api/exam-configs/classes`);
           setClasses(classesData);
         } catch (err: any) {
           setError(err.message || 'Failed to load classes');
@@ -184,10 +221,10 @@ const MarksEntry: React.FC = () => {
       setClasses([]);
       setSelectedClass(0);
     }
-    setSelectedClass(0);
-    setSelectedSubject(0);
-    setSelectedSection(0);
-    setSelectedStudent(0);
+  setSelectedClass(0);
+  setSelectedSubject(ALL_SUBJECTS);
+  setSelectedSection(0);
+  setSelectedStudent(0);
     setSubjects([]);
     setSections([]);
     setStudents([]);
@@ -196,10 +233,10 @@ const MarksEntry: React.FC = () => {
   // Load subjects and sections when class changes
   useEffect(() => {
     if (selectedClass) {
-      const fetchSubjects = async () => {
+    const fetchSubjects = async () => {
         try {
           setLoading(true);
-          const subjectsData = await api.get<Subject[]>(`/api/classes/${selectedClass}/subjects`);
+      const subjectsData = await api.get<Subject[]>(`/api/exam-configs/subjects`, { classId: selectedClass });
           setSubjects(subjectsData);
         } catch (err: any) {
           setError(err.message || 'Failed to load subjects');
@@ -210,8 +247,10 @@ const MarksEntry: React.FC = () => {
       const fetchSections = async () => {
         try {
           setLoading(true);
-          const sectionsData = await api.get<SectionItem[]>(`/api/classes/${selectedClass}/sections`);
-          setSections(sectionsData);
+          // Backend returns string[] of section names; map to { id, name } for the UI
+          const sectionsRaw = await api.get<string[]>(`/api/classes/${selectedClass}/sections`);
+          const mapped: SectionItem[] = (sectionsRaw || []).map((name, idx) => ({ id: idx + 1, name }));
+          setSections(mapped);
         } catch (err: any) {
           setError(err.message || 'Failed to load sections');
         } finally {
@@ -221,9 +260,9 @@ const MarksEntry: React.FC = () => {
       fetchSubjects();
       fetchSections();
     } else {
-      setSubjects([]);
-      setSections([]);
-      setSelectedSubject(0);
+  setSubjects([]);
+  setSections([]);
+  setSelectedSubject(ALL_SUBJECTS);
       setSelectedSection(0);
       setSelectedStudent(0);
       setStudents([]);
@@ -236,7 +275,17 @@ const MarksEntry: React.FC = () => {
       const fetchStudents = async () => {
         try {
           setLoading(true);
-          const studentsData = await api.get<Student[]>(`/api/students?classId=${selectedClass}&sectionId=${selectedSection}`);
+          // Derive grade number from selected class name (e.g., "Class 5" -> 5)
+          const cls = classes.find(c => c.id === selectedClass);
+          const gradeMatch = cls?.name?.match(/\d+/);
+          const gradeNumber = gradeMatch ? parseInt(gradeMatch[0], 10) : undefined;
+          const sectionObj = sections.find(s => s.id === selectedSection);
+          const sectionName = sectionObj?.name;
+          if (!gradeNumber || !sectionName) {
+            setStudents([]);
+            return;
+          }
+          const studentsData = await api.get<Student[]>(`/api/students/grade/${gradeNumber}/section/${encodeURIComponent(sectionName)}`);
           setStudents(studentsData);
         } catch (err: any) {
           setError(err.message || 'Failed to load students');
@@ -249,7 +298,72 @@ const MarksEntry: React.FC = () => {
       setStudents([]);
       setSelectedStudent(0);
     }
-  }, [selectedSection, selectedClass]);
+  }, [selectedSection, selectedClass, classes, sections]);
+
+  // Load matrix when All Students + All Subjects are selected
+  useEffect(() => {
+    const isAllMode = selectedStudent === ALL_STUDENTS && selectedSubject === ALL_SUBJECTS;
+    const hasBasics = selectedExam > 0 && selectedClass > 0 && selectedSection > 0;
+    if (!isAllMode || !hasBasics) {
+      setMatrixSubjects([]);
+      setMatrixRows([]);
+      return;
+    }
+    const fetchMatrix = async () => {
+      try {
+        setMatrixLoading(true);
+        const cls = classes.find(c => c.id === selectedClass);
+        const gradeMatch = cls?.name?.match(/\d+/);
+        const gradeNumber = gradeMatch ? parseInt(gradeMatch[0], 10) : undefined;
+        const sectionObj = sections.find(s => s.id === selectedSection);
+        const sectionName = sectionObj?.name;
+        if (!gradeNumber || !sectionName) return;
+        const resp = await api.get<MarksMatrixResponse>(
+          `/api/exams/marks/matrix`,
+          { examId: selectedExam, classId: selectedClass, grade: gradeNumber, section: sectionName }
+        );
+        setMatrixSubjects(resp.subjects || []);
+        // Normalize undefined values to 0 for editing convenience
+        const norm = (resp.students || []).map(r => ({
+          ...r,
+          cells: (r.cells || []).map(cell => ({
+            ...cell,
+            theoryMarks: cell.theoryMarks ?? 0,
+            practicalMarks: cell.practicalMarks ?? 0,
+          }))
+        }));
+        setMatrixRows(norm);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load marks matrix');
+      } finally {
+        setMatrixLoading(false);
+      }
+    };
+    fetchMatrix();
+  }, [selectedStudent, selectedSubject, selectedExam, selectedClass, selectedSection, classes, sections]);
+  
+  // Load marks when a specific student is selected (single-student mode)
+  useEffect(() => {
+    const canFetch = selectedExam > 0 && selectedSubject > 0 && selectedStudent > 0;
+    if (!canFetch) {
+      setStudentMarks(null);
+      return;
+    }
+    const fetchMarks = async () => {
+      try {
+        setLoading(true);
+  const marksData = await api.get<StudentMarks>(`/api/exams/marks?examId=${selectedExam}&classId=${selectedClass}&subjectId=${selectedSubject}&studentId=${selectedStudent}`);
+        setStudentMarks(marksData || null);
+        setIsLocked(false); // If backend returns lock state later, wire it here
+      } catch (err: any) {
+        setStudentMarks(null);
+        setError(err.message || 'Failed to load marks');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMarks();
+  }, [selectedExam, selectedSubject, selectedStudent]);
   
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -352,14 +466,10 @@ const MarksEntry: React.FC = () => {
       setLoading(true);
       
       // Call API to edit locked marks
-      await api.post('/api/exams/marks/edit', {
-        marksId: `${studentMarks.studentId}_${studentMarks.examId}_${studentMarks.subjectId}_${editQuestion.questionId}`,
-        newMarks: editQuestion.obtainedMarks,
-        editReason: editReason
-      });
+  await api.post(`/api/exams/marks/edit?examId=${selectedExam}&subjectId=${selectedSubject}&studentId=${selectedStudent}&questionFormatId=${editQuestion.questionId}&newMarks=${editQuestion.obtainedMarks}&reason=${encodeURIComponent(editReason)}`);
       
       // Refresh marks data
-  const marksData = await api.get<StudentMarks>(`/api/exams/marks?studentId=${selectedStudent}&examId=${selectedExam}&subjectId=${selectedSubject}`);
+  const marksData = await api.get<StudentMarks>(`/api/exams/marks?examId=${selectedExam}&classId=${selectedClass}&subjectId=${selectedSubject}&studentId=${selectedStudent}`);
   setStudentMarks(marksData);
       
       setSuccess('Mark updated successfully');
@@ -395,11 +505,7 @@ const MarksEntry: React.FC = () => {
     try {
       setLoading(true);
       
-      await api.post('/api/exams/marks/lock', {
-        examId: selectedExam,
-        subjectId: selectedSubject,
-        studentIds: [selectedStudent]
-      });
+  await api.post(`/api/exams/marks/lock?examId=${selectedExam}&subjectId=${selectedSubject}`, [selectedStudent]);
       
       setIsLocked(true);
       setSuccess('Marks locked successfully');
@@ -417,6 +523,30 @@ const MarksEntry: React.FC = () => {
   
   const handleSuccessClose = () => {
     setSuccess(null);
+  };
+  
+  // Bulk actions (All Students)
+  const handleBulkLockAll = async () => {
+    try {
+      setLoading(true);
+      const ids = students.map(s => s.id);
+      await api.post(`/api/exams/marks/lock?examId=${selectedExam}&subjectId=${selectedSubject}`, ids);
+      setSuccess('All students locked successfully');
+    } catch (err: any) {
+      setError(err.message || 'Failed to lock all');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [bulkCsvText, setBulkCsvText] = useState('studentId,questionId,obtainedMarks\n');
+  const openBulkDialog = () => setBulkDialogOpen(true);
+  const closeBulkDialog = () => setBulkDialogOpen(false);
+  const handleBulkUpload = async () => {
+    // Placeholder: ask for confirmation on CSV format before implementing parse + API calls
+    setError('Please confirm preferred bulk upload format (CSV with columns: studentId,questionId,obtainedMarks)');
+    setBulkDialogOpen(false);
   };
   
   return (
@@ -475,27 +605,9 @@ const MarksEntry: React.FC = () => {
               </Select>
             </FormControl>
           </Grid>
-          {/* Subject dropdown */}
-          <Grid item xs={12} sm={6} md={2}>
-            <FormControl fullWidth disabled={!selectedClass}>
-              <InputLabel id="subject-select-label">Subject</InputLabel>
-              <Select
-                labelId="subject-select-label"
-                id="subject-select"
-                value={selectedSubject}
-                label="Subject"
-                onChange={e => setSelectedSubject(Number(e.target.value))}
-              >
-                <MenuItem value={0}>Select Subject</MenuItem>
-                {subjects.map((subject) => (
-                  <MenuItem key={subject.id} value={subject.id}>{subject.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
           {/* Section dropdown */}
           <Grid item xs={12} sm={6} md={2}>
-            <FormControl fullWidth disabled={!selectedSubject}>
+            <FormControl fullWidth disabled={!selectedClass}>
               <InputLabel id="section-select-label">Section</InputLabel>
               <Select
                 labelId="section-select-label"
@@ -507,6 +619,24 @@ const MarksEntry: React.FC = () => {
                 <MenuItem value={0}>Select Section</MenuItem>
                 {sections.map((section) => (
                   <MenuItem key={section.id} value={section.id}>{section.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          {/* Subject dropdown (moved just before Student) */}
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth disabled={!selectedClass}>
+              <InputLabel id="subject-select-label">Subject</InputLabel>
+              <Select
+                labelId="subject-select-label"
+                id="subject-select"
+                value={selectedSubject}
+                label="Subject"
+                onChange={e => setSelectedSubject(Number(e.target.value))}
+              >
+                <MenuItem value={ALL_SUBJECTS}>All Subjects</MenuItem>
+                {subjects.map((subject) => (
+                  <MenuItem key={subject.id} value={subject.id}>{subject.name}</MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -523,8 +653,11 @@ const MarksEntry: React.FC = () => {
                 onChange={e => setSelectedStudent(Number(e.target.value))}
               >
                 <MenuItem value={0}>Select Student</MenuItem>
+                <MenuItem value={ALL_STUDENTS}>All Students</MenuItem>
                 {students.map((student) => (
-                  <MenuItem key={student.id} value={student.id}>{student.id} - {student.name}</MenuItem>
+                  <MenuItem key={student.id} value={student.id}>
+                    {student.firstName} {student.lastName}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -534,6 +667,236 @@ const MarksEntry: React.FC = () => {
         
         {loading ? (
           <Loading />
+        ) : selectedStudent === -1 ? (
+          <>
+            <Paper sx={{ p: 2, mb: 2 }}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs>
+                  <Typography variant="h6">All Students - {matrixRows.length || students.length} found</Typography>
+                </Grid>
+                <Grid item>
+                  <Button variant="contained" color="primary" startIcon={<SaveIcon />} disabled={matrixRows.length === 0} onClick={async () => {
+                    try {
+                      setLoading(true);
+                      // Build save request
+                      const rowsPayload = matrixRows.map(r => ({
+                        studentId: r.studentId,
+                        subjects: matrixSubjects.map(s => {
+                          const cell = r.cells.find(c => c.subjectId === s.subjectId) || { subjectId: s.subjectId } as MatrixCell;
+                          const theory = cell.theoryMarks ?? 0;
+                          const practical = cell.practicalMarks ?? 0;
+                          // Client-side validation: sum <= total
+                          if (theory + practical > (s.totalMaxMarks || 0)) {
+                            throw new Error(`Marks exceed total for ${s.subjectName} for ${r.studentName}`);
+                          }
+                          return {
+                            subjectId: s.subjectId,
+                            theoryMarks: theory,
+                            practicalMarks: practical,
+                          };
+                        })
+                      }));
+                      await api.post('/api/exams/marks/matrix', {
+                        examId: selectedExam,
+                        classId: selectedClass,
+                        rows: rowsPayload,
+                      });
+                      setSuccess('All marks saved');
+                    } catch (err: any) {
+                      setError(err.message || 'Failed to save matrix');
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}>Save All</Button>
+                </Grid>
+                {/* Optional: keep bulk upload for later */}
+                {/* <Grid item>
+                  <Button variant="outlined" onClick={openBulkDialog}>Bulk Upload</Button>
+                </Grid> */}
+              </Grid>
+            </Paper>
+            <Paper>
+              {matrixLoading ? (
+                <Loading />
+              ) : matrixSubjects.length === 0 ? (
+                <Box p={3}>
+                  <Typography color="text.secondary" align="center">No subjects found with Question Paper Format for this exam and class.</Typography>
+                </Box>
+              ) : (
+                <>
+                  {/* Inform user if some subjects are not shown due to missing QPF */}
+                  {(() => {
+                    const ids = new Set(matrixSubjects.map(s => s.subjectId));
+                    const missing = subjects.filter(s => !ids.has(s.id));
+                    return missing.length > 0 ? (
+                      <Alert severity="info" sx={{ mb: 2 }}>
+                        {`Hidden ${missing.length} subject(s) without Question Paper Format for this exam and class: ${missing.map(m => m.name).join(', ')}`}
+                      </Alert>
+                    ) : null;
+                  })()}
+                  <TableContainer sx={{ overflowX: 'auto' }}>
+                  <Table
+                    size="small"
+                    stickyHeader
+                    sx={{
+                      // Ensure horizontal scroll appears when subjects exceed available width
+                      minWidth: STUDENT_COL_W + ROLL_COL_W + (matrixSubjects.length * 2 * PER_MARK_COL_W)
+                    }}
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell
+                          rowSpan={2}
+                          sx={{
+                            fontWeight: 600,
+                            position: 'sticky',
+                            left: 0,
+                            zIndex: 3,
+                            minWidth: STUDENT_COL_W,
+                            width: STUDENT_COL_W,
+                            backgroundColor: 'background.paper'
+                          }}
+                        >
+                          Student
+                        </TableCell>
+                        <TableCell
+                          rowSpan={2}
+                          sx={{
+                            fontWeight: 600,
+                            position: 'sticky',
+                            left: STUDENT_COL_W,
+                            zIndex: 3,
+                            minWidth: ROLL_COL_W,
+                            width: ROLL_COL_W,
+                            backgroundColor: 'background.paper'
+                          }}
+                        >
+                          Roll
+                        </TableCell>
+                        {matrixSubjects.map(sub => (
+                          <TableCell key={sub.subjectId} align="center" colSpan={2} sx={{ fontWeight: 600 }}>
+                            {sub.subjectName} {sub.totalMaxMarks ? `(Max ${sub.totalMaxMarks})` : ''}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        {matrixSubjects.map(sub => (
+                          <React.Fragment key={`hdr-${sub.subjectId}`}>
+                            <TableCell align="center">Th</TableCell>
+                            <TableCell align="center">Pr</TableCell>
+                          </React.Fragment>
+                        ))}
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {matrixRows.map((row, rIdx) => (
+                        <TableRow key={row.studentId} hover>
+                          <TableCell
+                            sx={{
+                              position: 'sticky',
+                              left: 0,
+                              zIndex: 2,
+                              minWidth: STUDENT_COL_W,
+                              width: STUDENT_COL_W,
+                              backgroundColor: 'background.paper'
+                            }}
+                          >
+                            {row.studentName}
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              position: 'sticky',
+                              left: STUDENT_COL_W,
+                              zIndex: 2,
+                              minWidth: ROLL_COL_W,
+                              width: ROLL_COL_W,
+                              backgroundColor: 'background.paper'
+                            }}
+                          >
+                            {row.rollNumber || ''}
+                          </TableCell>
+                          {matrixSubjects.map((sub, cIdx) => {
+                            const cell = row.cells.find(c => c.subjectId === sub.subjectId) || { subjectId: sub.subjectId } as MatrixCell;
+                            const sum = (cell.theoryMarks ?? 0) + (cell.practicalMarks ?? 0);
+                            const over = sum > (sub.totalMaxMarks || 0);
+                            const updateCell = (patch: Partial<MatrixCell>) => {
+                              setMatrixRows(prev => prev.map((rr, i) => i === rIdx ? {
+                                ...rr,
+                                cells: (() => {
+                                  const existing = rr.cells.find(x => x.subjectId === sub.subjectId);
+                                  if (existing) {
+                                    return rr.cells.map(x => x.subjectId === sub.subjectId ? { ...x, ...patch } : x);
+                                  }
+                                  return [...rr.cells, { subjectId: sub.subjectId, theoryMarks: 0, practicalMarks: 0, ...patch }];
+                                })()
+                              } : rr));
+                            };
+                            return (
+                              <React.Fragment key={`${row.studentId}-${sub.subjectId}`}>
+                <TableCell align="center" sx={{ minWidth: PER_MARK_COL_W, width: PER_MARK_COL_W }}>
+                                  <TextField
+                                    type="number"
+                                    inputProps={{ min: 0, step: 0.5, style: { textAlign: 'center' } }}
+                                    value={cell.theoryMarks ?? 0}
+                                    error={over}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value);
+                                      updateCell({ theoryMarks: isNaN(val) ? 0 : val });
+                                    }}
+                                    variant="outlined"
+                                    size="small"
+                  sx={{ width: 72 }}
+                                  />
+                                </TableCell>
+                <TableCell align="center" sx={{ minWidth: PER_MARK_COL_W, width: PER_MARK_COL_W }}>
+                                  <TextField
+                                    type="number"
+                                    inputProps={{ min: 0, step: 0.5, style: { textAlign: 'center' } }}
+                                    value={cell.practicalMarks ?? 0}
+                                    error={over}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value);
+                                      updateCell({ practicalMarks: isNaN(val) ? 0 : val });
+                                    }}
+                                    variant="outlined"
+                                    size="small"
+                  sx={{ width: 72 }}
+                                  />
+                                </TableCell>
+                              </React.Fragment>
+                            );
+                          })}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  </TableContainer>
+                </>
+              )}
+            </Paper>
+
+            {/* Bulk Upload Dialog (optional, currently hidden) */}
+            <Dialog open={bulkDialogOpen} onClose={closeBulkDialog} maxWidth="sm" fullWidth>
+              <DialogTitle>Bulk Upload Marks</DialogTitle>
+              <DialogContent>
+                <DialogContentText sx={{ mb: 2 }}>
+                  Paste CSV with columns: studentId,questionId,obtainedMarks for Exam {selectedExam}, Class {selectedClass}.
+                </DialogContentText>
+                <TextField
+                  label="CSV"
+                  fullWidth
+                  multiline
+                  rows={8}
+                  value={bulkCsvText}
+                  onChange={(e) => setBulkCsvText(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeBulkDialog}>Cancel</Button>
+                <Button variant="contained" onClick={handleBulkUpload}>Upload</Button>
+              </DialogActions>
+            </Dialog>
+          </>
         ) : studentMarks ? (
           <>
             <Paper sx={{ mb: 3, position: 'relative' }}>
@@ -549,23 +912,7 @@ const MarksEntry: React.FC = () => {
                 )}
               </Tabs>
               
-              {isLocked && (
-                <Box 
-                  sx={{ 
-                    position: 'absolute', 
-                    top: 8, 
-                    right: 16, 
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: 'warning.main'
-                  }}
-                >
-                  <LockIcon sx={{ mr: 1 }} />
-                  <Typography variant="body2" fontWeight="bold">
-                    LOCKED
-                  </Typography>
-                </Box>
-              )}
+              {/* Lock badge removed: edits allowed anytime */}
               
               <Box sx={{ p: 3 }}>
                 <Grid container spacing={2} sx={{ mb: 2 }}>
@@ -613,18 +960,7 @@ const MarksEntry: React.FC = () => {
                                 <TableCell>{question.chapterName}</TableCell>
                                 <TableCell align="center">{question.maxMarks}</TableCell>
                                 <TableCell align="center">
-                                  {isLocked ? (
-                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                      <Typography>{question.obtainedMarks}</Typography>
-                                      <IconButton 
-                                        size="small" 
-                                        onClick={() => handleEditDialogOpen(question)}
-                                      >
-                                        <EditIcon fontSize="small" />
-                                      </IconButton>
-                                    </Box>
-                                  ) : (
-                                    <TextField
+                                  <TextField
                                       type="number"
                                       inputProps={{ 
                                         min: 0, 
@@ -638,20 +974,15 @@ const MarksEntry: React.FC = () => {
                                       size="small"
                                       sx={{ width: '80px' }}
                                     />
-                                  )}
                                 </TableCell>
                                 <TableCell>
-                                  {isLocked ? (
-                                    question.evaluatorComments
-                                  ) : (
-                                    <TextField
+                                  <TextField
                                       value={question.evaluatorComments}
                                       onChange={(e) => handleCommentsChange(question.questionId, e.target.value)}
                                       variant="outlined"
                                       size="small"
                                       fullWidth
                                     />
-                                  )}
                                 </TableCell>
                               </TableRow>
                             ))}
@@ -692,19 +1023,8 @@ const MarksEntry: React.FC = () => {
                                   <TableCell>{question.questionNumber}</TableCell>
                                   <TableCell>{question.chapterName}</TableCell>
                                   <TableCell align="center">{question.maxMarks}</TableCell>
-                                  <TableCell align="center">
-                                    {isLocked ? (
-                                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <Typography>{question.obtainedMarks}</Typography>
-                                        <IconButton 
-                                          size="small" 
-                                          onClick={() => handleEditDialogOpen(question)}
-                                        >
-                                          <EditIcon fontSize="small" />
-                                        </IconButton>
-                                      </Box>
-                                    ) : (
-                                      <TextField
+                  <TableCell align="center">
+                    <TextField
                                         type="number"
                                         inputProps={{ 
                                           min: 0, 
@@ -717,21 +1037,16 @@ const MarksEntry: React.FC = () => {
                                         variant="outlined"
                                         size="small"
                                         sx={{ width: '80px' }}
-                                      />
-                                    )}
+                    />
                                   </TableCell>
                                   <TableCell>
-                                    {isLocked ? (
-                                      question.evaluatorComments
-                                    ) : (
-                                      <TextField
+                    <TextField
                                         value={question.evaluatorComments}
                                         onChange={(e) => handleCommentsChange(question.questionId, e.target.value)}
                                         variant="outlined"
                                         size="small"
                                         fullWidth
-                                      />
-                                    )}
+                    />
                                   </TableCell>
                                 </TableRow>
                               ))}
@@ -752,44 +1067,16 @@ const MarksEntry: React.FC = () => {
                 )}
                 
                 <Grid container spacing={2} sx={{ mt: 2, justifyContent: 'flex-end' }}>
-                  {!isLocked ? (
-                    <>
-                      <Grid item>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          startIcon={<SaveIcon />}
-                          onClick={handleSaveMarks}
-                        >
-                          Save Marks
-                        </Button>
-                      </Grid>
-                      <Grid item>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          startIcon={<LockIcon />}
-                          onClick={handleLockMarks}
-                        >
-                          Lock Marks
-                        </Button>
-                      </Grid>
-                    </>
-                  ) : (
-                    <Grid item>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<PrintIcon />}
-                        onClick={() => {
-                          // Add print functionality
-                          window.print();
-                        }}
-                      >
-                        Print
-                      </Button>
-                    </Grid>
-                  )}
+                  <Grid item>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      startIcon={<SaveIcon />}
+                      onClick={handleSaveMarks}
+                    >
+                      Save Marks
+                    </Button>
+                  </Grid>
                 </Grid>
               </Box>
             </Paper>
@@ -828,84 +1115,7 @@ const MarksEntry: React.FC = () => {
               </DialogActions>
             </Dialog>
             
-            {/* Edit Locked Marks Dialog */}
-            <Dialog open={editDialogOpen} onClose={handleEditDialogClose}>
-              <DialogTitle>Edit Locked Marks</DialogTitle>
-              <DialogContent>
-                <DialogContentText sx={{ mb: 2 }}>
-                  Provide a reason for editing this mark after locking. This will be logged for review.
-                </DialogContentText>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <TextField
-                      label="Question"
-                      value={`Question ${editQuestion?.questionNumber} (${editQuestion?.chapterName})`}
-                      fullWidth
-                      variant="outlined"
-                      InputProps={{ readOnly: true }}
-                      margin="dense"
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      label="Current Mark"
-                      value={editQuestion?.obtainedMarks || 0}
-                      fullWidth
-                      variant="outlined"
-                      InputProps={{ readOnly: true }}
-                      margin="dense"
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      label="New Mark"
-                      type="number"
-                      inputProps={{ 
-                        min: 0, 
-                        max: editQuestion?.maxMarks || 0,
-                        step: 0.5
-                      }}
-                      fullWidth
-                      variant="outlined"
-                      margin="dense"
-                      value={editQuestion?.obtainedMarks || 0}
-                      onChange={(e) => {
-                        if (editQuestion) {
-                          setEditQuestion({
-                            ...editQuestion,
-                            obtainedMarks: parseFloat(e.target.value) || 0
-                          });
-                        }
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      label="Reason for Edit"
-                      fullWidth
-                      multiline
-                      rows={3}
-                      variant="outlined"
-                      margin="dense"
-                      required
-                      value={editReason}
-                      onChange={(e) => setEditReason(e.target.value)}
-                    />
-                  </Grid>
-                </Grid>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleEditDialogClose}>Cancel</Button>
-                <Button 
-                  onClick={handleEditLockedMark} 
-                  variant="contained" 
-                  color="primary"
-                  disabled={!editReason.trim()}
-                >
-                  Save Changes
-                </Button>
-              </DialogActions>
-            </Dialog>
+            {/* Edit Locked Marks Dialog removed: edits allowed anytime */}
           </>
         ) : (
           selectedStudent > 0 && selectedExam > 0 && selectedSubject > 0 ? (
