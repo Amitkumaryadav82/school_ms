@@ -9,5 +9,6 @@ import java.util.List;
 
 public interface TeacherSubjectMapRepository extends JpaRepository<TeacherSubjectMap, Long> {
     List<TeacherSubjectMap> findByTeacherDetails(TeacherDetails teacherDetails);
+
     List<TeacherSubjectMap> findBySubject(Subject subject);
 }

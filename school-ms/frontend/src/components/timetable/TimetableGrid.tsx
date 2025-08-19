@@ -11,9 +11,10 @@ export interface TimetableGridProps {
   days: string[]; // headers for days
   periods: number; // number of periods per day
   data: Record<number, Record<number, GridCell>>; // dayIdx -> periodNo -> cell
+  onCellClick?: (dayIdx: number, periodNo: number) => void;
 }
 
-const TimetableGrid: React.FC<TimetableGridProps> = ({ days, periods, data }) => {
+const TimetableGrid: React.FC<TimetableGridProps> = ({ days, periods, data, onCellClick }) => {
   return (
     <TableContainer component={Paper}>
       <Table size="small">
@@ -32,7 +33,11 @@ const TimetableGrid: React.FC<TimetableGridProps> = ({ days, periods, data }) =>
               {days.map((_, dayIdx) => {
                 const cell = data[dayIdx]?.[p] || {};
                 return (
-                  <TableCell key={`${dayIdx}-${p}`} sx={{ whiteSpace: 'nowrap' }}>
+                  <TableCell
+                    key={`${dayIdx}-${p}`}
+                    sx={{ whiteSpace: 'nowrap', cursor: onCellClick ? 'pointer' : 'default' }}
+                    onClick={() => onCellClick && onCellClick(dayIdx, p)}
+                  >
                     <Box sx={{ fontWeight: 600 }}>{cell.subject || '-'}</Box>
                     <Box sx={{ color: 'text.secondary', fontSize: 12 }}>{cell.teacher || ''}</Box>
                   </TableCell>

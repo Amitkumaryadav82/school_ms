@@ -22,8 +22,8 @@ public class TeacherSubjectsController {
     private final TeacherSubjectMapRepository mapRepository;
 
     public TeacherSubjectsController(TeacherDetailsRepository tdr,
-                                     SubjectRepository sr,
-                                     TeacherSubjectMapRepository mr) {
+            SubjectRepository sr,
+            TeacherSubjectMapRepository mr) {
         this.teacherDetailsRepository = tdr;
         this.subjectRepository = sr;
         this.mapRepository = mr;
@@ -32,7 +32,11 @@ public class TeacherSubjectsController {
     static class SubjectDto {
         public Long id;
         public String name;
-        SubjectDto(Long id, String name) { this.id = id; this.name = name; }
+
+        SubjectDto(Long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
     }
 
     @GetMapping("/{teacherDetailsId}/subjects")
@@ -49,7 +53,7 @@ public class TeacherSubjectsController {
     @PutMapping("/{teacherDetailsId}/subjects")
     @PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL')")
     public ResponseEntity<Void> replaceSubjects(@PathVariable Long teacherDetailsId,
-                                                @RequestBody List<Long> subjectIds) {
+            @RequestBody List<Long> subjectIds) {
         TeacherDetails td = teacherDetailsRepository.findById(teacherDetailsId)
                 .orElseThrow(() -> new IllegalArgumentException("TeacherDetails not found: " + teacherDetailsId));
         // delete existing

@@ -40,24 +40,83 @@ public class TimetableSettings {
         updatedAt = LocalDateTime.now();
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Integer getWorkingDaysMask() { return workingDaysMask; }
-    public void setWorkingDaysMask(Integer workingDaysMask) { this.workingDaysMask = workingDaysMask; }
-    public Integer getPeriodsPerDay() { return periodsPerDay; }
-    public void setPeriodsPerDay(Integer periodsPerDay) { this.periodsPerDay = periodsPerDay; }
-    public Integer getPeriodDurationMin() { return periodDurationMin; }
-    public void setPeriodDurationMin(Integer periodDurationMin) { this.periodDurationMin = periodDurationMin; }
-    public Integer getLunchAfterPeriod() { return lunchAfterPeriod; }
-    public void setLunchAfterPeriod(Integer lunchAfterPeriod) { this.lunchAfterPeriod = lunchAfterPeriod; }
-    public Integer getMaxPeriodsPerTeacherPerDay() { return maxPeriodsPerTeacherPerDay; }
-    public void setMaxPeriodsPerTeacherPerDay(Integer maxPeriodsPerTeacherPerDay) { this.maxPeriodsPerTeacherPerDay = maxPeriodsPerTeacherPerDay; }
-    public LocalTime getStartTime() { return startTime; }
-    public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
-    public LocalTime getEndTime() { return endTime; }
-    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getWorkingDaysMask() {
+        return workingDaysMask;
+    }
+
+    public void setWorkingDaysMask(Integer workingDaysMask) {
+        this.workingDaysMask = workingDaysMask;
+    }
+
+    public Integer getPeriodsPerDay() {
+        return periodsPerDay;
+    }
+
+    public void setPeriodsPerDay(Integer periodsPerDay) {
+        this.periodsPerDay = periodsPerDay;
+    }
+
+    public Integer getPeriodDurationMin() {
+        return periodDurationMin;
+    }
+
+    public void setPeriodDurationMin(Integer periodDurationMin) {
+        this.periodDurationMin = periodDurationMin;
+    }
+
+    public Integer getLunchAfterPeriod() {
+        return lunchAfterPeriod;
+    }
+
+    public void setLunchAfterPeriod(Integer lunchAfterPeriod) {
+        this.lunchAfterPeriod = lunchAfterPeriod;
+    }
+
+    public Integer getMaxPeriodsPerTeacherPerDay() {
+        return maxPeriodsPerTeacherPerDay;
+    }
+
+    public void setMaxPeriodsPerTeacherPerDay(Integer maxPeriodsPerTeacherPerDay) {
+        this.maxPeriodsPerTeacherPerDay = maxPeriodsPerTeacherPerDay;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

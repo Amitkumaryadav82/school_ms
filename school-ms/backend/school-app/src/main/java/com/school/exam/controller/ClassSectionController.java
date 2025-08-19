@@ -20,7 +20,8 @@ public class ClassSectionController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    // Removed duplicate /api/classes GET mapping to avoid conflict with ExamConfigController#getAllClasses
+    // Removed duplicate /api/classes GET mapping to avoid conflict with
+    // ExamConfigController#getAllClasses
 
     @GetMapping("/{classId}/sections")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")

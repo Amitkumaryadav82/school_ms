@@ -10,6 +10,7 @@ com\school\hrm\dto\HolidayDTO.class
 com\school\attendance\dto\MonthlyAttendanceStats.class
 com\school\communication\repository\MessageRepository.class
 com\school\attendance\model\StaffAttendance$StaffAttendanceBuilder.class
+com\school\timetable\controller\ClassTimetableController$EligibleSubjectsResponse.class
 com\school\attendance\controller\DirectFixController.class
 com\school\fee\controller\CorsTestController.class
 com\school\fee\dto\MonthlyTrend.class
@@ -124,6 +125,7 @@ com\school\attendance\service\EmployeeAttendanceService.class
 com\school\staff\repository\ConsolidatedStaffRepository.class
 com\school\attendance\service\impl\StaffAttendanceServiceImpl.class
 com\school\core\service\StaffServiceImpl.class
+com\school\timetable\controller\ClassTimetableController$EligibleTeachersResponse.class
 com\school\hrm\dto\HolidayDTO$HolidayDTOBuilder.class
 com\school\exception\DuplicateAttendanceException.class
 com\school\hrm\dto\StaffDTO.class
@@ -320,6 +322,7 @@ com\school\student\model\Student$StudentBuilder.class
 com\school\fee\dto\FeePaymentScheduleRequest.class
 com\school\hrm\repository\TeacherRepository.class
 com\school\common\util\DateConverter.class
+com\school\timetable\controller\ClassTimetableController$UpdateSlotRequest.class
 com\school\attendance\dto\AttendanceAlert.class
 com\school\config\JacksonConfig.class
 com\school\attendance\dto\ClassAttendanceRequest.class
@@ -416,6 +419,7 @@ com\school\staff\model\ConsolidatedStaff.class
 com\school\hrm\service\impl\StaffServiceImpl.class
 com\school\exception\AttendanceNotFoundException.class
 com\school\exam\service\QuestionPaperFormatService.class
+com\school\timetable\controller\Requirement.class
 com\school\staff\repository\TeacherClassMapRepository.class
 com\school\hrm\service\StaffService.class
 com\school\attendance\model\Attendance$AttendanceBuilder.class

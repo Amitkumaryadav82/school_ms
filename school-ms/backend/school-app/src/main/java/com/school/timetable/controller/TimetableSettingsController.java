@@ -51,10 +51,11 @@ public class TimetableSettingsController {
         toSave.setPeriodsPerDay(incoming.getPeriodsPerDay());
         toSave.setPeriodDurationMin(incoming.getPeriodDurationMin());
         toSave.setLunchAfterPeriod(incoming.getLunchAfterPeriod());
-    toSave.setMaxPeriodsPerTeacherPerDay(incoming.getMaxPeriodsPerTeacherPerDay() != null ? incoming.getMaxPeriodsPerTeacherPerDay() : 5);
-    // Fall back to defaults if null
-    toSave.setStartTime(incoming.getStartTime() != null ? incoming.getStartTime() : LocalTime.of(8, 30));
-    toSave.setEndTime(incoming.getEndTime() != null ? incoming.getEndTime() : LocalTime.of(15, 30));
+        toSave.setMaxPeriodsPerTeacherPerDay(
+                incoming.getMaxPeriodsPerTeacherPerDay() != null ? incoming.getMaxPeriodsPerTeacherPerDay() : 5);
+        // Fall back to defaults if null
+        toSave.setStartTime(incoming.getStartTime() != null ? incoming.getStartTime() : LocalTime.of(8, 30));
+        toSave.setEndTime(incoming.getEndTime() != null ? incoming.getEndTime() : LocalTime.of(15, 30));
         return ResponseEntity.ok(repo.save(toSave));
     }
 }

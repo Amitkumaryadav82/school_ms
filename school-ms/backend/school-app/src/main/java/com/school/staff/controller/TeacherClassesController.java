@@ -23,8 +23,8 @@ public class TeacherClassesController {
     private final TeacherClassMapRepository mapRepository;
 
     public TeacherClassesController(TeacherDetailsRepository tdr,
-                                    SchoolClassRepository scr,
-                                    TeacherClassMapRepository mpr) {
+            SchoolClassRepository scr,
+            TeacherClassMapRepository mpr) {
         this.teacherDetailsRepository = tdr;
         this.classRepository = scr;
         this.mapRepository = mpr;
@@ -35,8 +35,12 @@ public class TeacherClassesController {
         public String className;
         public String section;
         public String academicYear;
+
         public ClassMapDto(Long classId, String className, String section, String academicYear) {
-            this.classId = classId; this.className = className; this.section = section; this.academicYear = academicYear;
+            this.classId = classId;
+            this.className = className;
+            this.section = section;
+            this.academicYear = academicYear;
         }
     }
 
@@ -46,7 +50,8 @@ public class TeacherClassesController {
         TeacherDetails td = teacherDetailsRepository.findById(teacherDetailsId)
                 .orElseThrow(() -> new IllegalArgumentException("TeacherDetails not found: " + teacherDetailsId));
         List<ClassMapDto> body = mapRepository.findByTeacherDetails(td).stream()
-                .map(m -> new ClassMapDto(m.getSchoolClass().getId(), m.getSchoolClass().getName(), m.getSection(), m.getAcademicYear()))
+                .map(m -> new ClassMapDto(m.getSchoolClass().getId(), m.getSchoolClass().getName(), m.getSection(),
+                        m.getAcademicYear()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(body);
     }
@@ -54,7 +59,7 @@ public class TeacherClassesController {
     @PutMapping("/{teacherDetailsId}/classes")
     @PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL')")
     public ResponseEntity<Void> replaceClasses(@PathVariable Long teacherDetailsId,
-                                               @RequestBody List<Map<String, Object>> classSectionList) {
+            @RequestBody List<Map<String, Object>> classSectionList) {
         TeacherDetails td = teacherDetailsRepository.findById(teacherDetailsId)
                 .orElseThrow(() -> new IllegalArgumentException("TeacherDetails not found: " + teacherDetailsId));
 
@@ -66,7 +71,8 @@ public class TeacherClassesController {
             Object cid = item.get("classId");
             Object sec = item.get("section");
             Object year = item.get("academicYear");
-            if (cid == null || sec == null) continue;
+            if (cid == null || sec == null)
+                continue;
             Long classId = Long.valueOf(cid.toString());
             String section = sec.toString();
             String academicYear = year != null ? year.toString() : null;
