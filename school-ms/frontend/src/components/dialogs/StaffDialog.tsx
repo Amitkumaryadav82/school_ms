@@ -1,17 +1,25 @@
 import {
-    Divider,
-    FormControl,
-    FormHelperText,
-    Grid,
-    InputLabel,
-    MenuItem,
-    Select,
-    TextField,
-    Typography
+  Alert,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { StaffMember, TeacherDetails } from '../../services/staffService';
 import BaseDialog from './BaseDialog';
+import api from '../../services/api';
+import { Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 
 interface StaffDialogProps {
   open: boolean;
@@ -44,6 +52,50 @@ const departments = [
 
 const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
+// Helper to build a fresh empty form for "Add" mode
+const buildEmptyForm = (): Partial<StaffMember> => ({
+  staffId: '',
+  firstName: '',
+  lastName: '',
+  email: '',
+  phoneNumber: '',
+  address: '',
+  dateOfBirth: '',
+  gender: 'MALE',
+  joinDate: new Date().toISOString().split('T')[0],
+  role: 'TEACHER',
+  isActive: true,
+  qualifications: '',
+  bloodGroup: '',
+  emergencyContact: '',
+  profileImage: '',
+  // Payroll fields
+  pfUAN: '',
+  gratuity: '',
+  serviceEndDate: '',
+  basicSalary: 0,
+  hra: 0,
+  da: 0,
+  ta: 0,
+  otherAllowances: 0,
+  pfContribution: 0,
+  taxDeduction: 0,
+  netSalary: 0,
+  salaryAccountNumber: '',
+  bankName: '',
+  ifscCode: '',
+  teacherDetails: {
+    // no id in add mode
+    department: '',
+    specialization: '',
+    subjects: '',
+    teachingExperience: 0,
+    isClassTeacher: false,
+    classAssignedId: 0,
+    className: ''
+  }
+});
+
 const StaffDialog: React.FC<StaffDialogProps> = ({
   open,
   onClose,
@@ -51,47 +103,21 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
   initialData,
   loading,
 }) => {
-  const [formData, setFormData] = useState<Partial<StaffMember>>(
-    initialData || {
-      staffId: '',
-      firstName: '',
-      lastName: '',
-      email: '',
-      phoneNumber: '',
-      address: '',
-      dateOfBirth: '',
-      gender: 'MALE',
-      joinDate: new Date().toISOString().split('T')[0],
-      role: 'TEACHER',
-      isActive: true,
-      qualifications: '',
-      bloodGroup: '',
-      // Initialize new fields
-      pfUAN: '',
-      gratuity: '',
-      serviceEndDate: '',
-      // Salary details
-      basicSalary: 0,
-      hra: 0,
-      da: 0,
-      ta: 0,
-      otherAllowances: 0,
-      pfContribution: 0,
-      taxDeduction: 0,
-      netSalary: 0,
-      salaryAccountNumber: '',
-      bankName: '',
-      ifscCode: '',
-      teacherDetails: {
-        department: '',
-        specialization: '',
-        subjects: '',
-        teachingExperience: 0,
-        isClassTeacher: false
-      }
-    }
-  );
+  const [formData, setFormData] = useState<Partial<StaffMember>>(initialData || buildEmptyForm());
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Normalized subject mapping state
+  const [allSubjects, setAllSubjects] = useState<{ id: number; name: string; code?: string }[]>([]);
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
+  const [pendingSubjectIds, setPendingSubjectIds] = useState<number[]>([]);
+  const [subjectsSaving, setSubjectsSaving] = useState(false);
+
+  // Class-section mapping state
+  const [allClasses, setAllClasses] = useState<{ id: number; name: string }[]>([]);
+  const [sectionsByClass, setSectionsByClass] = useState<Record<number, string[]>>({});
+  const [classMappings, setClassMappings] = useState<{ classId: number; className: string; section: string; academicYear?: string }[]>([]);
+  const [newClassId, setNewClassId] = useState<number | ''>('');
+  const [newSection, setNewSection] = useState<string>('');
+  const [classesSaving, setClassesSaving] = useState(false);
   
   // Add useEffect to update formData when initialData changes
   useEffect(() => {
@@ -223,6 +249,79 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
     }
   }, [initialData]);
 
+  // Load static lists once
+  useEffect(() => {
+    const loadStatics = async () => {
+      try {
+        const subs = await api.get<{ id: number; name: string; code?: string }[]>('/api/exam/subjects');
+        setAllSubjects(subs);
+      } catch (e) {
+        console.error('Failed to load subjects list', e);
+      }
+      try {
+        const classes = await api.get<{ id: number; name: string }[]>('/api/classes');
+        setAllClasses(classes);
+      } catch (e) {
+        console.error('Failed to load classes list', e);
+      }
+    };
+    loadStatics();
+  }, []);
+
+  // Reset to clean slate whenever the dialog opens in Add mode
+  useEffect(() => {
+    if (open && !initialData) {
+      setFormData(buildEmptyForm());
+      setErrors({});
+      // Clear mapping state to avoid leaking from previous edit session
+      setSelectedSubjectIds([]);
+      setClassMappings([]);
+      setNewClassId('');
+      setNewSection('');
+    }
+  }, [open, initialData]);
+
+  // When a class is chosen in the builder, ensure its sections are loaded
+  const ensureSectionsLoaded = async (classId: number) => {
+    if (!classId || sectionsByClass[classId]) return;
+    try {
+      const secs = await api.get<string[]>(`/api/classes/${classId}/sections`);
+      setSectionsByClass((prev) => ({ ...prev, [classId]: secs }));
+    } catch (e) {
+      console.error('Failed to load sections for class', classId, e);
+    }
+  };
+
+  // Load existing mappings when teacherDetails is present
+  useEffect(() => {
+    const tdId = formData.teacherDetails?.id;
+    if (!tdId) {
+      setSelectedSubjectIds([]);
+      setClassMappings([]);
+      return;
+    }
+    (async () => {
+      try {
+        const mapped = await api.get<{ id: number; name: string }[]>(`/api/staff/teachers/${tdId}/subjects`);
+        setSelectedSubjectIds(mapped.map(m => m.id));
+      } catch (e) {
+        console.warn('No existing subject mapping or failed to load');
+        setSelectedSubjectIds([]);
+      }
+      try {
+        const mappedClasses = await api.get<{ classId: number; className: string; section: string; academicYear?: string }[]>(`/api/staff/teachers/${tdId}/classes`);
+        setClassMappings(mappedClasses);
+        // Preload sections for those classes
+        for (const m of mappedClasses) {
+          await ensureSectionsLoaded(m.classId);
+        }
+      } catch (e) {
+        console.warn('No existing class mapping or failed to load');
+        setClassMappings([]);
+      }
+    })();
+  }, [formData.teacherDetails?.id]);
+
   const handleChange = (field: keyof StaffMember) => (
     e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
   ) => {
@@ -301,8 +400,9 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
       if (!formData.teacherDetails?.department) {
         newErrors['teacherDetails.department'] = 'Department is required';
       }
-      if (!formData.teacherDetails?.subjects) {
-        newErrors['teacherDetails.subjects'] = 'At least one subject is required';
+      // For normalized subjects, ensure at least one is selected if teacherDetails exists
+      if ((formData.teacherDetails?.id && selectedSubjectIds.length === 0)) {
+        newErrors['teacherDetails.subjects'] = 'Select at least one subject';
       }
     }
 
@@ -349,10 +449,10 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
       salaryAccountNumber: formData.salaryAccountNumber || '',
       bankName: formData.bankName || '',
       ifscCode: formData.ifscCode || ''
-    };
+    } as any;
     
-    // Add teacher details only if the role is TEACHER
-    if (dataToSubmit.role === 'TEACHER') {
+    // Add teacher details if role is TEACHER
+    if ((dataToSubmit.role || 'TEACHER') === 'TEACHER') {
       dataToSubmit.teacherDetails = {
         id: formData.teacherDetails?.id || 0,
         department: formData.teacherDetails?.department || '',
@@ -362,13 +462,67 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
         isClassTeacher: formData.teacherDetails?.isClassTeacher || false,
         classAssignedId: formData.teacherDetails?.classAssignedId || 0,
         className: formData.teacherDetails?.className || ''
-      };
+      } as any;
+
+      // Include pending mappings so parent can persist after creation
+      (dataToSubmit as any).__subjectIds = selectedSubjectIds;
+      (dataToSubmit as any).__classMappings = classMappings.map(m => ({ classId: m.classId, section: m.section, academicYear: m.academicYear || '2025-2026' }));
     }
 
     onSubmit(dataToSubmit);
   };
 
   const isTeacher = formData.role === 'TEACHER';
+
+  const addClassMapping = async () => {
+    if (!newClassId || !newSection) return;
+    const clazz = allClasses.find(c => c.id === newClassId);
+    if (!clazz) return;
+    if (classMappings.some(m => m.classId === newClassId && m.section === newSection)) return;
+    setClassMappings(prev => [...prev, { classId: newClassId, className: clazz.name, section: newSection, academicYear: '2025-2026' }]);
+    setNewSection('');
+  };
+
+  const removeClassMapping = (idx: number) => {
+    setClassMappings(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const saveSubjectMapping = async () => {
+    const tdId = formData.teacherDetails?.id;
+    if (!tdId) return;
+    try {
+      setSubjectsSaving(true);
+      await api.put<void>(`/api/staff/teachers/${tdId}/subjects`, selectedSubjectIds);
+    } catch (e) {
+      console.error('Failed to save subjects mapping', e);
+    } finally {
+      setSubjectsSaving(false);
+    }
+  };
+
+  const addPendingSubjects = () => {
+    if (!pendingSubjectIds?.length) return;
+    setSelectedSubjectIds(prev => Array.from(new Set([...(prev || []), ...pendingSubjectIds])));
+    setPendingSubjectIds([]);
+  };
+
+  const removeSubject = (id: number) => {
+    setSelectedSubjectIds(prev => (prev || []).filter(sid => sid !== id));
+  };
+
+  const saveClassMappings = async () => {
+    const tdId = formData.teacherDetails?.id;
+    if (!tdId) return;
+    try {
+      setClassesSaving(true);
+      const payload = classMappings.map(m => ({ classId: m.classId, section: m.section, academicYear: m.academicYear }));
+      await api.put<void>(`/api/staff/teachers/${tdId}/classes`, payload);
+    } catch (e) {
+      console.error('Failed to save class mappings', e);
+    } finally {
+      setClassesSaving(false);
+    }
+  };
 
   return (
     <BaseDialog
@@ -742,15 +896,54 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
             </Grid>
             
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Subjects"
-                value={formData.teacherDetails?.subjects}
-                onChange={handleTeacherDetailsChange('subjects')}
-                error={!!errors['teacherDetails.subjects']}
-                helperText={errors['teacherDetails.subjects'] || "Enter comma-separated subjects, e.g., 'Mathematics, Physics'"}
-                required
-              />
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>Teaching Subjects</Typography>
+              <Alert severity="info" sx={{ mb: 1 }}>
+                Select one or more subjects and click Add. Your selection will be saved when you create or update this staff member.
+              </Alert>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+                <FormControl fullWidth error={!!errors['teacherDetails.subjects']}>
+                  <InputLabel>Subjects</InputLabel>
+                  <Select
+                    multiple
+                    value={pendingSubjectIds}
+                    onChange={(e) => setPendingSubjectIds(e.target.value as number[])}
+                    label="Subjects"
+                    renderValue={(selected) => (
+                      <Stack direction="row" spacing={1} flexWrap="wrap">
+                        {(selected as number[]).map(id => {
+                          const subj = allSubjects.find(s => s.id === id);
+                          return <Chip key={id} label={subj ? (subj.code ? `${subj.code} - ${subj.name}` : subj.name) : id} />
+                        })}
+                      </Stack>
+                    )}
+                  >
+                    {allSubjects.map(s => (
+                      <MenuItem key={s.id} value={s.id}>{s.code ? `${s.code} - ${s.name}` : s.name}</MenuItem>
+                    ))}
+                  </Select>
+                  {errors['teacherDetails.subjects'] && (
+                    <FormHelperText>{errors['teacherDetails.subjects']}</FormHelperText>
+                  )}
+                </FormControl>
+                <Button variant="outlined" startIcon={<AddIcon />} onClick={addPendingSubjects} disabled={!pendingSubjectIds.length}>Add</Button>
+              </Stack>
+              <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 1 }}>
+                {selectedSubjectIds.map(id => {
+                  const subj = allSubjects.find(s => s.id === id);
+                  const label = subj ? (subj.code ? `${subj.code} - ${subj.name}` : subj.name) : String(id);
+                  return (
+                    <Chip
+                      key={id}
+                      label={label}
+                      onDelete={() => removeSubject(id)}
+                      deleteIcon={<DeleteIcon />}
+                    />
+                  );
+                })}
+              </Stack>
+              <Box sx={{ mt: 1 }}>
+                <Button variant="contained" size="small" onClick={saveSubjectMapping} disabled={!formData.teacherDetails?.id || subjectsSaving}>Save Subjects</Button>
+              </Box>
             </Grid>
             
             <Grid item xs={12} sm={6}>
@@ -779,6 +972,53 @@ const StaffDialog: React.FC<StaffDialogProps> = ({
                   <MenuItem value="no">No</MenuItem>
                 </Select>
               </FormControl>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Class Assignments</Typography>
+              {!formData.teacherDetails?.id && (
+                <Alert severity="info" sx={{ mb: 1 }}>
+                  You can add class assignments now; they will be saved when you create this staff member.
+                </Alert>
+              )}
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+                <FormControl sx={{ minWidth: 220 }}>
+                  <InputLabel>Class</InputLabel>
+                  <Select
+                    value={newClassId}
+                    label="Class"
+                    onChange={async (e) => {
+                      const val = Number(e.target.value);
+                      setNewClassId(val);
+                      setNewSection('');
+                      await ensureSectionsLoaded(val);
+                    }}
+                  >
+                    {allClasses.map(c => (
+                      <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl sx={{ minWidth: 160 }} disabled={!newClassId}>
+                  <InputLabel>Section</InputLabel>
+                  <Select value={newSection} label="Section" onChange={(e) => setNewSection(String(e.target.value))}>
+                    {(newClassId && sectionsByClass[newClassId] ? sectionsByClass[newClassId] : []).map(sec => (
+                      <MenuItem key={sec} value={sec}>{sec}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <Button variant="outlined" startIcon={<AddIcon />} disabled={!newClassId || !newSection} onClick={addClassMapping}>Add</Button>
+              </Stack>
+              <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 1 }}>
+                {classMappings.map((m, idx) => (
+                  <Chip
+                    key={`${m.classId}-${m.section}`}
+                    label={`${m.className} - ${m.section}`}
+                    onDelete={() => removeClassMapping(idx)}
+                    deleteIcon={<DeleteIcon />}
+                  />
+                ))}
+              </Stack>
             </Grid>
           </>
         )}

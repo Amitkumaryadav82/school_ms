@@ -1,5 +1,4 @@
 
-
 package com.school.exam.controller;
 
 import com.school.exam.model.SchoolClass;
@@ -24,11 +23,23 @@ public class ExamConfigController {
         private Long sourceClassId;
         private List<Long> targetClassIds;
 
-        public Long getSourceClassId() { return sourceClassId; }
-        public void setSourceClassId(Long sourceClassId) { this.sourceClassId = sourceClassId; }
-        public List<Long> getTargetClassIds() { return targetClassIds; }
-        public void setTargetClassIds(List<Long> targetClassIds) { this.targetClassIds = targetClassIds; }
+        public Long getSourceClassId() {
+            return sourceClassId;
+        }
+
+        public void setSourceClassId(Long sourceClassId) {
+            this.sourceClassId = sourceClassId;
+        }
+
+        public List<Long> getTargetClassIds() {
+            return targetClassIds;
+        }
+
+        public void setTargetClassIds(List<Long> targetClassIds) {
+            this.targetClassIds = targetClassIds;
+        }
     }
+
     @GetMapping("/exam-configs")
     @PreAuthorize("hasRole('ADMIN')")
     public List<ExamConfig> getExamConfigs(@RequestParam Long classId) {
@@ -46,6 +57,7 @@ public class ExamConfigController {
     public void deleteExamConfig(@PathVariable Long id) {
         service.deleteExamConfig(id);
     }
+
     @Autowired
     private ExamConfigService service;
 
@@ -79,6 +91,7 @@ public class ExamConfigController {
     public void deleteSubject(@PathVariable Long id) {
         service.deleteSubject(id);
     }
+
     // --- Blueprint tab endpoints ---
     @GetMapping("/exam-configs/classes")
     public List<SchoolClass> getClassesWithExamConfig() {
@@ -89,6 +102,7 @@ public class ExamConfigController {
     public List<Subject> getSubjectsForClass(@RequestParam Long classId) {
         return service.getSubjectsForClass(classId);
     }
+
     // Bulk subject upload endpoint (moved inside class)
     @PostMapping("/subjects/bulk")
     @PreAuthorize("hasRole('ADMIN')")

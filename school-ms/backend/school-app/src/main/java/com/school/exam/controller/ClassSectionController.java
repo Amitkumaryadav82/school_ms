@@ -3,6 +3,7 @@ package com.school.exam.controller;
 import com.school.exam.model.SchoolClass;
 import com.school.exam.repository.SchoolClassRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,8 @@ public class ClassSectionController {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    // Removed duplicate /api/classes GET mapping to avoid conflict with ExamConfigController#getAllClasses
 
     @GetMapping("/{classId}/sections")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
@@ -41,7 +44,8 @@ public class ClassSectionController {
     }
 
     private Integer extractGradeNumber(String className) {
-        if (className == null) return null;
+        if (className == null)
+            return null;
         // Expect formats like "Class 1", "Grade 10", or just a number
         String normalized = className.trim().toLowerCase();
         normalized = normalized.replace("class", "").replace("grade", "").trim();

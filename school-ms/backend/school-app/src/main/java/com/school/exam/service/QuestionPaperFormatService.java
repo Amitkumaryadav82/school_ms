@@ -60,7 +60,8 @@ public class QuestionPaperFormatService {
         return repository.saveAll(rows);
     }
 
-    // Build a summary for UI validation: total questions, total marks, aggregates per unit
+    // Build a summary for UI validation: total questions, total marks, aggregates
+    // per unit
     public QPFSummaryDTO getSummary(Long examId, Long classId, Long subjectId) {
         List<QuestionPaperFormat> rows = repository.findByExamIdAndClassIdAndSubjectId(examId, classId, subjectId);
         Map<String, Double> unitTotals = new HashMap<>();
@@ -76,14 +77,17 @@ public class QuestionPaperFormatService {
 
     // Clone QPF from a source exam/class/subject to a target (overwrite target)
     public List<QuestionPaperFormat> cloneFrom(Long srcExamId, Long srcClassId, Long srcSubjectId,
-                                               Long destExamId, Long destClassId, Long destSubjectId) {
+            Long destExamId, Long destClassId, Long destSubjectId) {
         // delete existing target rows
-        List<QuestionPaperFormat> existing = repository.findByExamIdAndClassIdAndSubjectId(destExamId, destClassId, destSubjectId);
+        List<QuestionPaperFormat> existing = repository.findByExamIdAndClassIdAndSubjectId(destExamId, destClassId,
+                destSubjectId);
         for (QuestionPaperFormat e : existing) {
-            if (e.getId() != null) repository.deleteById(e.getId());
+            if (e.getId() != null)
+                repository.deleteById(e.getId());
         }
         // copy source rows
-        List<QuestionPaperFormat> src = repository.findByExamIdAndClassIdAndSubjectId(srcExamId, srcClassId, srcSubjectId);
+        List<QuestionPaperFormat> src = repository.findByExamIdAndClassIdAndSubjectId(srcExamId, srcClassId,
+                srcSubjectId);
         List<QuestionPaperFormat> copies = new ArrayList<>();
         for (QuestionPaperFormat r : src) {
             QuestionPaperFormat n = new QuestionPaperFormat();

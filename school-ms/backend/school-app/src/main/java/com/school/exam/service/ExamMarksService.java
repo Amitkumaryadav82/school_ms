@@ -30,7 +30,9 @@ public class ExamMarksService {
     private final StudentRepository studentRepository;
     private final SubjectRepository subjectRepository;
 
-    public ExamMarksService(ExamMarkSummaryRepository summaryRepo, ExamMarkDetailRepository detailRepo, QuestionPaperFormatRepository qpfRepo, StudentRepository studentRepository, SubjectRepository subjectRepository) {
+    public ExamMarksService(ExamMarkSummaryRepository summaryRepo, ExamMarkDetailRepository detailRepo,
+            QuestionPaperFormatRepository qpfRepo, StudentRepository studentRepository,
+            SubjectRepository subjectRepository) {
         this.summaryRepo = summaryRepo;
         this.detailRepo = detailRepo;
         this.qpfRepo = qpfRepo;
@@ -39,7 +41,8 @@ public class ExamMarksService {
     }
 
     private String determineType(QuestionPaperFormat q) {
-        // TODO: If subject metadata exists, use that; for now infer from unit name keywords
+        // TODO: If subject metadata exists, use that; for now infer from unit name
+        // keywords
         String unit = q.getUnitName() == null ? "" : q.getUnitName().toLowerCase();
         if (unit.contains("prac") || unit.contains("lab") || unit.contains("experiment")) {
             return "PRACTICAL";
@@ -49,7 +52,8 @@ public class ExamMarksService {
 
     @Transactional(readOnly = true)
     public StudentMarksDTO getStudentMarks(Long examId, Long classId, Long subjectId, Long studentId) {
-        Optional<ExamMarkSummary> existing = summaryRepo.findByExamIdAndSubjectIdAndStudentId(examId, subjectId, studentId);
+        Optional<ExamMarkSummary> existing = summaryRepo.findByExamIdAndSubjectIdAndStudentId(examId, subjectId,
+                studentId);
         List<QuestionPaperFormat> qpfList = qpfRepo.findByExamIdAndClassIdAndSubjectId(examId, classId, subjectId);
 
         StudentMarksDTO dto = new StudentMarksDTO();
@@ -79,7 +83,8 @@ public class ExamMarksService {
             dto.setAbsent(Boolean.TRUE.equals(summary.getIsAbsent()));
             dto.setAbsenceReason(summary.getAbsenceReason());
             dto.setTotalTheoryMarks(summary.getTotalTheoryMarks() == null ? 0.0 : summary.getTotalTheoryMarks());
-            dto.setTotalPracticalMarks(summary.getTotalPracticalMarks() == null ? 0.0 : summary.getTotalPracticalMarks());
+            dto.setTotalPracticalMarks(
+                    summary.getTotalPracticalMarks() == null ? 0.0 : summary.getTotalPracticalMarks());
 
             List<ExamMarkDetail> details = detailRepo.findBySummaryId(summary.getId());
             // Merge into questionMarks by questionFormatId
@@ -94,8 +99,10 @@ public class ExamMarksService {
         }
 
         // compute max buckets
-        double maxTheory = questionMarks.stream().filter(q -> "THEORY".equalsIgnoreCase(q.getQuestionType())).mapToDouble(q -> q.getMaxMarks() == null ? 0 : q.getMaxMarks()).sum();
-        double maxPractical = questionMarks.stream().filter(q -> "PRACTICAL".equalsIgnoreCase(q.getQuestionType())).mapToDouble(q -> q.getMaxMarks() == null ? 0 : q.getMaxMarks()).sum();
+        double maxTheory = questionMarks.stream().filter(q -> "THEORY".equalsIgnoreCase(q.getQuestionType()))
+                .mapToDouble(q -> q.getMaxMarks() == null ? 0 : q.getMaxMarks()).sum();
+        double maxPractical = questionMarks.stream().filter(q -> "PRACTICAL".equalsIgnoreCase(q.getQuestionType()))
+                .mapToDouble(q -> q.getMaxMarks() == null ? 0 : q.getMaxMarks()).sum();
         dto.setMaxTheoryMarks(maxTheory);
         dto.setMaxPracticalMarks(maxPractical);
         dto.setQuestionMarks(questionMarks);
@@ -104,7 +111,8 @@ public class ExamMarksService {
 
     @Transactional
     public void saveStudentMarks(StudentMarksDTO dto) {
-        ExamMarkSummary summary = summaryRepo.findByExamIdAndSubjectIdAndStudentId(dto.getExamId(), dto.getSubjectId(), dto.getStudentId())
+        ExamMarkSummary summary = summaryRepo
+                .findByExamIdAndSubjectIdAndStudentId(dto.getExamId(), dto.getSubjectId(), dto.getStudentId())
                 .orElseGet(ExamMarkSummary::new);
         summary.setExamId(dto.getExamId());
         summary.setSubjectId(dto.getSubjectId());
@@ -148,7 +156,8 @@ public class ExamMarksService {
     }
 
     @Transactional
-    public void editLockedMark(Long examId, Long subjectId, Long studentId, Long questionFormatId, Double newMarks, String reason) {
+    public void editLockedMark(Long examId, Long subjectId, Long studentId, Long questionFormatId, Double newMarks,
+            String reason) {
         ExamMarkSummary summary = summaryRepo.findByExamIdAndSubjectIdAndStudentId(examId, subjectId, studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Marks not found"));
         List<ExamMarkDetail> details = detailRepo.findBySummaryId(summary.getId());
@@ -164,7 +173,8 @@ public class ExamMarksService {
     }
 
     @Transactional
-    public void bulkUpdate(Long examId, Long classId, Long subjectId, List<com.school.exam.dto.BulkMarksUpdateRequest.BulkMarkItem> updates) {
+    public void bulkUpdate(Long examId, Long classId, Long subjectId,
+            List<com.school.exam.dto.BulkMarksUpdateRequest.BulkMarkItem> updates) {
         // Group by student and upsert details
         for (var item : updates) {
             ExamMarkSummary summary = summaryRepo
@@ -200,8 +210,8 @@ public class ExamMarksService {
     @Transactional(readOnly = true)
     public MarksMatrixResponse getMarksMatrix(Long examId, Long classId, Integer grade, String section) {
         // Subjects constrained to QPF for exam/class
-    List<Long> subjectIds = qpfRepo.findDistinctSubjectIdsByExamIdAndClassId(examId, classId);
-    List<Subject> subjects = subjectRepository.findAllById(subjectIds);
+        List<Long> subjectIds = qpfRepo.findDistinctSubjectIdsByExamIdAndClassId(examId, classId);
+        List<Subject> subjects = subjectRepository.findAllById(subjectIds);
         List<MarksMatrixResponse.SubjectColumn> cols = subjects.stream().map(s -> {
             MarksMatrixResponse.SubjectColumn c = new MarksMatrixResponse.SubjectColumn();
             c.setSubjectId(s.getId());
@@ -223,7 +233,8 @@ public class ExamMarksService {
                 MarksMatrixResponse.StudentSubjectCell cell = new MarksMatrixResponse.StudentSubjectCell();
                 cell.setSubjectId(c.getSubjectId());
                 // Pull summary totals if present
-                Optional<ExamMarkSummary> sumOpt = summaryRepo.findByExamIdAndSubjectIdAndStudentId(examId, c.getSubjectId(), st.getId());
+                Optional<ExamMarkSummary> sumOpt = summaryRepo.findByExamIdAndSubjectIdAndStudentId(examId,
+                        c.getSubjectId(), st.getId());
                 sumOpt.ifPresent(sum -> {
                     cell.setAbsent(Boolean.TRUE.equals(sum.getIsAbsent()));
                     cell.setAbsenceReason(sum.getAbsenceReason());
@@ -258,7 +269,8 @@ public class ExamMarksService {
                 double theory = cell.getTheoryMarks() == null ? 0.0 : cell.getTheoryMarks();
                 double practical = cell.getPracticalMarks() == null ? 0.0 : cell.getPracticalMarks();
                 if (theory + practical > totalMax + 1e-9) {
-                    throw new IllegalArgumentException("Marks exceed total for subject " + subjectId + ": " + (theory + practical) + "/" + totalMax);
+                    throw new IllegalArgumentException("Marks exceed total for subject " + subjectId + ": "
+                            + (theory + practical) + "/" + totalMax);
                 }
 
                 ExamMarkSummary summary = summaryRepo

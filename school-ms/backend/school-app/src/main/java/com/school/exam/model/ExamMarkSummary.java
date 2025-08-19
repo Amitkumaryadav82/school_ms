@@ -4,7 +4,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "exam_mark_summaries", uniqueConstraints = @UniqueConstraint(columnNames = {"exam_id","subject_id","student_id"}))
+@Table(name = "exam_mark_summaries", uniqueConstraints = @UniqueConstraint(columnNames = { "exam_id", "subject_id",
+        "student_id" }))
 public class ExamMarkSummary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,28 +44,99 @@ public class ExamMarkSummary {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getExamId() { return examId; }
-    public void setExamId(Long examId) { this.examId = examId; }
-    public Long getClassId() { return classId; }
-    public void setClassId(Long classId) { this.classId = classId; }
-    public Long getSubjectId() { return subjectId; }
-    public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
-    public Long getStudentId() { return studentId; }
-    public void setStudentId(Long studentId) { this.studentId = studentId; }
-    public Boolean getIsAbsent() { return isAbsent; }
-    public void setIsAbsent(Boolean absent) { isAbsent = absent; }
-    public String getAbsenceReason() { return absenceReason; }
-    public void setAbsenceReason(String absenceReason) { this.absenceReason = absenceReason; }
-    public Double getTotalTheoryMarks() { return totalTheoryMarks; }
-    public void setTotalTheoryMarks(Double totalTheoryMarks) { this.totalTheoryMarks = totalTheoryMarks; }
-    public Double getTotalPracticalMarks() { return totalPracticalMarks; }
-    public void setTotalPracticalMarks(Double totalPracticalMarks) { this.totalPracticalMarks = totalPracticalMarks; }
-    public Boolean getLocked() { return locked; }
-    public void setLocked(Boolean locked) { this.locked = locked; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getExamId() {
+        return examId;
+    }
+
+    public void setExamId(Long examId) {
+        this.examId = examId;
+    }
+
+    public Long getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Long classId) {
+        this.classId = classId;
+    }
+
+    public Long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(Long subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    public Long getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
+    }
+
+    public Boolean getIsAbsent() {
+        return isAbsent;
+    }
+
+    public void setIsAbsent(Boolean absent) {
+        isAbsent = absent;
+    }
+
+    public String getAbsenceReason() {
+        return absenceReason;
+    }
+
+    public void setAbsenceReason(String absenceReason) {
+        this.absenceReason = absenceReason;
+    }
+
+    public Double getTotalTheoryMarks() {
+        return totalTheoryMarks;
+    }
+
+    public void setTotalTheoryMarks(Double totalTheoryMarks) {
+        this.totalTheoryMarks = totalTheoryMarks;
+    }
+
+    public Double getTotalPracticalMarks() {
+        return totalPracticalMarks;
+    }
+
+    public void setTotalPracticalMarks(Double totalPracticalMarks) {
+        this.totalPracticalMarks = totalPracticalMarks;
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

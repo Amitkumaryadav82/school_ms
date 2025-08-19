@@ -13,14 +13,30 @@ public class QPFSummaryDTO {
         this.unitTotals = unitTotals;
     }
 
-    public QPFSummaryDTO() {}
+    public QPFSummaryDTO() {
+    }
 
-    public int getTotalQuestions() { return totalQuestions; }
-    public void setTotalQuestions(int totalQuestions) { this.totalQuestions = totalQuestions; }
+    public int getTotalQuestions() {
+        return totalQuestions;
+    }
 
-    public double getTotalMarks() { return totalMarks; }
-    public void setTotalMarks(double totalMarks) { this.totalMarks = totalMarks; }
+    public void setTotalQuestions(int totalQuestions) {
+        this.totalQuestions = totalQuestions;
+    }
 
-    public Map<String, Double> getUnitTotals() { return unitTotals; }
-    public void setUnitTotals(Map<String, Double> unitTotals) { this.unitTotals = unitTotals; }
+    public double getTotalMarks() {
+        return totalMarks;
+    }
+
+    public void setTotalMarks(double totalMarks) {
+        this.totalMarks = totalMarks;
+    }
+
+    public Map<String, Double> getUnitTotals() {
+        return unitTotals;
+    }
+
+    public void setUnitTotals(Map<String, Double> unitTotals) {
+        this.unitTotals = unitTotals;
+    }
 }

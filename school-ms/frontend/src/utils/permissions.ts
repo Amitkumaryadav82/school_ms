@@ -4,6 +4,7 @@ export const ROLES = {
   STAFF: 'STAFF',
   PARENT: 'PARENT',
   STUDENT: 'STUDENT',
+  PRINCIPAL: 'PRINCIPAL',
 } as const;
 
 export type Role = keyof typeof ROLES;
@@ -18,7 +19,7 @@ export const PERMISSIONS = {
   DELETE_TEACHER: [ROLES.ADMIN] as Role[],
   VIEW_TEACHER: [ROLES.ADMIN, ROLES.STAFF, ROLES.STUDENT] as Role[],
   
-  MANAGE_STAFF: [ROLES.ADMIN] as Role[], // Added permission for staff management
+  MANAGE_STAFF: [ROLES.ADMIN, ROLES.PRINCIPAL] as Role[], // Staff management (incl. teacher mappings) allowed for Admin and Principal
   
   CREATE_COURSE: [ROLES.ADMIN, ROLES.STAFF] as Role[],
   EDIT_COURSE: [ROLES.ADMIN, ROLES.STAFF] as Role[],

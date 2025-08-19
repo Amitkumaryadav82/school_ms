@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface ExamMarkSummaryRepository extends JpaRepository<ExamMarkSummary, Long> {
     Optional<ExamMarkSummary> findByExamIdAndSubjectIdAndStudentId(Long examId, Long subjectId, Long studentId);
+
     List<ExamMarkSummary> findByExamIdAndSubjectIdAndClassId(Long examId, Long subjectId, Long classId);
 }

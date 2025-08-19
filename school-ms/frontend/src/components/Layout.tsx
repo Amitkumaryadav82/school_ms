@@ -93,6 +93,12 @@ const menuItems: MenuItem[] = [
     allowedRoles: [ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.STAFF]
   },
   { 
+    text: 'Timetable', 
+    icon: <EventAvailable />, 
+    path: '/timetable',
+    allowedRoles: [ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.TEACHER]
+  },
+  { 
     text: 'Examinations', 
     icon: <Book />, 
     path: '/exams',

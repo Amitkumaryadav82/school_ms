@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
 import java.util.Optional;
 
@@ -64,34 +63,34 @@ public class QuestionPaperFormatController {
     // Summary for UI validation: totals and per-unit aggregates
     @GetMapping("/summary")
     public QPFSummaryDTO summary(@RequestParam Long examId,
-                                 @RequestParam Long classId,
-                                 @RequestParam Long subjectId) {
+            @RequestParam Long classId,
+            @RequestParam Long subjectId) {
         return service.getSummary(examId, classId, subjectId);
     }
 
     // Clone endpoint: copy from src to dest (overwrite dest)
     @PostMapping("/clone")
     public List<QuestionPaperFormat> cloneFrom(@RequestParam Long srcExamId,
-                                               @RequestParam Long srcClassId,
-                                               @RequestParam Long srcSubjectId,
-                                               @RequestParam Long destExamId,
-                                               @RequestParam Long destClassId,
-                                               @RequestParam Long destSubjectId) {
+            @RequestParam Long srcClassId,
+            @RequestParam Long srcSubjectId,
+            @RequestParam Long destExamId,
+            @RequestParam Long destClassId,
+            @RequestParam Long destSubjectId) {
         return service.cloneFrom(srcExamId, srcClassId, srcSubjectId, destExamId, destClassId, destSubjectId);
     }
 
     // Export CSV for the selected exam/class/subject
     @GetMapping(value = "/export", produces = "text/csv")
     public ResponseEntity<String> exportCsv(@RequestParam Long examId,
-                                            @RequestParam Long classId,
-                                            @RequestParam Long subjectId) {
+            @RequestParam Long classId,
+            @RequestParam Long subjectId) {
         List<QuestionPaperFormat> rows = service.getByExamClassSubject(examId, classId, subjectId);
         StringBuilder sb = new StringBuilder();
         sb.append("questionNumber,unitName,marks\n");
         for (QuestionPaperFormat r : rows) {
             sb.append(r.getQuestionNumber()).append(',')
-              .append(r.getUnitName() == null ? "" : r.getUnitName().replace(",", " ")).append(',')
-              .append(r.getMarks() == null ? 0 : r.getMarks()).append('\n');
+                    .append(r.getUnitName() == null ? "" : r.getUnitName().replace(",", " ")).append(',')
+                    .append(r.getMarks() == null ? 0 : r.getMarks()).append('\n');
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);

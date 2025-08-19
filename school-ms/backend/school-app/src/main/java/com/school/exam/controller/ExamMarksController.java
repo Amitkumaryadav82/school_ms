@@ -23,9 +23,9 @@ public class ExamMarksController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public ResponseEntity<StudentMarksDTO> getStudentMarks(@RequestParam Long examId,
-                                                           @RequestParam Long classId,
-                                                           @RequestParam Long subjectId,
-                                                           @RequestParam Long studentId) {
+            @RequestParam Long classId,
+            @RequestParam Long subjectId,
+            @RequestParam Long studentId) {
         return ResponseEntity.ok(service.getStudentMarks(examId, classId, subjectId, studentId));
     }
 
@@ -39,8 +39,8 @@ public class ExamMarksController {
     @PostMapping("/lock")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public ResponseEntity<Void> lockMarks(@RequestParam Long examId,
-                                          @RequestParam Long subjectId,
-                                          @RequestBody List<Long> studentIds) {
+            @RequestParam Long subjectId,
+            @RequestBody List<Long> studentIds) {
         service.lockMarks(examId, subjectId, studentIds);
         return ResponseEntity.ok().build();
     }
@@ -48,11 +48,11 @@ public class ExamMarksController {
     @PostMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> editLockedMark(@RequestParam Long examId,
-                                               @RequestParam Long subjectId,
-                                               @RequestParam Long studentId,
-                                               @RequestParam Long questionFormatId,
-                                               @RequestParam Double newMarks,
-                                               @RequestParam String reason) {
+            @RequestParam Long subjectId,
+            @RequestParam Long studentId,
+            @RequestParam Long questionFormatId,
+            @RequestParam Double newMarks,
+            @RequestParam String reason) {
         service.editLockedMark(examId, subjectId, studentId, questionFormatId, newMarks, reason);
         return ResponseEntity.ok().build();
     }
@@ -64,13 +64,14 @@ public class ExamMarksController {
         return ResponseEntity.ok().build();
     }
 
-    // Matrix: subjects constrained by QPF for exam+class; rows are students of the section
+    // Matrix: subjects constrained by QPF for exam+class; rows are students of the
+    // section
     @GetMapping("/matrix")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     public ResponseEntity<MarksMatrixResponse> getMatrix(@RequestParam Long examId,
-                                                         @RequestParam Long classId,
-                                                         @RequestParam Integer grade,
-                                                         @RequestParam String section) {
+            @RequestParam Long classId,
+            @RequestParam Integer grade,
+            @RequestParam String section) {
         return ResponseEntity.ok(service.getMarksMatrix(examId, classId, grade, section));
     }
 

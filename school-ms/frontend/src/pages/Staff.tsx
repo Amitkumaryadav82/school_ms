@@ -96,8 +96,28 @@ const Staff: React.FC = () => {
   const { mutate: createStaff, loading: createLoading } = useApiMutation(
     (data: StaffMember) => staffService.create(data),
     {
-      onSuccess: () => {
+      onSuccess: async (created) => {
         showNotification({ type: 'success', message: 'Staff member created successfully' });
+        // If the dialog sent pending mappings, persist them now
+        try {
+          const subjectIds = (created as any).__subjectIds || (selectedStaff as any)?.__subjectIds;
+          const classMappings = (created as any).__classMappings || (selectedStaff as any)?.__classMappings;
+
+          // Resolve teacherDetailsId from response (prefer created.teacherDetails.id)
+          const teacherDetailsId = (created as any)?.teacherDetails?.id;
+
+          if (teacherDetailsId) {
+            if (Array.isArray(subjectIds) && subjectIds.length > 0) {
+              await api.put<void>(`/api/staff/teachers/${teacherDetailsId}/subjects`, subjectIds);
+            }
+            if (Array.isArray(classMappings) && classMappings.length > 0) {
+              await api.put<void>(`/api/staff/teachers/${teacherDetailsId}/classes`, classMappings);
+            }
+          }
+        } catch (e) {
+          console.error('Failed to persist mappings after creation', e);
+          showNotification({ type: 'warning', message: 'Created staff, but failed to save subjects/classes' });
+        }
         setDialogOpen(false);
         refresh();
       },
@@ -910,61 +930,62 @@ const Staff: React.FC = () => {
       id: 'isActive', 
       label: 'Status', 
       sortable: true,
-      format: (_, staff) => (
-        hasPermission(user?.role || '', 'MANAGE_STAFF') ? (
-          <FormControl size="small" fullWidth>
-            <Select
-              value={staff.employmentStatus || EmploymentStatus.ACTIVE}
-              onChange={(e) => handleStatusChange(staff, e.target.value as EmploymentStatus)}
-              disabled={updateStatusLoading}
-              variant="standard"
-              sx={{ 
-                '& .MuiSelect-select': { 
-                  py: 0, 
-                  color: () => {
-                    switch (staff.employmentStatus) {
-                      case EmploymentStatus.ACTIVE:
-                        return 'success.main';
-                      case EmploymentStatus.LEAVE_OF_ABSENCE:
-                      case EmploymentStatus.PROBATION:
-                      case EmploymentStatus.CONTRACT:
-                        return 'warning.main';
-                      case EmploymentStatus.TERMINATED:
-                      case EmploymentStatus.RETIRED:
-                      case EmploymentStatus.RESIGNED:
-                      case EmploymentStatus.INACTIVE:
-                        return 'error.main';
-                      default:
-                        return 'text.primary';
+      format: (_, staff) => {
+        const currentStatus = staff.employmentStatus || EmploymentStatus.ACTIVE;
+        return (
+          hasPermission(user?.role || '', 'MANAGE_STAFF') ? (
+            <FormControl size="small" fullWidth>
+              <Select
+                value={currentStatus}
+                onChange={(e) => handleStatusChange(staff, e.target.value as EmploymentStatus)}
+                disabled={updateStatusLoading}
+                variant="standard"
+                sx={{ 
+                  '& .MuiSelect-select': { 
+                    py: 0, 
+                    color: () => {
+                      switch (currentStatus) {
+                        case EmploymentStatus.ACTIVE:
+                          return 'success.main';
+                        case EmploymentStatus.LEAVE_OF_ABSENCE:
+                        case EmploymentStatus.PROBATION:
+                        case EmploymentStatus.CONTRACT:
+                          return 'warning.main';
+                        case EmploymentStatus.TERMINATED:
+                        case EmploymentStatus.RETIRED:
+                        case EmploymentStatus.RESIGNED:
+                        case EmploymentStatus.INACTIVE:
+                          return 'error.main';
+                        default:
+                          return 'text.primary';
+                      }
                     }
                   }
-                }
-              }}
-            >
-              {/* Only show valid options based on current status */}
-              {staff.employmentStatus === EmploymentStatus.ACTIVE ? (
-                // If active, show only allowed transitions
-                ALLOWED_EMPLOYMENT_STATUSES.map((status) => (
-                  <MenuItem key={status} value={status}>
-                    {status.replace('_', ' ')}
+                }}
+              >
+                {/* Only show valid options based on effective current status */}
+                {currentStatus === EmploymentStatus.ACTIVE ? (
+                  ALLOWED_EMPLOYMENT_STATUSES.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status.replace('_', ' ')}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem key={currentStatus} value={currentStatus}>
+                    {currentStatus ? currentStatus.replace('_', ' ') : 'UNKNOWN'}
                   </MenuItem>
-                ))
-              ) : (
-                // If not active, only show current status (no transitions allowed)
-                <MenuItem key={staff.employmentStatus} value={staff.employmentStatus}>
-                  {staff.employmentStatus ? staff.employmentStatus.replace('_', ' ') : 'UNKNOWN'}
-                </MenuItem>
-              )}
-            </Select>
-          </FormControl>
-        ) : (
-          <Chip 
-            label={(staff.employmentStatus || EmploymentStatus.ACTIVE).replace('_', ' ')} 
-            color={getStatusColor(staff.employmentStatus)}
-            size="small"
-          />
-        )
-      )
+                )}
+              </Select>
+            </FormControl>
+          ) : (
+            <Chip 
+              label={currentStatus.replace('_', ' ')} 
+              color={getStatusColor(currentStatus as EmploymentStatus)}
+              size="small"
+            />
+          )
+        );
+      }
     },
     {
       id: 'actions',

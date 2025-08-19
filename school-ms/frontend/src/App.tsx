@@ -22,6 +22,7 @@ import StaffAttendance from './pages/StaffAttendance';
 import Reports from './pages/Reports';
 import TeacherAttendance from './pages/TeacherAttendance';
 import ReportCards from './pages/ReportCards';
+import TimetableLanding from './pages/TimetableLanding';
 
 const ROLES = {
   ADMIN: 'ADMIN',
@@ -89,10 +90,10 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
-              <Route path="/staff" element={
+      <Route path="/staff" element={
                 <ProtectedRoute>
                   <Layout>
-                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN]}>
+        <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL]}>
                       <Staff />
                     </RoleBasedRoute>
                   </Layout>
@@ -132,6 +133,15 @@ function App() {
                       <Reports />
                     </RoleBasedRoute>
                   </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/timetable" element={
+                <ProtectedRoute>
+                  <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.TEACHER]}>
+                    <Layout>
+                      <TimetableLanding />
+                    </Layout>
+                  </RoleBasedRoute>
                 </ProtectedRoute>
               } />
               <Route path="/exams/report-cards" element={
