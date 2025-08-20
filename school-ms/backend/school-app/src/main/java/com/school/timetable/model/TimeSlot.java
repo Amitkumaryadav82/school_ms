@@ -1,30 +1,20 @@
 package com.school.timetable.model;
 
-import javax.persistence.*;
 import lombok.Data;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
-@Entity
+/**
+ * Deprecated legacy placeholder. This is no longer a JPA entity and is not persisted.
+ */
+@Deprecated
 @Data
-@Table(name = "time_slots")
 public class TimeSlot {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private LocalTime startTime;
-
-    @Column(nullable = false)
     private LocalTime endTime;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private DayOfWeek dayOfWeek;
-
-    @Column(nullable = false)
     private boolean isBreak;
-
     private String slotName; // e.g., "First Period", "Lunch Break"
 }

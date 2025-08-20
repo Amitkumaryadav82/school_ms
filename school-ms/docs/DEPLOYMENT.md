@@ -191,6 +191,7 @@ What’s already included:
   - Unique constraint to ensure a class/section/day/period is only used once.
   - Partial unique index to prevent teacher double-booking the same day/period.
   - Helpful indexes for common lookups.
+- `V3__drop_legacy_unused_tables.sql` removes legacy tables (`time_slots`, `timetable`, `class_room`, `example_staff`) that were created by old entities but are no longer used.
 
 Dev vs Prod:
 - Dev uses H2 in-memory with `data.sql` to seed demo data. This is convenient for local testing.

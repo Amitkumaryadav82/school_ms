@@ -1,17 +1,14 @@
 package com.school.timetable.model;
 
-import javax.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import com.school.common.model.BaseEntity;
 import java.time.LocalDate;
 
-@Entity
+/**
+ * Deprecated legacy placeholder. This is no longer a JPA entity and is not persisted.
+ */
+@Deprecated
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class Timetable extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class Timetable {
     private Long id;
 
     private String className;
