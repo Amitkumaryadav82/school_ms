@@ -15,7 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -125,7 +124,9 @@ public class SecurityConfig {
                                                         "/api/auth/validate-token").permitAll();
 
                                         auth.antMatchers("/h2-console/**").permitAll();
-                                        auth.antMatchers("/actuator/**").permitAll();                                        // IMPORTANT: Override the method-level security for fee report endpoints
+                                        // Only health open; secure other actuator endpoints
+                                        auth.antMatchers("/actuator/health").permitAll();
+                                        auth.antMatchers("/actuator/**").authenticated();                                        // IMPORTANT: Override the method-level security for fee report endpoints
                                         // to ensure they are accessible by both ADMIN and TEACHER roles
                                         auth.antMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
                                                         .authenticated();
@@ -199,7 +200,8 @@ public class SecurityConfig {
 
                                         // Allow access to H2 console in dev mode
                                         auth.antMatchers("/h2-console/**").permitAll();
-                                        auth.antMatchers("/actuator/**").permitAll();
+                                        auth.antMatchers("/actuator/health").permitAll();
+                                        auth.antMatchers("/actuator/**").authenticated();
 
                                         // Auth endpoints - explicitly list all public endpoints for clarity
                                         auth.antMatchers(

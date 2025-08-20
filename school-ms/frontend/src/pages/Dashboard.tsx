@@ -26,7 +26,6 @@ import {
   People as PeopleIcon,
   School as SchoolIcon,
   Book as BookIcon,
-  ArrowUpward as ArrowUpIcon,
   Group as GroupIcon,
   Warning as WarningIcon,
   Refresh as RefreshIcon,
@@ -147,13 +146,7 @@ const StatCard = ({
         {value}
       </Typography>
     </CardContent>
-    {onClick && (
-      <CardActions>
-        <Button size="small" endIcon={<ArrowUpIcon />}>
-          View Details
-        </Button>
-      </CardActions>
-    )}
+  {/* View Details button removed as per requirement */}
   </Card>
 );
 
@@ -829,8 +822,27 @@ const AdminDashboard = () => {
       // Define empty arrays and default values for removed course data
       coursesData = []; // reusing the already declared variable
       const totalEnrollments = 0;
-      const avgClassSize = 0;
       const coursesAtCapacity = 0;
+
+      // Compute Average Class Size from students grouped by grade + section
+      let avgClassSize = 0;
+      try {
+        if (studentsData.length > 0) {
+          const classCounts = new Map<string, number>();
+          for (const s of studentsData as Student[]) {
+            const grade = (s.grade ?? '').toString().trim() || 'N/A';
+            const section = (s.section ?? '').toString().trim() || 'A';
+            const key = `${grade}__${section}`;
+            classCounts.set(key, (classCounts.get(key) || 0) + 1);
+          }
+          const numClasses = classCounts.size || 1;
+          const totalStudents = studentsData.length;
+          avgClassSize = Math.round((totalStudents / numClasses) * 10) / 10;
+        }
+      } catch (e) {
+        console.warn('Failed to compute average class size, defaulting to 0', e);
+        avgClassSize = 0;
+      }
 
       const recentActivity = [
         ...studentsData.slice(0, 3).map((student: Student) => ({
@@ -935,12 +947,7 @@ const AdminDashboard = () => {
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Active Enrollments"
-            value={stats.activeEnrollments}
-            icon={GroupIcon}
-            color="info.main"
-          />
+          {/* Active Enrollments card removed as per requirement */}
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
@@ -950,13 +957,7 @@ const AdminDashboard = () => {
             color="warning.main"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>          <StatCard
-            title="Courses at Capacity"
-            value={stats.coursesAtCapacity}
-            icon={WarningIcon}
-            color="error.main"
-          />
-        </Grid>
+  {/* Courses at Capacity card removed as per requirement */}
 
         <Grid item xs={12}>
           <Paper sx={{ p: 2, mt: 2 }}>

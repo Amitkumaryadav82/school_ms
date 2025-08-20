@@ -95,6 +95,7 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         
         <!-- H2 Database for testing and development -->
         <dependency>
@@ -222,4 +223,16 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>with-flyway</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.flywaydb</groupId>
+                    <artifactId>flyway-core</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.transaction.CannotCreateTransactionException;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.OptimisticLockException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,14 +46,14 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Failed",
-                "Please check the submitted fields");
+    ErrorResponse errorResponse = new ErrorResponse(
+        HttpStatus.UNPROCESSABLE_ENTITY.value(),
+        "Unprocessable Entity",
+        "Validation failed. Please check the submitted fields.");
         errorResponse.setErrors(errors);
 
         logger.warn("Validation error: {}", errors);
-        return ResponseEntity.badRequest().body(errorResponse);
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
     }
 
     // Basic exceptions
@@ -138,6 +140,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    // Concurrency exceptions
+    @ExceptionHandler(OptimisticLockException.class)
+    public ResponseEntity<ErrorResponse> handleOptimisticLockException(OptimisticLockException ex) {
+        logger.warn("Optimistic lock conflict: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                "Concurrent update detected. Please retry.");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     // Database exceptions
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
@@ -147,6 +160,16 @@ public class GlobalExceptionHandler {
                 "Data Integrity Violation",
                 "The operation could not be completed due to a data constraint violation");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(CannotCreateTransactionException.class)
+    public ResponseEntity<ErrorResponse> handleCannotCreateTransaction(CannotCreateTransactionException ex) {
+        logger.error("Database unavailable: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "Service Unavailable",
+                "Database is temporarily unavailable. Please try again later.");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
     }
 
     @ExceptionHandler({ EntityNotFoundException.class, NoSuchElementException.class })

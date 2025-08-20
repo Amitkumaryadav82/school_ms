@@ -12,6 +12,9 @@ public class TimetableSlot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(name = "class_id", nullable = false)
     private Long classId;
 
@@ -59,6 +62,14 @@ public class TimetableSlot {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public Long getClassId() {

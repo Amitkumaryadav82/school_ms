@@ -365,6 +365,7 @@ com\school\fee\model\Fee$FeeFrequency.class
 com\school\fee\service\FeeService.class
 com\school\admission\model\Admission$AdmissionStatus.class
 com\school\fee\repository\TransportRouteRepository.class
+com\school\web\GlobalExceptionHandler.class
 com\school\fee\dto\PaymentScheduleDTO$PaymentScheduleDTOBuilder.class
 com\school\exam\dto\BlueprintUnitQuestionDTO.class
 com\school\fee\model\Payment.class
