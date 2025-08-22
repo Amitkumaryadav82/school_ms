@@ -3,7 +3,7 @@ package com.school.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -38,13 +38,16 @@ public class SecurityConfig {
         private final CorsFilter corsFilter;
         private final UserDetailsService userDetailsService;
         private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+        private final Environment environment;
 
         public SecurityConfig(CorsFilter corsFilter, UserDetailsService userDetailsService,
-                        JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+                        JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+                        Environment environment) {
                 // Inject the corsFilter from CorsConfig
                 this.corsFilter = corsFilter;
                 this.userDetailsService = userDetailsService;
                 this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+                this.environment = environment;
         }
 
         @Bean
@@ -75,10 +78,13 @@ public class SecurityConfig {
          */
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                boolean isDev = java.util.Arrays.asList(environment.getActiveProfiles()).contains("dev");
                 http
                                 // Security headers configuration
                                 .headers(headers -> headers
-                                                .frameOptions(frame -> frame.sameOrigin())
+                                                .frameOptions(frame -> {
+                                                        if (isDev) frame.disable(); else frame.sameOrigin();
+                                                })
                                                 .referrerPolicy(referrer -> referrer
                                                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))) // Disable
                                                                                                                                                      // CSRF
@@ -97,7 +103,8 @@ public class SecurityConfig {
 
                                 // Set up exception handlers
                                 .exceptionHandling(exceptions -> exceptions
-                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint))                                // Configure authorization rules
+                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                                // Configure authorization rules
                                 .authorizeHttpRequests(auth -> {
                                         // First, explicitly permit all static resources with very specific patterns
                                         auth.antMatchers(
@@ -153,92 +160,6 @@ public class SecurityConfig {
                                                         "/admin",
                                                         "/profile").permitAll(); // All other API requests require
                                                                                  // authentication
-                                        auth.anyRequest().authenticated();
-                                })
-                                // Add the corsFilter and JWT filter in the correct order
-                                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-                                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-                return http.build();
-        }
-
-        /**
-         * Development-specific security configuration with more permissive settings.
-         * Only active when the 'dev' profile is active.
-         */
-        @Bean
-        @Profile("dev")
-        public SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
-                http
-                                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-                                .csrf(AbstractHttpConfigurer::disable)
-                                // Also use the centralized CORS configuration in dev mode
-                                .cors(cors -> {
-                                })
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                                // Set up exception handlers - this was missing in dev config
-                                .exceptionHandling(exceptions -> exceptions
-                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint))                                .authorizeHttpRequests(auth -> { // All static resources
-                                        auth.antMatchers("/**/*.js",
-                                                        "/**/*.css",
-                                                        "/**/*.html",
-                                                        "/**/*.json",
-                                                        "/**/*.ico",
-                                                        "/**/*.png",
-                                                        "/",
-                                                        "/index.html",
-                                                        "/static/**",
-                                                        "/assets/**",
-                                                        "/css/**",
-                                                        "/js/**",
-                                                        "/images/**",
-                                                        "/favicon.ico",
-                                                        "/manifest.json",
-                                                        "/robots.txt").permitAll();
-
-                                        // Allow access to H2 console in dev mode
-                                        auth.antMatchers("/h2-console/**").permitAll();
-                                        auth.antMatchers("/actuator/health").permitAll();
-                                        auth.antMatchers("/actuator/**").authenticated();
-
-                                        // Auth endpoints - explicitly list all public endpoints for clarity
-                                        auth.antMatchers(
-                                                        "/api/auth/login",
-                                                        "/api/auth/register",
-                                                        "/api/auth/health",
-                                                        "/api/auth/refresh",
-                                                        "/api/auth/validate-token").permitAll();
-
-                                        // Fee reports endpoints - ensure consistency with main config
-                                        auth.antMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
-                                                        .authenticated();
-                                        auth.antMatchers("/api/fees/reports/download/**").authenticated();
-
-                                        // API docs - expanded to match main config
-                                        auth.antMatchers(
-                                                        "/v3/api-docs/**",
-                                                        "/v3/api-docs.yaml",
-                                                        "/swagger-ui/**",
-                                                        "/swagger-ui.html",
-                                                        "/swagger-resources/**",
-                                                        "/webjars/**",
-                                                        "/api-docs/**").permitAll();
-
-                                        // SPA routes - expanded to match main config
-                                        auth.antMatchers(
-                                                        "/login",
-                                                        "/register",
-                                                        "/dashboard",
-                                                        "/students",
-                                                        "/teachers",
-                                                        "/courses",
-                                                        "/admissions",
-                                                        "/reports",
-                                                        "/admin",
-                                                        "/profile").permitAll();
-
                                         auth.anyRequest().authenticated();
                                 })
                                 // Add the corsFilter and JWT filter in the correct order

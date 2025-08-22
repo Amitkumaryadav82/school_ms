@@ -141,6 +141,7 @@ com\school\fee\dto\FeeInstallmentResponse.class
 com\school\exception\InvalidDateRangeException.class
 com\school\security\UserRole.class
 com\school\communication\service\NotificationService.class
+com\school\config\WebCorsConfig.class
 com\school\staff\util\CsvXlsParserAdapter.class
 com\school\core\model\StaffRole.class
 com\school\security\exception\DuplicateUsernameException.class

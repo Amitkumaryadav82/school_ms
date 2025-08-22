@@ -10,9 +10,12 @@ interface Config {
   };
 }
 
+// Prefer Vite-provided env var when present (supports local overrides via .env files)
+const VITE_API_URL = (import.meta as any).env?.VITE_API_URL as string | undefined;
+
 const development: Config = {
   // Use relative URLs to leverage Vite proxy configuration
-  apiUrl: '',  // Empty string means use relative URLs with Vite proxy
+  apiUrl: VITE_API_URL ?? '',  // If not set, use relative URLs with Vite proxy
   fallbackApiUrl: 'http://localhost:8080', // Direct fallback to backend if proxy fails
   swaggerUrl: 'http://localhost:8080/swagger-ui/index.html',
   apiTimeout: 15000, // Extended to 15 seconds for debugging
@@ -30,7 +33,7 @@ const development: Config = {
 
 const production: Config = {
   // In production (monolithic app), use window.location.origin to ensure correct base URL
-  apiUrl: window.location.origin,  // This ensures we use the same origin the app is served from
+  apiUrl: VITE_API_URL ?? window.location.origin,  // Allow override via env, else same-origin
   fallbackApiUrl: '', // No need for fallback in monolithic app
   swaggerUrl: '/swagger-ui/index.html',
   apiTimeout: 15000, // 15 second timeout for API calls in production

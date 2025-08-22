@@ -52,7 +52,11 @@ DB_URL=jdbc:postgresql://localhost:5432/school_db
 DB_USER=school_user
 DB_PASSWORD=CHANGEME_STRONG
 JWT_SECRET=GENERATE_A_64B_RANDOM_SECRET
+# CORS: if serving the frontend from another origin, list exact origins here
 ALLOWED_ORIGINS=https://myschool.example.com,https://www.myschool.example.com
+# Optional: use wildcard patterns instead of explicit origins (Spring Boot relaxed binding)
+# Example allows any subdomain under myschool.example.com
+# CORS_ALLOWED_ORIGIN_PATTERNS=https://*.myschool.example.com
 JAVA_TOOL_OPTIONS=-Xms256m -Xmx384m -XX:+UseSerialGC
 EOF
 chmod 600 /home/ubuntu/school.env
@@ -85,7 +89,7 @@ sudo systemctl status school-app --no-pager
 
 ## 7) DNS (optional now, recommended later)
 - Add an A record: `myschool.example.com → <lightsail static ip>`.
-- Update `ALLOWED_ORIGINS` in `/home/ubuntu/school.env`, then restart:
+- Update `ALLOWED_ORIGINS` (or `CORS_ALLOWED_ORIGIN_PATTERNS` for wildcard) in `/home/ubuntu/school.env`, then restart:
   ```bash
   sudo systemctl restart school-app
   ```
@@ -105,6 +109,11 @@ sudo chmod +x /etc/cron.daily/pg-backup
 - Probe `http(s)://<host>/actuator/health`.
 - Optional UptimeRobot monitor.
 
+Tip: to view service logs when debugging deploys
+```bash
+journalctl -u school-app -e --no-pager
+```
+
 ## 10) Updates
 ```bash
 # copy new jar
@@ -114,6 +123,21 @@ ssh ubuntu@<LIGHTSAIL_IP> "sudo systemctl restart school-app && systemctl status
 ```
 
 ## Notes
+
+- CORS configuration
+  - The backend reads CORS settings from properties:
+    - `cors.allowed-origins` (mapped from env `ALLOWED_ORIGINS`)
+    - `cors.allowed-origin-patterns` (can be mapped from env `CORS_ALLOWED_ORIGIN_PATTERNS`)
+  - If the frontend is served by the same Spring Boot app (default in this guide), CORS is not required for app usage. Keep the variables for future external UIs.
+
+- Frontend API base URL
+  - By default in development we use Vite's dev proxy; in production the monolith serves the frontend and calls same-origin APIs.
+  - If you deploy the frontend separately, set an API base for the UI build:
+    - Create `frontend/.env.production` with:
+      ```
+      VITE_API_URL=https://myschool.example.com
+      ```
+    - Rebuild the frontend and copy to the backend or your static host, and make sure `ALLOWED_ORIGINS`/`CORS_ALLOWED_ORIGIN_PATTERNS` on the backend include the UI origin.
 
 ## Appendix A — Generate a single baseline migration from an existing DB
 

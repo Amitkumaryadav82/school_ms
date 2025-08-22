@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,19 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.school.hrm.dto.StaffDTO;
 import com.school.hrm.dto.TeacherDetailsDTO;
 import com.school.hrm.entity.Staff;
-import com.school.hrm.entity.StaffRole;
-import com.school.hrm.entity.Teacher;
 import com.school.hrm.entity.StaffDesignation;
 import com.school.hrm.entity.StaffDesignationMapping;
 import com.school.hrm.model.EmploymentStatus;
 import com.school.hrm.repository.StaffRepository;
-import com.school.hrm.repository.StaffRoleRepository;
+// import com.school.hrm.repository.StaffRoleRepository; // removed unused
 import com.school.hrm.repository.TeacherRepository;
 import com.school.hrm.repository.StaffDesignationRepository;
 import com.school.hrm.repository.StaffDesignationMappingRepository;
 import com.school.hrm.service.StaffService;
 import com.school.exception.ResourceNotFoundException;
 import com.school.staff.adapter.StaffEntityAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the StaffService interface for HRM module.
@@ -40,34 +39,37 @@ import com.school.staff.adapter.StaffEntityAdapter;
 @Qualifier("hrmStaffService")
 @Deprecated
 public class StaffServiceImpl implements StaffService {
+    private static final Logger log = LoggerFactory.getLogger(StaffServiceImpl.class);
+
+    // Dependencies
     private final StaffRepository staffRepository;
-    private final StaffRoleRepository staffRoleRepository;
     private final TeacherRepository teacherRepository;
     private final StaffDesignationRepository staffDesignationRepository;
     private final StaffDesignationMappingRepository staffDesignationMappingRepository;
     private final com.school.core.service.StaffService coreStaffService;
+    private final StaffEntityAdapter staffEntityAdapter;
 
-    @Autowired
     public StaffServiceImpl(
             @Qualifier("hrmStaffRepository") StaffRepository staffRepository,
-            StaffRoleRepository staffRoleRepository,
             TeacherRepository teacherRepository,
             StaffDesignationRepository staffDesignationRepository,
             StaffDesignationMappingRepository staffDesignationMappingRepository,
-            @Qualifier("coreStaffServiceImpl") com.school.core.service.StaffService coreStaffService) {
+            @Qualifier("coreStaffServiceImpl") com.school.core.service.StaffService coreStaffService,
+            StaffEntityAdapter staffEntityAdapter) {
         this.staffRepository = staffRepository;
-        this.staffRoleRepository = staffRoleRepository;
         this.teacherRepository = teacherRepository;
         this.staffDesignationRepository = staffDesignationRepository;
         this.staffDesignationMappingRepository = staffDesignationMappingRepository;
         this.coreStaffService = coreStaffService;
-    }    @Autowired
-    private StaffEntityAdapter staffEntityAdapter;
+        this.staffEntityAdapter = staffEntityAdapter;
+    }
 
     @Override
     public List<StaffDTO> getAllStaff() {
         return staffEntityAdapter.convertCoreStaffListToHrmDTOList(coreStaffService.getAllStaff());
-    }    @Override
+    }
+
+    @Override
     public Staff getStaffById(Long id) {
         // Since interface expects Staff entity but we're migrating to core Staff
         // This is a workaround until full migration is complete
@@ -90,7 +92,9 @@ public class StaffServiceImpl implements StaffService {
         return coreStaffService.getStaffById(id)
                 .map(staffEntityAdapter::convertCoreStaffToHrmDTO)
                 .orElse(null);
-    }@Override
+    }
+
+    @Override
     public StaffDTO getStaffByEmail(String email) {
         return coreStaffService.getStaffByEmail(email)
                 .map(staffEntityAdapter::convertCoreStaffToHrmDTO)
@@ -101,28 +105,43 @@ public class StaffServiceImpl implements StaffService {
     public List<StaffDTO> getStaffByRole(String roleName) {
         // Implement using find by role method and then filter
         return staffEntityAdapter.convertCoreStaffListToHrmDTOList(
-                coreStaffService.getAllStaff().stream()                        .filter(staff -> staff.getStaffRole() != null && 
+                coreStaffService.getAllStaff().stream()
+                        .filter(staff -> staff.getStaffRole() != null && 
                                 roleName.equals(staff.getStaffRole().getRoleName()))
                         .collect(Collectors.toList())
         );
-    }    public List<StaffDTO> getActiveStaff() {
+    }
+
+    public List<StaffDTO> getActiveStaff() {
         // Filter the staff list for active staff
         return staffEntityAdapter.convertCoreStaffListToHrmDTOList(
                 coreStaffService.getAllStaff().stream()
                         .filter(com.school.core.model.Staff::isActive)
                         .collect(Collectors.toList())
         );
-    }    public List<StaffDTO> getAllTeachers() {
+    }
+
+    public List<StaffDTO> getAllTeachers() {
         return getStaffByRole("TEACHER");
-    }    public List<StaffDTO> getAllPrincipals() {
+    }
+
+    public List<StaffDTO> getAllPrincipals() {
         return getStaffByRole("PRINCIPAL");
-    }    public List<StaffDTO> getAllAdminOfficers() {
+    }
+
+    public List<StaffDTO> getAllAdminOfficers() {
         return getStaffByRole("ADMIN");
-    }    public List<StaffDTO> getAllManagementStaff() {
+    }
+
+    public List<StaffDTO> getAllManagementStaff() {
         return getStaffByRole("MANAGEMENT");
-    }    public List<StaffDTO> getAllAccountOfficers() {
+    }
+
+    public List<StaffDTO> getAllAccountOfficers() {
         return getStaffByRole("ACCOUNTANT");
-    }    public List<StaffDTO> getAllLibrarians() {
+    }
+
+    public List<StaffDTO> getAllLibrarians() {
         return getStaffByRole("LIBRARIAN");
     }
     
@@ -171,24 +190,29 @@ public class StaffServiceImpl implements StaffService {
                         .filter(staff -> {
                             if (staff.getEmploymentStatus() == null) return false;
                             // Map between different employment status enums
-                            String statusName = staff.getEmploymentStatus().name();                            return statusName.equals(status.name());
+                            String statusName = staff.getEmploymentStatus().name();
+                            return statusName.equals(status.name());
                         })
                         .collect(Collectors.toList())
         );
-    }    // Removed duplicate implementation of getStaffByDesignation
+    }
+
+    // Removed duplicate implementation of getStaffByDesignation
     @Override
     @Transactional
     public StaffDTO createStaff(StaffDTO staffDTO) {
         // Convert DTO to core Staff
         com.school.core.model.Staff coreStaff = new com.school.core.model.Staff();
         coreStaff.setStaffId(staffDTO.getStaffId());
-        coreStaff.setFirstName(staffDTO.getFirstName());        coreStaff.setLastName(staffDTO.getLastName());
+        coreStaff.setFirstName(staffDTO.getFirstName());
+        coreStaff.setLastName(staffDTO.getLastName());
         coreStaff.setEmail(staffDTO.getEmail());
         coreStaff.setPhone(staffDTO.getPhoneNumber());
         coreStaff.setDateOfBirth(staffDTO.getDateOfBirth());
         coreStaff.setAddress(staffDTO.getAddress());
         coreStaff.setJoiningDate(staffDTO.getJoinDate());
-        coreStaff.setActive(staffDTO.getIsActive() != null ? staffDTO.getIsActive() : false);        // Get or create the staff role
+        coreStaff.setActive(staffDTO.getIsActive() != null ? staffDTO.getIsActive() : false);
+        // Get or create the staff role
         if (staffDTO.getRole() != null) {
             // Create a StaffRole object using the role name from DTO
             com.school.core.model.StaffRole staffRole = new com.school.core.model.StaffRole();
@@ -207,13 +231,15 @@ public class StaffServiceImpl implements StaffService {
                 .map(existingStaff -> {
                     // Update core Staff fields from DTO
                     if (staffDTO.getStaffId() != null) existingStaff.setStaffId(staffDTO.getStaffId());
-                    if (staffDTO.getFirstName() != null) existingStaff.setFirstName(staffDTO.getFirstName());                    if (staffDTO.getLastName() != null) existingStaff.setLastName(staffDTO.getLastName());
+                    if (staffDTO.getFirstName() != null) existingStaff.setFirstName(staffDTO.getFirstName());
+                    if (staffDTO.getLastName() != null) existingStaff.setLastName(staffDTO.getLastName());
                     if (staffDTO.getEmail() != null) existingStaff.setEmail(staffDTO.getEmail());
                     if (staffDTO.getPhoneNumber() != null) existingStaff.setPhone(staffDTO.getPhoneNumber());
                     if (staffDTO.getDateOfBirth() != null) existingStaff.setDateOfBirth(staffDTO.getDateOfBirth());
                     if (staffDTO.getAddress() != null) existingStaff.setAddress(staffDTO.getAddress());
                     if (staffDTO.getJoinDate() != null) existingStaff.setJoiningDate(staffDTO.getJoinDate());
-                    if (staffDTO.getIsActive() != null) existingStaff.setActive(staffDTO.getIsActive());                    // Update the staff role if provided
+                    if (staffDTO.getIsActive() != null) existingStaff.setActive(staffDTO.getIsActive());
+                    // Update the staff role if provided
                     if (staffDTO.getRole() != null) {
                         // Create a StaffRole object using the role name from DTO
                         com.school.core.model.StaffRole staffRole = new com.school.core.model.StaffRole();
@@ -232,13 +258,16 @@ public class StaffServiceImpl implements StaffService {
     @Transactional
     public void deleteStaff(Long id) {
         coreStaffService.deleteStaff(id);
-    }    @Transactional
+    }
+
+    @Transactional
     public void deactivateStaff(Long id) {
         Staff staff = staffRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + id));
         staff.setIsActive(false);
         staff.setUpdatedAt(LocalDateTime.now());
-        staffRepository.save(staff);    }
+        staffRepository.save(staff);
+    }
     
     @Transactional
     public void activateStaff(Long id) {
@@ -247,9 +276,10 @@ public class StaffServiceImpl implements StaffService {
         staff.setIsActive(true);
         staff.setUpdatedAt(LocalDateTime.now());
         staffRepository.save(staff);
-    }      // Methods moved to the implementation section above
-      @Override
-      public List<StaffDTO> getStaffByDesignation(String designationName) {
+    }
+
+    @Override
+    public List<StaffDTO> getStaffByDesignation(String designationName) {
         // This method uses the mapping repository to find specifically active teachers 
         // with the given designation
         List<StaffDesignationMapping> mappings = staffDesignationMappingRepository
@@ -258,7 +288,9 @@ public class StaffServiceImpl implements StaffService {
         return mappings.stream()
                 .map(mapping -> convertToDTO(mapping.getStaff()))
                 .collect(Collectors.toList());
-    }    @Transactional
+    }
+
+    @Transactional
     public StaffDTO assignDesignationToStaff(Long staffId, Long designationId) {
         Staff staff = staffRepository.findById(staffId)
                 .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + staffId));
@@ -288,7 +320,8 @@ public class StaffServiceImpl implements StaffService {
             mapping.setCreatedAt(LocalDateTime.now());
             mapping.setUpdatedAt(LocalDateTime.now());
             staffDesignationMappingRepository.save(mapping);
-        }        return convertToDTO(staff);
+        }
+        return convertToDTO(staff);
     }
     
     @Transactional
@@ -307,14 +340,14 @@ public class StaffServiceImpl implements StaffService {
 
         // Instead of deleting, mark as inactive
         mapping.setIsActive(false);
-        mapping.setUpdatedAt(LocalDateTime.now());        staffDesignationMappingRepository.save(mapping);
+        mapping.setUpdatedAt(LocalDateTime.now());
+        staffDesignationMappingRepository.save(mapping);
     }
     
     @Transactional
     public StaffDTO updateStaffStatus(Long id, EmploymentStatus status) {
         // Debug: Log attempt to update status with details
-        System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Attempting to update staff status: Staff ID=" + id
-                + ", New Status=" + status);
+        log.debug("Attempting to update staff status: Staff ID={}, New Status={}", id, status);
 
         try {
             // Get authentication context
@@ -322,22 +355,15 @@ public class StaffServiceImpl implements StaffService {
                     .getContext().getAuthentication();
 
             if (auth != null) {
-                System.out.println("[DEBUG] [" + LocalDateTime.now() + "] User performing status update: " +
-                        auth.getName() + ", Authorities: " + auth.getAuthorities());
+                log.debug("User performing status update: {}, Authorities: {}", auth.getName(), auth.getAuthorities());
             } else {
-                System.out
-                        .println("[DEBUG] [" + LocalDateTime.now() + "] WARNING: No authentication context available!");
+                log.warn("No authentication context available!");
             }
 
             Staff staff = staffRepository.findById(id)
-                    .orElseThrow(() -> {
-                        System.out
-                                .println("[DEBUG] [" + LocalDateTime.now() + "] ERROR: Staff not found with id: " + id);
-                        return new ResourceNotFoundException("Staff not found with id: " + id);
-                    });
+                    .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + id));
 
-            System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Found staff: " + staff.getFirstName() + " " +
-                    staff.getLastName() + ", Current status: " + staff.getEmploymentStatus());
+            log.debug("Found staff: {} {}, Current status: {}", staff.getFirstName(), staff.getLastName(), staff.getEmploymentStatus());
 
             // Update the employment status
             staff.setEmploymentStatus(status);
@@ -345,15 +371,14 @@ public class StaffServiceImpl implements StaffService {
             // Adjust isActive flag based on status
             if (status == EmploymentStatus.ACTIVE) {
                 staff.setIsActive(true);
-                System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Setting staff to ACTIVE state");
+                log.debug("Setting staff to ACTIVE state");
             } else if (status == EmploymentStatus.SUSPENDED ||
                     status == EmploymentStatus.TERMINATED ||
                     status == EmploymentStatus.RETIRED ||
                     status == EmploymentStatus.RESIGNED) {
                 // Set isActive to false for these statuses
                 staff.setIsActive(false);
-                System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Setting staff to INACTIVE state due to "
-                        + status + " status");
+                log.debug("Setting staff to INACTIVE state due to {} status", status);
 
                 // Set the termination date to today for terminated or resigned staff
                 if ((status == EmploymentStatus.TERMINATED ||
@@ -361,7 +386,7 @@ public class StaffServiceImpl implements StaffService {
                         status == EmploymentStatus.RETIRED) &&
                         staff.getTerminationDate() == null) {
                     staff.setTerminationDate(LocalDate.now());
-                    System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Setting termination date to today");
+                    log.debug("Setting termination date to today");
                 }
             }
 
@@ -369,18 +394,14 @@ public class StaffServiceImpl implements StaffService {
 
             try {
                 Staff updatedStaff = staffRepository.save(staff);
-                System.out.println("[DEBUG] [" + LocalDateTime.now() + "] Successfully saved staff status update");
+                log.debug("Successfully saved staff status update");
                 return convertToDTO(updatedStaff);
             } catch (Exception e) {
-                System.out.println(
-                        "[DEBUG] [" + LocalDateTime.now() + "] ERROR saving staff status update: " + e.getMessage());
-                e.printStackTrace();
+                log.error("Error saving staff status update: {}", e.getMessage(), e);
                 throw e;
             }
         } catch (Exception e) {
-            System.out
-                    .println("[DEBUG] [" + LocalDateTime.now() + "] EXCEPTION in updateStaffStatus: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Exception in updateStaffStatus: {}", e.getMessage(), e);
             throw e;
         }
     }

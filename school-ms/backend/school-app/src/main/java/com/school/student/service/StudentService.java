@@ -10,16 +10,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @Transactional
 public class StudentService {
 
+    private static final Logger log = LoggerFactory.getLogger(StudentService.class);
+
     @Autowired
     private StudentRepository studentRepository;
 
     public Student createStudent(Student student) {
-        System.out.println("Creating new student: " + student.getFirstName() + " " + student.getLastName());
+        log.info("Creating new student: {} {}", student.getFirstName(), student.getLastName());
         validateNewStudent(student);
         
         // Set admission date if not set
@@ -40,8 +44,7 @@ public class StudentService {
         try {
             return studentRepository.save(student);
         } catch (Exception e) {
-            System.err.println("Error saving student: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Error saving student: {}", e.getMessage(), e);
             throw e;
         }
     }
@@ -79,21 +82,21 @@ public class StudentService {
 
     public List<Student> getStudentsBySection(String section) {
         return studentRepository.findBySection(section);
-    }    public List<Student> getStudentsByGradeAndSection(Integer grade, String section) {
+    }
+
+    public List<Student> getStudentsByGradeAndSection(Integer grade, String section) {
         List<Student> students;
         if (section != null) {
             students = studentRepository.findByGradeAndSection(grade, section);
-            System.out.println("Found " + students.size() + " students in grade " + grade + ", section " + section);
+            log.info("Found {} students in grade {}, section {}", students.size(), grade, section);
         } else {
             students = studentRepository.findByGrade(grade);
-            System.out.println("Found " + students.size() + " students in grade " + grade + " (all sections)");
+            log.info("Found {} students in grade {} (all sections)", students.size(), grade);
         }
-          // Log warning if no students found for any requested grade
+        // Log warning if no students found for any requested grade
         if (grade != null && students.isEmpty()) {
-            System.out.println("WARNING: No students found for Grade " + grade + 
-                ". This might affect fee reports and other grade-specific functionality.");
+            log.warn("No students found for Grade {}. This might affect fee reports and other grade-specific functionality.", grade);
         }
-        
         return students;
     }
 
@@ -116,7 +119,7 @@ public class StudentService {
 
     /**
      * Creates multiple student records at once, with validation
-     * 
+     *
      * @param students List of students to create
      * @return List of created students with IDs assigned
      * @throws DuplicateStudentException if any student has duplicate ID or email
@@ -137,7 +140,7 @@ public class StudentService {
     }
 
     private void validateNewStudent(Student student) {
-        System.out.println("Validating new student with ID: " + student.getStudentId());
+        log.debug("Validating new student with ID: {}", student.getStudentId());
         
         if (student.getStudentId() == null || student.getStudentId().trim().isEmpty()) {
             throw new IllegalArgumentException("Student ID cannot be null or empty");

@@ -12,6 +12,8 @@ import com.school.student.model.Student;
 import com.school.student.service.StudentService;
 import com.school.notification.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class FeeService {
+    private static final Logger log = LoggerFactory.getLogger(FeeService.class);
 
     @Autowired
     private FeeRepository feeRepository;
@@ -80,10 +83,10 @@ public class FeeService {
 
         // If no fees found for the grade, log this for debugging
         if (fees.isEmpty() && grade != null) {
-            System.out.println("No fees found for grade: " + grade);
+            log.debug("No fees found for grade: {}", grade);
 
             // Create default fee for any grade if none exists
-            System.out.println("Creating default fee for Grade " + grade);
+            log.info("Creating default fee for Grade {}", grade);
             // Check if any default fees exist that we can use as template
             List<Fee> defaultFees = feeRepository.findAll();
             if (!defaultFees.isEmpty()) {
@@ -336,14 +339,14 @@ public class FeeService {
         List<Student> students;
 
         // Add detailed logging for debugging
-        System.out.println("Generating fee status report for class grade: " + classGrade);
+        log.debug("Generating fee status report for class grade: {}", classGrade);
         if (classGrade != null) {
             students = studentService.getStudentsByGradeAndSection(classGrade, null);
-            System.out.println("Found " + students.size() + " students in grade " + classGrade);
+            log.debug("Found {} students in grade {}", students.size(), classGrade);
 
             // Generic handling for all grades when no students found directly
             if (students.isEmpty()) {
-                System.out.println("No students found for Grade " + classGrade + ". Checking for alternatives...");
+                log.warn("No students found for Grade {}. Checking for alternatives...", classGrade);
                 List<Student> allStudents = studentService.getAllStudents();
 
                 // Check for students with null grades that could be included in this grade
@@ -352,8 +355,7 @@ public class FeeService {
                         .collect(Collectors.toList());
 
                 if (!studentsWithoutGrade.isEmpty()) {
-                    System.out.println("Found " + studentsWithoutGrade.size() +
-                            " students with null grade. Including these in Grade " + classGrade + ".");
+                    log.info("Found {} students with null grade. Including these in Grade {}.", studentsWithoutGrade.size(), classGrade);
                     students = studentsWithoutGrade;
                 }
 
@@ -369,21 +371,19 @@ public class FeeService {
                             .collect(Collectors.toList());
 
                     if (!potentialGradeStudents.isEmpty()) {
-                        System.out.println("Found " + potentialGradeStudents.size() +
-                                " students that could potentially be in Grade " + classGrade +
-                                ". Including these in the report.");
+                        log.info("Found {} students that could potentially be in Grade {}. Including these in the report.", potentialGradeStudents.size(), classGrade);
                         students = potentialGradeStudents;
                     }
                 }
             }
         } else {
             students = studentService.getAllStudents();
-            System.out.println("Fetched all students: " + students.size());
+            log.debug("Fetched all students: {}", students.size());
         }
 
         // If no students found for specified grade, log the issue
         if (students.isEmpty() && classGrade != null) {
-            System.out.println("WARNING: No students found for grade " + classGrade);
+            log.warn("No students found for grade {}", classGrade);
         }
 
         List<FeePaymentSummary> result = new ArrayList<>();
@@ -391,33 +391,30 @@ public class FeeService {
             Integer studentGrade = student.getGrade();
             // If student's grade is null, handle according to requested classGrade
             // or default to what makes sense for the student
-            if (studentGrade == null) {
+        if (studentGrade == null) {
                 if (classGrade != null) {
                     // If we're looking for a specific grade and the student's grade is null,
                     // treat them as being in the requested grade for this report
                     studentGrade = classGrade;
-                    System.out.println("Student " + student.getId() + " has null grade, treating as Grade " +
-                            classGrade + " as requested in the report filter");
+            log.debug("Student {} has null grade, treating as Grade {} as requested in the report filter", student.getId(), classGrade);
                 } else {
                     // Default logic - use a sensible default grade or estimate based on age
                     // For now we'll calculate based on average age for each grade
                     // This could be enhanced with more sophisticated logic
-                    int estimatedGrade = estimateGradeFromStudentAge(student);
+            int estimatedGrade = estimateGradeFromStudentAge(student);
                     studentGrade = estimatedGrade;
-                    System.out.println("Student " + student.getId() + " has null grade, estimating as Grade "
-                            + studentGrade + " based on available data");
+            log.debug("Student {} has null grade, estimating as Grade {} based on available data", student.getId(), studentGrade);
                 }
             }
 
-            System.out.println("Processing student: " + student.getId() + " - " + student.getFirstName() + " "
-                    + student.getLastName() + " (Grade: " + studentGrade + ")");
+        log.debug("Processing student: {} - {} {} (Grade: {})", student.getId(), student.getFirstName(), student.getLastName(), studentGrade);
 
             List<Fee> applicableFees = getFeesByGrade(studentGrade);
-            System.out.println("Found " + applicableFees.size() + " applicable fees for grade " + studentGrade);
+            log.debug("Found {} applicable fees for grade {}", applicableFees.size(), studentGrade);
             // If no fees found for the student's grade, try to create default fees for any
             // grade
             if (applicableFees.isEmpty() && studentGrade != null) {
-                System.out.println("No fees found for Grade " + classGrade + ", attempting to use default fees");
+                log.info("No fees found for Grade {}, attempting to use default fees", classGrade);
                 List<Fee> allFees = feeRepository.findAll();
                 if (!allFees.isEmpty()) {
                     Fee templateFee = allFees.get(0);
@@ -432,12 +429,12 @@ public class FeeService {
 
                     Fee savedFee = feeRepository.save(defaultFee);
                     applicableFees = List.of(savedFee);
-                    System.out.println("Created default fee for Grade " + classGrade + ": " + savedFee.getId());
+            log.info("Created default fee for Grade {}: {}", classGrade, savedFee.getId());
                 }
             }
 
             double totalDue = applicableFees.stream().mapToDouble(Fee::getAmount).sum();
-            System.out.println("Total due amount: " + totalDue);
+        log.debug("Total due amount: {}", totalDue);
 
             List<Payment> studentPayments = getStudentPayments(student.getId());
             double totalPaid = studentPayments.stream()
@@ -445,14 +442,13 @@ public class FeeService {
                     .mapToDouble(Payment::getAmount).sum();
 
             double balance = totalDue - totalPaid;
-            System.out
-                    .println("Balance: " + balance + " (Total due: " + totalDue + " - Total paid: " + totalPaid + ")");
+            log.debug("Balance: {} (Total due: {} - Total paid: {})", balance, totalDue, totalPaid);
 
             FeePaymentSummary summary = createReportSummary(student, totalDue, totalPaid, balance);
             result.add(summary);
         }
 
-        System.out.println("Returning " + result.size() + " fee payment summaries");
+    log.debug("Returning {} fee payment summaries", result.size());
         return result;
     }
 
@@ -783,7 +779,7 @@ public class FeeService {
             }
         } catch (Exception e) {
             // If any errors in calculation, fall back to Grade 1
-            System.out.println("Error estimating grade for student " + student.getId() + ": " + e.getMessage());
+            log.error("Error estimating grade for student {}: {}", student.getId(), e.getMessage(), e);
             estimatedGrade = 1;
         }
 
@@ -800,8 +796,7 @@ public class FeeService {
      */
     public List<Payment> getFilteredPayments(Integer grade, String section, String studentName) {
         // Log the filter parameters for debugging
-        System.out.println(
-                "Filtering payments - Grade: " + grade + ", Section: " + section + ", Student Name: " + studentName);
+    log.debug("Filtering payments - Grade: {}, Section: {}, Student Name: {}", grade, section, studentName);
 
         // Use the custom repository method for filtering
         return paymentRepository.findFilteredPayments(grade, section, studentName);
