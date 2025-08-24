@@ -60,7 +60,7 @@ const menuItems: MenuItem[] = [
   { 
     text: 'Dashboard', 
     icon: <Dashboard />, 
-    path: '/',
+  path: '/dashboard',
     allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.PARENT, ROLES.STUDENT]
   },
   { 
@@ -161,7 +161,12 @@ const Layout = ({ children }: LayoutProps) => {
             button 
             key={item.text} 
             onClick={() => {
-              navigate(item.path);
+              // If already on dashboard, trigger a soft refresh instead of navigating
+              if (item.path === '/dashboard' && window.location.pathname === '/dashboard') {
+                window.dispatchEvent(new CustomEvent('dashboard:refresh'));
+              } else {
+                navigate(item.path);
+              }
               setDrawerOpen(false);
             }}
             sx={{

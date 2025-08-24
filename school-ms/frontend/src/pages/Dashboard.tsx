@@ -337,6 +337,16 @@ const StudentDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Listen for soft refresh requests from the Layout (when clicking Dashboard while already there)
+  useEffect(() => {
+    const handler = () => {
+      // Don't navigate; just reload data
+      loadStudentData();
+    };
+    window.addEventListener('dashboard:refresh', handler);
+    return () => window.removeEventListener('dashboard:refresh', handler);
+  }, [loadStudentData]);
+
   // Handle payment submission
   const handlePaymentSubmit = async (payment: Payment) => {
     try {
@@ -904,6 +914,15 @@ const AdminDashboard = () => {
     checkHealthAndLoadStats();
     const interval = setInterval(checkHealthAndLoadStats, 5 * 60 * 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Listen for soft refresh requests from the Layout
+  useEffect(() => {
+    const handler = () => {
+      loadStats();
+    };
+    window.addEventListener('dashboard:refresh', handler);
+    return () => window.removeEventListener('dashboard:refresh', handler);
   }, []);
 
   if (loading) {
