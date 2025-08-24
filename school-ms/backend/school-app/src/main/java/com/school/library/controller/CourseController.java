@@ -2,7 +2,6 @@ package com.school.library.controller;
 
 import com.school.library.model.Course;
 import com.school.library.service.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +22,10 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/library/courses")
-@CrossOrigin(origins = "*") // Consider restricting this in production
 public class CourseController {
 
     private final CourseService courseService;
 
-    @Autowired
     public CourseController(@Qualifier("libraryCourseService") CourseService courseService) {
         this.courseService = courseService;
     }

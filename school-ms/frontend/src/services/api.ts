@@ -6,9 +6,7 @@ import config from '../config/environment';
 const apiClient = axios.create({
   baseURL: config.apiUrl,
   timeout: config.apiTimeout,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // Do not set a global Content-Type; let each request decide (JSON vs multipart)
   withCredentials: true,  // Enable sending cookies with cross-origin requests
   paramsSerializer: params => {
     // Use a custom serializer to prevent nested params format like params[startDate]
@@ -234,15 +232,17 @@ export const api = {
   
   post: <T>(endpoint: string, data?: any, config?: any) => {
     const fullEndpoint = ensureEndpoint(endpoint);
-    return (config ? 
-      apiClient.post<any>(fullEndpoint, data, config) : 
-      apiClient.post<any>(fullEndpoint, data)
-    ).then(res => handlePossibleStringResponse<T>(res, fullEndpoint));
+    const isForm = typeof FormData !== 'undefined' && data instanceof FormData;
+    const finalConfig = config ?? (isForm ? undefined : { headers: { 'Content-Type': 'application/json' } });
+    return apiClient.post<any>(fullEndpoint, data, finalConfig)
+      .then(res => handlePossibleStringResponse<T>(res, fullEndpoint));
   },
   
   put: <T>(endpoint: string, data?: any) => {
     const fullEndpoint = ensureEndpoint(endpoint);
-    return apiClient.put<any>(fullEndpoint, data)
+    const isForm = typeof FormData !== 'undefined' && data instanceof FormData;
+    const finalConfig = isForm ? undefined : { headers: { 'Content-Type': 'application/json' } };
+    return apiClient.put<any>(fullEndpoint, data, finalConfig)
       .then(res => handlePossibleStringResponse<T>(res, fullEndpoint));
   },
   
@@ -254,7 +254,9 @@ export const api = {
     
   patch: <T>(endpoint: string, data?: any) => {
     const fullEndpoint = ensureEndpoint(endpoint);
-    return apiClient.patch<any>(fullEndpoint, data)
+    const isForm = typeof FormData !== 'undefined' && data instanceof FormData;
+    const finalConfig = isForm ? undefined : { headers: { 'Content-Type': 'application/json' } };
+    return apiClient.patch<any>(fullEndpoint, data, finalConfig)
       .then(res => handlePossibleStringResponse<T>(res, fullEndpoint));
   },
     
@@ -278,11 +280,8 @@ export const api = {
       // Handle file upload case
       const formData = new FormData();
       formData.append('file', fileOrData as File);
-      return apiClient.post<T>(url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }).then(res => res.data);
+      // Let the browser set the correct Content-Type with boundary automatically
+      return apiClient.post<T>(url, formData).then(res => res.data);
     } else {
       // Handle JSON data case
       return apiClient.post<T>(url, fileOrData).then(res => res.data);

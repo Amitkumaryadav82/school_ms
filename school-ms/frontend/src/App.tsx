@@ -23,6 +23,7 @@ import Reports from './pages/Reports';
 import TeacherAttendance from './pages/TeacherAttendance';
 import ReportCards from './pages/ReportCards';
 import TimetableLanding from './pages/TimetableLanding';
+import Library from './pages/Library';
 
 const ROLES = {
   ADMIN: 'ADMIN',
@@ -176,6 +177,15 @@ function App() {
                   <Layout>
                     <RoleBasedRoute allowedRoles={[ROLES.ADMIN]}>
                       <FeeManagement />
+                    </RoleBasedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/library" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]}>
+                      <Library />
                     </RoleBasedRoute>
                   </Layout>
                 </ProtectedRoute>

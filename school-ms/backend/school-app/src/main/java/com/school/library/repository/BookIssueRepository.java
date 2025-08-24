@@ -25,4 +25,9 @@ public interface BookIssueRepository {
     List<BookIssue> getBookIssuesByBookId(Long bookId);
 
     List<BookIssue> getOverdueBookIssues();
+
+    /**
+     * Returns issues with status 'Issued' and due_date between the provided dates (inclusive).
+     */
+    List<BookIssue> getBookIssuesDueInRange(LocalDate startDate, LocalDate endDate);
 }

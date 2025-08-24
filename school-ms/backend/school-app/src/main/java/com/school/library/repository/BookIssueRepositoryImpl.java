@@ -1,7 +1,6 @@
 package com.school.library.repository;
 
 import com.school.library.model.BookIssue;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,12 +8,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository("libraryBookIssueRepositoryImpl")
@@ -39,7 +36,6 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
         return bookIssue;
     };
 
-    @Autowired
     public BookIssueRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -102,7 +98,8 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
         LocalDateTime now = LocalDateTime.now();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            // Ask driver to return only the ID column as generated key
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"ID"});
             ps.setLong(1, bookIssue.getBookId());
             ps.setString(2, bookIssue.getIssuedTo());
             ps.setString(3, bookIssue.getIssueType());
@@ -115,7 +112,23 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
             return ps;
         }, keyHolder);
 
-        bookIssue.setId(keyHolder.getKey().longValue());
+        // Extract generated ID safely across drivers
+        Long newId = null;
+        Map<String, Object> keys = keyHolder.getKeys();
+        if (keys != null && (keys.containsKey("ID") || keys.containsKey("id"))) {
+            Object idObj = keys.getOrDefault("ID", keys.get("id"));
+            if (idObj instanceof Number) newId = ((Number) idObj).longValue();
+        } else if (!keyHolder.getKeyList().isEmpty()) {
+            Map<String, Object> first = keyHolder.getKeyList().get(0);
+            Object idObj = first.getOrDefault("ID", first.get("id"));
+            if (idObj instanceof Number) newId = ((Number) idObj).longValue();
+        } else if (keyHolder.getKey() != null) {
+            Number k = keyHolder.getKey();
+            if (k != null) newId = k.longValue();
+        }
+        if (newId != null) {
+            bookIssue.setId(newId);
+        }
         bookIssue.setCreatedAt(now);
         bookIssue.setUpdatedAt(now);
 
@@ -125,7 +138,6 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
 
         return bookIssue;
     }
-
     @Override
     public BookIssue updateBookIssue(BookIssue bookIssue) {
         String sql = "UPDATE book_issues SET issued_to = ?, issue_type = ?, issuee_name = ?, " +
@@ -185,5 +197,14 @@ public class BookIssueRepositoryImpl implements BookIssueRepository {
                 "WHERE bi.status = 'Issued' AND bi.due_date < CURRENT_DATE " +
                 "ORDER BY bi.due_date ASC";
         return jdbcTemplate.query(sql, bookIssueRowMapper);
+    }
+
+    @Override
+    public List<BookIssue> getBookIssuesDueInRange(LocalDate startDate, LocalDate endDate) {
+        String sql = "SELECT bi.*, b.title as book_title FROM book_issues bi " +
+                "JOIN books b ON bi.book_id = b.id " +
+                "WHERE bi.status = 'Issued' AND bi.due_date BETWEEN ? AND ? " +
+                "ORDER BY bi.due_date ASC";
+        return jdbcTemplate.query(sql, bookIssueRowMapper, startDate, endDate);
     }
 }

@@ -1,7 +1,6 @@
 package com.school.library.repository;
 
 import com.school.library.model.Book;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,10 +8,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +30,6 @@ public class BookRepositoryImpl implements BookRepository {
         return book;
     };
 
-    @Autowired
     public BookRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -82,7 +78,8 @@ public class BookRepositoryImpl implements BookRepository {
         LocalDateTime now = LocalDateTime.now();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            // Only request the ID column to avoid multiple generated keys in some DBs
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"ID"});
             ps.setString(1, book.getTitle());
             ps.setString(2, book.getAuthor());
             ps.setString(3, book.getCategory());
@@ -92,7 +89,19 @@ public class BookRepositoryImpl implements BookRepository {
             return ps;
         }, keyHolder);
 
-        book.setId(keyHolder.getKey().longValue());
+        // Retrieve generated ID safely
+        Map<String, Object> keys = keyHolder.getKeys();
+        if (keys != null && keys.get("ID") != null) {
+            Object idObj = keys.get("ID");
+            if (idObj instanceof Number) {
+                book.setId(((Number) idObj).longValue());
+            }
+        } else {
+            Number singleKey = keyHolder.getKey();
+            if (singleKey != null) {
+                book.setId(singleKey.longValue());
+            }
+        }
         book.setCreatedAt(now);
         book.setUpdatedAt(now);
 
@@ -134,5 +143,34 @@ public class BookRepositoryImpl implements BookRepository {
         String searchTitle = "%" + title.toLowerCase() + "%";
         String sql = "SELECT * FROM books WHERE LOWER(title) LIKE ? ORDER BY title";
         return jdbcTemplate.query(sql, bookRowMapper, searchTitle);
+    }
+
+    @Override
+    public Optional<Book> findByTitleAndAuthorExact(String title, String author) {
+        try {
+            String sql = "SELECT * FROM books WHERE LOWER(title) = LOWER(?) AND LOWER(author) = LOWER(?)";
+            Book book = jdbcTemplate.queryForObject(sql, bookRowMapper, title, author);
+            return Optional.ofNullable(book);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public boolean existsByTitleIgnoreCase(String title) {
+        String sql = "SELECT COUNT(*) FROM books WHERE LOWER(title) = LOWER(?)";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, title);
+        return count != null && count > 0;
+    }
+
+    @Override
+    public Optional<Book> findByTitleIgnoreCase(String title) {
+        try {
+            String sql = "SELECT * FROM books WHERE LOWER(title) = LOWER(?) LIMIT 1";
+            Book book = jdbcTemplate.queryForObject(sql, bookRowMapper, title);
+            return Optional.ofNullable(book);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }

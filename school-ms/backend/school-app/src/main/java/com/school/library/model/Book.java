@@ -8,6 +8,9 @@ public class Book {
     private String author;
     private String category;
     private String status; // Available, Issued, Lost, Damaged
+    // Transient field used for bulk upload to indicate desired number of copies to create.
+    // Not persisted directly; service expands to individual rows.
+    private Integer copies;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -64,6 +67,9 @@ public class Book {
         this.status = status;
     }
 
+    public Integer getCopies() { return copies; }
+    public void setCopies(Integer copies) { this.copies = copies; }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -88,6 +94,7 @@ public class Book {
                 ", author='" + author + '\'' +
                 ", category='" + category + '\'' +
                 ", status='" + status + '\'' +
+                ", copies=" + copies +
                 '}';
     }
 }

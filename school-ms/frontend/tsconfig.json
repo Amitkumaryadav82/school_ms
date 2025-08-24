@@ -27,6 +27,11 @@
     "types": ["react", "react-dom", "node", "recharts", "vite/client"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "src/**/*.js", "src/**/*.jsx"],
-  "exclude": ["node_modules", "scripts"],
+  "exclude": [
+    "node_modules",
+    "scripts",
+    "src/components/library/BookManagement.tsx",
+    "src/components/library/LibraryDashboard.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

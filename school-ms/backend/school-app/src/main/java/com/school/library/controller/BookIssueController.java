@@ -2,7 +2,6 @@ package com.school.library.controller;
 
 import com.school.library.model.BookIssue;
 import com.school.library.service.BookIssueService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -16,12 +15,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/library/book-issues")
-@CrossOrigin(origins = "*")
 public class BookIssueController {
 
     private final BookIssueService bookIssueService;
 
-    @Autowired
     public BookIssueController(@Qualifier("libraryBookIssueService") BookIssueService bookIssueService) {
         this.bookIssueService = bookIssueService;
     }
@@ -67,9 +64,14 @@ public class BookIssueController {
     }
 
     @PutMapping("/return/{id}")
-    public ResponseEntity<BookIssue> returnBook(@PathVariable Long id) {
+    public ResponseEntity<BookIssue> returnBook(
+        @PathVariable Long id,
+        @RequestParam(value = "returnDate", required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate returnDate) {
         try {
-            BookIssue returnedBook = bookIssueService.returnBook(id);
+        BookIssue returnedBook = (returnDate == null)
+            ? bookIssueService.returnBook(id)
+            : bookIssueService.returnBook(id, returnDate);
             return ResponseEntity.ok(returnedBook);
         } catch (IllegalArgumentException | IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -105,5 +107,18 @@ public class BookIssueController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return bookIssueService.getIssueCountByDateRange(startDate, endDate);
+    }
+
+    @GetMapping("/due-on")
+    public List<BookIssue> getBookIssuesDueOn(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return bookIssueService.getBookIssuesDueOn(date);
+    }
+
+    @GetMapping("/due-in-week")
+    public List<BookIssue> getBookIssuesDueInWeek(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+        return bookIssueService.getBookIssuesDueInRange(start, end);
     }
 }

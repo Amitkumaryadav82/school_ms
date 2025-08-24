@@ -47,6 +47,7 @@ const BookManagement: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [titleError, setTitleError] = useState<string>('');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -125,6 +126,25 @@ const BookManagement: React.FC = () => {
       ...currentBook,
       [name]: value
     });
+    if (name === 'title') {
+      setTitleError('');
+    }
+  };
+
+  const handleTitleBlur = async () => {
+    const title = currentBook.title?.trim();
+    if (!title) return;
+    try {
+      const res = await libraryService.titleExists(title);
+      const exists = (res as any).data?.exists ?? (res as any).exists; // handle wrapper
+      if (exists) {
+        setTitleError('A book with this title already exists');
+      } else {
+        setTitleError('');
+      }
+    } catch (err) {
+      // ignore transient errors
+    }
   };
 
   const openAddModal = () => {
@@ -154,9 +174,22 @@ const BookManagement: React.FC = () => {
       return;
     }
 
+    // Title uniqueness check (block if duplicate when creating or changing title)
+    try {
+      const res = await libraryService.titleExists(currentBook.title.trim());
+      const exists = (res as any).data?.exists ?? (res as any).exists;
+      if (exists && !currentBook.id) {
+        setTitleError('A book with this title already exists');
+        toast({ title: 'Duplicate title', description: 'A book with this title already exists', status: 'error', duration: 3000, isClosable: true });
+        return;
+      }
+    } catch (e) {
+      // continue on network hiccup; backend will still validate
+    }
+
     setIsSubmitting(true);
     try {
-      if (currentBook.id) {
+  if (currentBook.id) {
         await libraryService.updateBook(currentBook.id, currentBook);
         toast({
           title: 'Success',
@@ -165,7 +198,7 @@ const BookManagement: React.FC = () => {
           duration: 3000,
           isClosable: true,
         });
-      } else {
+  } else {
         await libraryService.createBook(currentBook);
         toast({
           title: 'Success',
@@ -177,15 +210,13 @@ const BookManagement: React.FC = () => {
       }
       onClose();
       fetchBooks();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving book:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save book',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      const msg = error?.message || 'Failed to save book';
+      if (msg.toLowerCase().includes('already exists')) {
+        setTitleError('A book with this title already exists');
+      }
+      toast({ title: 'Error', description: msg, status: 'error', duration: 3000, isClosable: true });
     } finally {
       setIsSubmitting(false);
     }
@@ -342,8 +373,12 @@ const BookManagement: React.FC = () => {
                 name="title"
                 value={currentBook.title}
                 onChange={handleInputChange}
+                onBlur={handleTitleBlur}
                 placeholder="Enter book title"
               />
+              {titleError && (
+                <Text color="red.500" fontSize="sm" mt={1}>{titleError}</Text>
+              )}
             </FormControl>
 
             <FormControl mt={4} isRequired>

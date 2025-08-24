@@ -2,25 +2,27 @@ package com.school.library.controller;
 
 import com.school.library.model.Book;
 import com.school.library.service.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/library/books")
-@CrossOrigin(origins = "*")
 public class BookController {
 
     private final BookService bookService;
 
-    @Autowired
     public BookController(@Qualifier("libraryBookService") BookService bookService) {
         this.bookService = bookService;
     }
@@ -54,8 +56,12 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
-        Book createdBook = bookService.createBook(book);
-        return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
+        try {
+            Book createdBook = bookService.createBook(book);
+            return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
@@ -64,8 +70,20 @@ public class BookController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found with ID: " + id);
         }
         book.setId(id);
-        Book updatedBook = bookService.updateBook(book);
-        return ResponseEntity.ok(updatedBook);
+        try {
+            Book updatedBook = bookService.updateBook(book);
+            return ResponseEntity.ok(updatedBook);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
+        }
+    }
+
+    @GetMapping("/exists")
+    public Map<String, Boolean> titleExists(@RequestParam("title") String title) {
+        boolean exists = bookService.titleExistsIgnoreCase(title);
+        Map<String, Boolean> res = new HashMap<>();
+        res.put("exists", exists);
+        return res;
     }
 
     @DeleteMapping("/{id}")
@@ -96,5 +114,39 @@ public class BookController {
         counts.put("lost", bookService.countBooksByStatus("Lost"));
         counts.put("damaged", bookService.countBooksByStatus("Damaged"));
         return counts;
+    }
+
+    @PostMapping(value = "/upload-csv", consumes = { "multipart/form-data" })
+    public ResponseEntity<Map<String, Object>> uploadBooksCsv(@RequestPart("file") MultipartFile file) {
+        try {
+            List<Book> rows = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                boolean isFirst = true;
+                while ((line = reader.readLine()) != null) {
+                    if (isFirst) { // skip header
+                        isFirst = false;
+                        continue;
+                    }
+                    String[] parts = line.split(",");
+                    if (parts.length < 2) continue; // need at least title, author
+                    Book b = new Book();
+                    b.setTitle(parts[0].trim());
+                    b.setAuthor(parts[1].trim());
+                    if (parts.length > 2) b.setCategory(parts[2].trim());
+                    if (parts.length > 3) b.setStatus(parts[3].trim());
+                    if (parts.length > 4) {
+                        try {
+                            b.setCopies(Integer.parseInt(parts[4].trim()));
+                        } catch (NumberFormatException ignored) { /* leave null */ }
+                    }
+                    rows.add(b);
+                }
+            }
+            Map<String, Object> result = bookService.bulkUpsertBooks(rows);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to process CSV: " + e.getMessage());
+        }
     }
 }

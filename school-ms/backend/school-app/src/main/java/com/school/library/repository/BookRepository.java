@@ -24,4 +24,16 @@ public interface BookRepository {
     List<Book> getBooksByAuthor(String author);
 
     List<Book> getBooksByTitle(String title);
+
+    default Optional<Book> findByTitleAndAuthorExact(String title, String author) { return Optional.empty(); }
+
+    /**
+     * Checks if any book exists with the given title, case-insensitive.
+     */
+    boolean existsByTitleIgnoreCase(String title);
+
+    /**
+     * Finds a single book by exact title, case-insensitive.
+     */
+    Optional<Book> findByTitleIgnoreCase(String title);
 }

@@ -7,6 +7,7 @@ export interface Book {
   author: string;
   category: string;
   status: BookStatus;
+  copies?: number; // optional number of copies when creating
   createdAt?: string;
   updatedAt?: string;
 }
@@ -76,6 +77,14 @@ export const libraryService = {
   
   getBookCounts: () =>
     api.get<Record<string, number>>('/library/books/counts'),
+
+  // Existence check (case-insensitive title uniqueness)
+  titleExists: (title: string) =>
+    api.get<{ exists: boolean }>(`/library/books/exists?title=${encodeURIComponent(title)}`),
+
+  // Bulk upload (CSV) - server parses CSV
+  uploadBooksCsv: (file: File) =>
+    api.bulkUpload<Record<string, any>>('/library/books/upload-csv', file, { isFile: true }),
   
   // Book Issue Management
   getAllBookIssues: () =>
@@ -96,14 +105,20 @@ export const libraryService = {
   issueBook: (bookIssue: BookIssue) =>
     api.post<BookIssue>('/library/book-issues/issue', bookIssue),
   
-  returnBook: (id: number) =>
-    api.put<BookIssue>(`/library/book-issues/return/${id}`),
+  returnBook: (id: number, returnDate?: string) =>
+    api.put<BookIssue>(`/library/book-issues/return/${id}${returnDate ? `?returnDate=${encodeURIComponent(returnDate)}` : ''}`),
   
   deleteBookIssue: (id: number) =>
     api.delete(`/library/book-issues/${id}`),
   
   getOverdueBookIssues: () =>
     api.get<BookIssue[]>('/library/book-issues/overdue'),
+
+  // Due-date reports
+  getBookIssuesDueOn: (dateISO: string) =>
+    api.get<BookIssue[]>('/library/book-issues/due-on', { date: dateISO }),
+  getBookIssuesDueInRange: (startISO: string, endISO: string) =>
+    api.get<BookIssue[]>('/library/book-issues/due-in-week', { start: startISO, end: endISO }),
   
   // Reports
   getInventorySummary: () =>

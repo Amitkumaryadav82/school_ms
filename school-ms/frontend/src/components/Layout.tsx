@@ -1,8 +1,9 @@
 import {
     AccountCircle,
     HowToReg as AdmissionsIcon,
-    Assessment as AssessmentIcon,
+  Assessment as AssessmentIcon,
     Book,
+  MenuBook as MenuBookIcon,
     Dashboard,
     EventAvailable,
     AttachMoney as FeeIcon,
@@ -103,6 +104,12 @@ const menuItems: MenuItem[] = [
     icon: <Book />, 
     path: '/exams',
     allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.PRINCIPAL]
+  },
+  { 
+    text: 'Library', 
+    icon: <MenuBookIcon />, 
+    path: '/library',
+    allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]
   },
   { 
     text: 'Fee Management', 

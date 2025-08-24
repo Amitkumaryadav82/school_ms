@@ -1,14 +1,15 @@
 package com.school.library.service;
 
+import com.school.attendance.service.HolidayAttendanceService;
 import com.school.library.model.Book;
 import com.school.library.model.BookIssue;
 import com.school.library.repository.BookIssueRepository;
 import com.school.library.repository.BookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -21,12 +22,14 @@ public class BookIssueServiceImpl implements BookIssueService {
 
     private final BookIssueRepository bookIssueRepository;
     private final BookRepository bookRepository;
+    private final HolidayAttendanceService holidayAttendanceService;
 
-    @Autowired
     public BookIssueServiceImpl(@Qualifier("libraryBookIssueRepositoryImpl") BookIssueRepository bookIssueRepository, 
-                              @Qualifier("libraryBookRepositoryImpl") BookRepository bookRepository) {
+                              @Qualifier("libraryBookRepositoryImpl") BookRepository bookRepository,
+                              HolidayAttendanceService holidayAttendanceService) {
         this.bookIssueRepository = bookIssueRepository;
         this.bookRepository = bookRepository;
+        this.holidayAttendanceService = holidayAttendanceService;
     }
 
     @Override
@@ -66,9 +69,9 @@ public class BookIssueServiceImpl implements BookIssueService {
             bookIssue.setIssueDate(LocalDate.now());
         }
 
-        // Set due date if not provided (default to 14 days from issue date)
+        // Set due date if not provided: default to +5 working days (skip weekends and holidays)
         if (bookIssue.getDueDate() == null) {
-            bookIssue.setDueDate(bookIssue.getIssueDate().plusDays(14));
+            bookIssue.setDueDate(addWorkingDays(bookIssue.getIssueDate(), 5));
         }
 
         // Check if book is available
@@ -91,6 +94,12 @@ public class BookIssueServiceImpl implements BookIssueService {
     @Override
     @Transactional
     public BookIssue returnBook(Long issueId) {
+        return returnBook(issueId, LocalDate.now());
+    }
+
+    @Override
+    @Transactional
+    public BookIssue returnBook(Long issueId, LocalDate returnDate) {
         Optional<BookIssue> bookIssueOpt = bookIssueRepository.getBookIssueById(issueId);
         if (bookIssueOpt.isPresent()) {
             BookIssue bookIssue = bookIssueOpt.get();
@@ -101,7 +110,7 @@ public class BookIssueServiceImpl implements BookIssueService {
 
             // Update status and return date
             bookIssue.setStatus("Returned");
-            bookIssue.setReturnDate(LocalDate.now());
+            bookIssue.setReturnDate(returnDate != null ? returnDate : LocalDate.now());
 
             return bookIssueRepository.updateBookIssue(bookIssue);
         } else {
@@ -118,6 +127,16 @@ public class BookIssueServiceImpl implements BookIssueService {
     @Override
     public List<BookIssue> getOverdueBookIssues() {
         return bookIssueRepository.getOverdueBookIssues();
+    }
+
+    @Override
+    public List<BookIssue> getBookIssuesDueOn(LocalDate date) {
+        return bookIssueRepository.getBookIssuesDueInRange(date, date);
+    }
+
+    @Override
+    public List<BookIssue> getBookIssuesDueInRange(LocalDate startDate, LocalDate endDate) {
+        return bookIssueRepository.getBookIssuesDueInRange(startDate, endDate);
     }
 
     @Override
@@ -161,4 +180,22 @@ public class BookIssueServiceImpl implements BookIssueService {
                         BookIssue::getIssueDate,
                         Collectors.counting()));
     }
+
+            /**
+             * Adds the specified number of working days to the start date, skipping weekends and holidays.
+             */
+            private LocalDate addWorkingDays(LocalDate start, int workingDays) {
+                LocalDate date = start;
+                int added = 0;
+                while (added < workingDays) {
+                    date = date.plusDays(1);
+                    DayOfWeek dow = date.getDayOfWeek();
+                    boolean weekend = (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY);
+                    boolean holiday = holidayAttendanceService != null && holidayAttendanceService.isHoliday(date);
+                    if (!weekend && !holiday) {
+                        added++;
+                    }
+                }
+                return date;
+            }
 }

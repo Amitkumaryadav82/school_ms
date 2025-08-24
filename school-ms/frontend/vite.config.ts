@@ -30,11 +30,8 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
-        headers: {
-          // Ensure proper headers are sent for authorization
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+  // Do not force Content-Type headers here; let the browser set them (especially for FormData uploads)
+  // If you need Accept, set it per-request in the client instead of globally at the proxy.
         // Don't rewrite the path - keep /api prefix for Spring Boot
         // rewrite: (path) => path.replace(/^\/api/, '')
       },
