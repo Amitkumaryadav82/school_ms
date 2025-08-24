@@ -257,7 +257,7 @@ const Library: React.FC = () => {
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Manage books, issues/returns, and view quick stats.
       </Typography>
-      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+  <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
   <Button size="small" variant="contained" onClick={(e) => setBookMenuAnchor(e.currentTarget)}>Add Books ▾</Button>
         <Menu
           anchorEl={bookMenuAnchor}
@@ -270,8 +270,8 @@ const Library: React.FC = () => {
           <MenuItem onClick={() => { setBookMenuAnchor(null); setShowUpload(true); }}>Bulk Upload Books</MenuItem>
         </Menu>
         <Button size="small" variant="contained" onClick={() => setShowIssue(true)}>Issue Book</Button>
-        <Button size="small" variant="outlined" onClick={() => setShowReturn(true)}>Return Book</Button>
-        <Button size="small" variant="outlined" onClick={loadIssues} disabled={loadingIssues}>Refresh Issues</Button>
+  <Button size="small" variant="contained" onClick={() => setShowReturn(true)}>Return Book</Button>
+  <Button size="small" variant="contained" onClick={loadIssues} disabled={loadingIssues}>Refresh Issues</Button>
   {/* Download CSV removed as requested */}
       </Stack>
 
