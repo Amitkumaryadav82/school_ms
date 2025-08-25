@@ -8,30 +8,20 @@ import {
   TextField,
   Grid,
   Typography,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Switch,
   FormControlLabel,
   Box,
-  Divider,
-  IconButton,
-  Tooltip,
   Tab,
   Tabs,
   Card,
   CardContent,
-  CardHeader,
   FormHelperText,
   InputAdornment
 } from '@mui/material';
 import {
-  Add as AddIcon,
-  Delete as DeleteIcon,
-  Info as InfoIcon
+  
 } from '@mui/icons-material';
-import { FeeStructure, PaymentSchedule, LateFee } from '../../services/feeService';
+import { FeeStructure, PaymentSchedule } from '../../services/feeService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -147,44 +137,6 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
     }));
   };
 
-  const handleLateFeeChange = (index: number, field: keyof LateFee, value: any) => {
-    const updatedLateFees = [...formData.lateFees];
-    updatedLateFees[index] = {
-      ...updatedLateFees[index],
-      [field]: value
-    };
-
-    setFormData((prev: FeeStructure) => ({
-      ...prev,
-      lateFees: updatedLateFees
-    }));
-  };
-
-  const addLateFee = () => {
-    setFormData((prev: FeeStructure) => ({
-      ...prev,
-      lateFees: [
-        ...prev.lateFees,
-        {
-          month: 1,
-          lateFeeAmount: 0,
-          lateFeeDescription: '',
-          fineAmount: 0,
-          fineDescription: ''
-        }
-      ]
-    }));
-  };
-
-  const removeLateFee = (index: number) => {
-    const updatedLateFees = [...formData.lateFees];
-    updatedLateFees.splice(index, 1);
-    setFormData((prev: FeeStructure) => ({
-      ...prev,
-      lateFees: updatedLateFees
-    }));
-  };
-
   const updatePaymentScheduleAmounts = (annualFees: number) => {
     const updatedSchedules = formData.paymentSchedules.map((schedule: PaymentSchedule) => {
       let amount = 0;
@@ -253,14 +205,6 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
     }
   };
 
-  const getMonthName = (month: number): string => {
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    return monthNames[month - 1] || '';
-  };
-
   return (
     <Dialog 
       open={open} 
@@ -282,7 +226,6 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
           >
             <Tab label="Basic Information" />
             <Tab label="Payment Schedules" />
-            <Tab label="Late Fees & Fines" />
           </Tabs>
         </Box>
 
@@ -407,102 +350,6 @@ const FeeStructureDialog: React.FC<FeeStructureDialogProps> = ({
               </Grid>
             ))}
           </Grid>
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={2}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="subtitle1">
-              Define late fees and fines for specific months
-            </Typography>
-            <Button 
-              variant="outlined" 
-              startIcon={<AddIcon />}
-              onClick={addLateFee}
-            >
-              Add Late Fee
-            </Button>
-          </Box>
-
-          {formData.lateFees.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ my: 4, textAlign: 'center' }}>
-              No late fees or fines defined. Click "Add Late Fee" to create one.
-            </Typography>
-          ) : (
-            formData.lateFees.map((lateFee: LateFee, index: number) => (
-              <Card key={index} variant="outlined" sx={{ mb: 2 }}>
-                <CardHeader 
-                  title={`Late Fee for ${getMonthName(lateFee.month)}`}
-                  action={
-                    <IconButton onClick={() => removeLateFee(index)} color="error" size="small">
-                      <DeleteIcon />
-                    </IconButton>
-                  }
-                />
-                <CardContent>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={4}>
-                      <FormControl fullWidth>
-                        <InputLabel>Month</InputLabel>
-                        <Select
-                          value={lateFee.month}
-                          label="Month"
-                          onChange={(e) => handleLateFeeChange(index, 'month', e.target.value as number)}
-                        >
-                          {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-                            <MenuItem key={month} value={month}>
-                              {getMonthName(month)}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <TextField
-                        fullWidth
-                        label="Late Fee Amount"
-                        type="number"
-                        value={lateFee.lateFeeAmount}
-                        onChange={(e) => handleLateFeeChange(index, 'lateFeeAmount', Number(e.target.value))}
-                        InputProps={{ 
-                          startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                          inputProps: { min: 0 } 
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <TextField
-                        fullWidth
-                        label="Fine Amount"
-                        type="number"
-                        value={lateFee.fineAmount}
-                        onChange={(e) => handleLateFeeChange(index, 'fineAmount', Number(e.target.value))}
-                        InputProps={{ 
-                          startAdornment: <InputAdornment position="start">₹</InputAdornment>,
-                          inputProps: { min: 0 } 
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Late Fee Description"
-                        value={lateFee.lateFeeDescription}
-                        onChange={(e) => handleLateFeeChange(index, 'lateFeeDescription', e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Fine Description"
-                        value={lateFee.fineDescription}
-                        onChange={(e) => handleLateFeeChange(index, 'fineDescription', e.target.value)}
-                      />
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            ))
-          )}
         </TabPanel>
       </DialogContent>
 

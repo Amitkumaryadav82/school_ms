@@ -112,8 +112,8 @@ public class AttendanceController {
     }
 
     @Operation(summary = "Get student's attendance", description = "Retrieves all attendance records for a student")
-    @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+        @GetMapping("/student/{studentId}")
+        @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<List<Attendance>> getStudentAttendance(@PathVariable Long studentId) {
         return ResponseEntity.ok(attendanceService.getStudentAttendance(studentId));
     }
@@ -136,8 +136,8 @@ public class AttendanceController {
     }
 
     @Operation(summary = "Get student's attendance by date range", description = "Retrieves attendance records for a student within a date range")
-    @GetMapping("/student/{studentId}/date-range")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+        @GetMapping("/student/{studentId}/date-range")
+        @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<List<Attendance>> getStudentAttendanceByDateRange(
             @PathVariable Long studentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -146,8 +146,8 @@ public class AttendanceController {
     }
 
     @Operation(summary = "Get student's attendance count", description = "Get count of attendance records by status for a student within a date range")
-    @GetMapping("/student/{studentId}/count")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+        @GetMapping("/student/{studentId}/count")
+        @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<Long> getStudentAttendanceCount(
             @PathVariable Long studentId,
             @RequestParam AttendanceStatus status,

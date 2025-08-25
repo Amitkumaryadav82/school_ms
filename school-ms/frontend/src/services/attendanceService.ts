@@ -2,7 +2,7 @@ import api from './api';
 
 export interface Attendance {
   id?: number;
-  studentId: string;
+  studentId: number;
   date: string;
   checkInTime?: string;
   checkOutTime?: string;
@@ -43,11 +43,22 @@ export const attendanceService = {
   markBulkAttendance: (attendance: BulkAttendance) =>
     api.post<void>('/attendance/bulk', attendance),
 
+  // Legacy JSON body variant (may not be supported by backend params API)
   markIndividualAttendance: (studentId: string, attendance: Omit<Attendance, 'id' | 'studentId'>) =>
     api.post<Attendance>(`/attendance/${studentId}`, attendance),
 
-  updateAttendance: (id: number, attendance: Partial<Attendance>) =>
-    api.put<Attendance>(`/attendance/${id}`, attendance),
+  // Preferred variant using request params expected by backend
+  markStudentAttendanceParams: (studentId: string | number, args: { date: string; status: Attendance['status']; remarks?: string }) =>
+    api.post<void>(`/attendance/${studentId}?status=${encodeURIComponent(args.status)}&date=${encodeURIComponent(args.date)}${args.remarks ? `&remarks=${encodeURIComponent(args.remarks)}` : ''}`),
+
+  updateAttendance: (id: number, attendance: Partial<Attendance>) => {
+    const params: string[] = [];
+    if (attendance.status) params.push(`status=${encodeURIComponent(attendance.status)}`);
+    if (attendance.remarks !== undefined) params.push(`remarks=${encodeURIComponent(attendance.remarks)}`);
+    const qs = params.length ? `?${params.join('&')}` : '';
+    // Backend expects params, no JSON body
+    return api.put<Attendance>(`/attendance/${id}${qs}`);
+  },
 
   markCheckout: (id: number, checkOutTime: string) =>
     api.put<Attendance>(`/attendance/${id}/checkout`, { checkOutTime }),
@@ -79,8 +90,19 @@ export const attendanceService = {
   getStudentAttendanceSummary: (studentId: string) =>
     api.get<AttendanceSummary>(`/attendance/student/${studentId}/summary`),
 
+  // Legacy variant (does not match backend ClassAttendanceRequest shape)
   markClassAttendance: (grade: string, section: string, attendance: BulkAttendance) =>
     api.post<void>('/attendance/class', { grade, section, ...attendance }),
+
+  // Preferred class default marking aligning with backend API
+  markClassDefault: (grade: string | number, section: string, args: { date: string; defaultStatus: Attendance['status']; remarks?: string }) =>
+    api.post<void>('/attendance/class', {
+      grade: typeof grade === 'string' ? parseInt(grade, 10) : grade,
+      section,
+      date: args.date,
+      defaultStatus: args.defaultStatus,
+      remarks: args.remarks || ''
+    }),
 
   generateMonthlyReport: (month: number, year: number) =>
     api.get<Blob>(`/attendance/report/monthly?month=${month}&year=${year}`, {

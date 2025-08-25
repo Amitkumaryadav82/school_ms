@@ -5,6 +5,7 @@ import com.school.library.service.CourseService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,11 +32,13 @@ public class CourseController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<Course> getAllCourses() {
         return courseService.getAllCourses();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Course> getCourseById(@PathVariable Long id) {
         try {
             return courseService.getCourseById(id)
@@ -48,6 +51,7 @@ public class CourseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Course> createCourse(@RequestBody Course course) {
         try {
             Course createdCourse = courseService.createCourse(course);
@@ -58,6 +62,7 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Course> updateCourse(@PathVariable Long id, @RequestBody Course course) {
         try {
             Course updatedCourse = courseService.updateCourse(id, course);
@@ -70,6 +75,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
         try {
             courseService.deleteCourse(id);
@@ -82,6 +88,7 @@ public class CourseController {
     }
 
     @GetMapping("/department/{department}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<Course> getCoursesByDepartment(@PathVariable String department) {
         try {
             return courseService.getCoursesByDepartment(department);
@@ -92,6 +99,7 @@ public class CourseController {
     }
 
     @GetMapping("/teacher/{teacherId}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<Course> getCoursesByTeacher(@PathVariable Long teacherId) {
         try {
             return courseService.getCoursesByTeacherId(teacherId);
@@ -102,6 +110,7 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/enroll/{studentId}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Map<String, Object>> enrollStudent(
             @PathVariable Long courseId,
             @PathVariable Long studentId) {
@@ -128,6 +137,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/{courseId}/enroll/{studentId}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Map<String, Object>> unenrollStudent(
             @PathVariable Long courseId,
             @PathVariable Long studentId) {

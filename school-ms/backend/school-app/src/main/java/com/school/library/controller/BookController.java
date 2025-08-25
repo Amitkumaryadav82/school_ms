@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -28,11 +29,15 @@ public class BookController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<Book> getAllBooks() {
+    // Librarian or Admin only
+        
         return bookService.getAllBooks();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Book> getBookById(@PathVariable Long id) {
         return bookService.getBookById(id)
                 .map(ResponseEntity::ok)
@@ -40,11 +45,13 @@ public class BookController {
     }
 
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<Book> getBooksByStatus(@PathVariable String status) {
         return bookService.getBooksByStatus(status);
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<Book> searchBooks(@RequestParam String query) {
         return bookService.searchBooks(query);
     }
@@ -55,6 +62,7 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         try {
             Book createdBook = bookService.createBook(book);
@@ -65,6 +73,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
         if (!bookService.getBookById(id).isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found with ID: " + id);
@@ -87,6 +96,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         if (!bookService.getBookById(id).isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found with ID: " + id);
@@ -96,16 +106,19 @@ public class BookController {
     }
 
     @GetMapping("/categories")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<String> getAllCategories() {
         return bookService.getAllCategories();
     }
 
     @GetMapping("/authors")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<String> getAllAuthors() {
         return bookService.getAllAuthors();
     }
 
     @GetMapping("/counts")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public Map<String, Long> getBookCounts() {
         Map<String, Long> counts = new HashMap<>();
         counts.put("total", (long) bookService.getAllBooks().size());
@@ -117,6 +130,7 @@ public class BookController {
     }
 
     @PostMapping(value = "/upload-csv", consumes = { "multipart/form-data" })
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Map<String, Object>> uploadBooksCsv(@RequestPart("file") MultipartFile file) {
         try {
             List<Book> rows = new ArrayList<>();

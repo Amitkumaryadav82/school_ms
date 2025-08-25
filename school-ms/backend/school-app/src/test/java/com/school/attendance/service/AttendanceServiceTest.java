@@ -65,7 +65,7 @@ class AttendanceServiceTest {
     @Test
     void markAttendance_NewAttendance_Success() {
         when(studentService.getStudent(1L)).thenReturn(student);
-        when(attendanceRepository.findByStudentIdAndDate(1L, today)).thenReturn(Optional.empty());
+        when(attendanceRepository.findByStudent_IdAndDate(1L, today)).thenReturn(Optional.empty());
         when(attendanceRepository.save(any(Attendance.class))).thenReturn(attendance);
 
         AttendanceDTO dto = AttendanceDTO.builder()
@@ -83,7 +83,7 @@ class AttendanceServiceTest {
     @Test
     void markAttendance_ExistingAttendance_Success() {
         when(studentService.getStudent(1L)).thenReturn(student);
-        when(attendanceRepository.findByStudentIdAndDate(1L, today)).thenReturn(Optional.of(attendance));
+        when(attendanceRepository.findByStudent_IdAndDate(1L, today)).thenReturn(Optional.of(attendance));
         when(attendanceRepository.save(any(Attendance.class))).thenReturn(attendance);
 
         AttendanceDTO dto = AttendanceDTO.builder()

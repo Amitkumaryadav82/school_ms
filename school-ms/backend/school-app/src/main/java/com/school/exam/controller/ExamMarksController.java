@@ -21,7 +21,7 @@ public class ExamMarksController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isTeacherOfClass(#classId)) or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<StudentMarksDTO> getStudentMarks(@RequestParam Long examId,
             @RequestParam Long classId,
             @RequestParam Long subjectId,
@@ -30,14 +30,14 @@ public class ExamMarksController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isTeacherOfStudent(#dto.studentId))")
     public ResponseEntity<Void> saveStudentMarks(@RequestBody StudentMarksDTO dto) {
         service.saveStudentMarks(dto);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/lock")
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
     public ResponseEntity<Void> lockMarks(@RequestParam Long examId,
             @RequestParam Long subjectId,
             @RequestBody List<Long> studentIds) {
@@ -58,7 +58,7 @@ public class ExamMarksController {
     }
 
     @PostMapping("/bulk")
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isTeacherOfClass(#request.classId))")
     public ResponseEntity<Void> bulkUpdate(@RequestBody BulkMarksUpdateRequest request) {
         service.bulkUpdate(request.getExamId(), request.getClassId(), request.getSubjectId(), request.getUpdates());
         return ResponseEntity.ok().build();
@@ -67,7 +67,7 @@ public class ExamMarksController {
     // Matrix: subjects constrained by QPF for exam+class; rows are students of the
     // section
     @GetMapping("/matrix")
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isTeacherOfClassSection(#classId, #section))")
     public ResponseEntity<MarksMatrixResponse> getMatrix(@RequestParam Long examId,
             @RequestParam Long classId,
             @RequestParam Integer grade,
@@ -76,7 +76,7 @@ public class ExamMarksController {
     }
 
     @PostMapping("/matrix")
-    @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isTeacherOfClass(#request.classId))")
     public ResponseEntity<Void> saveMatrix(@RequestBody MarksMatrixSaveRequest request) {
         service.saveMarksMatrix(request);
         return ResponseEntity.ok().build();

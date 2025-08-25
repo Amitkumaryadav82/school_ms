@@ -58,6 +58,7 @@ public class ClassTimetableController {
     }
 
     @GetMapping("/slots")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL') or (hasRole('TEACHER') and @authz.isTeacherOfClassSection(#classId, #section)) or (hasRole('STUDENT') and @authz.isCurrentStudentsClassSection(#classId, #section))")
     public ResponseEntity<SlotsResponse> getSlots(@RequestParam Long classId,
             @RequestParam String section) {
         TimetableSettings settings = settingsRepo.findTopByOrderByIdAsc()
@@ -80,6 +81,7 @@ public class ClassTimetableController {
     }
 
     @PostMapping("/generate")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL','STAFF')")
     public ResponseEntity<SlotsResponse> generate(@RequestBody GenerateRequest req) {
         if (req.classId() == null || req.sectionId() == null || req.sectionId().isBlank()) {
             return ResponseEntity.badRequest().build();
@@ -252,6 +254,7 @@ public class ClassTimetableController {
 
     // List eligible teachers for a given class/section/subject
     @GetMapping("/eligible-teachers")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL','STAFF') or (hasRole('TEACHER') and @authz.isTeacherOfClassSection(#classId, #section))")
     public ResponseEntity<EligibleTeachersResponse> eligibleTeachers(@RequestParam Long classId,
             @RequestParam String section,
             @RequestParam Long subjectId) {
@@ -272,6 +275,7 @@ public class ClassTimetableController {
 
     // List available subjects for a class/section (from requirements)
     @GetMapping("/available-subjects")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL') or (hasRole('TEACHER') and @authz.isTeacherOfClassSection(#classId, #section))")
     public ResponseEntity<EligibleSubjectsResponse> availableSubjects(@RequestParam Long classId,
             @RequestParam String section) {
         Long sectionId = resolveSectionIdIfNeeded(classId, section);
@@ -299,6 +303,7 @@ public class ClassTimetableController {
     // Update a specific slot (subject and/or teacher). Performs basic conflict
     // checks.
     @PostMapping("/update-slot")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL','STAFF')")
     public ResponseEntity<SlotsResponse> updateSlot(@RequestBody UpdateSlotRequest req) {
         if (req.classId() == null || req.sectionId() == null || req.dayOfWeek() == null || req.periodNo() == null) {
             return ResponseEntity.badRequest().build();

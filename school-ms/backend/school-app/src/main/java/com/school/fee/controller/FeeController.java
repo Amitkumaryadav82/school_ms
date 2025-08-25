@@ -89,7 +89,7 @@ public class FeeController {
     @Operation(summary = "Get student payments", description = "Retrieves all payments made by a student")
     @ApiResponse(responseCode = "200", description = "Payments retrieved successfully")
     @GetMapping("/payments/student/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'PARENT')")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<List<Payment>> getStudentPayments(@PathVariable Long studentId) {
         return ResponseEntity.ok(feeService.getStudentPayments(studentId));
     }
@@ -97,7 +97,7 @@ public class FeeController {
     @Operation(summary = "Get student fee summary", description = "Retrieves fee payment summary for a student")
     @ApiResponse(responseCode = "200", description = "Fee summary retrieved successfully")
     @GetMapping("/summary/student/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'PARENT')")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<List<FeePaymentSummary>> getStudentFeeSummary(@PathVariable Long studentId) {
         return ResponseEntity.ok(feeService.getStudentFeeSummary(studentId));
     }

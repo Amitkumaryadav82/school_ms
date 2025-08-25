@@ -96,12 +96,14 @@ public class TeacherAttendanceController {
     }
 
     @GetMapping("/employee/{staffId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isMyStaffId(#staffId))")
     public ResponseEntity<List<StaffAttendanceDTO>> getStaffAttendanceByStaffId(@PathVariable Long staffId) {
         List<StaffAttendanceDTO> attendanceList = staffAttendanceService.getStaffAttendanceByStaffId(staffId);
         return ResponseEntity.ok(attendanceList);
     }
 
     @GetMapping("/employee/{staffId}/date/{date}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isMyStaffId(#staffId))")
     public ResponseEntity<StaffAttendanceDTO> getStaffAttendanceByStaffIdAndDate(
             @PathVariable Long staffId,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -118,6 +120,7 @@ public class TeacherAttendanceController {
     }
 
     @GetMapping("/employee/{staffId}/range")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isMyStaffId(#staffId))")
     public ResponseEntity<List<StaffAttendanceDTO>> getStaffAttendanceByStaffIdAndDateRange(
             @PathVariable Long staffId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -162,6 +165,7 @@ public class TeacherAttendanceController {
     }
     
     @GetMapping("/stats/employee/{staffId}")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN') or (hasRole('TEACHER') and @authz.isMyStaffId(#staffId))")
     public ResponseEntity<Map<String, Object>> getAttendanceStats(
             @PathVariable Long staffId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

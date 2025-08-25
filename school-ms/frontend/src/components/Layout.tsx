@@ -47,6 +47,7 @@ const ROLES = {
   PARENT: 'PARENT',
   STUDENT: 'STUDENT',
   PRINCIPAL: 'PRINCIPAL',
+  LIBRARIAN: 'LIBRARIAN',
 };
 
 interface MenuItem {
@@ -61,7 +62,7 @@ const menuItems: MenuItem[] = [
     text: 'Dashboard', 
     icon: <Dashboard />, 
   path: '/dashboard',
-    allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.PARENT, ROLES.STUDENT]
+  allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF, ROLES.PARENT, ROLES.STUDENT, ROLES.LIBRARIAN]
   },
   { 
     text: 'Admissions', 
@@ -91,7 +92,13 @@ const menuItems: MenuItem[] = [
     text: 'Staff Attendance', 
     icon: <EventAvailable />, 
     path: '/staff-attendance',
-    allowedRoles: [ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.STAFF]
+  allowedRoles: [ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.STAFF, ROLES.LIBRARIAN]
+  },
+  { 
+    text: 'Student Attendance', 
+    icon: <EventAvailable />, 
+    path: '/student-attendance',
+    allowedRoles: [ROLES.ADMIN, ROLES.TEACHER]
   },
   { 
     text: 'Timetable', 
@@ -109,7 +116,7 @@ const menuItems: MenuItem[] = [
     text: 'Library', 
     icon: <MenuBookIcon />, 
     path: '/library',
-    allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]
+  allowedRoles: [ROLES.ADMIN, ROLES.LIBRARIAN]
   },
   { 
     text: 'Fee Management', 
@@ -156,10 +163,10 @@ const Layout = ({ children }: LayoutProps) => {
     <div>
       <Toolbar />
       <List>
-        {filteredMenuItems.map((item) => (
+    {filteredMenuItems.map((item) => (
           <ListItem 
             button 
-            key={item.text} 
+      key={item.path} 
             onClick={() => {
               // If already on dashboard, trigger a soft refresh instead of navigating
               if (item.path === '/dashboard' && window.location.pathname === '/dashboard') {

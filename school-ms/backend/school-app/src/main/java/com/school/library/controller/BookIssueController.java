@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,16 +25,19 @@ public class BookIssueController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<BookIssue> getAllBookIssues() {
         return bookIssueService.getAllBookIssues();
     }
 
     @GetMapping("/active")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<BookIssue> getActiveBookIssues() {
         return bookIssueService.getActiveBookIssues();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<BookIssue> getBookIssueById(@PathVariable Long id) {
         return bookIssueService.getBookIssueById(id)
                 .map(ResponseEntity::ok)
@@ -42,11 +46,13 @@ public class BookIssueController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<BookIssue> getBookIssuesByIssuedTo(@PathVariable String userId) {
         return bookIssueService.getBookIssuesByIssuedTo(userId);
     }
 
     @GetMapping("/date-range")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<BookIssue> getBookIssuesByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -54,6 +60,7 @@ public class BookIssueController {
     }
 
     @PostMapping("/issue")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<BookIssue> issueBook(@RequestBody BookIssue bookIssue) {
         try {
             BookIssue issuedBook = bookIssueService.issueBook(bookIssue);
@@ -64,6 +71,7 @@ public class BookIssueController {
     }
 
     @PutMapping("/return/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<BookIssue> returnBook(
         @PathVariable Long id,
         @RequestParam(value = "returnDate", required = false)
@@ -79,6 +87,7 @@ public class BookIssueController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public ResponseEntity<Void> deleteBookIssue(@PathVariable Long id) {
         if (!bookIssueService.getBookIssueById(id).isPresent()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book issue record not found with ID: " + id);
@@ -88,21 +97,25 @@ public class BookIssueController {
     }
 
     @GetMapping("/overdue")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<BookIssue> getOverdueBookIssues() {
         return bookIssueService.getOverdueBookIssues();
     }
 
     @GetMapping("/inventory-summary")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public Map<String, Long> getInventorySummary() {
         return bookIssueService.getInventorySummary();
     }
 
     @GetMapping("/category-analysis")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public Map<String, Long> getIssuedBooksCountByCategory() {
         return bookIssueService.getIssuedBooksCountByCategory();
     }
 
     @GetMapping("/date-analysis")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public Map<LocalDate, Long> getIssueCountByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
@@ -110,12 +123,14 @@ public class BookIssueController {
     }
 
     @GetMapping("/due-on")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<BookIssue> getBookIssuesDueOn(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return bookIssueService.getBookIssuesDueOn(date);
     }
 
     @GetMapping("/due-in-week")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
     public List<BookIssue> getBookIssuesDueInWeek(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {

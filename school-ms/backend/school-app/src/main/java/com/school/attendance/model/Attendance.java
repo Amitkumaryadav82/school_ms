@@ -2,6 +2,9 @@ package com.school.attendance.model;
 
 import com.school.common.model.Auditable;
 import com.school.student.model.Student;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.proxy.HibernateProxy;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import lombok.*;
@@ -23,6 +26,7 @@ public class Attendance extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
+    @JsonIgnore
     private Student student;
 
     @NotNull
@@ -37,4 +41,20 @@ public class Attendance extends Auditable {
     private AttendanceStatus status;
 
     private String remarks;
+
+    /**
+     * Expose the student id without triggering lazy loading of the Student entity during JSON serialization.
+     */
+    @JsonProperty("studentId")
+    public Long getStudentId() {
+        if (student == null) return null;
+        try {
+            if (student instanceof HibernateProxy) {
+                return (Long) ((HibernateProxy) student).getHibernateLazyInitializer().getIdentifier();
+            }
+        } catch (Exception ignored) {
+            // Fallback to direct access
+        }
+        return student.getId();
+    }
 }

@@ -24,6 +24,7 @@ import TeacherAttendance from './pages/TeacherAttendance';
 import ReportCards from './pages/ReportCards';
 import TimetableLanding from './pages/TimetableLanding';
 import Library from './pages/Library';
+import StudentAttendance from './pages/StudentAttendance';
 
 const ROLES = {
   ADMIN: 'ADMIN',
@@ -32,6 +33,7 @@ const ROLES = {
   PARENT: 'PARENT',
   STUDENT: 'STUDENT',
   PRINCIPAL: 'PRINCIPAL',
+  LIBRARIAN: 'LIBRARIAN',
 };
 
 // Dummy ProtectedRoute for demonstration; replace with your actual implementation
@@ -121,7 +123,7 @@ function App() {
               <Route path="/staff-attendance" element={
                 <ProtectedRoute>
                   <Layout>
-                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.STAFF]}>
+                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.STAFF, ROLES.LIBRARIAN]}>
                       <StaffAttendance />
                     </RoleBasedRoute>
                   </Layout>
@@ -184,8 +186,17 @@ function App() {
               <Route path="/library" element={
                 <ProtectedRoute>
                   <Layout>
-                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]}>
+                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.LIBRARIAN]}>
                       <Library />
+                    </RoleBasedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/student-attendance" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER]}>
+                      <StudentAttendance />
                     </RoleBasedRoute>
                   </Layout>
                 </ProtectedRoute>

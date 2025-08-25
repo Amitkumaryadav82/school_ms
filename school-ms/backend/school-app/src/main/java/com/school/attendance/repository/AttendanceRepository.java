@@ -10,26 +10,26 @@ import java.util.Optional;
 
 @Repository
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
-        Optional<Attendance> findByStudentIdAndDate(Long studentId, LocalDate date);
+        Optional<Attendance> findByStudent_IdAndDate(Long studentId, LocalDate date);
 
-        List<Attendance> findByStudentId(Long studentId);
+        List<Attendance> findByStudent_Id(Long studentId);
 
         List<Attendance> findByDate(LocalDate date);
 
         List<Attendance> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
-        List<Attendance> findByStudentIdAndDateBetween(Long studentId, LocalDate startDate, LocalDate endDate);
+        List<Attendance> findByStudent_IdAndDateBetween(Long studentId, LocalDate startDate, LocalDate endDate);
 
-        long countByStudentIdAndStatusAndDateBetween(Long studentId, AttendanceStatus status, LocalDate startDate,
+        long countByStudent_IdAndStatusAndDateBetween(Long studentId, AttendanceStatus status, LocalDate startDate,
                         LocalDate endDate);
 
-        List<Attendance> findByStudentGradeAndDate(Integer grade, LocalDate date);
+        List<Attendance> findByStudent_GradeAndDate(Integer grade, LocalDate date);
 
-        List<Attendance> findByStudentGradeAndStudentSectionAndDate(Integer grade, String section, LocalDate date);
+        List<Attendance> findByStudent_GradeAndStudent_SectionAndDate(Integer grade, String section, LocalDate date);
 
         void deleteByDateBefore(LocalDate date);
 
         int countByDateBefore(LocalDate date);
 
-        long countByStudentIdAndDateBetween(Long studentId, LocalDate startDate, LocalDate endDate);
+        long countByStudent_IdAndDateBetween(Long studentId, LocalDate startDate, LocalDate endDate);
 }

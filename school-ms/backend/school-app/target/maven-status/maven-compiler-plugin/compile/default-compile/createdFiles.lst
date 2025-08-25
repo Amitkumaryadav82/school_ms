@@ -3,6 +3,7 @@ com\school\exam\dto\MarksMatrixDTO$SubjectCol.class
 com\school\security\JwtTokenProvider.class
 com\school\core\controller\StaffController.class
 com\school\library\service\BookIssueServiceImpl.class
+com\school\security\AuthorizationService.class
 com\school\fee\dto\LateFeeDTO.class
 com\school\library\model\Course.class
 com\school\core\model\Staff$StaffBuilder.class
