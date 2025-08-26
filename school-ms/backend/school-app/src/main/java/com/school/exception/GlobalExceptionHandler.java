@@ -10,6 +10,7 @@ import com.school.security.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.transaction.CannotCreateTransactionException;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.OptimisticLockException;
@@ -54,6 +57,33 @@ public class GlobalExceptionHandler {
 
         logger.warn("Validation error: {}", errors);
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
+    }
+
+    // HTTP method not supported -> return 405 instead of 500
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        logger.warn("Method not allowed: method={}, supported={}", ex.getMethod(), ex.getSupportedHttpMethods());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "Method Not Allowed",
+                "HTTP method not allowed for this endpoint");
+        HttpHeaders headers = new HttpHeaders();
+        var supported = ex.getSupportedHttpMethods();
+        if (supported != null && !supported.isEmpty()) {
+            headers.setAllow(supported);
+        }
+        return new ResponseEntity<>(error, headers, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    // No handler -> 404 (useful if 'throw-exception-if-no-handler-found' is enabled)
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException ex) {
+        logger.warn("No handler found: {} {}", ex.getHttpMethod(), ex.getRequestURL());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                "The requested resource could not be found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     // Basic exceptions

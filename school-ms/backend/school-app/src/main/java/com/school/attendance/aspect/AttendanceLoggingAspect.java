@@ -47,6 +47,11 @@ public class AttendanceLoggingAspect {
     @AfterThrowing(pointcut = "execution(* com.school.attendance.service.*.*(..))", throwing = "error")
     public void logAttendanceError(JoinPoint joinPoint, Throwable error) {
         String methodName = joinPoint.getSignature().getName();
-        log.error("Error in attendance operation: {} - Error: {}", methodName, error.getMessage());
+        // Downgrade to WARN for common benign cases to reduce noise
+        if (error instanceof IllegalArgumentException || error instanceof com.school.exception.InvalidDateRangeException) {
+            log.warn("Error in attendance operation: {} - {}", methodName, error.getMessage());
+        } else {
+            log.error("Error in attendance operation: {} - Error: {}", methodName, error.getMessage(), error);
+        }
     }
 }

@@ -209,9 +209,17 @@ public class AttendanceServiceImpl implements AttendanceService {
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
         List<Student> students = studentRepository.findByGradeAndSection(grade, section);
-        if (students.isEmpty()) {
-            throw new IllegalArgumentException("No students found in grade " + grade + " section " + section);
-        }
+    if (students.isEmpty()) {
+        // Gracefully return an empty report instead of throwing
+        return MonthlyAttendanceReport.builder()
+            .grade(grade)
+            .section(section)
+            .year(year)
+            .month(month)
+            .averageAttendancePercentage(0)
+            .studentDetails(new ArrayList<>())
+            .build();
+    }
 
         List<MonthlyAttendanceReport.StudentAttendanceDetail> studentDetails = new ArrayList<>();
         double totalAttendancePercentage = 0;
@@ -262,9 +270,19 @@ public class AttendanceServiceImpl implements AttendanceService {
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
         List<Student> students = studentRepository.findByGradeAndSection(grade, section);
-        if (students.isEmpty()) {
-            throw new IllegalArgumentException("No students found in grade " + grade + " section " + section);
-        }
+    if (students.isEmpty()) {
+        // Gracefully return empty stats instead of throwing
+        return MonthlyAttendanceStats.builder()
+            .grade(grade)
+            .section(section)
+            .year(year)
+            .month(month)
+            .studentsWith100Percent(new ArrayList<>())
+            .studentsBelow75Percent(new ArrayList<>())
+            .totalStudents(0)
+            .averageAttendance(0)
+            .build();
+    }
 
         List<String> studentsWith100Percent = new ArrayList<>();
         List<String> studentsBelow75Percent = new ArrayList<>();

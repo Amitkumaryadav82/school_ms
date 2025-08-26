@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @RestController
 @RequestMapping("/api/students")
@@ -29,6 +30,40 @@ public class StudentController {
 
     @Autowired
     private StudentMapper studentMapper;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Operation(summary = "Get current student profile", description = "Returns the student profile for the authenticated STUDENT user")
+    @ApiResponse(responseCode = "200", description = "Student profile retrieved successfully")
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<StudentDTO> getCurrentStudentProfile() {
+        Long userId = getCurrentUserId();
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Long studentId = jdbcTemplate.query(
+                "select s.id from students s join users u on lower(s.email) = lower(u.email) where u.id = ?",
+                rs -> rs.next() ? rs.getLong(1) : null,
+                userId
+        );
+        if (studentId == null) {
+            return ResponseEntity.notFound().build();
+        }
+        Student student = studentService.getStudent(studentId);
+        return ResponseEntity.ok(studentMapper.toDTO(student));
+    }
+
+    private Long getCurrentUserId() {
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return null;
+        Object principal = auth.getPrincipal();
+        if (principal instanceof com.school.security.User) {
+            return ((com.school.security.User) principal).getId();
+        }
+        return null;
+    }
 
     @Operation(summary = "Create a new student", description = "Registers a new student in the system")
     @ApiResponses({

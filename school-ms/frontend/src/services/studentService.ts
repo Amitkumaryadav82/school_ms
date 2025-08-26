@@ -386,6 +386,13 @@ export const studentService = {
     const response = await api.get<BackendStudent[]>(`/api/students/grade/${grade}`);
     return response.map(mapToFrontendStudent);
   },
+
+  // Get students by grade and section
+  getByGradeAndSection: async (grade: string | number, section: string) => {
+    const g = typeof grade === 'string' ? grade : String(grade);
+    const response = await api.get<BackendStudent[]>(`/api/students/grade/${encodeURIComponent(g)}/section/${encodeURIComponent(section)}`);
+    return response.map(mapToFrontendStudent);
+  },
   
   // Get students by status
   getByStatus: async (status: string) => {

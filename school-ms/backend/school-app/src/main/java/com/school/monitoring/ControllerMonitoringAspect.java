@@ -8,8 +8,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +25,6 @@ public class ControllerMonitoringAspect {
 
     private final PerformanceMonitoringService monitoringService;
 
-    @Autowired
     public ControllerMonitoringAspect(PerformanceMonitoringService monitoringService) {
         this.monitoringService = monitoringService;
     }
@@ -74,7 +71,7 @@ public class ControllerMonitoringAspect {
 
         // Start timing
         Timer.Sample timerSample = monitoringService.startTimer();
-        String traceId = MDC.get("traceId"); // Get the trace ID from RequestTracingFilter
+    // traceId available via MDC if needed for future logging
 
         try {
             // Execute the method
@@ -95,8 +92,14 @@ public class ControllerMonitoringAspect {
                     "status", "error",
                     "exception", e.getClass().getSimpleName());
 
-            logger.error("Error executing endpoint {}.{}: {}",
-                    className, methodName, e.getMessage(), e);
+            // Downgrade to WARN for common client-side errors to avoid noisy ERROR logs
+            if (e instanceof IllegalArgumentException || e instanceof org.springframework.web.method.annotation.MethodArgumentTypeMismatchException) {
+                logger.warn("Error executing endpoint {}.{}: {}",
+                        className, methodName, e.getMessage());
+            } else {
+                logger.error("Error executing endpoint {}.{}: {}",
+                        className, methodName, e.getMessage(), e);
+            }
             throw e;
         } finally {
             // Stop timing and record duration

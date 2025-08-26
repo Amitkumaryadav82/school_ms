@@ -24,19 +24,45 @@ export interface AttendanceSummary {
   presentDays: number;
   absentDays: number;
   lateDays: number;
-  excusedDays: number;
   attendancePercentage: number;
 }
 
+export interface MonthlyAttendanceReport {
+  grade: number;
+  section: string;
+  year: number;
+  month: number;
+  averageAttendancePercentage: number;
+  studentDetails: Array<{
+    studentId: number;
+    studentName: string;
+    presentDays: number;
+    absentDays: number;
+    lateDays: number;
+    attendancePercentage: number;
+  }>;
+}
+
 export interface MonthlyStats {
-  month: string;
+  grade: number;
+  section: string;
+  month: number;
   year: number;
   totalStudents: number;
-  averageAttendance: number;
-  gradeWiseStats: {
-    grade: string;
-    averageAttendance: number;
-  }[];
+  averageAttendance: number; // integer percent per backend
+  studentsWith100Percent: string[];
+  studentsBelow75Percent: string[];
+}
+
+export interface StudentAttendanceSummary {
+  studentId: number;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  presentDays: number;
+  absentDays: number;
+  lateDays: number;
+  attendancePercentage: number;
 }
 
 export const attendanceService = {
@@ -87,8 +113,8 @@ export const attendanceService = {
   getSectionAttendance: (grade: string, section: string, date: string) =>
     api.get<Attendance[]>(`/attendance/grade/${grade}/section/${section}/date/${date}`),
 
-  getStudentAttendanceSummary: (studentId: string) =>
-    api.get<AttendanceSummary>(`/attendance/student/${studentId}/summary`),
+  getStudentAttendanceSummary: (studentId: number, startDate: string, endDate: string) =>
+    api.get<StudentAttendanceSummary>(`/attendance/student/${studentId}/summary?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`),
 
   // Legacy variant (does not match backend ClassAttendanceRequest shape)
   markClassAttendance: (grade: string, section: string, attendance: BulkAttendance) =>
@@ -104,13 +130,11 @@ export const attendanceService = {
       remarks: args.remarks || ''
     }),
 
-  generateMonthlyReport: (month: number, year: number) =>
-    api.get<Blob>(`/attendance/report/monthly?month=${month}&year=${year}`, {
-      responseType: 'blob'
-    }),
+  generateMonthlyReport: (grade: number, section: string, year: number, month: number) =>
+    api.get<MonthlyAttendanceReport>(`/attendance/report/monthly?grade=${grade}&section=${encodeURIComponent(section)}&year=${year}&month=${month}`),
 
-  getMonthlyStats: (month: number, year: number) =>
-    api.get<MonthlyStats>(`/attendance/stats/monthly?month=${month}&year=${year}`),
+  getMonthlyStats: (grade: number, section: string, year: number, month: number) =>
+    api.get<MonthlyStats>(`/attendance/stats/monthly?grade=${grade}&section=${encodeURIComponent(section)}&year=${year}&month=${month}`),
 
   deleteAttendance: (id: number) =>
     api.delete(`/attendance/${id}`),

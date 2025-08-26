@@ -179,7 +179,7 @@ public class AttendanceController {
             @ApiResponse(responseCode = "404", description = "Student not found")
     })
     @GetMapping("/student/{studentId}/summary")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<StudentAttendanceSummaryDTO> getStudentAttendanceSummary(
             @PathVariable Long studentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

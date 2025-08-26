@@ -195,7 +195,7 @@ function App() {
               <Route path="/student-attendance" element={
                 <ProtectedRoute>
                   <Layout>
-                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER]}>
+                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.STUDENT]}>
                       <StudentAttendance />
                     </RoleBasedRoute>
                   </Layout>
