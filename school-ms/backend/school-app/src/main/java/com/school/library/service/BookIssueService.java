@@ -23,16 +23,18 @@ public interface BookIssueService {
     List<BookIssue> getBookIssuesDueOn(LocalDate date);
 
     /**
-     * Returns book issues that are currently Issued and due between the specified dates (inclusive).
+     * Returns book issues that are currently Issued and due between the specified
+     * dates (inclusive).
      */
     List<BookIssue> getBookIssuesDueInRange(LocalDate startDate, LocalDate endDate);
 
     BookIssue issueBook(BookIssue bookIssue);
 
     BookIssue returnBook(Long issueId);
-    
+
     /**
-     * Returns a book with an explicit return date (overrides default of LocalDate.now()).
+     * Returns a book with an explicit return date (overrides default of
+     * LocalDate.now()).
      */
     BookIssue returnBook(Long issueId, LocalDate returnDate);
 
@@ -45,4 +47,7 @@ public interface BookIssueService {
     Map<String, Long> getIssuedBooksCountByCategory();
 
     Map<LocalDate, Long> getIssueCountByDateRange(LocalDate startDate, LocalDate endDate);
+
 }
+
+

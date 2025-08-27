@@ -112,8 +112,37 @@ public class FeeService {
     }
 
     public Payment processPayment(PaymentRequest request) {
-        Fee fee = getFee(request.getFeeId());
+        // Resolve the student
         Student student = studentService.getStudent(request.getStudentId());
+
+        // Resolve the fee: try by provided ID, then by student's grade, else create a sensible default
+        Fee fee = null;
+        if (request.getFeeId() != null) {
+            fee = feeRepository.findById(request.getFeeId()).orElse(null);
+        }
+        if (fee == null) {
+            List<Fee> gradeFees = getFeesByGrade(student.getGrade());
+            if (gradeFees != null && !gradeFees.isEmpty()) {
+                fee = gradeFees.stream()
+                        .filter(f -> f.getFeeType() == Fee.FeeType.TUITION)
+                        .findFirst()
+                        .orElse(gradeFees.get(0));
+                log.info("Resolved feeId {} for student {} using grade-based fallback", fee.getId(), student.getId());
+            } else {
+                // No fees configured anywhere; create a default tuition fee using the request amount
+                log.info("No fees configured for Grade {}. Creating a default tuition fee for payment processing.",
+                        student.getGrade());
+                Fee defaultFee = new Fee();
+                defaultFee.setName("Tuition Fee - Grade " + student.getGrade());
+                defaultFee.setGrade(student.getGrade());
+                defaultFee.setAmount(Optional.ofNullable(request.getAmount()).orElse(0.0));
+                defaultFee.setDueDate(LocalDate.now().plusMonths(1));
+                defaultFee.setFeeType(Fee.FeeType.TUITION);
+                defaultFee.setFrequency(Fee.FeeFrequency.MONTHLY);
+                defaultFee.setDescription("Auto-created tuition fee for Grade " + student.getGrade());
+                fee = feeRepository.save(defaultFee);
+            }
+        }
 
         Payment payment = Payment.builder()
                 .fee(fee)
@@ -355,7 +384,8 @@ public class FeeService {
                         .collect(Collectors.toList());
 
                 if (!studentsWithoutGrade.isEmpty()) {
-                    log.info("Found {} students with null grade. Including these in Grade {}.", studentsWithoutGrade.size(), classGrade);
+                    log.info("Found {} students with null grade. Including these in Grade {}.",
+                            studentsWithoutGrade.size(), classGrade);
                     students = studentsWithoutGrade;
                 }
 
@@ -371,7 +401,9 @@ public class FeeService {
                             .collect(Collectors.toList());
 
                     if (!potentialGradeStudents.isEmpty()) {
-                        log.info("Found {} students that could potentially be in Grade {}. Including these in the report.", potentialGradeStudents.size(), classGrade);
+                        log.info(
+                                "Found {} students that could potentially be in Grade {}. Including these in the report.",
+                                potentialGradeStudents.size(), classGrade);
                         students = potentialGradeStudents;
                     }
                 }
@@ -391,23 +423,26 @@ public class FeeService {
             Integer studentGrade = student.getGrade();
             // If student's grade is null, handle according to requested classGrade
             // or default to what makes sense for the student
-        if (studentGrade == null) {
+            if (studentGrade == null) {
                 if (classGrade != null) {
                     // If we're looking for a specific grade and the student's grade is null,
                     // treat them as being in the requested grade for this report
                     studentGrade = classGrade;
-            log.debug("Student {} has null grade, treating as Grade {} as requested in the report filter", student.getId(), classGrade);
+                    log.debug("Student {} has null grade, treating as Grade {} as requested in the report filter",
+                            student.getId(), classGrade);
                 } else {
                     // Default logic - use a sensible default grade or estimate based on age
                     // For now we'll calculate based on average age for each grade
                     // This could be enhanced with more sophisticated logic
-            int estimatedGrade = estimateGradeFromStudentAge(student);
+                    int estimatedGrade = estimateGradeFromStudentAge(student);
                     studentGrade = estimatedGrade;
-            log.debug("Student {} has null grade, estimating as Grade {} based on available data", student.getId(), studentGrade);
+                    log.debug("Student {} has null grade, estimating as Grade {} based on available data",
+                            student.getId(), studentGrade);
                 }
             }
 
-        log.debug("Processing student: {} - {} {} (Grade: {})", student.getId(), student.getFirstName(), student.getLastName(), studentGrade);
+            log.debug("Processing student: {} - {} {} (Grade: {})", student.getId(), student.getFirstName(),
+                    student.getLastName(), studentGrade);
 
             List<Fee> applicableFees = getFeesByGrade(studentGrade);
             log.debug("Found {} applicable fees for grade {}", applicableFees.size(), studentGrade);
@@ -429,12 +464,12 @@ public class FeeService {
 
                     Fee savedFee = feeRepository.save(defaultFee);
                     applicableFees = List.of(savedFee);
-            log.info("Created default fee for Grade {}: {}", classGrade, savedFee.getId());
+                    log.info("Created default fee for Grade {}: {}", classGrade, savedFee.getId());
                 }
             }
 
             double totalDue = applicableFees.stream().mapToDouble(Fee::getAmount).sum();
-        log.debug("Total due amount: {}", totalDue);
+            log.debug("Total due amount: {}", totalDue);
 
             List<Payment> studentPayments = getStudentPayments(student.getId());
             double totalPaid = studentPayments.stream()
@@ -448,7 +483,7 @@ public class FeeService {
             result.add(summary);
         }
 
-    log.debug("Returning {} fee payment summaries", result.size());
+        log.debug("Returning {} fee payment summaries", result.size());
         return result;
     }
 
@@ -796,7 +831,7 @@ public class FeeService {
      */
     public List<Payment> getFilteredPayments(Integer grade, String section, String studentName) {
         // Log the filter parameters for debugging
-    log.debug("Filtering payments - Grade: {}, Section: {}, Student Name: {}", grade, section, studentName);
+        log.debug("Filtering payments - Grade: {}, Section: {}, Student Name: {}", grade, section, studentName);
 
         // Use the custom repository method for filtering
         return paymentRepository.findFilteredPayments(grade, section, studentName);

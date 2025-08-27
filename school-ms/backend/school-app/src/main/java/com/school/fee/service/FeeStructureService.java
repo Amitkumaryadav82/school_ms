@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +42,21 @@ public class FeeStructureService {
     }
 
     public FeeStructureDTO getFeeStructureByGrade(Integer classGrade) {
-        FeeStructure feeStructure = feeStructureRepository.findByClassGrade(classGrade)
-                .orElseThrow(() -> new EntityNotFoundException("Fee Structure not found for grade: " + classGrade));
-        return convertToDTO(feeStructure);
+        return feeStructureRepository.findByClassGrade(classGrade)
+                .map(this::convertToDTO)
+                .orElseGet(() -> {
+                    // Return a safe, empty DTO to avoid 404s and let the UI handle defaults
+                    FeeStructureDTO dto = new FeeStructureDTO();
+                    dto.setId(null);
+                    dto.setClassGrade(classGrade);
+                    dto.setAnnualFees(java.math.BigDecimal.ZERO);
+                    dto.setBuildingFees(java.math.BigDecimal.ZERO);
+                    dto.setLabFees(java.math.BigDecimal.ZERO);
+                    dto.setTotalFees(java.math.BigDecimal.ZERO);
+                    dto.setPaymentSchedules(new java.util.ArrayList<>());
+                    dto.setLateFees(new java.util.ArrayList<>());
+                    return dto;
+                });
     }
 
     @Transactional
@@ -130,7 +143,7 @@ public class FeeStructureService {
         PaymentSchedule monthlySchedule = new PaymentSchedule();
         monthlySchedule.setFeeStructure(feeStructure);
         monthlySchedule.setScheduleType(PaymentSchedule.ScheduleType.MONTHLY);
-        monthlySchedule.setAmount(annualFee.divide(BigDecimal.valueOf(12), 2, BigDecimal.ROUND_HALF_UP));
+    monthlySchedule.setAmount(annualFee.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP));
         monthlySchedule.setIsEnabled(true);
         paymentScheduleRepository.save(monthlySchedule);
 
@@ -138,7 +151,7 @@ public class FeeStructureService {
         PaymentSchedule quarterlySchedule = new PaymentSchedule();
         quarterlySchedule.setFeeStructure(feeStructure);
         quarterlySchedule.setScheduleType(PaymentSchedule.ScheduleType.QUARTERLY);
-        quarterlySchedule.setAmount(annualFee.divide(BigDecimal.valueOf(4), 2, BigDecimal.ROUND_HALF_UP));
+    quarterlySchedule.setAmount(annualFee.divide(BigDecimal.valueOf(4), 2, RoundingMode.HALF_UP));
         quarterlySchedule.setIsEnabled(true);
         paymentScheduleRepository.save(quarterlySchedule);
 

@@ -140,6 +140,33 @@ const FeeManagement: React.FC = () => {
     return studentService.getAll();
   });
 
+  // Derived options for class/section filters when searching a single student
+  const classOptions = React.useMemo(() => {
+    const set = new Set<string>();
+    (studentOptions || []).forEach(s => {
+      if (s.grade) set.add(String(s.grade));
+    });
+    return Array.from(set).sort((a, b) => Number(a) - Number(b));
+  }, [studentOptions]);
+
+  const sectionOptions = React.useMemo(() => {
+    const set = new Set<string>();
+    (studentOptions || [])
+      .filter(s => (selectedClass ? String(s.grade) === String(selectedClass) : true))
+      .forEach(s => {
+        if (s.section) set.add(s.section);
+      });
+    return Array.from(set).sort();
+  }, [studentOptions, selectedClass]);
+
+  // Students filtered by selected class/section
+  const filteredStudentOptions = React.useMemo(() => {
+    return (studentOptions || []).filter(s =>
+      (selectedClass ? String(s.grade) === String(selectedClass) : true) &&
+      (selectedSection ? s.section === selectedSection : true)
+    );
+  }, [studentOptions, selectedClass, selectedSection]);
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };  const handleSearchStudent = async () => {
@@ -570,10 +597,53 @@ const FeeManagement: React.FC = () => {
             {!isViewingAllPayments ? (
               // Individual student search
               <Grid container spacing={2} alignItems="center">
+                {/* Class filter */}
+                <Grid item xs={12} sm={6} md={3}>
+                  <TextField
+                    select
+                    label="Class"
+                    value={selectedClass}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSelectedClass(value);
+                      // reset section when class changes
+                      setSelectedSection('');
+                    }}
+                    fullWidth
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    {classOptions.map((cls) => (
+                      <MenuItem key={cls} value={cls}>
+                        {cls}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                {/* Section filter */}
+                <Grid item xs={12} sm={6} md={3}>
+                  <TextField
+                    select
+                    label="Section"
+                    value={selectedSection}
+                    onChange={(e) => setSelectedSection(e.target.value)}
+                    fullWidth
+                    disabled={!selectedClass}
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    {sectionOptions.map((sec) => (
+                      <MenuItem key={sec} value={sec}>
+                        {sec}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                {/* Student typeahead */}
                 <Grid item xs={12} sm={6} md={4}>
                   <Autocomplete
-                    options={studentOptions || []}
-                    getOptionLabel={(option) => `${option.name} (${option.id})`}
+                    options={filteredStudentOptions}
+                    getOptionLabel={(option) => `${option.name} (${option.studentId || option.id})`}
                     value={selectedStudent}
                     onChange={(event, newValue) => {
                       setSelectedStudent(newValue);
@@ -582,13 +652,21 @@ const FeeManagement: React.FC = () => {
                         fetchStudentPayments(newValue.id);
                       }
                     }}
+                    onInputChange={(e, value) => setStudentIdOrName(value)}
+                    filterOptions={(options, state) => {
+                      const input = (state.inputValue || '').toLowerCase();
+                      if (!input) return options;
+                      return options.filter(o =>
+                        (o.name || '').toLowerCase().includes(input) ||
+                        String(o.studentId || o.id || '').toLowerCase().includes(input)
+                      );
+                    }}
                     renderInput={(params) => (
                       <TextField
                         {...params}
                         label="Search Student"
                         variant="outlined"
                         fullWidth
-                        onChange={(e) => setStudentIdOrName(e.target.value)}
                         InputProps={{
                           ...params.InputProps,
                           endAdornment: (

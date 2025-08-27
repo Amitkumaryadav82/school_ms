@@ -24,9 +24,9 @@ public class BookIssueServiceImpl implements BookIssueService {
     private final BookRepository bookRepository;
     private final HolidayAttendanceService holidayAttendanceService;
 
-    public BookIssueServiceImpl(@Qualifier("libraryBookIssueRepositoryImpl") BookIssueRepository bookIssueRepository, 
-                              @Qualifier("libraryBookRepositoryImpl") BookRepository bookRepository,
-                              HolidayAttendanceService holidayAttendanceService) {
+    public BookIssueServiceImpl(@Qualifier("libraryBookIssueRepositoryImpl") BookIssueRepository bookIssueRepository,
+            @Qualifier("libraryBookRepositoryImpl") BookRepository bookRepository,
+            HolidayAttendanceService holidayAttendanceService) {
         this.bookIssueRepository = bookIssueRepository;
         this.bookRepository = bookRepository;
         this.holidayAttendanceService = holidayAttendanceService;
@@ -69,7 +69,8 @@ public class BookIssueServiceImpl implements BookIssueService {
             bookIssue.setIssueDate(LocalDate.now());
         }
 
-        // Set due date if not provided: default to +5 working days (skip weekends and holidays)
+        // Set due date if not provided: default to +5 working days (skip weekends and
+        // holidays)
         if (bookIssue.getDueDate() == null) {
             bookIssue.setDueDate(addWorkingDays(bookIssue.getIssueDate(), 5));
         }
@@ -181,7 +182,7 @@ public class BookIssueServiceImpl implements BookIssueService {
                         Collectors.counting()));
     }
 
-            /**
+    /**
              * Adds the specified number of working days to the start date, skipping weekends and holidays.
              */
             private LocalDate addWorkingDays(LocalDate start, int workingDays) {
@@ -198,4 +199,5 @@ public class BookIssueServiceImpl implements BookIssueService {
                 }
                 return date;
             }
+
 }

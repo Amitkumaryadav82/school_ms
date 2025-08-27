@@ -10,14 +10,20 @@ import java.util.List;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
-    List<Payment> findByStudentId(Long studentId);
+    // Use explicit JPQL to reference the nested student.id property
+    @Query("SELECT p FROM Payment p WHERE p.student.id = :studentId")
+    List<Payment> findByStudentId(@Param("studentId") Long studentId);
 
-    List<Payment> findByFeeId(Long feeId);
+        // Use explicit JPQL to reference the nested fee.id property to avoid
+        // Spring Data deriving an invalid path like BaseEntity.feeId
+        @Query("SELECT p FROM Payment p WHERE p.fee.id = :feeId")
+        List<Payment> findByFeeId(@Param("feeId") Long feeId);
 
     List<Payment> findByPaymentDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     // For getting the latest payment for a student
-    java.util.Optional<Payment> findTopByStudentIdOrderByPaymentDateDesc(Long studentId);
+    // Use association path in derived query to get the latest payment for a student
+    java.util.Optional<Payment> findTopByStudent_IdOrderByPaymentDateDesc(Long studentId);
 
     // Custom query for filtered payments
     @Query("SELECT p FROM Payment p JOIN p.student s WHERE " +

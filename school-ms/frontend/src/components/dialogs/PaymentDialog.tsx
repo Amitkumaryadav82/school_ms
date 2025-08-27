@@ -169,12 +169,10 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
     validationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      if (studentId) {              // Create a payment object that matches the backend PaymentRequest expectations
+  if (studentId) {              // Create a payment object that matches the backend PaymentRequest expectations
         const paymentData: Payment = {
           studentId,
           id: initialData?.id,
-          // Make sure we have a valid feeId by prioritizing the feeStructure.id
-          feeId: studentFees?.feeStructure?.id || studentFees?.studentFeeId, 
           paymentDate: typeof values.paymentDate === 'string' 
             ? values.paymentDate 
             : format(values.paymentDate, 'yyyy-MM-dd'),

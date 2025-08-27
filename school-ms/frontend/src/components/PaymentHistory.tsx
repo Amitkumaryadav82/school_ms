@@ -129,7 +129,7 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                         ? format(new Date(payment.paymentDate), 'dd MMM yyyy')
                         : '-'}
                     </TableCell>
-                    <TableCell>₹{payment.amountPaid.toLocaleString()}</TableCell>
+                    <TableCell>₹{Number(payment.amountPaid ?? payment.amount ?? 0).toLocaleString()}</TableCell>
                     <TableCell>{payment.paymentMethod}</TableCell>
                     <TableCell>{getPaymentStatusChip(payment.paymentStatus)}</TableCell>
                     <TableCell align="right">
@@ -232,7 +232,7 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                   Amount Paid
                 </Typography>
                 <Typography variant="h6" color="primary" gutterBottom>
-                  ₹{selectedPayment.amountPaid.toLocaleString()}
+                  ₹{Number(selectedPayment.amountPaid ?? selectedPayment.amount ?? 0).toLocaleString()}
                 </Typography>
 
                 {selectedPayment.notes && (

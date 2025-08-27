@@ -1,5 +1,7 @@
 package com.school.fee.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.school.common.model.BaseEntity;
 import com.school.student.model.Student;
 import javax.persistence.*;
@@ -19,10 +21,12 @@ public class Payment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fee_id", nullable = false)
+    @JsonIgnore
     private Fee fee;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
+    @JsonIgnore
     private Student student;
 
     @NotNull
@@ -49,6 +53,19 @@ public class Payment extends BaseEntity {
     private String payerContactInfo;
     private String payerRelationToStudent;
     private String receiptNumber;
+
+    // Lightweight fields for serialization
+    @Transient
+    @JsonProperty("feeId")
+    public Long getFeeId() {
+        return fee != null ? fee.getId() : null;
+    }
+
+    @Transient
+    @JsonProperty("studentId")
+    public Long getStudentId() {
+        return student != null ? student.getId() : null;
+    }
 
     public enum PaymentMethod {
         CASH, CREDIT_CARD, DEBIT_CARD, BANK_TRANSFER, CHEQUE, ONLINE

@@ -140,6 +140,35 @@ export interface OverdueAnalytics {
 
 // Fee Service functions
 const feeService = {
+    // Internal: normalize backend Payment payloads to the FE Payment shape
+    _normalizePayment(p: any): Payment {
+        if (!p || typeof p !== 'object') {
+            return {
+                id: undefined as any,
+                studentId: 0,
+                paymentDate: new Date().toISOString(),
+                amount: 0,
+                amountPaid: 0,
+                paymentMethod: 'CASH',
+                frequency: 'MONTHLY',
+                paymentStatus: 'PENDING',
+                academicYear: '',
+                academicTerm: ''
+            } as unknown as Payment;
+        }
+        const amount = Number(p.amount ?? p.amountPaid ?? 0);
+        const status = String(p.paymentStatus ?? p.status ?? 'PENDING');
+        return {
+            ...p,
+            studentId: Number(p.studentId ?? p.student?.id ?? 0),
+            feeId: p.feeId ?? p.fee?.id,
+            amount,
+            amountPaid: Number(p.amountPaid ?? amount),
+            paymentMethod: String(p.paymentMethod ?? 'CASH'),
+            paymentStatus: status,
+            paymentDate: p.paymentDate ?? p.date ?? new Date().toISOString()
+        } as Payment;
+    },
     // Fee Structure endpoints
     getAllFeeStructures: async (): Promise<FeeStructure[]> => {
         return await api.get<FeeStructure[]>('/api/fees/structures');
@@ -147,22 +176,12 @@ const feeService = {
 
     getFeeStructureById: async (id: number): Promise<FeeStructure> => {
         return await api.get<FeeStructure>(`/api/fees/structures/${id}`);
-    },    getFeeStructureByGrade: async (classGrade: number): Promise<FeeStructure> => {
+    },    getFeeStructureByGrade: async (classGrade: number): Promise<FeeStructure | null> => {
         try {
             return await api.get<FeeStructure>(`/api/fees/structures/grade/${classGrade}`);
         } catch (error) {
             console.error(`Error fetching fee structure for grade ${classGrade}:`, error);
-            // Return a default structure if API fails
-            return {
-                id: 1,
-                classGrade: classGrade,
-                annualFees: 25000,
-                buildingFees: 5000,
-                labFees: 3000,
-                totalFees: 33000,
-                paymentSchedules: [],
-                lateFees: []
-            };
+            return null;
         }
     },
 
@@ -232,7 +251,8 @@ const feeService = {
         return await api.get<Payment>(`/api/fees/payments/${id}`);
     },    getPaymentsByStudentId: async (studentId: number): Promise<Payment[]> => {
         try {
-            return await api.get<Payment[]>(`/api/fees/payments/student/${studentId}`);
+            const raw = await api.get<any[]>(`/api/fees/payments/student/${studentId}`);
+            return Array.isArray(raw) ? raw.map(feeService._normalizePayment) : [];
         } catch (error) {
             console.error(`Error fetching payment history for student ${studentId}:`, error);
             return []; // Return empty array if API fails
@@ -260,14 +280,61 @@ const feeService = {
             const { debugPayment, validatePaymentRequest } = await import('../utils/debugUtils');
             const { submitPaymentWithCorsHandling } = await import('../services/corsHelper');
             
+            // Resolve a real backend Fee ID for this student/grade when not provided or unreliable
+            let resolvedFeeId: number | null = (payment.feeId && Number(payment.feeId) > 0)
+                ? Number(payment.feeId)
+                : null;
+
+            try {
+                // If feeId is missing, derive it using student's grade -> fees list
+                if (!resolvedFeeId) {
+                    const student = await studentService.getById(Number(payment.studentId));
+                    const gradeRaw = (student as any)?.grade ?? (student as any)?.classGrade ?? (student as any)?.gradeLevel ?? '0';
+                    const gradeNumber = parseInt(String(gradeRaw), 10);
+
+                    if (!Number.isFinite(gradeNumber) || gradeNumber <= 0) {
+                        debugPayment('Unable to derive grade for student', { studentId: payment.studentId, student });
+                        throw new Error('Unable to determine student grade to resolve applicable fee');
+                    }
+
+                    // Ask backend for fees configured for this grade
+                    const feesForGrade = await api.get<any[]>(`/api/fees/grade/${gradeNumber}`);
+                    const chosen = Array.isArray(feesForGrade) && feesForGrade.length > 0
+                        ? feesForGrade.find(f => (f?.feeType === 'TUITION') || (String(f?.name || '').toLowerCase().includes('tuition')))
+                            || feesForGrade[0]
+                        : null;
+
+                    if (chosen?.id) {
+                        resolvedFeeId = Number(chosen.id);
+                        debugPayment('Resolved feeId from grade', { studentId: payment.studentId, gradeNumber, feeId: resolvedFeeId, chosen });
+                    } else {
+                        debugPayment('No fees returned for grade; backend may create defaults', { gradeNumber });
+                        // As a last resort, try again after a short delay to allow backend default creation
+                        // but do not block indefinitely
+                        try {
+                            const retryFees = await api.get<any[]>(`/api/fees/grade/${gradeNumber}`);
+                            const retryChosen = Array.isArray(retryFees) && retryFees.length > 0 ? retryFees[0] : null;
+                            if (retryChosen?.id) {
+                                resolvedFeeId = Number(retryChosen.id);
+                            }
+                        } catch {}
+                    }
+                }
+            } catch (resolveErr) {
+                // We'll validate below and surface a clear message if still missing
+                debugPayment('Fee ID resolution failed', { err: resolveErr });
+            }
+
             // Transform to match the backend PaymentRequest format
             const paymentRequest = {
-                feeId: payment.feeId || payment.studentFeeId ? Number(payment.feeId || payment.studentFeeId) : null,
+                feeId: resolvedFeeId,
                 studentId: Number(payment.studentId),
                 amount: Number(payment.amount),
                 paymentMethod: payment.paymentMethod === 'BANK_TRANSFER' ? 'BANK_TRANSFER' : 
                                payment.paymentMethod === 'CREDIT_CARD' ? 'CREDIT_CARD' : 
-                               payment.paymentMethod === 'UPI' ? 'ONLINE' : 'CASH',
+                               payment.paymentMethod === 'UPI' ? 'ONLINE' :
+                               payment.paymentMethod === 'CHEQUE' || payment.paymentMethod === 'CHECK' ? 'CHEQUE' :
+                               payment.paymentMethod === 'ONLINE' ? 'ONLINE' : 'CASH',
                 transactionReference: payment.transactionReference || payment.reference || '',
                 remarks: payment.remarks || payment.notes || '',
                 // Additional fields
@@ -284,6 +351,11 @@ const feeService = {
                     message: `Missing required fields: ${validation.missingFields.join(', ')}`
                 });
                 throw new Error(`Payment validation failed. Missing: ${validation.missingFields.join(', ')}`);
+            }
+
+            // Explicit guard for feeId to avoid backend 404 (FeeNotFoundException)
+            if (!paymentRequest.feeId || !Number.isFinite(Number(paymentRequest.feeId))) {
+                throw new Error('Unable to resolve a valid Fee ID for this student. Please ensure fees are set up for the selected class.');
             }
             
             // Log the payment request for debugging
@@ -441,34 +513,26 @@ const feeService = {
             const gradeNumber = parseInt(student.grade || '10', 10);
             
             // Get the fee structure for this grade
-            let feeStructure;
+            let feeStructure: any | null = null;
             try {
                 // Don't use feeService here to avoid circular reference
                 feeStructure = await api.get<FeeStructure>(`/api/fees/structures/grade/${gradeNumber}`);
             } catch (error) {
                 console.error("Error fetching fee structure:", error);
-                // Default structure if API fails
-                feeStructure = {
-                    id: 1,
-                    classGrade: gradeNumber,
-                    annualFees: 25000,
-                    buildingFees: 5000,
-                    labFees: 3000,
-                    amount: 33000,
-                    totalFees: 33000
-                };
+                feeStructure = null;
             }
             
             return {
                 studentId: studentId,
                 studentFeeId: 1,
                 feeStructure: {
-                    id: feeStructure.id || 1,
+                    id: (feeStructure?.id) ?? 0,
                     classGrade: gradeNumber,
-                    annualFees: feeStructure.annualFees || 0,                    buildingFees: feeStructure.buildingFees || 0,
-                    labFees: feeStructure.labFees || 0,
-                    amount: feeStructure.totalFees || 0,
-                    totalFees: feeStructure.totalFees || 0
+                    annualFees: feeStructure?.annualFees ?? 0,
+                    buildingFees: feeStructure?.buildingFees ?? 0,
+                    labFees: feeStructure?.labFees ?? 0,
+                    amount: feeStructure?.totalFees ?? 0,
+                    totalFees: feeStructure?.totalFees ?? 0
                 }
             };
         } catch (error) {
@@ -491,7 +555,8 @@ const feeService = {
     },
     
     getStudentPaymentHistory: async (studentId: number): Promise<Payment[]> => {
-        return await api.get<Payment[]>(`/api/fees/payments/student/${studentId}`);
+        const raw = await api.get<any[]>(`/api/fees/payments/student/${studentId}`);
+        return Array.isArray(raw) ? raw.map(feeService._normalizePayment) : [];
     },downloadReceipt: async (paymentId: number): Promise<void> => {
         try {
             // Use direct axios call with responseType: 'blob'
