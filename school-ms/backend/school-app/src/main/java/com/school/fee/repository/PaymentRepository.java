@@ -33,4 +33,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findFilteredPayments(@Param("grade") Integer grade,
             @Param("section") String section,
             @Param("studentName") String studentName);
+
+    // Lookup by receipt number for durable receipt retrieval
+    java.util.Optional<Payment> findByReceiptNumber(String receiptNumber);
 }

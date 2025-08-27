@@ -93,6 +93,7 @@ const FeeManagement: React.FC = () => {
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
   const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [studentIdOrName, setStudentIdOrName] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [studentFeeDetails, setStudentFeeDetails] = useState<StudentFeeDetailsType | null>(null);
@@ -451,9 +452,34 @@ const FeeManagement: React.FC = () => {
     }
   };
 
-  const handleViewReceipt = (paymentId: number) => {
+  const handleViewReceipt = async (paymentId: number) => {
     setSelectedPaymentId(paymentId);
-    setReceiptDialogOpen(true);
+    // Try receipt-based lookup first if we have it locally, then id, then cached fallback
+    const localPayment = [...(studentPayments || []), ...(allPayments || [])].find(p => p.id === paymentId);
+    const tryOpen = (p: Payment, note?: string) => {
+      setSelectedPayment(p);
+      setReceiptDialogOpen(true);
+      // Avoid showing error snackbars when we can still open from cache
+    };
+    try {
+      if (localPayment?.receiptNumber) {
+        const remote = await feeService.getPaymentByReceipt(localPayment.receiptNumber);
+        return tryOpen(remote);
+      }
+    } catch (e: any) {
+      // ignore; will try id next
+    }
+    try {
+      const remote = await feeService.getPaymentById(paymentId);
+      return tryOpen(remote);
+    } catch (err: any) {
+      if (localPayment) {
+        return tryOpen(localPayment);
+      }
+      const status = err?.status || err?.response?.status;
+      const msg = status === 404 ? 'Payment not found. It may have been deleted.' : 'Unable to load payment details for receipt';
+      setSnackbar({ open: true, message: msg, severity: 'error' });
+    }
   };
 
   const handleDownloadReceipt = async (paymentId: number) => {
@@ -912,29 +938,16 @@ const FeeManagement: React.FC = () => {
         />
       )}
 
-      {/* Receipt Dialog */}      {receiptDialogOpen && selectedPaymentId !== null && (
+      {/* Receipt Dialog */}      {receiptDialogOpen && selectedPaymentId !== null && selectedPayment && (
         <ReceiptDialog 
           open={receiptDialogOpen}
-          payment={
-            // Use type assertion to avoid TypeScript errors
-            {
-              id: selectedPaymentId,
-              studentId: selectedStudent?.id || 0,
-              paymentDate: new Date().toISOString(),
-              amount: 0,
-              amountPaid: 0,
-              paymentMethod: 'CASH',
-              frequency: 'MONTHLY',
-              paymentStatus: 'PAID',
-              academicYear: '2024-2025',
-              academicTerm: 'TERM1'
-            } as Payment
-          }
+          payment={selectedPayment}
           studentName={selectedStudent?.name || 'Student'}
           className={`Grade ${studentFeeDetails?.feeStructure?.classGrade || 'N/A'}`}
           onClose={() => {
             setReceiptDialogOpen(false);
             setSelectedPaymentId(null);
+            setSelectedPayment(null);
           }}
           onDownload={() => {
             if (selectedPaymentId !== null) {

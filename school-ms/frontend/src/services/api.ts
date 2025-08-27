@@ -220,12 +220,20 @@ export const api = {
         return handlePossibleStringResponse<T>(res, fullEndpoint);
       })
       .catch(error => {
-        console.error(`API Error from ${fullEndpoint}:`, {
-          message: error.message,
-          response: error.response,
-          statusText: error.response?.statusText,
-          data: error.response?.data
-        });
+  const status = error?.response?.status;
+  const is404 = status === 404;
+  const log = is404 ? console.debug : console.error;
+        // For 404s, keep the log minimal to avoid noisy red console errors during known fallbacks
+        if (is404) {
+          log(`API 404 from ${fullEndpoint}`);
+        } else {
+          log(`API Error from ${fullEndpoint}:`, {
+            message: error.message,
+            response: error.response,
+            statusText: error.response?.statusText,
+            data: error.response?.data
+          });
+        }
         throw error;
       });
   },

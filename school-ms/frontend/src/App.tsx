@@ -25,6 +25,7 @@ import ReportCards from './pages/ReportCards';
 import TimetableLanding from './pages/TimetableLanding';
 import Library from './pages/Library';
 import StudentAttendance from './pages/StudentAttendance';
+import SchoolSettingsPage from './pages/SchoolSettings';
 
 const ROLES = {
   ADMIN: 'ADMIN',
@@ -197,6 +198,15 @@ function App() {
                   <Layout>
                     <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.STUDENT]}>
                       <StudentAttendance />
+                    </RoleBasedRoute>
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/settings/school" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL]}>
+                      <SchoolSettingsPage />
                     </RoleBasedRoute>
                   </Layout>
                 </ProtectedRoute>

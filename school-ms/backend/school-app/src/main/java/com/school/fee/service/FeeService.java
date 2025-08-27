@@ -45,6 +45,9 @@ public class FeeService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private com.school.settings.service.ReceiptNumberService receiptNumberService;
+
     public Fee createFee(FeeRequest request) {
         Fee fee = Fee.builder()
                 .name(request.getName())
@@ -144,6 +147,12 @@ public class FeeService {
             }
         }
 
+        // Ensure we have a proper receipt number. If not provided, generate one.
+        String receiptNo = request.getReceiptNumber();
+        if (receiptNo == null || receiptNo.isBlank()) {
+            receiptNo = receiptNumberService.nextReceiptNumber();
+        }
+
         Payment payment = Payment.builder()
                 .fee(fee)
                 .student(student)
@@ -156,7 +165,7 @@ public class FeeService {
                 .payerName(request.getPayerName())
                 .payerContactInfo(request.getPayerContactInfo())
                 .payerRelationToStudent(request.getPayerRelationToStudent())
-                .receiptNumber(request.getReceiptNumber())
+                .receiptNumber(receiptNo)
                 .build();
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -168,6 +177,15 @@ public class FeeService {
 
     public List<Payment> getStudentPayments(Long studentId) {
         return paymentRepository.findByStudentId(studentId);
+    }
+
+    public java.util.Optional<Payment> getPaymentById(Long id) {
+        return paymentRepository.findById(id);
+    }
+
+    public java.util.Optional<Payment> getPaymentByReceiptNumber(String receiptNumber) {
+        if (receiptNumber == null || receiptNumber.isBlank()) return java.util.Optional.empty();
+        return paymentRepository.findByReceiptNumber(receiptNumber);
     }
 
     public List<FeePaymentSummary> getStudentFeeSummary(Long studentId) {

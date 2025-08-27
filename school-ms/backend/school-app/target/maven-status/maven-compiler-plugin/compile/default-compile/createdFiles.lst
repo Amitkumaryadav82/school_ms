@@ -1,3 +1,4 @@
+com\school\settings\service\ReceiptNumberService.class
 com\school\communication\repository\InAppNotificationRepository.class
 com\school\exam\dto\MarksMatrixDTO$SubjectCol.class
 com\school\security\JwtTokenProvider.class
@@ -90,6 +91,7 @@ com\school\hrm\entity\StaffDesignation.class
 com\school\core\repository\StaffRepository.class
 com\school\course\service\ChapterRepository.class
 com\school\fee\model\StudentFeeAssignment$StudentFeeAssignmentBuilder.class
+com\school\settings\repository\SchoolSettingsRepository.class
 com\school\communication\model\MessageType.class
 com\school\course\service\ConsolidatedCourseService.class
 com\school\staff\model\TeacherSubjectMap.class
@@ -207,6 +209,8 @@ com\school\fee\dto\FeeStructureDTO.class
 com\school\exam\dto\MarksMatrixDTO.class
 com\school\core\model\TeacherDetails.class
 com\school\monitoring\RequestTracingFilter.class
+com\school\settings\service\SchoolSettingsService.class
+com\school\settings\dto\SchoolSettingsDTO.class
 com\school\staff\service\StaffServiceImpl.class
 com\school\communication\service\MessageService.class
 com\school\exam\dto\MarksMatrixResponse$SubjectColumn.class
@@ -320,6 +324,7 @@ com\school\communication\service\NotificationServiceImpl.class
 com\school\core\repository\EmployeeRepository.class
 com\school\course\service\CourseService.class
 com\school\student\dto\StudentDTO.class
+com\school\settings\model\SchoolSettings.class
 com\school\config\WebSecurityConfig.class
 com\school\config\CacheConfig.class
 com\school\student\model\Student$StudentBuilder.class
@@ -382,6 +387,7 @@ com\school\config\CorsFilterConfig.class
 com\school\student\repository\StudentRepository.class
 com\school\security\AuthControllerConfig.class
 com\school\fee\dto\SemesterFeeReport$SemesterFeeReportBuilder.class
+com\school\settings\controller\SchoolSettingsController.class
 com\school\fee\dto\ClassWiseCollection.class
 com\school\exam\dto\MarksMatrixResponse$StudentSubjectCell.class
 com\school\fee\dto\FeeRequest.class
@@ -430,6 +436,7 @@ com\school\hrm\service\StaffService.class
 com\school\attendance\model\Attendance$AttendanceBuilder.class
 com\school\library\controller\CourseController.class
 com\school\fee\dto\FeePaymentSummary$FeePaymentSummaryBuilder.class
+com\school\settings\model\SchoolSettings$SchoolSettingsBuilder.class
 com\school\attendance\service\impl\EmployeeAttendanceServiceImpl.class
 com\school\hrm\controller\HolidayAttendanceTestController.class
 com\school\student\util\StudentMapper.class

@@ -218,7 +218,8 @@ const feeService = {
         return await api.delete(`/api/fees/transport-routes/${id}`);
     },    // Payment endpoints
     getAllPayments: async (): Promise<Payment[]> => {
-        return await api.get<Payment[]>('/api/fees/payments');
+        const raw = await api.get<any[]>('/api/fees/payments');
+        return Array.isArray(raw) ? raw.map(feeService._normalizePayment) : [];
     },
     
     getFilteredPayments: async (filters?: { 
@@ -240,7 +241,8 @@ const feeService = {
         }
         
         try {
-            return await api.get<Payment[]>(url);
+            const raw = await api.get<any[]>(url);
+            return Array.isArray(raw) ? raw.map(feeService._normalizePayment) : [];
         } catch (error) {
             console.error('Error fetching filtered payments:', error);
             return []; // Return empty array if API fails
@@ -248,8 +250,14 @@ const feeService = {
     },
 
     getPaymentById: async (id: number): Promise<Payment> => {
-        return await api.get<Payment>(`/api/fees/payments/${id}`);
-    },    getPaymentsByStudentId: async (studentId: number): Promise<Payment[]> => {
+        const raw = await api.get<any>(`/api/fees/payments/${id}`);
+        return feeService._normalizePayment(raw);
+    },
+    getPaymentByReceipt: async (receiptNumber: string): Promise<Payment> => {
+        const raw = await api.get<any>(`/api/fees/payments/receipt/${encodeURIComponent(receiptNumber)}`);
+        return feeService._normalizePayment(raw);
+    },
+    getPaymentsByStudentId: async (studentId: number): Promise<Payment[]> => {
         try {
             const raw = await api.get<any[]>(`/api/fees/payments/student/${studentId}`);
             return Array.isArray(raw) ? raw.map(feeService._normalizePayment) : [];

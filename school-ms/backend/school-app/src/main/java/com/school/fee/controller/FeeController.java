@@ -94,6 +94,26 @@ public class FeeController {
         return ResponseEntity.ok(feeService.getStudentPayments(studentId));
     }
 
+    @Operation(summary = "Get payment by id", description = "Retrieves a payment by its identifier")
+    @ApiResponse(responseCode = "200", description = "Payment retrieved successfully")
+    @GetMapping("/payments/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
+    public ResponseEntity<Payment> getPaymentById(@PathVariable Long id) {
+        return feeService.getPaymentById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Get payment by receipt number", description = "Retrieves a payment by its receipt number")
+    @ApiResponse(responseCode = "200", description = "Payment retrieved successfully")
+    @GetMapping("/payments/receipt/{receiptNumber}")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
+    public ResponseEntity<Payment> getPaymentByReceipt(@PathVariable String receiptNumber) {
+        return feeService.getPaymentByReceiptNumber(receiptNumber)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @Operation(summary = "Get student fee summary", description = "Retrieves fee payment summary for a student")
     @ApiResponse(responseCode = "200", description = "Fee summary retrieved successfully")
     @GetMapping("/summary/student/{studentId}")
