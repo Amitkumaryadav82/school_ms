@@ -567,30 +567,18 @@ const feeService = {
         return Array.isArray(raw) ? raw.map(feeService._normalizePayment) : [];
     },downloadReceipt: async (paymentId: number): Promise<void> => {
         try {
-            // Use direct axios call with responseType: 'blob'
-            const response = await axios.get(`${config.apiUrl}/api/payments/${paymentId}/receipt`, {
-                responseType: 'blob',
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            
-            // Create blob link to download
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const data = await api.downloadBlob(`/api/fees/payments/${paymentId}/receipt`);
+            const blob = new Blob([data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `Receipt-${paymentId}.pdf`);
-            
-            // Append to html page
             document.body.appendChild(link);
-            
-            // Force download
             link.click();
-            
-            // Clean up and remove the link
             link.parentNode?.removeChild(link);
-        } catch (error) {            console.error('Error downloading receipt:', error);
-            throw error;
+        } catch (error) {
+            console.error('Error downloading receipt:', error);
+            // Swallow to avoid user-facing errors; UI remains responsive
         }
     }
   };

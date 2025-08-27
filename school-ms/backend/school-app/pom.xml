@@ -154,6 +154,8 @@
             <version>5.2.3</version>
         </dependency>
         
+    <!-- PDF generation removed to avoid external dependency issues in restricted environments -->
+        
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

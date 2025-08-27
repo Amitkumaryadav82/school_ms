@@ -114,6 +114,19 @@ public class FeeController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Download receipt", description = "Downloads a receipt PDF for a payment")
+    @ApiResponse(responseCode = "200", description = "Receipt downloaded successfully")
+    @GetMapping("/payments/{id}/receipt")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT')")
+    public ResponseEntity<byte[]> downloadReceipt(@PathVariable Long id) {
+        return feeService.generateReceiptPdf(id)
+                .map(bytes -> ResponseEntity.ok()
+                        .header("Content-Type", "application/pdf")
+                        .header("Content-Disposition", "attachment; filename=receipt-" + id + ".pdf")
+                        .body(bytes))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @Operation(summary = "Get student fee summary", description = "Retrieves fee payment summary for a student")
     @ApiResponse(responseCode = "200", description = "Fee summary retrieved successfully")
     @GetMapping("/summary/student/{studentId}")

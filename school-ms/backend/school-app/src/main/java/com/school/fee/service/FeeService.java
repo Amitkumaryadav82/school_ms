@@ -48,6 +48,9 @@ public class FeeService {
     @Autowired
     private com.school.settings.service.ReceiptNumberService receiptNumberService;
 
+    @Autowired
+    private com.school.settings.service.SchoolSettingsService schoolSettingsService;
+
     public Fee createFee(FeeRequest request) {
         Fee fee = Fee.builder()
                 .name(request.getName())
@@ -118,7 +121,8 @@ public class FeeService {
         // Resolve the student
         Student student = studentService.getStudent(request.getStudentId());
 
-        // Resolve the fee: try by provided ID, then by student's grade, else create a sensible default
+        // Resolve the fee: try by provided ID, then by student's grade, else create a
+        // sensible default
         Fee fee = null;
         if (request.getFeeId() != null) {
             fee = feeRepository.findById(request.getFeeId()).orElse(null);
@@ -132,7 +136,8 @@ public class FeeService {
                         .orElse(gradeFees.get(0));
                 log.info("Resolved feeId {} for student {} using grade-based fallback", fee.getId(), student.getId());
             } else {
-                // No fees configured anywhere; create a default tuition fee using the request amount
+                // No fees configured anywhere; create a default tuition fee using the request
+                // amount
                 log.info("No fees configured for Grade {}. Creating a default tuition fee for payment processing.",
                         student.getGrade());
                 Fee defaultFee = new Fee();
@@ -184,8 +189,158 @@ public class FeeService {
     }
 
     public java.util.Optional<Payment> getPaymentByReceiptNumber(String receiptNumber) {
-        if (receiptNumber == null || receiptNumber.isBlank()) return java.util.Optional.empty();
+        if (receiptNumber == null || receiptNumber.isBlank())
+            return java.util.Optional.empty();
         return paymentRepository.findByReceiptNumber(receiptNumber);
+    }
+
+    public java.util.Optional<byte[]> generateReceiptPdf(Long id) {
+        Optional<Payment> opt = paymentRepository.findById(id);
+        if (!opt.isPresent())
+            return Optional.empty();
+        Payment p = opt.get();
+        try {
+            // School header
+            var settings = schoolSettingsService.getOrCreate();
+            String schoolName = Optional.ofNullable(settings.getSchoolName()).orElse("School");
+            java.util.List<String> addressParts = Arrays.asList(
+                    settings.getAddressLine1(),
+                    settings.getAddressLine2(),
+                    settings.getCity(),
+                    settings.getState(),
+                    settings.getPostalCode(),
+                    settings.getCountry());
+            String address = addressParts.stream()
+                    .filter(s -> s != null && !s.trim().isEmpty())
+                    .collect(Collectors.joining(", "));
+            String phone = settings.getPhone();
+            String email = settings.getEmail();
+
+            // Payment core
+            String receiptNo = Optional.ofNullable(p.getReceiptNumber()).orElse("R" + String.format("%06d", p.getId()));
+            LocalDate payDate = Optional.ofNullable(p.getPaymentDate()).map(LocalDateTime::toLocalDate)
+                    .orElse(LocalDate.now());
+            java.time.format.DateTimeFormatter df = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy");
+            double amount = Optional.ofNullable(p.getAmount()).orElse(0.0);
+
+            // Student details
+            com.school.student.model.Student student = p.getStudent() != null ? p.getStudent()
+                    : studentService.getStudent(p.getStudentId());
+            String studentName = ((Optional.ofNullable(student.getFirstName()).orElse("") + " "
+                    + Optional.ofNullable(student.getLastName()).orElse("")).trim());
+            if (studentName.isEmpty())
+                studentName = "Student #" + student.getId();
+            String className = (student.getGrade() != null ? ("Grade " + student.getGrade()) : "") +
+                    (student.getSection() != null && !student.getSection().isEmpty() ? ("-" + student.getSection())
+                            : "");
+
+            // Payment details
+            String paymentMethod = String.valueOf(p.getPaymentMethod());
+            String paymentMethodLabel = mapPaymentMethod(paymentMethod);
+            String paymentTypeLabel = mapFrequencyLabel(
+                    p.getFee() != null ? String.valueOf(p.getFee().getFrequency()) : null);
+            String reference = p.getTransactionReference();
+
+            List<String> lines = new ArrayList<>();
+            // Header block
+            if (!address.isBlank())
+                lines.add(address);
+            if (phone != null && !phone.isBlank())
+                lines.add("Phone: " + phone);
+            if (email != null && !email.isBlank())
+                lines.add("Email: " + email);
+            lines.add("RECEIPT");
+            lines.add(receiptNo);
+            lines.add("Date: " + payDate.format(df));
+            lines.add("TOTAL PAID: Rs. " + String.format(Locale.ENGLISH, "%,.2f", amount));
+            lines.add(repeat('-'));
+
+            // Student details block
+            lines.add("STUDENT DETAILS");
+            lines.add(studentName);
+            if (!className.isBlank())
+                lines.add("Class: " + className);
+            lines.add("Student ID: "
+                    + (p.getStudentId() != null ? p.getStudentId().toString() : String.valueOf(student.getId())));
+            lines.add(repeat('-'));
+
+            // Payment details block
+            lines.add("PAYMENT DETAILS");
+            lines.add("Payment Type: " + (paymentTypeLabel != null ? paymentTypeLabel : "Fee"));
+            lines.add("Payment Method: " + paymentMethodLabel);
+            if (reference != null && !reference.isBlank())
+                lines.add("Reference: " + reference);
+            lines.add(repeat('-'));
+
+            // Line item
+            String itemTitle = (paymentTypeLabel != null ? paymentTypeLabel : "")
+                    + (paymentTypeLabel != null ? " " : "") + "Fee Payment";
+            lines.add(itemTitle);
+            if (p.getRemarks() != null && !p.getRemarks().isEmpty()) {
+                lines.add("Notes: " + p.getRemarks());
+            }
+            lines.add("Amount: Rs. " + String.format(Locale.ENGLISH, "%,.2f", amount));
+            lines.add(repeat('-'));
+            lines.add("TOTAL PAID: Rs. " + String.format(Locale.ENGLISH, "%,.2f", amount));
+            lines.add("");
+            lines.add("Received with thanks");
+            lines.add("This is a computer generated receipt and doesn't require a signature.");
+            lines.add("");
+            lines.add("____________________________");
+            lines.add("Authorized Signature");
+
+            byte[] pdf = com.school.common.util.SimplePdf.generate(lines, schoolName + " - Payment Receipt");
+            return Optional.of(pdf);
+        } catch (Exception e) {
+            log.error("Failed to generate receipt export for {}: {}", id, e.getMessage(), e);
+            return Optional.empty();
+        }
+    }
+
+    private static String mapPaymentMethod(String method) {
+        if (method == null)
+            return "";
+        switch (method) {
+            case "CASH":
+                return "Cash";
+            case "CHEQUE":
+                return "Cheque";
+            case "CHECK":
+                return "Check";
+            case "BANK_TRANSFER":
+                return "Bank Transfer";
+            case "UPI":
+                return "UPI";
+            case "ONLINE":
+                return "Online";
+            case "CREDIT_CARD":
+                return "Credit Card";
+            default:
+                return method;
+        }
+    }
+
+    private static String mapFrequencyLabel(String frequency) {
+        if (frequency == null)
+            return null;
+        switch (frequency) {
+            case "MONTHLY":
+                return "Monthly";
+            case "QUARTERLY":
+                return "Quarterly";
+            case "HALF_YEARLY":
+                return "Half-Yearly";
+            case "YEARLY":
+                return "Annual";
+            default:
+                return frequency;
+        }
+    }
+
+    private static String repeat(char c) {
+        char[] arr = new char[60];
+        java.util.Arrays.fill(arr, c);
+        return new String(arr);
     }
 
     public List<FeePaymentSummary> getStudentFeeSummary(Long studentId) {

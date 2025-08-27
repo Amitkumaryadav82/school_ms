@@ -6,7 +6,8 @@ import lombok.Data;
 
 @Data
 public class PaymentRequest {
-    // Optional: when not provided, backend will resolve fee by student's grade or create a default
+    // Optional: when not provided, backend will resolve fee by student's grade or
+    // create a default
     private Long feeId;
 
     @NotNull(message = "Student ID is required")

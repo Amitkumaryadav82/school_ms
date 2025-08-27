@@ -183,21 +183,22 @@ public class BookIssueServiceImpl implements BookIssueService {
     }
 
     /**
-             * Adds the specified number of working days to the start date, skipping weekends and holidays.
-             */
-            private LocalDate addWorkingDays(LocalDate start, int workingDays) {
-                LocalDate date = start;
-                int added = 0;
-                while (added < workingDays) {
-                    date = date.plusDays(1);
-                    DayOfWeek dow = date.getDayOfWeek();
-                    boolean weekend = (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY);
-                    boolean holiday = holidayAttendanceService != null && holidayAttendanceService.isHoliday(date);
-                    if (!weekend && !holiday) {
-                        added++;
-                    }
-                }
-                return date;
+     * Adds the specified number of working days to the start date, skipping
+     * weekends and holidays.
+     */
+    private LocalDate addWorkingDays(LocalDate start, int workingDays) {
+        LocalDate date = start;
+        int added = 0;
+        while (added < workingDays) {
+            date = date.plusDays(1);
+            DayOfWeek dow = date.getDayOfWeek();
+            boolean weekend = (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY);
+            boolean holiday = holidayAttendanceService != null && holidayAttendanceService.isHoliday(date);
+            if (!weekend && !holiday) {
+                added++;
             }
+        }
+        return date;
+    }
 
 }

@@ -49,5 +49,3 @@ public interface BookIssueService {
     Map<LocalDate, Long> getIssueCountByDateRange(LocalDate startDate, LocalDate endDate);
 
 }
-
-

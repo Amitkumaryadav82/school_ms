@@ -143,7 +143,7 @@ public class FeeStructureService {
         PaymentSchedule monthlySchedule = new PaymentSchedule();
         monthlySchedule.setFeeStructure(feeStructure);
         monthlySchedule.setScheduleType(PaymentSchedule.ScheduleType.MONTHLY);
-    monthlySchedule.setAmount(annualFee.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP));
+        monthlySchedule.setAmount(annualFee.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP));
         monthlySchedule.setIsEnabled(true);
         paymentScheduleRepository.save(monthlySchedule);
 
@@ -151,7 +151,7 @@ public class FeeStructureService {
         PaymentSchedule quarterlySchedule = new PaymentSchedule();
         quarterlySchedule.setFeeStructure(feeStructure);
         quarterlySchedule.setScheduleType(PaymentSchedule.ScheduleType.QUARTERLY);
-    quarterlySchedule.setAmount(annualFee.divide(BigDecimal.valueOf(4), 2, RoundingMode.HALF_UP));
+        quarterlySchedule.setAmount(annualFee.divide(BigDecimal.valueOf(4), 2, RoundingMode.HALF_UP));
         quarterlySchedule.setIsEnabled(true);
         paymentScheduleRepository.save(quarterlySchedule);
 
@@ -209,4 +209,3 @@ public class FeeStructureService {
         return dto;
     }
 }
-

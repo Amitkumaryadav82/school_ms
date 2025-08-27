@@ -163,6 +163,7 @@ com\school\attendance\service\HolidayAttendanceService.class
 com\school\course\service\ChapterService.class
 com\school\fee\service\TransportRouteService.class
 com\school\fee\repository\LateFeeRepository.class
+com\school\common\util\SimplePdf.class
 com\school\course\model\Chapter.class
 com\school\timetable\model\ClassRoom.class
 com\school\communication\controller\MessageController.class
