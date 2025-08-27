@@ -54,6 +54,10 @@ public class Payment extends BaseEntity {
     private String payerRelationToStudent;
     private String receiptNumber;
 
+    // Void tracking
+    private String voidReason;
+    private java.time.LocalDateTime voidedAt;
+
     // Lightweight fields for serialization
     @Transient
     @JsonProperty("feeId")
@@ -72,6 +76,6 @@ public class Payment extends BaseEntity {
     }
 
     public enum PaymentStatus {
-        PENDING, COMPLETED, FAILED, REFUNDED
+        PENDING, COMPLETED, FAILED, REFUNDED, VOID
     }
 }

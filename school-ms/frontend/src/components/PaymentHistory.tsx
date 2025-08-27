@@ -145,7 +145,6 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                         <IconButton
                           size="small"
                           onClick={() => onViewReceipt(payment.id!)}
-                          disabled={payment.paymentStatus === 'VOID'}
                         >
                           <ReceiptIcon fontSize="small" />
                         </IconButton>
@@ -154,7 +153,6 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                         <IconButton
                           size="small"
                           onClick={() => onDownloadReceipt(payment.id!)}
-                          disabled={payment.paymentStatus === 'VOID'}
                         >
                           <DownloadIcon fontSize="small" />
                         </IconButton>
@@ -235,6 +233,24 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
                   ₹{Number(selectedPayment.amountPaid ?? selectedPayment.amount ?? 0).toLocaleString()}
                 </Typography>
 
+                {selectedPayment.paymentStatus === 'VOID' && (
+                  <>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Date of Payment Void
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                      {selectedPayment.voidedAt ? format(new Date(selectedPayment.voidedAt), 'dd MMM yyyy HH:mm') : '-'}
+                    </Typography>
+
+                    <Typography variant="subtitle2" color="textSecondary">
+                      Reason
+                    </Typography>
+                    <Typography variant="body2" gutterBottom>
+                      {selectedPayment.voidReason || selectedPayment.remarks || '-'}
+                    </Typography>
+                  </>
+                )}
+
                 {selectedPayment.notes && (
                   <>
                     <Typography variant="subtitle2" color="textSecondary">
@@ -273,7 +289,6 @@ const PaymentHistory: React.FC<PaymentHistoryProps> = ({
               <Button 
                 startIcon={<DownloadIcon />} 
                 onClick={() => onDownloadReceipt(selectedPayment.id!)}
-                disabled={selectedPayment.paymentStatus === 'VOID'}
                 sx={{ ml: 1 }}
               >
                 Download Receipt

@@ -47,6 +47,9 @@ export interface Payment {
   payerRelationToStudent?: string;
   receiptNumber?: string;
   feeBreakdown?: FeeBreakdownItem[];
+  // Void info
+  voidReason?: string;
+  voidedAt?: string | Date;
   // Additional fields for filtering
   studentName?: string;
   studentGrade?: string;

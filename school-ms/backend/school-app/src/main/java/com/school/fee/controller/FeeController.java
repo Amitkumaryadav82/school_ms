@@ -104,6 +104,16 @@ public class FeeController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Void a payment", description = "Marks a payment as VOID with a reason")
+    @ApiResponse(responseCode = "200", description = "Payment voided successfully")
+    @PutMapping("/payments/{id}/void")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> voidPayment(@PathVariable Long id, @RequestBody(required = false) java.util.Map<String, String> body) {
+        String reason = body != null ? body.getOrDefault("reason", "") : "";
+        boolean ok = feeService.voidPayment(id, reason);
+        return ok ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
     @Operation(summary = "Get payment by receipt number", description = "Retrieves a payment by its receipt number")
     @ApiResponse(responseCode = "200", description = "Payment retrieved successfully")
     @GetMapping("/payments/receipt/{receiptNumber}")

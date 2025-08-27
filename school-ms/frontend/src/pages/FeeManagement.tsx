@@ -502,9 +502,13 @@ const FeeManagement: React.FC = () => {
     if (!window.confirm('Are you sure you want to void this payment? This action cannot be undone.')) {
       return;
     }
-    
+    const reason = window.prompt('Please enter a reason for voiding this payment:', 'Voided by admin') || '';
+    if (!reason.trim()) {
+      setSnackbar({ open: true, message: 'Void reason is required.', severity: 'error' });
+      return;
+    }
     try {
-      await feeService.voidPayment(paymentId, 'Voided by admin');
+      await feeService.voidPayment(paymentId, reason);
       setSnackbar({ 
         open: true, 
         message: 'Payment voided successfully', 
@@ -515,7 +519,7 @@ const FeeManagement: React.FC = () => {
         await fetchStudentFeeDetails(selectedStudent.id);
         await fetchStudentPayments(selectedStudent.id);
       }
-    } catch (error) {
+  } catch (error) {
       setSnackbar({ 
         open: true, 
         message: 'Error voiding payment', 

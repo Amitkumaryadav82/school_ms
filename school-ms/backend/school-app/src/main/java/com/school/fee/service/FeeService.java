@@ -194,6 +194,24 @@ public class FeeService {
         return paymentRepository.findByReceiptNumber(receiptNumber);
     }
 
+    public boolean voidPayment(Long id, String reason) {
+        Optional<Payment> opt = paymentRepository.findById(id);
+        if (!opt.isPresent()) return false;
+        Payment p = opt.get();
+        p.setStatus(Payment.PaymentStatus.VOID);
+        p.setVoidedAt(java.time.LocalDateTime.now());
+        if (reason != null && !reason.isBlank()) {
+            p.setVoidReason(reason);
+        }
+        if (reason != null && !reason.isBlank()) {
+            String existing = Optional.ofNullable(p.getRemarks()).orElse("");
+            String updated = existing.isBlank() ? ("Voided: " + reason) : (existing + " | Voided: " + reason);
+            p.setRemarks(updated);
+        }
+        paymentRepository.save(p);
+        return true;
+    }
+
     public java.util.Optional<byte[]> generateReceiptPdf(Long id) {
         Optional<Payment> opt = paymentRepository.findById(id);
         if (!opt.isPresent())
@@ -249,7 +267,7 @@ public class FeeService {
                 lines.add("Phone: " + phone);
             if (email != null && !email.isBlank())
                 lines.add("Email: " + email);
-            lines.add("RECEIPT");
+            lines.add("RECEIPT" + (p.getStatus() == Payment.PaymentStatus.VOID ? " (VOID)" : ""));
             lines.add(receiptNo);
             lines.add("Date: " + payDate.format(df));
             lines.add("TOTAL PAID: Rs. " + String.format(Locale.ENGLISH, "%,.2f", amount));
@@ -282,6 +300,12 @@ public class FeeService {
             lines.add("Amount: Rs. " + String.format(Locale.ENGLISH, "%,.2f", amount));
             lines.add(repeat('-'));
             lines.add("TOTAL PAID: Rs. " + String.format(Locale.ENGLISH, "%,.2f", amount));
+            if (p.getStatus() == Payment.PaymentStatus.VOID) {
+                lines.add(repeat('-'));
+                java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
+                lines.add("Date of Payment Void: " + (p.getVoidedAt() != null ? p.getVoidedAt().format(dtf) : "-"));
+                lines.add("Reason: " + (p.getVoidReason() != null && !p.getVoidReason().isBlank() ? p.getVoidReason() : "-"));
+            }
             lines.add("");
             lines.add("Received with thanks");
             lines.add("This is a computer generated receipt and doesn't require a signature.");
