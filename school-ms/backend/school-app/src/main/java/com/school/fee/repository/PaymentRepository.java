@@ -36,4 +36,17 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
         // Lookup by receipt number for durable receipt retrieval
         java.util.Optional<Payment> findByReceiptNumber(String receiptNumber);
+
+        // Reports: class-section-month/year payments
+        @Query("SELECT p FROM Payment p JOIN p.student s WHERE s.grade = :grade AND (:section IS NULL OR s.section = :section) AND p.paymentDate BETWEEN :start AND :end")
+        List<Payment> findByClassSectionAndDateRange(@Param("grade") Integer grade,
+                                                     @Param("section") String section,
+                                                     @Param("start") LocalDateTime start,
+                                                     @Param("end") LocalDateTime end);
+
+        // Reports: specific student by date range
+        @Query("SELECT p FROM Payment p WHERE p.student.id = :studentId AND p.paymentDate BETWEEN :start AND :end")
+        List<Payment> findByStudentAndDateRange(@Param("studentId") Long studentId,
+                                                @Param("start") LocalDateTime start,
+                                                @Param("end") LocalDateTime end);
 }

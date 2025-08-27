@@ -158,6 +158,31 @@ const feeService = {
         }
         const amount = Number(p.amount ?? p.amountPaid ?? 0);
         const status = String(p.paymentStatus ?? p.status ?? 'PENDING');
+        const studentName = String(
+            p.student?.name ??
+            p.student?.fullName ??
+            p.studentName ??
+            p.name ??
+            ''
+        );
+        const studentGrade = String(
+            p.studentGrade ??
+            p.grade ??
+            p.classGrade ??
+            p.student?.grade ??
+            p.student?.classGrade ??
+            ''
+        );
+        const studentSection = String(
+            p.studentSection ??
+            p.section ??
+            p.student?.section ??
+            ''
+        );
+        const receiptNumber = p.receiptNumber ?? p.receiptNo ?? p.receiptId ?? undefined;
+        const voidedAt = p.voidedAt ?? p.voidDate ?? p.voidedOn ?? p.voidTimestamp ?? undefined;
+        const voidReason = p.voidReason ?? p.reason ?? p.voidRemarks ?? undefined;
+
         return {
             ...p,
             studentId: Number(p.studentId ?? p.student?.id ?? 0),
@@ -166,7 +191,13 @@ const feeService = {
             amountPaid: Number(p.amountPaid ?? amount),
             paymentMethod: String(p.paymentMethod ?? 'CASH'),
             paymentStatus: status,
-            paymentDate: p.paymentDate ?? p.date ?? new Date().toISOString()
+            paymentDate: p.paymentDate ?? p.date ?? new Date().toISOString(),
+            studentName,
+            studentGrade,
+            studentSection,
+            receiptNumber,
+            voidedAt,
+            voidReason,
         } as Payment;
     },
     // Fee Structure endpoints
@@ -579,6 +610,56 @@ const feeService = {
         } catch (error) {
             console.error('Error downloading receipt:', error);
             // Swallow to avoid user-facing errors; UI remains responsive
+        }
+    },
+
+    // CSV Reports: Class & Section
+    downloadClassSectionReportCsv: async (options: { grade: number; section?: string; month?: number; year?: number }): Promise<void> => {
+        try {
+            const params: any = { grade: options.grade };
+            if (options.section) params.section = options.section;
+            if (options.month) params.month = options.month;
+            if (options.year) params.year = options.year;
+
+            const data = await api.downloadBlob(`/api/fees/reports/class-section/csv`, params);
+            const blob = new Blob([data], { type: 'text/csv;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const y = options.year || new Date().getFullYear();
+            const m = options.month ? String(options.month).padStart(2, '0') : 'ALL';
+            const sec = options.section ? `-${options.section}` : '';
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `ClassSectionReport-Grade${options.grade}${sec}-${m}-${y}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading class/section CSV report:', error);
+            throw error;
+        }
+    },
+
+    // CSV Reports: Student
+    downloadStudentReportCsv: async (options: { studentId: number; month?: number; year?: number }): Promise<void> => {
+        try {
+            const params: any = { studentId: options.studentId };
+            if (options.month) params.month = options.month;
+            if (options.year) params.year = options.year;
+
+            const data = await api.downloadBlob(`/api/fees/reports/student/csv`, params);
+            const blob = new Blob([data], { type: 'text/csv;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const y = options.year || new Date().getFullYear();
+            const m = options.month ? String(options.month).padStart(2, '0') : 'ALL';
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `StudentReport-${options.studentId}-${m}-${y}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading student CSV report:', error);
+            throw error;
         }
     }
   };

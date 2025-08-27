@@ -518,6 +518,80 @@ public class FeeService {
         return reports;
     }
 
+    // Reports CSV generation
+    public byte[] generateClassSectionReportCsv(Integer grade, String section, Integer month, Integer year) {
+        java.time.LocalDate start;
+        java.time.LocalDate end;
+        if (month != null && year != null) {
+            start = java.time.LocalDate.of(year, month, 1);
+            end = start.withDayOfMonth(start.lengthOfMonth());
+        } else if (year != null) {
+            start = java.time.LocalDate.of(year, 1, 1);
+            end = java.time.LocalDate.of(year, 12, 31);
+        } else {
+            // default to current month
+            start = java.time.LocalDate.now().withDayOfMonth(1);
+            end = start.withDayOfMonth(start.lengthOfMonth());
+        }
+        List<Payment> payments = paymentRepository.findByClassSectionAndDateRange(
+                grade, section, start.atStartOfDay(), end.atTime(23, 59, 59));
+        StringBuilder sb = new StringBuilder();
+        sb.append("Receipt,Date,StudentId,StudentName,Class,Section,Amount,Method,Status\n");
+        java.time.format.DateTimeFormatter df = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        for (Payment p : payments) {
+            Student s = p.getStudent();
+            String studentName = (Optional.ofNullable(s.getFirstName()).orElse("") + " " + Optional.ofNullable(s.getLastName()).orElse("")).trim();
+            sb.append(Optional.ofNullable(p.getReceiptNumber()).orElse("R" + String.format("%06d", p.getId()))).append(',')
+              .append(p.getPaymentDate() != null ? p.getPaymentDate().toLocalDate().format(df) : "").append(',')
+              .append(s.getId()).append(',')
+              .append(escapeCsv(studentName)).append(',')
+              .append(s.getGrade() != null ? s.getGrade() : "").append(',')
+              .append(s.getSection() != null ? s.getSection() : "").append(',')
+              .append(String.format(java.util.Locale.ENGLISH, "%.2f", Optional.ofNullable(p.getAmount()).orElse(0.0))).append(',')
+              .append(p.getPaymentMethod()).append(',')
+              .append(p.getStatus())
+              .append("\n");
+        }
+        return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    public byte[] generateStudentReportCsv(Long studentId, Integer month, Integer year) {
+        java.time.LocalDate start;
+        java.time.LocalDate end;
+        if (month != null && year != null) {
+            start = java.time.LocalDate.of(year, month, 1);
+            end = start.withDayOfMonth(start.lengthOfMonth());
+        } else if (year != null) {
+            start = java.time.LocalDate.of(year, 1, 1);
+            end = java.time.LocalDate.of(year, 12, 31);
+        } else {
+            start = java.time.LocalDate.now().withDayOfMonth(1);
+            end = start.withDayOfMonth(start.lengthOfMonth());
+        }
+        List<Payment> payments = paymentRepository.findByStudentAndDateRange(studentId, start.atStartOfDay(), end.atTime(23, 59, 59));
+        StringBuilder sb = new StringBuilder();
+        sb.append("Receipt,Date,Amount,Method,Status,Notes\n");
+        java.time.format.DateTimeFormatter df = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        for (Payment p : payments) {
+            sb.append(Optional.ofNullable(p.getReceiptNumber()).orElse("R" + String.format("%06d", p.getId()))).append(',')
+              .append(p.getPaymentDate() != null ? p.getPaymentDate().toLocalDate().format(df) : "").append(',')
+              .append(String.format(java.util.Locale.ENGLISH, "%.2f", Optional.ofNullable(p.getAmount()).orElse(0.0))).append(',')
+              .append(p.getPaymentMethod()).append(',')
+              .append(p.getStatus()).append(',')
+              .append(escapeCsv(Optional.ofNullable(p.getRemarks()).orElse("")))
+              .append("\n");
+        }
+        return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    private static String escapeCsv(String s) {
+        if (s == null) return "";
+        if (s.contains(",") || s.contains("\n") || s.contains("\r") || s.contains("\"")) {
+            return '"' + s.replace("\"", "\"\"") + '"';
+        }
+        return s;
+    }
+
     /**
      * Generates a report of students with fees due
      * 

@@ -198,6 +198,40 @@ public class FeeController {
                 .body(reportData);
     }
 
+    // New CSV reports
+    @Operation(summary = "Download class/section payments CSV", description = "CSV for class & section by month/year or full year")
+    @GetMapping("/reports/class-section/csv")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','ACCOUNTS')")
+    public ResponseEntity<byte[]> downloadClassSectionCsv(
+        @RequestParam Integer grade,
+        @RequestParam(required = false) String section,
+        @RequestParam(required = false) Integer month,
+        @RequestParam(required = false) Integer year) {
+    byte[] csv = feeService.generateClassSectionReportCsv(grade, section, month, year);
+    String file = "class-section-payments-" + grade + (section != null ? ("-" + section) : "") +
+        (year != null ? ("-" + year) : "") + (month != null ? ("-" + month) : "") + ".csv";
+    return ResponseEntity.ok()
+        .header("Content-Type", "text/csv")
+        .header("Content-Disposition", "attachment; filename=" + file)
+        .body(csv);
+    }
+
+    @Operation(summary = "Download student payments CSV", description = "CSV for a specific student by month/year or full year")
+    @GetMapping("/reports/student/csv")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT','ACCOUNTS')")
+    public ResponseEntity<byte[]> downloadStudentCsv(
+        @RequestParam Long studentId,
+        @RequestParam(required = false) Integer month,
+        @RequestParam(required = false) Integer year) {
+    byte[] csv = feeService.generateStudentReportCsv(studentId, month, year);
+    String file = "student-payments-" + studentId +
+        (year != null ? ("-" + year) : "") + (month != null ? ("-" + month) : "") + ".csv";
+    return ResponseEntity.ok()
+        .header("Content-Type", "text/csv")
+        .header("Content-Disposition", "attachment; filename=" + file)
+        .body(csv);
+    }
+
     @Operation(summary = "Get filtered payments", description = "Retrieves payments filtered by grade, section, and/or student name")
     @ApiResponse(responseCode = "200", description = "Payments retrieved successfully")
     @GetMapping("/payments/filtered")
