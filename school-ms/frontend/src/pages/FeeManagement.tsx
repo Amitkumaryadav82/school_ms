@@ -985,19 +985,17 @@ const FeeManagement: React.FC = () => {
         <Grid container spacing={3} alignItems="flex-start">
             <Grid item xs={12}>
               <Card elevation={2}>
-                <CardContent sx={{ p: 2 }}>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'nowrap', columnGap: 1, overflowX: 'auto' }}>
-                      <TextField select label="Class/Grade" size="small" value={reportsGrade}
+                <CardContent sx={{ p: 2.5, overflow: 'visible' }}>
+                  <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'nowrap', columnGap: 1, overflowX: 'auto', overflowY: 'visible', minHeight: 64 }}>
+                      <TextField select label="Class" size="small" value={reportsGrade}
                         onChange={(e) => { setReportsGrade(e.target.value); setReportsSection(''); }}
-                        InputLabelProps={{ shrink: true }}
-                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}>
+                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem' } }}>
                         <MenuItem value="">Select</MenuItem>
                         {reportClassOptions.map(g => <MenuItem key={g} value={g}>{g}</MenuItem>)}
                       </TextField>
                       <TextField select label="Section (optional)" size="small" value={reportsSection}
                         onChange={(e) => setReportsSection(e.target.value)} disabled={!reportsGrade}
-                        InputLabelProps={{ shrink: true }}
-                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}>
+                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem' } }}>
                         <MenuItem value="">All</MenuItem>
                         {reportSectionOptions.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
                       </TextField>
@@ -1009,17 +1007,21 @@ const FeeManagement: React.FC = () => {
                         value={reportsStudent}
                         onChange={(event, newValue) => setReportsStudent(newValue)}
                         renderInput={(params) => (
-                          <TextField {...params} label="Select Student (optional)" variant="outlined" size="small" InputLabelProps={{ shrink: true }} sx={{ '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }} />
+              <TextField {...params} label="Student (optional)" placeholder="Search name/ID" variant="outlined" size="small" sx={{ '& .MuiInputBase-input': { fontSize: '0.9rem' } }} />
                         )}
                       />
                       <TextField select label="Month" size="small" value={reportsMonth}
-                        onChange={(e) => setReportsMonth(e.target.value)} InputLabelProps={{ shrink: true }} sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}
+                        onChange={(e) => setReportsMonth(e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, mt: 0.25, overflow: 'visible', '& .MuiOutlinedInput-root': { overflow: 'visible' }, '& .MuiInputBase-input': { fontSize: '0.9rem' }, '& .MuiInputLabel-root': { bgcolor: 'background.paper', px: 0.5, zIndex: 1 }, '& .MuiOutlinedInput-notchedOutline legend': { width: 'auto' } }}
                         InputProps={{ startAdornment: <InputAdornment position="start"><CalendarMonthIcon fontSize="small" color="action" /></InputAdornment> }}>
                         <MenuItem value="">All</MenuItem>
                         {monthOptions.map(m => (<MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>))}
                       </TextField>
                       <TextField label="Year" type="number" size="small" value={reportsYear}
-                        onChange={(e) => setReportsYear(e.target.value)} InputLabelProps={{ shrink: true }} sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& input': { fontSize: '0.9rem', py: 0.5 } }}
+                        onChange={(e) => setReportsYear(e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, mt: 0.25, overflow: 'visible', '& .MuiOutlinedInput-root': { overflow: 'visible' }, '& input': { fontSize: '0.9rem' }, '& .MuiInputLabel-root': { bgcolor: 'background.paper', px: 0.5, zIndex: 1 }, '& .MuiOutlinedInput-notchedOutline legend': { width: 'auto' } }}
                         inputProps={{ min: 2000, max: new Date().getFullYear() + 1 }} />
                   </Stack>
                   <Box sx={{ mt: 1, display: 'flex' }}>
