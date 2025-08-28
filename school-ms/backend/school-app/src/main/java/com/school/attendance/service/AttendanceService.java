@@ -46,6 +46,8 @@ public interface AttendanceService {
 
     MonthlyAttendanceStats generateMonthlyStats(Integer grade, String section, Integer year, Integer month);    void deleteAttendance(Long id);
 
-    int deleteAttendanceOlderThan(LocalDate date);    List<AttendanceAlert> generateAttendanceAlerts();
+        int deleteAttendanceOlderThan(LocalDate date);    List<AttendanceAlert> generateAttendanceAlerts();
+        /** Admin-only helper to clear all attendance for a student (e.g., before deleting the student). */
+        void deleteAllForStudent(Long studentId);
       double getStudentAttendancePercentage(Long studentId, LocalDate startDate, LocalDate endDate);
 }

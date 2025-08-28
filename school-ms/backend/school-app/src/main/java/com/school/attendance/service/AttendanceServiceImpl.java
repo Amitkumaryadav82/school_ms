@@ -340,6 +340,14 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
+    public void deleteAllForStudent(Long studentId) {
+        if (!studentRepository.existsById(studentId)) {
+            throw new StudentNotFoundException("Student not found");
+        }
+        attendanceRepository.deleteByStudent_Id(studentId);
+    }
+
+    @Override
     public List<AttendanceAlert> generateAttendanceAlerts() {
         List<AttendanceAlert> alerts = new ArrayList<>();
         LocalDate today = LocalDate.now();

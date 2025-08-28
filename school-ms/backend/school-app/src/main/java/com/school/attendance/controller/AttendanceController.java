@@ -245,4 +245,16 @@ public class AttendanceController {
         attendanceService.deleteAttendance(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Delete all attendance for a student", description = "ADMIN-ONLY: Removes all attendance records linked to a student. Use carefully.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Attendance removed successfully"),
+            @ApiResponse(responseCode = "404", description = "Student not found")
+    })
+    @DeleteMapping("/student/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteAllForStudent(@PathVariable Long studentId) {
+        attendanceService.deleteAllForStudent(studentId);
+        return ResponseEntity.noContent().build();
+    }
 }

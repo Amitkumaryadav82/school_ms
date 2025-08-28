@@ -25,6 +25,7 @@ import { Student } from '../../services/studentService';
 import feeService, { FeeStructure, TransportRoute } from '../../services/feeService';
 import { validateStudent } from '../../utils/validation';
 import BaseDialog from './BaseDialog';
+import { useNotification } from '../../context/NotificationContext';
 import StudentFeeDetails from '../../components/StudentFeeDetails';
 import { StudentFeeDetails as StudentFeeDetailsType } from '../../types/payment.types';
 
@@ -41,9 +42,9 @@ interface StudentDialogProps {
   loading?: boolean;
 }
 
-const grades = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
-const sections = ['A', 'B', 'C', 'D'];
-const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+const grades = ['1','2','3','4','5','6','7','8','9','10','11','12'];
+const sections = ['A','B','C','D'];
+const bloodGroups = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
 const transportModes = ['School Bus', 'Self'];
 
 // Get current date in YYYY-MM-DD format for default value
@@ -111,6 +112,30 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
   const [feeDetailsExpanded, setFeeDetailsExpanded] = useState(false);
   const [transportRoutes, setTransportRoutes] = useState<TransportRoute[]>([]);
   const [loadingTransportRoutes, setLoadingTransportRoutes] = useState(false);
+  const { showNotification } = useNotification();
+
+  // Keep fee details in sync with selected transportation
+  useEffect(() => {
+    if (!feeStructure) return;
+    // Determine transport fee from selected route when School Bus is chosen
+    let transportFee = 0;
+    if (formData.transportMode === 'School Bus' && formData.busRouteNumber) {
+      const idNum = parseInt(String(formData.busRouteNumber));
+      const route = transportRoutes.find(r => r.id === idNum);
+      transportFee = Number(route?.feeAmount || 0);
+    }
+    // Only update when there's a delta to avoid render loops
+    const nextTotal = (feeStructure.annualFees + feeStructure.buildingFees + feeStructure.labFees + transportFee);
+    if ((feeStructure as any).transportFee !== transportFee || feeStructure.totalFees !== nextTotal) {
+      setFeeStructure(prev => prev ? {
+        ...prev,
+        transportFee,
+        totalFees: nextTotal
+      } as ExtendedFeeStructure : prev);
+      // Expand to make the change visible
+      setFeeDetailsExpanded(true);
+    }
+  }, [formData.transportMode, formData.busRouteNumber, transportRoutes, feeStructure]);
 
   const handleAccordionChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
@@ -123,14 +148,16 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
     try {
       setLoadingFeeStructure(true);
       const gradeNumber = parseInt(grade, 10);
-      const feeStructureData = await feeService.getFeeStructureByGrade(gradeNumber);
-      setFeeStructure(feeStructureData);
+  const feeStructureData = await feeService.getFeeStructureByGrade(gradeNumber);
+  setFeeStructure(feeStructureData);
       
       // Update the form data with fee structure ID
-      setFormData(prev => ({
-        ...prev,
-        feeStructureId: feeStructureData.id
-      }));
+      if (feeStructureData && feeStructureData.id !== undefined) {
+        setFormData(prev => ({
+          ...prev,
+          feeStructureId: feeStructureData.id
+        }));
+      }
       
       // Expand fee details panel to show the loaded fee structure
       setFeeDetailsExpanded(true);
@@ -248,7 +275,18 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
     if (open) {
       if (initialData) {
         // When editing an existing student, populate form with their data
-        setFormData(initialData);
+        setFormData(prev => ({
+          ...prev,
+          ...initialData,
+          grade: initialData.grade ? String(initialData.grade) : prev.grade,
+          // Ensure select value matches enum options
+          gender: initialData.gender ? String(initialData.gender).toUpperCase() : prev.gender,
+        }));
+
+        // Prefetch fee structure so Fee Details show without manual grade change
+        if (initialData.grade) {
+          fetchFeeStructure(String(initialData.grade));
+        }
         
         // If the student has a transport mode of School Bus, load the route details
         if (initialData.transportMode === 'School Bus' && initialData.busRouteNumber) {          fetchTransportRoutes().then(() => {
@@ -340,6 +378,24 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
     const validationErrors = validateStudent(submitData as Student, { isEdit });
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      // Auto-expand the first panel that contains an error and toast a concise message
+      const errorFields = Object.keys(validationErrors);
+      const firstErrorField = errorFields[0];
+      if (firstErrorField) {
+        if (['name','studentId','grade','section','dateOfBirth','gender','bloodGroup','houseAlloted','address','email','medicalConditions'].includes(firstErrorField)) {
+          setExpanded('panel1');
+        } else if (['parentName','parentPhone','emergencyContact','whatsappNumber','parentEmail','guardianOccupation','guardianAnnualIncome','guardianOfficeAddress'].includes(firstErrorField)) {
+          setExpanded('panel2');
+        } else if (['aadharNumber','udiseNumber','previousSchool','subjects','admissionDate'].includes(firstErrorField)) {
+          setExpanded('panel3');
+        } else if (['tcNumber','tcDate','tcReason'].includes(firstErrorField)) {
+          setExpanded('panel4');
+        }
+        showNotification({
+          type: 'warning',
+          message: validationErrors[firstErrorField] || 'Please correct the highlighted fields.'
+        });
+      }
       return;
     }
     
@@ -446,7 +502,7 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
+                <FormControl fullWidth error={!!errors.gender}>
                   <InputLabel>Gender</InputLabel>
                   <Select
                     value={formData.gender}
@@ -458,6 +514,7 @@ const StudentDialog: React.FC<StudentDialogProps> = ({
                     <MenuItem value="FEMALE">Female</MenuItem>
                     <MenuItem value="OTHER">Other</MenuItem>
                   </Select>
+                  {errors.gender && <FormHelperText>{errors.gender}</FormHelperText>}
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>

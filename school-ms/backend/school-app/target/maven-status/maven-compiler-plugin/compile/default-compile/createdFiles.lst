@@ -245,6 +245,8 @@ com\school\security\JwtAuthenticationEntryPoint.class
 com\school\fee\model\FeeStructure.class
 com\school\admission\model\Admission$AdmissionBuilder.class
 com\school\fee\model\PaymentSchedule$PaymentScheduleBuilder.class
+com\school\student\dto\StudentDeletionImpactDTO.class
+com\school\student\dto\StudentDeletionImpactDTO$StudentDeletionImpactDTOBuilder.class
 com\school\communication\dto\MessageDTO.class
 com\school\exam\controller\ExamConfigController$CopyConfigRequest.class
 com\school\exam\model\BlueprintUnitQuestion.class
@@ -295,6 +297,7 @@ com\school\fee\dto\FeeStructureDTO$FeeStructureDTOBuilder.class
 com\school\fee\dto\FeePaymentScheduleResponse.class
 com\school\common\dto\BulkUploadResponse.class
 com\school\attendance\dto\MonthlyAttendanceReport$StudentAttendanceDetail$StudentAttendanceDetailBuilder.class
+com\school\exception\StudentDeletionNotAllowedException.class
 com\school\attendance\model\StaffAttendance.class
 com\school\exam\dto\MarksMatrixResponse.class
 com\school\fee\service\FeePaymentScheduleService.class

@@ -192,6 +192,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    // Domain-specific guard for student deletion when dependent records exist
+    @ExceptionHandler(StudentDeletionNotAllowedException.class)
+    public ResponseEntity<ErrorResponse> handleStudentDeletionNotAllowed(StudentDeletionNotAllowedException ex) {
+        logger.warn("Student deletion blocked: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Student Deletion Not Allowed",
+                ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     @ExceptionHandler(CannotCreateTransactionException.class)
     public ResponseEntity<ErrorResponse> handleCannotCreateTransaction(CannotCreateTransactionException ex) {
         logger.error("Database unavailable: {}", ex.getMessage());

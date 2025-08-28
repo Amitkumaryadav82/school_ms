@@ -14,6 +14,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
         List<Attendance> findByStudent_Id(Long studentId);
 
+        /**
+         * Delete all attendance rows for a given student.
+         */
+        long deleteByStudent_Id(Long studentId);
+
         List<Attendance> findByDate(LocalDate date);
 
         List<Attendance> findByDateBetween(LocalDate startDate, LocalDate endDate);
@@ -32,4 +37,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
         int countByDateBefore(LocalDate date);
 
         long countByStudent_IdAndDateBetween(Long studentId, LocalDate startDate, LocalDate endDate);
+
+        // removed duplicate deleteByStudent_Id declaration
 }

@@ -217,6 +217,7 @@ C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\bac
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentScheduleDTO.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookRepositoryImpl.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\controller\SchoolSettingsController.java
+C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\StudentDeletionNotAllowedException.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\ConsolidatedStaff.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\FeeExceptionHandler.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\exception\BlueprintAttachedException.java
@@ -268,6 +269,7 @@ C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\bac
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffMigrationService.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffServiceAdapter.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\service\MessageService.java
+C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\dto\StudentDeletionImpactDTO.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherDetailsRepository.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\MessageType.java
 C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherSubjectMap.java

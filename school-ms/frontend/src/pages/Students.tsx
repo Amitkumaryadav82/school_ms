@@ -52,12 +52,21 @@ import { useAuth } from '../context/AuthContext';
 import ApiTestDialog from '../components/debug/ApiTestDialog';
 import StudentFeeDetails from '../components/StudentFeeDetails';
 import { StudentFeeDetails as StudentFeeDetailsType } from '../types/payment.types';
+import api from '../services/api';
 
 const Students: React.FC = () => {
+  type DeletionImpact = {
+    attendanceCount: number;
+    paymentsCount: number;
+    feePaymentsCount: number;
+    paymentSchedulesCount: number;
+    feeAssignmentsCount: number;
+  };
   const [dialogOpen, setDialogOpen] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Partial<Student> | undefined>(undefined);
   const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
+  const [deletionImpact, setDeletionImpact] = useState<DeletionImpact | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [studentToDelete, setStudentToDelete] = useState<Student | undefined>(undefined);
   const [feeDetailsDialogOpen, setFeeDetailsDialogOpen] = useState(false);
@@ -189,8 +198,20 @@ const Students: React.FC = () => {
 
   const handleDelete = async (student: Student) => {
     setStudentToDelete(student);
+    setDeletionImpact(null);
     setConfirmationDialogOpen(true);
-  };  const handleFeeDetailsClick = async (student: Student) => {
+    // Fetch deletion impact for a better confirmation prompt
+    try {
+    const resp = await api.get<DeletionImpact>(`/api/students/${student.id}/deletion-impact`);
+    // support either axios {data} or a plain object
+    const impact = (resp && (resp as any).data) ? (resp as any).data as DeletionImpact : (resp as unknown as DeletionImpact);
+    setDeletionImpact(impact);
+    } catch (e) {
+      console.warn('Could not fetch deletion impact:', e);
+    }
+  };
+
+  const handleFeeDetailsClick = async (student: Student) => {
     try {
       if (!student.id) {
         showNotification({ 
@@ -264,14 +285,29 @@ const Students: React.FC = () => {
         await deleteStudent(studentToDelete.id!);
         setConfirmationDialogOpen(false);
         setStudentToDelete(undefined);
+        setDeletionImpact(null);
       } catch (error: unknown) {
         console.error('Error deleting student:', error);
+        const axiosError = error as any;
+        const serverMessage = axiosError?.response?.data?.message || (error as Error)?.message || 'Unknown error';
         showNotification({
           type: 'error',
-          message: `Failed to delete student: ${(error as Error)?.message || 'Unknown error'}`
+          message: `Failed to delete student: ${serverMessage}`
         });
         // Keep the dialog open if there was an error
       }
+    }
+  };
+
+  const disableStudent = async () => {
+    if (!studentToDelete?.id) return;
+    try {
+      await updateStudentStatus({ id: studentToDelete.id, status: 'INACTIVE' });
+      setConfirmationDialogOpen(false);
+      setStudentToDelete(undefined);
+      setDeletionImpact(null);
+    } catch (e) {
+      showNotification({ type: 'error', message: (e as Error)?.message || 'Failed to update status' });
     }
   };
 
@@ -475,7 +511,8 @@ const Students: React.FC = () => {
                 <SchoolIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-          )}          {(hasPermission(user?.role || '', 'MANAGE_FEES') || hasPermission(user?.role || '', 'VIEW_FEES')) && (
+          )}
+          {(hasPermission(user?.role || '', 'MANAGE_FEES') || hasPermission(user?.role || '', 'VIEW_FEES')) && (
             <Tooltip title="Fee Details">
               <IconButton size="small" color="secondary" onClick={() => handleFeeDetailsClick(row)}>
                 <PaymentIcon fontSize="small" />
@@ -487,9 +524,8 @@ const Students: React.FC = () => {
     }
   ];
 
-  if (loading) {
-    return <Loading />;
-  }
+  if (loading) return <Loading />;
+
   if (error) {
     // Properly handle potential string error by explicitly checking type first
     const errorMessage = typeof error === 'string'
@@ -610,18 +646,7 @@ const Students: React.FC = () => {
         loading={bulkCreateLoading}
       />
 
-      <ApiTestDialog
-        open={debugDialogOpen}
-        onClose={() => setDebugDialogOpen(false)}
-        entityType="students"
-        customEndpoints={[
-          {
-            name: 'Get student entities',
-            fn: () => studentService.getAllStudents()
-          }
-        ]}
-      />
-
+      {/* Confirmation dialog with deletion impact and disable option */}
       <Dialog
         open={confirmationDialogOpen}
         onClose={() => setConfirmationDialogOpen(false)}
@@ -629,18 +654,35 @@ const Students: React.FC = () => {
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this student?
+            Are you sure you want to delete this student? Related records will be removed where applicable.
           </DialogContentText>
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="body2" sx={{ mb: 1 }}>The following will be deleted with the student:</Typography>
+            <ul style={{ marginTop: 0 }}>
+              <li>Attendance: {deletionImpact ? deletionImpact.attendanceCount : '…'}</li>
+              <li>Payments: {deletionImpact ? deletionImpact.paymentsCount : '…'}</li>
+              <li>Fee Payments: {deletionImpact ? deletionImpact.feePaymentsCount : '…'}</li>
+              <li>Payment Schedules: {deletionImpact ? deletionImpact.paymentSchedulesCount : '…'}</li>
+              <li>Fee Assignments: {deletionImpact ? deletionImpact.feeAssignmentsCount : '…'}</li>
+            </ul>
+            <Alert severity="info" sx={{ mt: 1 }}>
+              Alternatively, you can disable the student to keep records but prevent usage.
+            </Alert>
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmationDialogOpen(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={confirmDelete} color="secondary">
+          <Button onClick={disableStudent} color="warning" variant="outlined">
+            Disable Instead
+          </Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
             Delete
           </Button>
         </DialogActions>
-      </Dialog>      <Dialog
+      </Dialog>
+      <Dialog
         open={feeDetailsDialogOpen}
         onClose={handleFeeDetailsDialogClose}
         fullWidth

@@ -6,6 +6,7 @@ import com.school.student.service.StudentService;
 import com.school.student.dto.BulkStudentRequest;
 import com.school.student.dto.StudentDTO;
 import com.school.student.util.StudentMapper;
+import com.school.student.dto.StudentDeletionImpactDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -215,5 +216,13 @@ public class StudentController {
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Get deletion impact for a student", description = "Returns counts of linked records that would be affected or block deletion.")
+    @ApiResponse(responseCode = "200", description = "Impact calculated successfully")
+    @GetMapping("/{id}/deletion-impact")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<StudentDeletionImpactDTO> getDeletionImpact(@PathVariable Long id) {
+        return ResponseEntity.ok(studentService.getDeletionImpact(id));
     }
 }

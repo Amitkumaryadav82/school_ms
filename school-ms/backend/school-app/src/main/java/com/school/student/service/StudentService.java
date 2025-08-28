@@ -5,6 +5,12 @@ import com.school.student.model.StudentStatus;
 import com.school.student.repository.StudentRepository;
 import com.school.student.exception.StudentNotFoundException;
 import com.school.student.exception.DuplicateStudentException;
+import com.school.exception.StudentDeletionNotAllowedException;
+import com.school.fee.repository.PaymentRepository;
+import com.school.attendance.repository.AttendanceRepository;
+import com.school.fee.repository.FeePaymentRepository;
+import com.school.fee.repository.FeePaymentScheduleRepository;
+import com.school.fee.repository.StudentFeeAssignmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.school.student.dto.StudentDeletionImpactDTO;
 
 @Service
 @Transactional
@@ -21,6 +28,21 @@ public class StudentService {
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private FeePaymentRepository feePaymentRepository;
+
+    @Autowired
+    private FeePaymentScheduleRepository feePaymentScheduleRepository;
+
+    @Autowired
+    private StudentFeeAssignmentRepository studentFeeAssignmentRepository;
 
     public Student createStudent(Student student) {
         log.info("Creating new student: {} {}", student.getFirstName(), student.getLastName());
@@ -111,9 +133,110 @@ public class StudentService {
     }
 
     public void deleteStudent(Long id) {
-        if (!studentRepository.existsById(id)) {
-            throw new StudentNotFoundException("Student not found with id: " + id);
+        // Load student once for relationship-based repositories
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with id: " + id));
+
+        // Guard against FK violations by checking dependent records first
+    int payments = 0;
+    int attendance = 0;
+        int feePayments = 0;
+        int schedules = 0;
+        int assignments = 0;
+        try {
+            var list = paymentRepository.findByStudentId(id);
+            payments = (list != null) ? list.size() : 0;
+        } catch (Exception e) {
+            log.warn("Failed to check Payment dependencies for student {}: {}", id, e.getMessage());
         }
+        try {
+            var list = attendanceRepository.findByStudent_Id(id);
+            attendance = (list != null) ? list.size() : 0;
+        } catch (Exception e) {
+            log.warn("Failed to check Attendance dependencies for student {}: {}", id, e.getMessage());
+        }
+        try {
+            var list = feePaymentRepository.findByStudent(student);
+            feePayments = (list != null) ? list.size() : 0;
+        } catch (Exception e) {
+            log.warn("Failed to check FeePayment dependencies for student {}: {}", id, e.getMessage());
+        }
+        try {
+            var list = feePaymentScheduleRepository.findByStudentId(id);
+            schedules = (list != null) ? list.size() : 0;
+        } catch (Exception e) {
+            log.warn("Failed to check FeePaymentSchedule dependencies for student {}: {}", id, e.getMessage());
+        }
+        try {
+            var list = studentFeeAssignmentRepository.findByStudent(student);
+            assignments = (list != null) ? list.size() : 0;
+        } catch (Exception e) {
+            log.warn("Failed to check StudentFeeAssignment dependencies for student {}: {}", id, e.getMessage());
+        }
+
+        // If attendance exists, purge it now (per requirement: deleting student should delete attendance)
+        if (attendance > 0) {
+            try {
+                long deleted = attendanceRepository.deleteByStudent_Id(id);
+                log.info("Deleted {} attendance record(s) for student {} prior to student deletion", deleted, id);
+                attendance = 0; // cleared
+            } catch (Exception e) {
+                log.error("Failed to delete attendance for student {}: {}", id, e.getMessage(), e);
+                throw new StudentDeletionNotAllowedException("Unable to delete attendance records for the student; please retry.");
+            }
+        }
+
+        // Requirement: if user confirms deletion, delete related entities too
+        // Proceed to delete fee-related linked records
+        try {
+            if (payments > 0) {
+                var list = paymentRepository.findByStudentId(id);
+                if (list != null && !list.isEmpty()) {
+                    log.info("Deleting {} payment(s) for student {}", list.size(), id);
+                    paymentRepository.deleteAll(list);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to delete Payments for student {}: {}", id, e.getMessage(), e);
+            throw new StudentDeletionNotAllowedException("Unable to delete payment records linked to the student.");
+        }
+        try {
+            if (feePayments > 0) {
+                var list = feePaymentRepository.findByStudent(student);
+                if (list != null && !list.isEmpty()) {
+                    log.info("Deleting {} fee payment(s) for student {}", list.size(), id);
+                    feePaymentRepository.deleteAll(list);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to delete FeePayments for student {}: {}", id, e.getMessage(), e);
+            throw new StudentDeletionNotAllowedException("Unable to delete fee payment records linked to the student.");
+        }
+        try {
+            if (schedules > 0) {
+                var list = feePaymentScheduleRepository.findByStudentId(id);
+                if (list != null && !list.isEmpty()) {
+                    log.info("Deleting {} payment schedule(s) for student {}", list.size(), id);
+                    feePaymentScheduleRepository.deleteAll(list);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to delete PaymentSchedules for student {}: {}", id, e.getMessage(), e);
+            throw new StudentDeletionNotAllowedException("Unable to delete payment schedules linked to the student.");
+        }
+        try {
+            if (assignments > 0) {
+                var list = studentFeeAssignmentRepository.findByStudent(student);
+                if (list != null && !list.isEmpty()) {
+                    log.info("Deleting {} fee assignment(s) for student {}", list.size(), id);
+                    studentFeeAssignmentRepository.deleteAll(list);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to delete FeeAssignments for student {}: {}", id, e.getMessage(), e);
+            throw new StudentDeletionNotAllowedException("Unable to delete fee assignment records linked to the student.");
+        }
+
         studentRepository.deleteById(id);
     }
 
@@ -198,5 +321,30 @@ public class StudentService {
                         }
                     });
         }
+    }
+
+    public StudentDeletionImpactDTO getDeletionImpact(Long id) {
+    Student student = studentRepository.findById(id)
+        .orElseThrow(() -> new StudentNotFoundException("Student not found with id: " + id));
+
+    int attendance = 0;
+    int payments = 0;
+    int feePayments = 0;
+    int schedules = 0;
+    int assignments = 0;
+    try { attendance = attendanceRepository.findByStudent_Id(id).size(); } catch (Exception ignored) { }
+    try { payments = paymentRepository.findByStudentId(id).size(); } catch (Exception ignored) { }
+    try { feePayments = feePaymentRepository.findByStudent(student).size(); } catch (Exception ignored) { }
+    try { schedules = feePaymentScheduleRepository.findByStudentId(id).size(); } catch (Exception ignored) { }
+    try { assignments = studentFeeAssignmentRepository.findByStudent(student).size(); } catch (Exception ignored) { }
+
+    return StudentDeletionImpactDTO.builder()
+        .studentId(id)
+        .attendanceCount(attendance)
+        .paymentsCount(payments)
+        .feePaymentsCount(feePayments)
+        .paymentSchedulesCount(schedules)
+        .feeAssignmentsCount(assignments)
+        .build();
     }
 }
