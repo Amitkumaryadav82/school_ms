@@ -54,6 +54,7 @@ import StudentFeeDetails from '../components/StudentFeeDetails';
 import { StudentFeeDetails as StudentFeeDetailsType } from '../types/payment.types';
 import api from '../services/api';
 import StudentAttendanceDialog from '../components/dialogs/StudentAttendanceDialog';
+import StudentAcademicDialog from '../components/dialogs/StudentAcademicDialog';
 
 const Students: React.FC = () => {
   type DeletionImpact = {
@@ -81,6 +82,7 @@ const Students: React.FC = () => {
   const [feeDetailsLoading, setFeeDetailsLoading] = useState(false);
   const [studentFeeDetails, setStudentFeeDetails] = useState<StudentFeeDetailsType | null>(null);
   const [attendanceDialogOpen, setAttendanceDialogOpen] = useState(false);
+  const [academicDialogOpen, setAcademicDialogOpen] = useState(false);
 
   const {
     data: students,
@@ -201,6 +203,11 @@ const Students: React.FC = () => {
   const handleOpenAttendance = (student: Student) => {
     setSelectedStudent(student);
     setAttendanceDialogOpen(true);
+  };
+
+  const handleOpenAcademic = (student: Student) => {
+    setSelectedStudent(student);
+    setAcademicDialogOpen(true);
   };
 
   const handleDelete = async (student: Student) => {
@@ -512,9 +519,9 @@ const Students: React.FC = () => {
             </Tooltip>
           )}
 
-          {hasPermission(user?.role || '', 'MANAGE_EXAMS') && (
+      {hasPermission(user?.role || '', 'MANAGE_EXAMS') && (
             <Tooltip title="Academic Records">
-              <IconButton size="small" color="success">
+        <IconButton size="small" color="success" onClick={() => handleOpenAcademic(row)}>
                 <SchoolIcon fontSize="small" />
               </IconButton>
             </Tooltip>
@@ -649,6 +656,12 @@ const Students: React.FC = () => {
       <StudentAttendanceDialog
         open={attendanceDialogOpen}
         onClose={() => setAttendanceDialogOpen(false)}
+        student={selectedStudent as any || null}
+      />
+
+      <StudentAcademicDialog
+        open={academicDialogOpen}
+        onClose={() => setAcademicDialogOpen(false)}
         student={selectedStudent as any || null}
       />
 
