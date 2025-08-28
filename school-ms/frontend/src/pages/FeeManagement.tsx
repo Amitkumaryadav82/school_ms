@@ -127,7 +127,6 @@ const FeeManagement: React.FC = () => {
   const [reportsMonth, setReportsMonth] = useState<string>(String(new Date().getMonth() + 1));
   const [reportsYear, setReportsYear] = useState<string>(String(new Date().getFullYear()));
   const [reportsStudent, setReportsStudent] = useState<Student | null>(null);
-  const [reportsTab, setReportsTab] = useState<number>(0);
   const [reportPayments, setReportPayments] = useState<Payment[]>([]);
   const [reportLoading, setReportLoading] = useState<boolean>(false);
   // Load all students once for name/grade/section enrichment in Reports
@@ -183,95 +182,50 @@ const FeeManagement: React.FC = () => {
     { value: '12', label: 'December' }
   ];
 
-  // Derived options for Reports tab will be placed after studentOptions is loaded
+  // Shared width to keep all report filters and the button equal-sized and on one row
+  const CONTROL_WIDTH = 160;
 
-  const handleDownloadClassSectionCsv = async (fullYear: boolean) => {
-    if (!reportsGrade) {
-      return setSnackbar({ open: true, message: 'Please select a class/grade', severity: 'error' });
-    }
-    try {
-      await feeService.downloadClassSectionReportCsv({
-        grade: Number(reportsGrade),
-        section: reportsSection || undefined,
-        month: fullYear ? undefined : (reportsMonth ? Number(reportsMonth) : undefined),
-        year: reportsYear ? Number(reportsYear) : undefined
-      });
-    } catch (e) {
-      setSnackbar({ open: true, message: 'Failed to download CSV', severity: 'error' });
-    }
-  };
-
-  const handleDownloadStudentCsv = async (fullYear: boolean) => {
-    if (!reportsStudent?.id) {
-      return setSnackbar({ open: true, message: 'Please select a student', severity: 'error' });
-    }
-    try {
-      await feeService.downloadStudentReportCsv({
-        studentId: Number(reportsStudent.id),
-        month: fullYear ? undefined : (reportsMonth ? Number(reportsMonth) : undefined),
-        year: reportsYear ? Number(reportsYear) : undefined
-      });
-    } catch (e) {
-      setSnackbar({ open: true, message: 'Failed to download CSV', severity: 'error' });
-    }
-  };
-
-  // Unified download of "current view"
+  // Unified download of "current view" (student takes precedence over class)
   const handleDownloadCurrentCsv = async () => {
     try {
-      if (reportsTab === 0) {
-        // Class tab
-        if (reportsGrade) {
-          await feeService.downloadClassSectionReportCsv({
-            grade: Number(reportsGrade),
-            section: reportsSection || undefined,
-            month: reportsMonth ? Number(reportsMonth) : undefined,
-            year: reportsYear ? Number(reportsYear) : undefined
-          });
-          return;
-        }
-      } else {
-        // Student tab
-        if (reportsStudent?.id) {
-          await feeService.downloadStudentReportCsv({
-            studentId: Number(reportsStudent.id),
-            month: reportsMonth ? Number(reportsMonth) : undefined,
-            year: reportsYear ? Number(reportsYear) : undefined
-          });
-          return;
-        }
+      if (reportsStudent?.id) {
+        await feeService.downloadStudentReportCsv({
+          studentId: Number(reportsStudent.id),
+          month: reportsMonth ? Number(reportsMonth) : undefined,
+          year: reportsYear ? Number(reportsYear) : undefined
+        });
+        return;
       }
-      // Fallback: export whatever is shown in the bottom table
+      if (reportsGrade) {
+        await feeService.downloadClassSectionReportCsv({
+          grade: Number(reportsGrade),
+          section: reportsSection || undefined,
+          month: reportsMonth ? Number(reportsMonth) : undefined,
+          year: reportsYear ? Number(reportsYear) : undefined
+        });
+        return;
+      }
       const y = reportsYear || new Date().getFullYear();
       const m = reportsMonth ? monthOptions.find(x => x.value === reportsMonth)?.label || reportsMonth : 'ALL';
-      const base = reportsTab === 0 ? 'ClassReport' : 'StudentReport';
+      const base = reportsStudent?.id ? 'StudentReport' : (reportsGrade ? 'ClassReport' : 'Report');
       exportPaymentsToCsv(reportPayments, `${base}-${m}-${y}.csv`);
     } catch (e) {
-      console.error('Download failed', e);
       setSnackbar({ open: true, message: 'Failed to download CSV', severity: 'error' });
     }
   };
 
-  // Load payments for the reports table (bottom of page)
+  // Load payments for merged Reports view
   useEffect(() => {
     const load = async () => {
       try {
         setReportLoading(true);
         let base: Payment[] = [];
-        if (reportsTab === 0) {
-          // Class Report: use grade/section filters
-          if (reportsGrade) {
-            base = await feeService.getFilteredPayments({ grade: reportsGrade, section: reportsSection || undefined });
-          } else {
-            base = await feeService.getAllPayments();
-          }
+        if (reportsStudent?.id) {
+          base = await feeService.getPaymentsByStudentId(Number(reportsStudent.id));
+        } else if (reportsGrade) {
+          base = await feeService.getFilteredPayments({ grade: reportsGrade, section: reportsSection || undefined });
         } else {
-          // Student Report: use student selection
-          if (reportsStudent?.id) {
-            base = await feeService.getPaymentsByStudentId(Number(reportsStudent.id));
-          } else {
-            base = await feeService.getAllPayments();
-          }
+          base = await feeService.getAllPayments();
         }
 
         // Enrich with student details from loaded options (for display consistency)
@@ -279,9 +233,9 @@ const FeeManagement: React.FC = () => {
           const s = (studentOptions || []).find(st => Number((st as any).id ?? (st as any).studentId) === Number(p.studentId));
           return {
             ...p,
-            studentName: p.studentName || (p as any)?.student?.name || (s ? (s as any).name : ''),
-            studentGrade: p.studentGrade || (p as any)?.grade || (s && (s as any).grade ? String((s as any).grade) : ''),
-            studentSection: p.studentSection || (p as any)?.section || ((s as any)?.section || ''),
+            studentName: (p as any).studentName || (p as any)?.student?.name || (s ? (s as any).name : ''),
+            studentGrade: (p as any).studentGrade || (p as any)?.grade || (s && (s as any).grade ? String((s as any).grade) : ''),
+            studentSection: (p as any).studentSection || (p as any)?.section || ((s as any)?.section || ''),
           } as Payment;
         });
 
@@ -305,11 +259,11 @@ const FeeManagement: React.FC = () => {
       }
     };
     load();
-    // Re-run on changes to key filters
-  }, [reportsTab, reportsGrade, reportsSection, reportsStudent?.id, reportsMonth, reportsYear, studentOptions]);
-  
+  }, [reportsGrade, reportsSection, reportsStudent?.id, reportsMonth, reportsYear, studentOptions]);
+
   const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'ACCOUNTS';  const { 
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'ACCOUNTS';
+  const { 
     data: feeStructures, 
     loading: loadingFeeStructures, 
     error: feeStructuresError,
@@ -322,8 +276,6 @@ const FeeManagement: React.FC = () => {
     error: routesError,
     refetch: refetchRoutes 
   } = useApi<TransportRoute[]>(() => feeService.getAllTransportRoutes());
-
-  
 
   // Derived options for Reports tab (after studentOptions is declared)
   const reportClassOptions = React.useMemo(() => {
@@ -1030,127 +982,56 @@ const FeeManagement: React.FC = () => {
 
       {/* Reports Tab */}
       <TabPanel value={tabValue} index={3}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-          <Tabs value={reportsTab} onChange={(e, v) => setReportsTab(v)} aria-label="reports sub tabs">
-            <Tab label="Class Report" />
-            <Tab label="Student Report" />
-          </Tabs>
-        </Box>
-
-        {reportsTab === 0 && (
-          <Grid container spacing={3} alignItems="flex-start">
+        <Grid container spacing={3} alignItems="flex-start">
             <Grid item xs={12}>
               <Card elevation={2}>
-                <CardContent sx={{ p: 3 }}>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                    <ClassIcon color="action" />
-                    <Typography variant="h6">Class Report (CSV)</Typography>
-                  </Stack>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Select class and optional filters, then export fee payments as CSV.
-                  </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'nowrap', columnGap: 1 }}>
+                <CardContent sx={{ p: 2 }}>
+                  <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'nowrap', columnGap: 1, overflowX: 'auto' }}>
                       <TextField select label="Class/Grade" size="small" value={reportsGrade}
                         onChange={(e) => { setReportsGrade(e.target.value); setReportsSection(''); }}
-                        sx={{ minWidth: { xs: 120, sm: 130 }, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}>
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}>
                         <MenuItem value="">Select</MenuItem>
                         {reportClassOptions.map(g => <MenuItem key={g} value={g}>{g}</MenuItem>)}
                       </TextField>
-                      <TextField select label="Section" size="small" value={reportsSection}
+                      <TextField select label="Section (optional)" size="small" value={reportsSection}
                         onChange={(e) => setReportsSection(e.target.value)} disabled={!reportsGrade}
-                        sx={{ minWidth: { xs: 110, sm: 130 }, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}>
-                        <MenuItem value="">All</MenuItem>
-                        {reportSectionOptions.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
-                      </TextField>
-                      <TextField select label="Month" size="small" value={reportsMonth}
-                        onChange={(e) => setReportsMonth(e.target.value)} sx={{ minWidth: { xs: 130, sm: 150 }, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}
-                        InputProps={{ startAdornment: <InputAdornment position="start"><CalendarMonthIcon fontSize="small" color="action" /></InputAdornment> }}>
-                        <MenuItem value="">All</MenuItem>
-                        {monthOptions.map(m => (<MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>))}
-                      </TextField>
-                      <TextField label="Year" type="number" size="small" value={reportsYear}
-                        onChange={(e) => setReportsYear(e.target.value)} sx={{ width: { xs: 80, sm: 90 }, '& input': { fontSize: '0.9rem', py: 0.5 } }}
-                        inputProps={{ min: 2000, max: new Date().getFullYear() + 1 }} />
-                      <Button size="small" variant="contained" startIcon={<CloudDownloadIcon />} onClick={handleDownloadCurrentCsv}
-                        sx={{ whiteSpace: 'nowrap', px: 1.5, minWidth: 'auto', height: 36 }}>
-                        Download CSV
-                      </Button>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Payments</Typography>
-              {reportLoading ? (
-                <Loading />
-              ) : (
-                <PaymentHistory
-                  payments={reportPayments}
-                  onViewReceipt={handleViewReceipt}
-                  onDownloadReceipt={handleDownloadReceipt}
-                  onVoidPayment={isAdmin ? handleVoidPayment : undefined}
-                  isAdmin={isAdmin}
-                  showStudentDetails={true}
-                  showClassSection={false}
-                />
-              )}
-            </Grid>
-          </Grid>
-        )}
-
-        {reportsTab === 1 && (
-          <Grid container spacing={3} alignItems="flex-start">
-            <Grid item xs={12}>
-              <Card elevation={2}>
-                <CardContent sx={{ p: 3 }}>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                    <PersonIcon color="action" />
-                    <Typography variant="h6">Student Report (CSV)</Typography>
-                  </Stack>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Optionally filter by class and section, pick a student, then export CSV.
-                  </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'nowrap', columnGap: 1, overflowX: 'auto' }}>
-                      <TextField select label="Class/Grade" size="small" value={reportsGrade}
-                        onChange={(e) => { setReportsGrade(e.target.value); setReportsSection(''); setReportsStudent(null); }}
-                        sx={{ minWidth: { xs: 120, sm: 130 }, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}>
-                        <MenuItem value="">All</MenuItem>
-                        {reportClassOptions.map(g => <MenuItem key={g} value={g}>{g}</MenuItem>)}
-                      </TextField>
-                      <TextField select label="Section" size="small" value={reportsSection}
-                        onChange={(e) => { setReportsSection(e.target.value); setReportsStudent(null); }} disabled={!reportsGrade}
-                        sx={{ minWidth: { xs: 110, sm: 130 }, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}>
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}>
                         <MenuItem value="">All</MenuItem>
                         {reportSectionOptions.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
                       </TextField>
                       <Autocomplete
-                        sx={{ minWidth: { xs: 180, sm: 220, md: 240 }, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}
+                        size="small"
+                        sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}
                         options={reportFilteredStudents}
                         getOptionLabel={(option) => `${option.name} (${option.studentId || option.id})`}
                         value={reportsStudent}
                         onChange={(event, newValue) => setReportsStudent(newValue)}
                         renderInput={(params) => (
-                          <TextField {...params} label="Select Student" variant="outlined" size="small" sx={{ '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }} />
+                          <TextField {...params} label="Select Student (optional)" variant="outlined" size="small" InputLabelProps={{ shrink: true }} sx={{ '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }} />
                         )}
                       />
                       <TextField select label="Month" size="small" value={reportsMonth}
-                        onChange={(e) => setReportsMonth(e.target.value)} sx={{ minWidth: { xs: 120, sm: 140 }, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}
+                        onChange={(e) => setReportsMonth(e.target.value)} InputLabelProps={{ shrink: true }} sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& .MuiInputBase-input': { fontSize: '0.9rem', py: 0.5 } }}
                         InputProps={{ startAdornment: <InputAdornment position="start"><CalendarMonthIcon fontSize="small" color="action" /></InputAdornment> }}>
                         <MenuItem value="">All</MenuItem>
                         {monthOptions.map(m => (<MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>))}
                       </TextField>
                       <TextField label="Year" type="number" size="small" value={reportsYear}
-                        onChange={(e) => setReportsYear(e.target.value)} sx={{ width: { xs: 80, sm: 90 }, '& input': { fontSize: '0.9rem', py: 0.5 } }}
+                        onChange={(e) => setReportsYear(e.target.value)} InputLabelProps={{ shrink: true }} sx={{ width: CONTROL_WIDTH, minWidth: CONTROL_WIDTH, '& input': { fontSize: '0.9rem', py: 0.5 } }}
                         inputProps={{ min: 2000, max: new Date().getFullYear() + 1 }} />
-                      <Button size="small" variant="contained" startIcon={<CloudDownloadIcon />} onClick={handleDownloadCurrentCsv} sx={{ whiteSpace: 'nowrap', px: 1.5, minWidth: 'auto', height: 36 }}>
-                        Download CSV
-                      </Button>
                   </Stack>
+                  <Box sx={{ mt: 1, display: 'flex' }}>
+                    <Button size="small" variant="contained" startIcon={<CloudDownloadIcon />} onClick={handleDownloadCurrentCsv}
+                      sx={{ whiteSpace: 'nowrap', px: 1, minWidth: CONTROL_WIDTH, width: CONTROL_WIDTH, height: 32 }}>
+                      Download CSV
+                    </Button>
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Payments</Typography>
               {reportLoading ? (
                 <Loading />
               ) : (
@@ -1166,7 +1047,6 @@ const FeeManagement: React.FC = () => {
               )}
             </Grid>
           </Grid>
-        )}
       </TabPanel>
 
       {/* Fee Structure Dialog */}      {feeStructureDialogOpen && (
