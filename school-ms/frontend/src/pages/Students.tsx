@@ -53,6 +53,7 @@ import ApiTestDialog from '../components/debug/ApiTestDialog';
 import StudentFeeDetails from '../components/StudentFeeDetails';
 import { StudentFeeDetails as StudentFeeDetailsType } from '../types/payment.types';
 import api from '../services/api';
+import StudentAttendanceDialog from '../components/dialogs/StudentAttendanceDialog';
 
 const Students: React.FC = () => {
   type DeletionImpact = {
@@ -79,6 +80,7 @@ const Students: React.FC = () => {
   const [feeDetailsOpen, setFeeDetailsOpen] = useState(false);
   const [feeDetailsLoading, setFeeDetailsLoading] = useState(false);
   const [studentFeeDetails, setStudentFeeDetails] = useState<StudentFeeDetailsType | null>(null);
+  const [attendanceDialogOpen, setAttendanceDialogOpen] = useState(false);
 
   const {
     data: students,
@@ -194,6 +196,11 @@ const Students: React.FC = () => {
   const handleEdit = (student: Student) => {
     setSelectedStudent(student);
     setDialogOpen(true);
+  };
+
+  const handleOpenAttendance = (student: Student) => {
+    setSelectedStudent(student);
+    setAttendanceDialogOpen(true);
   };
 
   const handleDelete = async (student: Student) => {
@@ -499,7 +506,7 @@ const Students: React.FC = () => {
 
           {hasPermission(user?.role || '', 'MANAGE_ATTENDANCE') && (
             <Tooltip title="Attendance">
-              <IconButton size="small" color="info">
+              <IconButton size="small" color="info" onClick={() => handleOpenAttendance(row)}>
                 <AssignmentIcon fontSize="small" />
               </IconButton>
             </Tooltip>
@@ -637,6 +644,12 @@ const Students: React.FC = () => {
         onSubmit={handleSubmit}
         initialData={selectedStudent}
         loading={createLoading || updateLoading}
+      />
+
+      <StudentAttendanceDialog
+        open={attendanceDialogOpen}
+        onClose={() => setAttendanceDialogOpen(false)}
+        student={selectedStudent as any || null}
       />
 
       <BulkStudentUploadDialog
