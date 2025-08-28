@@ -55,6 +55,7 @@ import { StudentFeeDetails as StudentFeeDetailsType } from '../types/payment.typ
 import api from '../services/api';
 import StudentAttendanceDialog from '../components/dialogs/StudentAttendanceDialog';
 import StudentAcademicDialog from '../components/dialogs/StudentAcademicDialog';
+import StudentFeeReportsDialog from '../components/dialogs/StudentFeeReportsDialog';
 
 const Students: React.FC = () => {
   type DeletionImpact = {
@@ -83,6 +84,7 @@ const Students: React.FC = () => {
   const [studentFeeDetails, setStudentFeeDetails] = useState<StudentFeeDetailsType | null>(null);
   const [attendanceDialogOpen, setAttendanceDialogOpen] = useState(false);
   const [academicDialogOpen, setAcademicDialogOpen] = useState(false);
+  const [feeReportsOpen, setFeeReportsOpen] = useState(false);
 
   const {
     data: students,
@@ -226,71 +228,17 @@ const Students: React.FC = () => {
   };
 
   const handleFeeDetailsClick = async (student: Student) => {
-    try {
-      if (!student.id) {
-        showNotification({ 
-          type: 'error', 
-          message: 'Cannot fetch fee details: Student ID is missing' 
-        });
-        return;
-      }
-
-      // Check if user has permission to view fees
-      if (!hasPermission(user?.role || '', 'VIEW_FEES') && !hasPermission(user?.role || '', 'MANAGE_FEES')) {
-        showNotification({
-          type: 'error',
-          message: 'You do not have permission to view fee details.'
-        });
-        return;
-      }
-
-      setLoadingFeeDetails(true);
-      
-      try {
-        // Get the mock fee details from our service
-        const feeDetails = await feeService.getStudentFeeDetails(student.id);
-        
-        setSelectedStudent(student);
-        setSelectedStudentFeeDetails(feeDetails);
-        setFeeDetailsDialogOpen(true);
-        
-        // Show a notification to indicate we're using mock data
-        showNotification({
-          type: 'info',
-          message: 'Displaying sample fee data while API access is being configured.'
-        });
-      } catch (apiError: any) {
-        console.error('Error fetching fee details:', apiError);
-        throw apiError;
-      }    } catch (error) {
-      console.error('Error in fee details handling:', error);
-      
-      // Even if there's an error, we'll use mock data so the UI doesn't break
-      const mockFeeDetails: StudentFeeDetailsType = {
-        studentId: student.id!,
-        studentFeeId: 1,
-        feeStructure: {
-          id: 1,
-          classGrade: Number(student.grade) || 1,
-          annualFees: 15000,
-          buildingFees: 3000,
-          labFees: 2000,
-          amount: 20000,
-          totalFees: 20000
-        }
-      };
-      
-      setSelectedStudent(student);
-      setSelectedStudentFeeDetails(mockFeeDetails);
-      setFeeDetailsDialogOpen(true);
-      
-      showNotification({ 
-        type: 'warning', 
-        message: 'Using sample fee data due to an error connecting to the fee service.' 
-      });
-    } finally {
-      setLoadingFeeDetails(false);
+    // New behavior: open the Fee Reports dialog with current student preselected
+    if (!student.id) {
+      showNotification({ type: 'error', message: 'Cannot open fee reports: Student ID is missing' });
+      return;
     }
+    if (!hasPermission(user?.role || '', 'VIEW_FEES') && !hasPermission(user?.role || '', 'MANAGE_FEES')) {
+      showNotification({ type: 'error', message: 'You do not have permission to view fee details.' });
+      return;
+    }
+    setSelectedStudent(student);
+    setFeeReportsOpen(true);
   };
 
   const confirmDelete = async () => {
@@ -662,6 +610,12 @@ const Students: React.FC = () => {
       <StudentAcademicDialog
         open={academicDialogOpen}
         onClose={() => setAcademicDialogOpen(false)}
+        student={selectedStudent as any || null}
+      />
+
+      <StudentFeeReportsDialog
+        open={feeReportsOpen}
+        onClose={() => setFeeReportsOpen(false)}
         student={selectedStudent as any || null}
       />
 
