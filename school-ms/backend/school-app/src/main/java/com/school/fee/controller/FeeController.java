@@ -94,6 +94,14 @@ public class FeeController {
         return ResponseEntity.ok(feeService.getStudentPayments(studentId));
     }
 
+    @Operation(summary = "Get all payments", description = "Retrieves all payments. Consider pagination for large datasets.")
+    @ApiResponse(responseCode = "200", description = "Payments retrieved successfully")
+    @GetMapping("/payments")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER','ACCOUNTS')")
+    public ResponseEntity<List<Payment>> getAllPayments() {
+        return ResponseEntity.ok(feeService.getAllPayments());
+    }
+
     @Operation(summary = "Get payment by id", description = "Retrieves a payment by its identifier")
     @ApiResponse(responseCode = "200", description = "Payment retrieved successfully")
     @GetMapping("/payments/{id}")
@@ -108,7 +116,8 @@ public class FeeController {
     @ApiResponse(responseCode = "200", description = "Payment voided successfully")
     @PutMapping("/payments/{id}/void")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> voidPayment(@PathVariable Long id, @RequestBody(required = false) java.util.Map<String, String> body) {
+    public ResponseEntity<Void> voidPayment(@PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, String> body) {
         String reason = body != null ? body.getOrDefault("reason", "") : "";
         boolean ok = feeService.voidPayment(id, reason);
         return ok ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
@@ -203,43 +212,50 @@ public class FeeController {
     @GetMapping("/reports/class-section/csv")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','ACCOUNTS')")
     public ResponseEntity<byte[]> downloadClassSectionCsv(
-        @RequestParam Integer grade,
-        @RequestParam(required = false) String section,
-        @RequestParam(required = false) Integer month,
-        @RequestParam(required = false) Integer year) {
-    byte[] csv = feeService.generateClassSectionReportCsv(grade, section, month, year);
-    String file = "class-section-payments-" + grade + (section != null ? ("-" + section) : "") +
-        (year != null ? ("-" + year) : "") + (month != null ? ("-" + month) : "") + ".csv";
-    return ResponseEntity.ok()
-        .header("Content-Type", "text/csv")
-        .header("Content-Disposition", "attachment; filename=" + file)
-        .body(csv);
+            @RequestParam Integer grade,
+            @RequestParam(required = false) String section,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year) {
+        byte[] csv = feeService.generateClassSectionReportCsv(grade, section, month, year);
+        String file = "class-section-payments-" + grade + (section != null ? ("-" + section) : "") +
+                (year != null ? ("-" + year) : "") + (month != null ? ("-" + month) : "") + ".csv";
+        return ResponseEntity.ok()
+                .header("Content-Type", "text/csv")
+                .header("Content-Disposition", "attachment; filename=" + file)
+                .body(csv);
     }
 
     @Operation(summary = "Download student payments CSV", description = "CSV for a specific student by month/year or full year")
     @GetMapping("/reports/student/csv")
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER','PARENT','ACCOUNTS')")
     public ResponseEntity<byte[]> downloadStudentCsv(
-        @RequestParam Long studentId,
-        @RequestParam(required = false) Integer month,
-        @RequestParam(required = false) Integer year) {
-    byte[] csv = feeService.generateStudentReportCsv(studentId, month, year);
-    String file = "student-payments-" + studentId +
-        (year != null ? ("-" + year) : "") + (month != null ? ("-" + month) : "") + ".csv";
-    return ResponseEntity.ok()
-        .header("Content-Type", "text/csv")
-        .header("Content-Disposition", "attachment; filename=" + file)
-        .body(csv);
+            @RequestParam Long studentId,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year) {
+        byte[] csv = feeService.generateStudentReportCsv(studentId, month, year);
+        String file = "student-payments-" + studentId +
+                (year != null ? ("-" + year) : "") + (month != null ? ("-" + month) : "") + ".csv";
+        return ResponseEntity.ok()
+                .header("Content-Type", "text/csv")
+                .header("Content-Disposition", "attachment; filename=" + file)
+                .body(csv);
     }
 
-    @Operation(summary = "Get filtered payments", description = "Retrieves payments filtered by grade, section, and/or student name")
+    @Operation(summary = "Get filtered payments", description = "Retrieves payments filtered by grade, section, student name, optional date range, status, method, and amount range")
     @ApiResponse(responseCode = "200", description = "Payments retrieved successfully")
     @GetMapping("/payments/filtered")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'PARENT')")
     public ResponseEntity<List<Payment>> getFilteredPayments(
             @RequestParam(required = false) Integer grade,
             @RequestParam(required = false) String section,
-            @RequestParam(required = false) String studentName) {
-        return ResponseEntity.ok(feeService.getFilteredPayments(grade, section, studentName));
+            @RequestParam(required = false) String studentName,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate endDate,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String method,
+            @RequestParam(required = false) Double minAmount,
+            @RequestParam(required = false) Double maxAmount) {
+        return ResponseEntity.ok(
+                feeService.getFilteredPayments(grade, section, studentName, startDate, endDate, status, method, minAmount, maxAmount));
     }
 }

@@ -19,7 +19,6 @@ import Students from './pages/Students';
 import Staff from './pages/Staff';
 import ConsolidatedCourseView from './pages/ConsolidatedCourseView';
 import StaffAttendance from './pages/StaffAttendance';
-import Reports from './pages/Reports';
 import TeacherAttendance from './pages/TeacherAttendance';
 import ReportCards from './pages/ReportCards';
 import TimetableLanding from './pages/TimetableLanding';
@@ -126,15 +125,6 @@ function App() {
                   <Layout>
                     <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.PRINCIPAL, ROLES.STAFF, ROLES.LIBRARIAN]}>
                       <StaffAttendance />
-                    </RoleBasedRoute>
-                  </Layout>
-                </ProtectedRoute>
-              } />
-              <Route path="/reports" element={
-                <ProtectedRoute>
-                  <Layout>
-                    <RoleBasedRoute allowedRoles={[ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]}>
-                      <Reports />
                     </RoleBasedRoute>
                   </Layout>
                 </ProtectedRoute>

@@ -67,6 +67,9 @@ import ReceiptDialog from '../components/dialogs/ReceiptDialog';
 import Permission from '../components/Permission';
 import PaymentFilters from '../components/PaymentFilters';
 
+// Reasonable default sections when none are present in data
+const DEFAULT_SECTIONS = ['A','B','C','D','E','F'];
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -300,20 +303,36 @@ const FeeManagement: React.FC = () => {
   // Derived options for class/section filters when searching a single student
   const classOptions = React.useMemo(() => {
     const set = new Set<string>();
+    // From students (existing behavior)
     (studentOptions || []).forEach(s => {
-      if (s.grade) set.add(String(s.grade));
+      if (s.grade != null) set.add(String(s.grade));
+    });
+    // Also include classes from configured fee structures so empty classes still show
+    (feeStructures || []).forEach(fs => {
+      if ((fs as any)?.classGrade != null) set.add(String((fs as any).classGrade));
     });
     return Array.from(set).sort((a, b) => Number(a) - Number(b));
-  }, [studentOptions]);
+  }, [studentOptions, feeStructures]);
 
   const sectionOptions = React.useMemo(() => {
     const set = new Set<string>();
+    const allSections = new Set<string>();
+    (studentOptions || []).forEach(s => { if (s.section) allSections.add(s.section); });
+
     (studentOptions || [])
       .filter(s => (selectedClass ? String(s.grade) === String(selectedClass) : true))
       .forEach(s => {
         if (s.section) set.add(s.section);
       });
-    return Array.from(set).sort();
+
+    // Fallback: if a class is selected but no sections found (e.g., no students yet),
+    // show all known sections to avoid an empty dropdown.
+    let result = (selectedClass && set.size === 0) ? Array.from(allSections) : Array.from(set);
+    if (result.length === 0) {
+      // If we still have none, fall back to defaults
+      result = DEFAULT_SECTIONS.slice();
+    }
+    return result.sort();
   }, [studentOptions, selectedClass]);
 
   // Students filtered by selected class/section
@@ -421,16 +440,22 @@ const FeeManagement: React.FC = () => {
       setAllPayments(response);
       setIsViewingAllPayments(true);
       
-      // Extract unique classes and sections from the payments data
+      // Extract unique classes/sections from payments AND from all students (so filters don't hide empty/no-payment classes)
       const classes = new Set<string>();
       const sections = new Set<string>();
-      
-      response.forEach(payment => {
-        if (payment.studentGrade) classes.add(payment.studentGrade);
-        if (payment.studentSection) sections.add(payment.studentSection);
+
+      // From students list
+      (studentOptions || []).forEach(s => {
+        if (s.grade != null) classes.add(String(s.grade));
+        if (s.section) sections.add(s.section);
       });
-      
-      setAvailableClasses(Array.from(classes).sort());
+      // From payment results
+      response.forEach(payment => {
+        if ((payment as any).studentGrade) classes.add(String((payment as any).studentGrade));
+        if ((payment as any).studentSection) sections.add(String((payment as any).studentSection));
+      });
+
+      setAvailableClasses(Array.from(classes).sort((a, b) => Number(a) - Number(b)));
       setAvailableSections(Array.from(sections).sort());
     } catch (error) {
       console.error('Error fetching all payments:', error);

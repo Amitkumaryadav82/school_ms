@@ -1,78 +1,126 @@
-# School MS – Deployment Guide (Per School, Low Cost)
+# School MS — Per‑School AWS Deployment (≤ $10/month)
 
-This guide deploys one small AWS Lightsail instance per school (~$5/mo). It uses local PostgreSQL, runs the Spring Boot app, and serves the React build via the embedded server (you can add Nginx+TLS later).
+This guide standardizes a “one school = one small server” model on AWS Lightsail. Each server runs:
+- Spring Boot backend (Java 17)
+- React frontend served by the backend (same origin)
+- Local PostgreSQL on the same instance
+
+Target monthly cost: about $5 for the 1GB Lightsail plan (+ optional $1–3 for snapshots/S3). Keep everything on a single instance to stay under $10 per school.
+
+## Architecture at a glance
+- One Lightsail Ubuntu instance per school with static IP
+- Postgres runs locally; app connects over localhost
+- Optional Caddy reverse proxy for automatic HTTPS, or use Cloudflare proxy
+- Daily local SQL backups with 14‑day retention; optional off‑instance push to S3
 
 ## Prerequisites
-- Domain (optional, you can use the public IP initially).
-- Java 17 locally, Node.js 18+ to build frontend.
-- AWS account and Lightsail access.
+- AWS account with Lightsail access.
+- Windows 10/11 with OpenSSH client (scp/ssh) or WinSCP; PowerShell for local commands.
+- Locally installed: Java 17, Node.js 18+, Maven 3.9+.
+- Optional domain (recommended) managed in Route53 or any DNS provider.
 
-## 1) Create the server
-1. AWS Lightsail → Create instance → Linux/Unix → Ubuntu LTS → 1GB plan.
-2. Create a static IP and attach it to the instance.
-3. SSH into the instance and install dependencies:
-   ```bash
-   sudo apt-get update && sudo apt-get -y install openjdk-17-jre-headless postgresql
-   ```
+## Per‑school variables (decide these first)
+We’ll reuse these names throughout. Replace with your values when running commands.
 
-## 2) Set up PostgreSQL
-```bash
-sudo -u postgres psql -c "CREATE DATABASE school_db ENCODING 'UTF8';"
-sudo -u postgres psql -c "CREATE USER school_user WITH ENCRYPTED PASSWORD 'CHANGEME_STRONG';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE school_db TO school_user;"
+- SCHOOL_CODE: short slug for the school, e.g., greenwood
+- DOMAIN: FQDN, e.g., greenwood.example.com (or use the public IP temporarily)
+- DB_NAME: Postgres DB name, e.g., school_greenwood
+- DB_USER: Postgres user, e.g., school_greenwood
+- DB_PASSWORD: a strong password
+
+PowerShell (local):
+```powershell
+$SCHOOL_CODE = "greenwood"
+$DOMAIN      = "greenwood.example.com"
+$DB_NAME     = "school_$SCHOOL_CODE"
+$DB_USER     = "school_$SCHOOL_CODE"
+$DB_PASSWORD = "ReplaceWith#A_Strong_Pwd"
 ```
 
-## 3) Build artifacts (locally)
-Frontend (TypeScript/React build):
+## 1) Create the server (Lightsail)
+1. Lightsail → Create instance → Linux/Unix → Ubuntu LTS → $5 (1GB RAM) plan.
+2. Create a Static IP and attach it to the instance.
+3. In Lightsail networking, allow TCP 22, 80, 443.
+
+## 2) Install dependencies on the instance
+SSH into the instance as ubuntu and run:
+```bash
+sudo apt-get update
+sudo apt-get -y install openjdk-17-jre-headless postgresql
+# Optional for auto-HTTPS (recommended)
+sudo apt-get -y install debian-keyring debian-archive-keyring apt-transport-https curl
+curl -fsSL https://dl.cloudsmith.io/public/caddy/stable/gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/ubuntu any-version main" | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+sudo apt-get update && sudo apt-get -y install caddy
+```
+
+## 3) Create the database
+```bash
+sudo -u postgres psql -c "CREATE DATABASE $DB_NAME ENCODING 'UTF8';"
+sudo -u postgres psql -c "CREATE USER $DB_USER WITH ENCRYPTED PASSWORD '$DB_PASSWORD';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+```
+
+Memory note: the 1GB plan is sufficient for Spring Boot + Postgres if you keep JVM heap modest.
+
+## 4) Build artifacts locally
+Frontend (from `frontend/`):
 ```powershell
-# from frontend/
 npm ci
 npm run build
 ```
-Backend:
-```powershell
-# from backend/school-app
-# Option A: full build with tests
-mvn clean verify
 
-# Option B: faster build, skip tests (use only if needed)
+Backend (from `backend/school-app`):
+```powershell
 mvn clean package -DskipTests
 ```
-Result: `backend/school-app/target/school-app-1.0.0.jar`
 
-## 4) Upload the JAR
+Resulting file: `backend/school-app/target/school-app-1.0.0.jar`
+
+If your build does not already package the frontend into the jar, copy `frontend/dist` to `backend/school-app/src/main/resources/static` and rebuild. After deploy, browsing `http://<DOMAIN or IP>/` should show the login page.
+
+## 5) Upload the application JAR
+Windows PowerShell (OpenSSH):
 ```powershell
-scp backend/school-app/target/school-app-1.0.0.jar ubuntu@<LIGHTSAIL_IP>:/home/ubuntu/school-app.jar
+scp backend/school-app/target/school-app-1.0.0.jar ubuntu@<STATIC_IP>:/home/ubuntu/school-app.jar
 ```
 
-## 5) Create environment file on server
+## 6) Configure environment for the app
+Create an env file with secure permissions:
 ```bash
 cat >/home/ubuntu/school.env <<'EOF'
-DB_URL=jdbc:postgresql://localhost:5432/school_db
-DB_USER=school_user
-DB_PASSWORD=CHANGEME_STRONG
+DB_URL=jdbc:postgresql://localhost:5432/${DB_NAME}
+DB_USER=${DB_USER}
+DB_PASSWORD=${DB_PASSWORD}
 JWT_SECRET=GENERATE_A_64B_RANDOM_SECRET
-# CORS: if serving the frontend from another origin, list exact origins here
-ALLOWED_ORIGINS=https://myschool.example.com,https://www.myschool.example.com
-# Optional: use wildcard patterns instead of explicit origins (Spring Boot relaxed binding)
-# Example allows any subdomain under myschool.example.com
-# CORS_ALLOWED_ORIGIN_PATTERNS=https://*.myschool.example.com
+SERVER_PORT=8080
+# If serving UI elsewhere, list UI origins (comma-separated)
+ALLOWED_ORIGINS=https://${DOMAIN}
+# Or allow wildcard patterns
+# CORS_ALLOWED_ORIGIN_PATTERNS=https://*.example.com
+# Keep heap small on 1GB server
 JAVA_TOOL_OPTIONS=-Xms256m -Xmx384m -XX:+UseSerialGC
 EOF
 chmod 600 /home/ubuntu/school.env
 ```
 
-## 6) Create a systemd unit
+Then replace placeholders inside `/home/ubuntu/school.env` with the actual values for this school.
+
+## 7) Systemd service
 ```bash
 sudo bash -c 'cat >/etc/systemd/system/school-app.service <<SYSTEMD
 [Unit]
-Description=School App
+Description=School App (${SCHOOL_CODE})
 After=network.target postgresql.service
 
 [Service]
 User=ubuntu
+Environment="DB_NAME=${DB_NAME}"
+Environment="DB_USER=${DB_USER}"
+Environment="DB_PASSWORD=${DB_PASSWORD}"
+Environment="DOMAIN=${DOMAIN}"
 EnvironmentFile=/home/ubuntu/school.env
-ExecStart=/usr/bin/java $JAVA_TOOL_OPTIONS -jar /home/ubuntu/school-app.jar --spring.profiles.active=prod
+ExecStart=/usr/bin/java $JAVA_TOOL_OPTIONS -jar /home/ubuntu/school-app.jar --spring.profiles.active=prod --server.port=${SERVER_PORT}
 Restart=on-failure
 RestartSec=5
 SuccessExitStatus=143
@@ -87,146 +135,164 @@ sudo systemctl start school-app
 sudo systemctl status school-app --no-pager
 ```
 
-## 7) DNS (optional now, recommended later)
-- Add an A record: `myschool.example.com → <lightsail static ip>`.
-- Update `ALLOWED_ORIGINS` (or `CORS_ALLOWED_ORIGIN_PATTERNS` for wildcard) in `/home/ubuntu/school.env`, then restart:
-  ```bash
-  sudo systemctl restart school-app
-  ```
+## 8) TLS and reverse proxy (two simple options)
+Pick A or B. Both are free and keep you under budget.
 
-## 8) Backups (simple local rotation)
+### A) Caddy (auto‑HTTPS with Let’s Encrypt)
 ```bash
+sudo bash -c 'cat >/etc/caddy/Caddyfile <<CADDY
+${DOMAIN} {
+  encode zstd gzip
+  reverse_proxy localhost:8080
+}
+CADDY'
+sudo systemctl enable caddy
+sudo systemctl restart caddy
+```
+
+Notes:
+- Ensure your DNS A record for `${DOMAIN}` points to the instance static IP before (re)starting Caddy.
+- Caddy will obtain and renew certificates automatically.
+
+### B) Cloudflare proxy (no server‑side TLS config)
+- Point an A record at the static IP and enable the orange‑cloud proxy in Cloudflare.
+- Keep the app on port 80/8080. Cloudflare provides HTTPS to users. You can add origin TLS later.
+
+## 9) DNS
+- Create/Update A record: `${DOMAIN} → <static ip>`.
+- If you changed `ALLOWED_ORIGINS`/`CORS_ALLOWED_ORIGIN_PATTERNS`, restart the app:
+```bash
+sudo systemctl restart school-app
+```
+
+## 10) Backups (keep it simple)
+Daily local rotation (14 days):
+```bash
+sudo mkdir -p /var/backups
 sudo bash -c 'cat >/etc/cron.daily/pg-backup <<CRON
 #!/bin/bash
+set -e
 ts=$(date +%F)
-sudo -u postgres pg_dump school_db | gzip > /var/backups/school_db-$ts.sql.gz
-find /var/backups -name "school_db-*.sql.gz" -mtime +14 -delete
+sudo -u postgres pg_dump ${DB_NAME} | gzip > /var/backups/${DB_NAME}-${ts}.sql.gz
+find /var/backups -name "${DB_NAME}-*.sql.gz" -mtime +14 -delete
 CRON'
 sudo chmod +x /etc/cron.daily/pg-backup
 ```
 
-## 9) Health checks
-- Probe `http(s)://<host>/actuator/health`.
-- Optional UptimeRobot monitor.
+Optional off‑instance copy to S3 (still under budget for small DBs):
+```bash
+sudo apt-get -y install awscli
+aws configure  # access key with write to an s3://<your-bucket>/<SCHOOL_CODE>/ path
+sudo bash -c 'cat >/etc/cron.daily/pg-backup-s3 <<CRON
+#!/bin/bash
+set -e
+aws s3 sync /var/backups s3://<your-bucket>/${SCHOOL_CODE}/ --exclude "*" --include "${DB_NAME}-*.sql.gz"
+CRON'
+sudo chmod +x /etc/cron.daily/pg-backup-s3
+```
 
-Tip: to view service logs when debugging deploys
+Lightsail snapshots are another option (charged per GB‑month). Schedule weekly snapshots for quick disaster recovery if budget allows.
+
+## 11) Health checks and logs
+- Health: `http(s)://<domain or ip>/actuator/health`
+- Uptime monitoring: UptimeRobot free plan is sufficient.
+- Logs during troubleshooting:
 ```bash
 journalctl -u school-app -e --no-pager
 ```
 
-## 10) Updates
-```bash
-# copy new jar
-scp backend/school-app/target/school-app-1.0.0.jar ubuntu@<LIGHTSAIL_IP>:/home/ubuntu/school-app.jar
-# restart
-ssh ubuntu@<LIGHTSAIL_IP> "sudo systemctl restart school-app && systemctl status school-app --no-pager"
+## 12) Updates (zero downtime not required)
+Replace the JAR, then restart the service:
+```powershell
+scp backend/school-app/target/school-app-1.0.0.jar ubuntu@<STATIC_IP>:/home/ubuntu/school-app.jar
+ssh ubuntu@<STATIC_IP> "sudo systemctl restart school-app && systemctl status school-app --no-pager"
 ```
 
-## Notes
+If you use Caddy or Cloudflare, no changes are needed for TLS on app updates.
 
-- CORS configuration
-  - The backend reads CORS settings from properties:
-    - `cors.allowed-origins` (mapped from env `ALLOWED_ORIGINS`)
-    - `cors.allowed-origin-patterns` (can be mapped from env `CORS_ALLOWED_ORIGIN_PATTERNS`)
-  - If the frontend is served by the same Spring Boot app (default in this guide), CORS is not required for app usage. Keep the variables for future external UIs.
+## 13) Replicate for another school quickly
+Two easy approaches:
 
-- Frontend API base URL
-  - By default in development we use Vite's dev proxy; in production the monolith serves the frontend and calls same-origin APIs.
-  - If you deploy the frontend separately, set an API base for the UI build:
-    - Create `frontend/.env.production` with:
-      ```
-      VITE_API_URL=https://myschool.example.com
-      ```
-    - Rebuild the frontend and copy to the backend or your static host, and make sure `ALLOWED_ORIGINS`/`CORS_ALLOWED_ORIGIN_PATTERNS` on the backend include the UI origin.
+1) Snapshot method (few clicks):
+   - From a known‑good instance, create a Lightsail snapshot.
+   - Create a new instance from the snapshot; attach a new static IP.
+   - SSH and update `/home/ubuntu/school.env` and the systemd Environment vars (`DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DOMAIN`).
+   - Create a fresh Postgres DB/user with the new names (Section 3) and run the app; apply Flyway migrations on first start.
+   - Update DNS and Caddyfile with the new domain.
+
+2) Bootstrap script (fast repeatable):
+   - Keep a small script that performs Section 2–7 automatically, using env vars for SCHOOL_CODE/DOMAIN.
+   - Run it on a clean $5 Lightsail Ubuntu instance.
+
+## Cost guidance (as of 2025)
+- Lightsail 1GB instance: ~$5/month
+- Static IP: free
+- Data transfer: generous free tier; typical school usage fits
+- Optional: S3 backup storage a few GB: $0.10–$0.50/month
+- Optional: Lightsail snapshots: $0.05/GB‑month
+
+Staying within $10/month per school is realistic if you keep everything on one instance and use the free TLS options.
+
+---
+
+## Notes and FAQs
+
+### CORS
+- When the frontend is served by the same app origin, CORS isn’t required. Keep `ALLOWED_ORIGINS` ready if you later host the UI separately.
+
+### API base URL for a separately hosted UI
+If you host the frontend outside the JAR:
+1. Create `frontend/.env.production`:
+   ```
+   VITE_API_URL=https://${DOMAIN}
+   ```
+2. Build the UI and upload to a static host or object storage with CDN.
+3. Ensure backend `ALLOWED_ORIGINS` includes the UI domain.
+
+### JVM heap sizing
+- 1GB plan: `-Xmx384m` is safe. If you enable more features, test `-Xmx512m` but watch memory.
+
+### Frontend packaging check
+- After deploy, opening `https://<domain>/` should render the login page. If not, ensure the frontend build is packaged or served via your chosen proxy.
+
+---
 
 ## Appendix A — Generate a single baseline migration from an existing DB
 
 Goal: Extract CREATE scripts (tables, indexes, sequences, constraints, functions) from your existing PostgreSQL database into one SQL file you can use as Flyway baseline for new deployments.
 
-## Appendix B — No Postgres yet? Generate it from your H2/JPA model
-
-If you are still on H2 only, you can have Hibernate generate a fresh PostgreSQL schema directly from the current JPA entities:
-
-1) Install PostgreSQL locally and create an empty DB/user (see steps in the main guide).
-
-2) Use the provided temporary profile `pg-gen` to create the schema in Postgres:
-```powershell
-Option 1: Run on the server (Ubuntu)
+Use pg_dump on the server:
 ```bash
-# Dumps only schema (no data), portable (no owner/privileges), and excludes Flyway history
-This uses `application-pg-gen.properties` to point Hibernate at Postgres with `spring.jpa.hibernate.ddl-auto=create`, so it creates tables, PKs, FKs, and sequences.
-
-3) Export that schema into a Flyway baseline file using pg_dump (see Appendix A). Rename the output to `V1__baseline_all.sql` and place it under `src/main/resources/db/migration`.
-
-4) Switch to the normal prod profile (Postgres + Flyway) for real deployments.
-
 sudo -u postgres pg_dump \
   --schema-only \
   --no-owner --no-privileges --no-comments --no-security-labels --no-tablespaces \
   --exclude-table=flyway_schema_history \
-  -d school_db > /home/ubuntu/baseline_schema.sql
+  -d ${DB_NAME} > /home/ubuntu/baseline_schema.sql
 ```
 
-Option 2: Run from Windows (PowerShell)
+From Windows (PowerShell):
 ```powershell
-# If psql/pg_dump is installed (e.g., C:\Program Files\PostgreSQL\16\bin)
-& "C:\Program Files\PostgreSQL\16\bin\pg_dump.exe" `
+& "C:\\Program Files\\PostgreSQL\\16\\bin\\pg_dump.exe" `
   --schema-only `
   --no-owner --no-privileges --no-comments --no-security-labels --no-tablespaces `
   --exclude-table=flyway_schema_history `
   --file baseline_schema.sql `
-  --dbname "postgresql://school_user:CHANGEME_STRONG@<HOST>:5432/school_db"
+  --dbname "postgresql://$DB_USER:$DB_PASSWORD@<HOST>:5432/$DB_NAME"
 ```
 
-Clean up (optional): The options above already minimize non-portable statements. If you still want to strip any remaining SET lines:
-```powershell
-Get-Content baseline_schema.sql | Where-Object { $_ -notmatch '^(SET|SELECT pg_catalog.set_config)' } | Set-Content V1__baseline_all.sql
-```
-
-Use with Flyway
-- Place the file in the repo as:
-  `backend/school-app/src/main/resources/db/migration/V1__baseline_all.sql`
-- New installations: Flyway will run `V1__baseline_all.sql` to create the schema from scratch.
-- Existing installation you are now bringing under Flyway:
-  - Configure once (prod):
-    - spring.flyway.baseline-on-migrate=true
-    - spring.flyway.baseline-version=1
-  - Start the app. Flyway will detect existing objects and create a baseline entry at version 1 without running V1.
-  - From now on, add `V2__*.sql`, `V3__*.sql`, etc., for changes.
-
-Notes
-- pg_dump captures sequences, constraints, indexes, views, functions, and triggers present in the selected schema(s).
-- If you use multiple schemas, add `--schema=public --schema=other_schema` or omit to dump all.
-- Avoid `CREATE EXTENSION` unless you truly need it on targets.
-- Keep baseline forward-only. To revert changes, create a new migration that undoes them.
+Place the final file as `backend/school-app/src/main/resources/db/migration/V1__baseline_all.sql` for new installs, or configure Flyway baseline for existing DBs.
 
 ---
 
-## How schemas, tables, sequences, and other DB objects are created
+## Appendix B — About schema migrations (Flyway)
 
 We use Flyway migrations in production so database structure is versioned and repeatable.
 
-- Migration files live at: `backend/school-app/src/main/resources/db/migration`
-- Naming: `V<N>__<description>.sql` (e.g., `V1__baseline_timetable.sql`, `V2__add_staff_indexes.sql`)
-- On application startup (prod profile), Flyway runs any pending migrations in order.
+- Files live at: `backend/school-app/src/main/resources/db/migration`
+- Naming: `V<N>__<description>.sql` (e.g., `V2__add_exam_tables.sql`)
+- On startup (prod), Flyway runs pending migrations in order.
 
-What’s already included:
-- `V1__baseline_timetable.sql` adds:
-  - Unique constraint to ensure a class/section/day/period is only used once.
-  - Partial unique index to prevent teacher double-booking the same day/period.
-  - Helpful indexes for common lookups.
-- `V3__drop_legacy_unused_tables.sql` removes legacy tables (`time_slots`, `timetable`, `class_room`, `example_staff`) that were created by old entities but are no longer used.
-
-Dev vs Prod:
-- Dev uses H2 in-memory with `data.sql` to seed demo data. This is convenient for local testing.
-- Prod uses PostgreSQL with Flyway enabled. `data.sql` is disabled in prod (`spring.sql.init.mode=never`).
-
-Adding new objects (tables/sequences/indexes) for prod:
-1. Create a new migration file, e.g. `V2__add_exam_tables.sql` under `db/migration`.
-2. Put all DDL there (CREATE TABLE/INDEX/SEQUENCE, ALTER TABLE, etc.).
-3. Build and deploy; on startup, Flyway applies `V2` automatically.
-
-Example migration snippet:
+Example migration:
 ```sql
 -- V2__add_exam_tables.sql
 CREATE TABLE IF NOT EXISTS exam_schedule (
@@ -240,9 +306,4 @@ CREATE TABLE IF NOT EXISTS exam_schedule (
 CREATE INDEX IF NOT EXISTS ix_exam_class_section ON exam_schedule(class_id, section_id);
 ```
 
-Schema considerations:
-- We use the default `public` schema; if you introduce multiple schemas, prefix objects (e.g., `school.exam_schedule`) and configure `spring.jpa.properties.hibernate.default_schema` as needed.
-- Sequences: Postgres auto-creates BIGSERIAL sequences; you can also `CREATE SEQUENCE` explicitly if required.
-
-Rollback strategy:
-- Flyway encourages forward-only migrations. If you need to "undo", create a new migration (e.g., `V3__revert_exam_schedule.sql`) that drops or alters objects accordingly.
+Forward‑only: create new migrations to change or revert structures rather than editing old files.

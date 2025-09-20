@@ -25,14 +25,27 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
         // Use association path in derived query to get the latest payment for a student
         java.util.Optional<Payment> findTopByStudent_IdOrderByPaymentDateDesc(Long studentId);
 
-        // Custom query for filtered payments
+        // Custom query for filtered payments (extended)
         @Query("SELECT p FROM Payment p JOIN p.student s WHERE " +
                         "(:grade IS NULL OR s.grade = :grade) AND " +
                         "(:section IS NULL OR s.section = :section) AND " +
-                        "(:studentName IS NULL OR LOWER(CONCAT(s.firstName, ' ', s.lastName)) LIKE LOWER(CONCAT('%', :studentName, '%')))")
-        List<Payment> findFilteredPayments(@Param("grade") Integer grade,
+                        "(:studentName IS NULL OR LOWER(CONCAT(s.firstName, ' ', s.lastName)) LIKE LOWER(CONCAT('%', :studentName, '%'))) AND " +
+                        "(:start IS NULL OR p.paymentDate >= :start) AND " +
+                        "(:end IS NULL OR p.paymentDate <= :end) AND " +
+                        "(:status IS NULL OR p.status = :status) AND " +
+                        "(:method IS NULL OR p.paymentMethod = :method) AND " +
+                        "(:minAmount IS NULL OR p.amount >= :minAmount) AND " +
+                        "(:maxAmount IS NULL OR p.amount <= :maxAmount)")
+        List<Payment> findFilteredPayments(
+                        @Param("grade") Integer grade,
                         @Param("section") String section,
-                        @Param("studentName") String studentName);
+                        @Param("studentName") String studentName,
+                        @Param("start") java.time.LocalDateTime start,
+                        @Param("end") java.time.LocalDateTime end,
+                        @Param("status") com.school.fee.model.Payment.PaymentStatus status,
+                        @Param("method") com.school.fee.model.Payment.PaymentMethod method,
+                        @Param("minAmount") Double minAmount,
+                        @Param("maxAmount") Double maxAmount);
 
         // Lookup by receipt number for durable receipt retrieval
         java.util.Optional<Payment> findByReceiptNumber(String receiptNumber);
@@ -40,13 +53,13 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
         // Reports: class-section-month/year payments
         @Query("SELECT p FROM Payment p JOIN p.student s WHERE s.grade = :grade AND (:section IS NULL OR s.section = :section) AND p.paymentDate BETWEEN :start AND :end")
         List<Payment> findByClassSectionAndDateRange(@Param("grade") Integer grade,
-                                                     @Param("section") String section,
-                                                     @Param("start") LocalDateTime start,
-                                                     @Param("end") LocalDateTime end);
+                        @Param("section") String section,
+                        @Param("start") LocalDateTime start,
+                        @Param("end") LocalDateTime end);
 
         // Reports: specific student by date range
         @Query("SELECT p FROM Payment p WHERE p.student.id = :studentId AND p.paymentDate BETWEEN :start AND :end")
         List<Payment> findByStudentAndDateRange(@Param("studentId") Long studentId,
-                                                @Param("start") LocalDateTime start,
-                                                @Param("end") LocalDateTime end);
+                        @Param("start") LocalDateTime start,
+                        @Param("end") LocalDateTime end);
 }

@@ -42,8 +42,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         Student student = studentRepository.findById(attendanceDTO.getStudentId())
                 .orElseThrow(() -> new StudentNotFoundException("Student not found"));
 
-    Attendance attendance = attendanceRepository
-        .findByStudent_IdAndDate(attendanceDTO.getStudentId(), attendanceDTO.getDate())
+        Attendance attendance = attendanceRepository
+                .findByStudent_IdAndDate(attendanceDTO.getStudentId(), attendanceDTO.getDate())
                 .orElse(new Attendance());
 
         attendance.setStudent(student);
@@ -101,7 +101,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         if (!studentRepository.existsById(studentId)) {
             throw new StudentNotFoundException("Student not found");
         }
-    return attendanceRepository.findByStudent_Id(studentId);
+        return attendanceRepository.findByStudent_Id(studentId);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         if (startDate.isAfter(endDate)) {
             throw new InvalidDateRangeException("Start date cannot be after end date");
         }
-    return attendanceRepository.findByStudent_IdAndDateBetween(studentId, startDate, endDate);
+        return attendanceRepository.findByStudent_IdAndDateBetween(studentId, startDate, endDate);
     }
 
     @Override
@@ -137,19 +137,22 @@ public class AttendanceServiceImpl implements AttendanceService {
         if (startDate.isAfter(endDate)) {
             throw new InvalidDateRangeException("Start date cannot be after end date");
         }
-    return attendanceRepository.countByStudent_IdAndStatusAndDateBetween(studentId, status, startDate, endDate);
+        return attendanceRepository.countByStudent_IdAndStatusAndDateBetween(studentId, status, startDate, endDate);
     }
 
     @Override
     public List<Attendance> getGradeAttendance(Integer grade, LocalDate date) {
-    return attendanceRepository.findByStudent_GradeAndDate(grade, date);
+        return attendanceRepository.findByStudent_GradeAndDate(grade, date);
     }
 
     @Override
     public List<Attendance> getSectionAttendance(Integer grade, String section, LocalDate date) {
-    return attendanceRepository.findByStudent_GradeAndStudent_SectionAndDate(grade, section, date);
-    }    @Override
-    public StudentAttendanceSummaryDTO getStudentAttendanceSummary(Long studentId, LocalDate startDate, LocalDate endDate) {
+        return attendanceRepository.findByStudent_GradeAndStudent_SectionAndDate(grade, section, date);
+    }
+
+    @Override
+    public StudentAttendanceSummaryDTO getStudentAttendanceSummary(Long studentId, LocalDate startDate,
+            LocalDate endDate) {
         if (!studentRepository.existsById(studentId)) {
             throw new StudentNotFoundException("Student not found");
         }
@@ -157,7 +160,7 @@ public class AttendanceServiceImpl implements AttendanceService {
             throw new InvalidDateRangeException("Start date cannot be after end date");
         }
 
-    List<Attendance> records = attendanceRepository.findByStudent_IdAndDateBetween(studentId, startDate, endDate);
+        List<Attendance> records = attendanceRepository.findByStudent_IdAndDateBetween(studentId, startDate, endDate);
 
         long totalDays = records.size();
         long presentDays = records.stream().filter(a -> a.getStatus() == AttendanceStatus.PRESENT).count();
@@ -187,7 +190,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         return students.stream().map(student -> {
-            // Upsert: if a record already exists for this student/date, return it as-is to avoid duplicates
+            // Upsert: if a record already exists for this student/date, return it as-is to
+            // avoid duplicates
             Optional<Attendance> existingOpt = attendanceRepository.findByStudent_IdAndDate(student.getId(), date);
             if (existingOpt.isPresent()) {
                 return existingOpt.get();
@@ -209,17 +213,17 @@ public class AttendanceServiceImpl implements AttendanceService {
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
         List<Student> students = studentRepository.findByGradeAndSection(grade, section);
-    if (students.isEmpty()) {
-        // Gracefully return an empty report instead of throwing
-        return MonthlyAttendanceReport.builder()
-            .grade(grade)
-            .section(section)
-            .year(year)
-            .month(month)
-            .averageAttendancePercentage(0)
-            .studentDetails(new ArrayList<>())
-            .build();
-    }
+        if (students.isEmpty()) {
+            // Gracefully return an empty report instead of throwing
+            return MonthlyAttendanceReport.builder()
+                    .grade(grade)
+                    .section(section)
+                    .year(year)
+                    .month(month)
+                    .averageAttendancePercentage(0)
+                    .studentDetails(new ArrayList<>())
+                    .build();
+        }
 
         List<MonthlyAttendanceReport.StudentAttendanceDetail> studentDetails = new ArrayList<>();
         double totalAttendancePercentage = 0;
@@ -270,19 +274,19 @@ public class AttendanceServiceImpl implements AttendanceService {
         LocalDate endDate = startDate.plusMonths(1).minusDays(1);
 
         List<Student> students = studentRepository.findByGradeAndSection(grade, section);
-    if (students.isEmpty()) {
-        // Gracefully return empty stats instead of throwing
-        return MonthlyAttendanceStats.builder()
-            .grade(grade)
-            .section(section)
-            .year(year)
-            .month(month)
-            .studentsWith100Percent(new ArrayList<>())
-            .studentsBelow75Percent(new ArrayList<>())
-            .totalStudents(0)
-            .averageAttendance(0)
-            .build();
-    }
+        if (students.isEmpty()) {
+            // Gracefully return empty stats instead of throwing
+            return MonthlyAttendanceStats.builder()
+                    .grade(grade)
+                    .section(section)
+                    .year(year)
+                    .month(month)
+                    .studentsWith100Percent(new ArrayList<>())
+                    .studentsBelow75Percent(new ArrayList<>())
+                    .totalStudents(0)
+                    .averageAttendance(0)
+                    .build();
+        }
 
         List<String> studentsWith100Percent = new ArrayList<>();
         List<String> studentsBelow75Percent = new ArrayList<>();
@@ -391,11 +395,11 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     private double calculateAttendancePercentage(Long studentId, LocalDate startDate, LocalDate endDate) {
-    long totalDays = attendanceRepository.countByStudent_IdAndDateBetween(studentId, startDate, endDate);
+        long totalDays = attendanceRepository.countByStudent_IdAndDateBetween(studentId, startDate, endDate);
         if (totalDays == 0)
             return 100.0;
 
-    long presentDays = attendanceRepository.countByStudent_IdAndStatusAndDateBetween(
+        long presentDays = attendanceRepository.countByStudent_IdAndStatusAndDateBetween(
                 studentId, AttendanceStatus.PRESENT, startDate, endDate);
 
         return (presentDays * 100.0) / totalDays;
@@ -419,7 +423,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     private int countTotalAbsences(Long studentId, LocalDate startDate, LocalDate endDate) {
-    return (int) attendanceRepository.countByStudent_IdAndStatusAndDateBetween(
+        return (int) attendanceRepository.countByStudent_IdAndStatusAndDateBetween(
                 studentId, AttendanceStatus.ABSENT, startDate, endDate);
     }
 
@@ -431,7 +435,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         if (startDate.isAfter(endDate)) {
             throw new InvalidDateRangeException("Start date cannot be after end date");
         }
-        
+
         return calculateAttendancePercentage(studentId, startDate, endDate);
     }
 }

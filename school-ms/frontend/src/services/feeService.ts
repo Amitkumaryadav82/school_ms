@@ -256,7 +256,13 @@ const feeService = {
     getFilteredPayments: async (filters?: { 
         grade?: string, 
         section?: string, 
-        studentName?: string 
+        studentName?: string,
+        startDate?: string,
+        endDate?: string,
+        paymentStatus?: string,
+        paymentMethod?: string,
+        minAmount?: string,
+        maxAmount?: string 
     }): Promise<Payment[]> => {
         let url = '/api/fees/payments/filtered';
         const queryParams = new URLSearchParams();
@@ -265,6 +271,12 @@ const feeService = {
             if (filters.grade) queryParams.append('grade', filters.grade);
             if (filters.section) queryParams.append('section', filters.section);
             if (filters.studentName) queryParams.append('studentName', filters.studentName);
+            if (filters.startDate) queryParams.append('startDate', filters.startDate);
+            if (filters.endDate) queryParams.append('endDate', filters.endDate);
+            if (filters.paymentStatus) queryParams.append('status', filters.paymentStatus);
+            if (filters.paymentMethod) queryParams.append('method', filters.paymentMethod);
+            if (filters.minAmount) queryParams.append('minAmount', filters.minAmount);
+            if (filters.maxAmount) queryParams.append('maxAmount', filters.maxAmount);
         }
         
         if (queryParams.toString()) {
@@ -298,7 +310,8 @@ const feeService = {
         }
     },getPaymentSummaryByStudent: async (studentId: number): Promise<PaymentSummary> => {
         try {
-            return await api.get<PaymentSummary>(`/api/fees/payments/summary/student/${studentId}`);
+            // align path with backend FeeController
+            return await api.get<PaymentSummary>(`/api/fees/summary/student/${studentId}`);
         } catch (error) {
             console.error(`Error fetching payment summary for student ${studentId}:`, error);
             // Return mock data if API fails

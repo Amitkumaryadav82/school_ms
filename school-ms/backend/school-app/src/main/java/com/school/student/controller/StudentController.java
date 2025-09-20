@@ -47,8 +47,7 @@ public class StudentController {
         Long studentId = jdbcTemplate.query(
                 "select s.id from students s join users u on lower(s.email) = lower(u.email) where u.id = ?",
                 rs -> rs.next() ? rs.getLong(1) : null,
-                userId
-        );
+                userId);
         if (studentId == null) {
             return ResponseEntity.notFound().build();
         }
@@ -57,8 +56,10 @@ public class StudentController {
     }
 
     private Long getCurrentUserId() {
-        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) return null;
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+        if (auth == null)
+            return null;
         Object principal = auth.getPrincipal();
         if (principal instanceof com.school.security.User) {
             return ((com.school.security.User) principal).getId();

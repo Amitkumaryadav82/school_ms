@@ -184,6 +184,13 @@ public class FeeService {
         return paymentRepository.findByStudentId(studentId);
     }
 
+    /**
+     * Returns all payments. For large datasets, consider adding pagination.
+     */
+    public List<Payment> getAllPayments() {
+        return paymentRepository.findAll();
+    }
+
     public java.util.Optional<Payment> getPaymentById(Long id) {
         return paymentRepository.findById(id);
     }
@@ -196,7 +203,8 @@ public class FeeService {
 
     public boolean voidPayment(Long id, String reason) {
         Optional<Payment> opt = paymentRepository.findById(id);
-        if (!opt.isPresent()) return false;
+        if (!opt.isPresent())
+            return false;
         Payment p = opt.get();
         p.setStatus(Payment.PaymentStatus.VOID);
         p.setVoidedAt(java.time.LocalDateTime.now());
@@ -302,9 +310,11 @@ public class FeeService {
             lines.add("TOTAL PAID: Rs. " + String.format(Locale.ENGLISH, "%,.2f", amount));
             if (p.getStatus() == Payment.PaymentStatus.VOID) {
                 lines.add(repeat('-'));
-                java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm");
+                java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter
+                        .ofPattern("dd MMM yyyy HH:mm");
                 lines.add("Date of Payment Void: " + (p.getVoidedAt() != null ? p.getVoidedAt().format(dtf) : "-"));
-                lines.add("Reason: " + (p.getVoidReason() != null && !p.getVoidReason().isBlank() ? p.getVoidReason() : "-"));
+                lines.add("Reason: "
+                        + (p.getVoidReason() != null && !p.getVoidReason().isBlank() ? p.getVoidReason() : "-"));
             }
             lines.add("");
             lines.add("Received with thanks");
@@ -540,17 +550,21 @@ public class FeeService {
         java.time.format.DateTimeFormatter df = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
         for (Payment p : payments) {
             Student s = p.getStudent();
-            String studentName = (Optional.ofNullable(s.getFirstName()).orElse("") + " " + Optional.ofNullable(s.getLastName()).orElse("")).trim();
-            sb.append(Optional.ofNullable(p.getReceiptNumber()).orElse("R" + String.format("%06d", p.getId()))).append(',')
-              .append(p.getPaymentDate() != null ? p.getPaymentDate().toLocalDate().format(df) : "").append(',')
-              .append(s.getId()).append(',')
-              .append(escapeCsv(studentName)).append(',')
-              .append(s.getGrade() != null ? s.getGrade() : "").append(',')
-              .append(s.getSection() != null ? s.getSection() : "").append(',')
-              .append(String.format(java.util.Locale.ENGLISH, "%.2f", Optional.ofNullable(p.getAmount()).orElse(0.0))).append(',')
-              .append(p.getPaymentMethod()).append(',')
-              .append(p.getStatus())
-              .append("\n");
+            String studentName = (Optional.ofNullable(s.getFirstName()).orElse("") + " "
+                    + Optional.ofNullable(s.getLastName()).orElse("")).trim();
+            sb.append(Optional.ofNullable(p.getReceiptNumber()).orElse("R" + String.format("%06d", p.getId())))
+                    .append(',')
+                    .append(p.getPaymentDate() != null ? p.getPaymentDate().toLocalDate().format(df) : "").append(',')
+                    .append(s.getId()).append(',')
+                    .append(escapeCsv(studentName)).append(',')
+                    .append(s.getGrade() != null ? s.getGrade() : "").append(',')
+                    .append(s.getSection() != null ? s.getSection() : "").append(',')
+                    .append(String.format(java.util.Locale.ENGLISH, "%.2f",
+                            Optional.ofNullable(p.getAmount()).orElse(0.0)))
+                    .append(',')
+                    .append(p.getPaymentMethod()).append(',')
+                    .append(p.getStatus())
+                    .append("\n");
         }
         return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
@@ -568,24 +582,29 @@ public class FeeService {
             start = java.time.LocalDate.now().withDayOfMonth(1);
             end = start.withDayOfMonth(start.lengthOfMonth());
         }
-        List<Payment> payments = paymentRepository.findByStudentAndDateRange(studentId, start.atStartOfDay(), end.atTime(23, 59, 59));
+        List<Payment> payments = paymentRepository.findByStudentAndDateRange(studentId, start.atStartOfDay(),
+                end.atTime(23, 59, 59));
         StringBuilder sb = new StringBuilder();
         sb.append("Receipt,Date,Amount,Method,Status,Notes\n");
         java.time.format.DateTimeFormatter df = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
         for (Payment p : payments) {
-            sb.append(Optional.ofNullable(p.getReceiptNumber()).orElse("R" + String.format("%06d", p.getId()))).append(',')
-              .append(p.getPaymentDate() != null ? p.getPaymentDate().toLocalDate().format(df) : "").append(',')
-              .append(String.format(java.util.Locale.ENGLISH, "%.2f", Optional.ofNullable(p.getAmount()).orElse(0.0))).append(',')
-              .append(p.getPaymentMethod()).append(',')
-              .append(p.getStatus()).append(',')
-              .append(escapeCsv(Optional.ofNullable(p.getRemarks()).orElse("")))
-              .append("\n");
+            sb.append(Optional.ofNullable(p.getReceiptNumber()).orElse("R" + String.format("%06d", p.getId())))
+                    .append(',')
+                    .append(p.getPaymentDate() != null ? p.getPaymentDate().toLocalDate().format(df) : "").append(',')
+                    .append(String.format(java.util.Locale.ENGLISH, "%.2f",
+                            Optional.ofNullable(p.getAmount()).orElse(0.0)))
+                    .append(',')
+                    .append(p.getPaymentMethod()).append(',')
+                    .append(p.getStatus()).append(',')
+                    .append(escapeCsv(Optional.ofNullable(p.getRemarks()).orElse("")))
+                    .append("\n");
         }
         return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     private static String escapeCsv(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         if (s.contains(",") || s.contains("\n") || s.contains("\r") || s.contains("\"")) {
             return '"' + s.replace("\"", "\"\"") + '"';
         }
@@ -1093,18 +1112,49 @@ public class FeeService {
     }
 
     /**
-     * Gets a filtered list of payments based on grade, section, and/or student name
-     * 
-     * @param grade       The grade to filter by (optional)
-     * @param section     The section to filter by (optional)
-     * @param studentName The student name to filter by (optional)
-     * @return A filtered list of payments
+     * Backward compatible filtered payments API.
      */
     public List<Payment> getFilteredPayments(Integer grade, String section, String studentName) {
-        // Log the filter parameters for debugging
-        log.debug("Filtering payments - Grade: {}, Section: {}, Student Name: {}", grade, section, studentName);
+        return getFilteredPayments(grade, section, studentName, null, null, null, null, null, null);
+    }
 
-        // Use the custom repository method for filtering
-        return paymentRepository.findFilteredPayments(grade, section, studentName);
+    /**
+     * Extended filtered payments with date range, status, payment method, and amount range.
+     */
+    public List<Payment> getFilteredPayments(
+            Integer grade,
+            String section,
+            String studentName,
+            java.time.LocalDate startDate,
+            java.time.LocalDate endDate,
+            String status,
+            String method,
+            Double minAmount,
+            Double maxAmount) {
+        log.debug("Filtering payments - grade={}, section={}, studentName={}, start={}, end={}, status={}, method={}, minAmount={}, maxAmount={}",
+                grade, section, studentName, startDate, endDate, status, method, minAmount, maxAmount);
+
+        java.time.LocalDateTime start = startDate != null ? startDate.atStartOfDay() : null;
+        java.time.LocalDateTime end = endDate != null ? endDate.atTime(23, 59, 59) : null;
+
+        Payment.PaymentStatus statusEnum = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                statusEnum = Payment.PaymentStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException ignore) {
+                log.warn("Unknown payment status filter: {}", status);
+            }
+        }
+        Payment.PaymentMethod methodEnum = null;
+        if (method != null && !method.isBlank()) {
+            try {
+                methodEnum = Payment.PaymentMethod.valueOf(method.toUpperCase());
+            } catch (IllegalArgumentException ignore) {
+                log.warn("Unknown payment method filter: {}", method);
+            }
+        }
+
+        return paymentRepository.findFilteredPayments(
+                grade, section, studentName, start, end, statusEnum, methodEnum, minAmount, maxAmount);
     }
 }

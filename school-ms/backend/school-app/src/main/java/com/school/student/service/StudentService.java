@@ -47,22 +47,22 @@ public class StudentService {
     public Student createStudent(Student student) {
         log.info("Creating new student: {} {}", student.getFirstName(), student.getLastName());
         validateNewStudent(student);
-        
+
         // Set admission date if not set
         if (student.getAdmissionDate() == null) {
             student.setAdmissionDate(LocalDate.now());
         }
-        
+
         // If student doesn't have a status, set it to ACTIVE
         if (student.getStatus() == null) {
             student.setStatus(StudentStatus.ACTIVE);
         }
-        
+
         // Handle circular reference with admission if present
         if (student.getAdmission() != null && student.getAdmission().getStudent() == null) {
             student.getAdmission().setStudent(student);
         }
-        
+
         try {
             return studentRepository.save(student);
         } catch (Exception e) {
@@ -117,7 +117,9 @@ public class StudentService {
         }
         // Log warning if no students found for any requested grade
         if (grade != null && students.isEmpty()) {
-            log.warn("No students found for Grade {}. This might affect fee reports and other grade-specific functionality.", grade);
+            log.warn(
+                    "No students found for Grade {}. This might affect fee reports and other grade-specific functionality.",
+                    grade);
         }
         return students;
     }
@@ -138,8 +140,8 @@ public class StudentService {
                 .orElseThrow(() -> new StudentNotFoundException("Student not found with id: " + id));
 
         // Guard against FK violations by checking dependent records first
-    int payments = 0;
-    int attendance = 0;
+        int payments = 0;
+        int attendance = 0;
         int feePayments = 0;
         int schedules = 0;
         int assignments = 0;
@@ -174,7 +176,8 @@ public class StudentService {
             log.warn("Failed to check StudentFeeAssignment dependencies for student {}: {}", id, e.getMessage());
         }
 
-        // If attendance exists, purge it now (per requirement: deleting student should delete attendance)
+        // If attendance exists, purge it now (per requirement: deleting student should
+        // delete attendance)
         if (attendance > 0) {
             try {
                 long deleted = attendanceRepository.deleteByStudent_Id(id);
@@ -182,7 +185,8 @@ public class StudentService {
                 attendance = 0; // cleared
             } catch (Exception e) {
                 log.error("Failed to delete attendance for student {}: {}", id, e.getMessage(), e);
-                throw new StudentDeletionNotAllowedException("Unable to delete attendance records for the student; please retry.");
+                throw new StudentDeletionNotAllowedException(
+                        "Unable to delete attendance records for the student; please retry.");
             }
         }
 
@@ -234,7 +238,8 @@ public class StudentService {
             }
         } catch (Exception e) {
             log.error("Failed to delete FeeAssignments for student {}: {}", id, e.getMessage(), e);
-            throw new StudentDeletionNotAllowedException("Unable to delete fee assignment records linked to the student.");
+            throw new StudentDeletionNotAllowedException(
+                    "Unable to delete fee assignment records linked to the student.");
         }
 
         studentRepository.deleteById(id);
@@ -264,42 +269,42 @@ public class StudentService {
 
     private void validateNewStudent(Student student) {
         log.debug("Validating new student with ID: {}", student.getStudentId());
-        
+
         if (student.getStudentId() == null || student.getStudentId().trim().isEmpty()) {
             throw new IllegalArgumentException("Student ID cannot be null or empty");
         }
-        
+
         if (studentRepository.existsByStudentId(student.getStudentId())) {
             throw new DuplicateStudentException("Student ID already exists: " + student.getStudentId());
         }
-        
+
         if (student.getEmail() != null && !student.getEmail().trim().isEmpty()) {
             if (studentRepository.existsByEmail(student.getEmail())) {
                 throw new DuplicateStudentException("Email already exists: " + student.getEmail());
             }
         }
-        
+
         // Validate required fields
         if (student.getFirstName() == null || student.getFirstName().trim().isEmpty()) {
             throw new IllegalArgumentException("First name is required");
         }
-        
+
         if (student.getLastName() == null || student.getLastName().trim().isEmpty()) {
             throw new IllegalArgumentException("Last name is required");
         }
-        
+
         if (student.getContactNumber() == null || student.getContactNumber().trim().isEmpty()) {
             throw new IllegalArgumentException("Contact number is required");
         }
-        
+
         if (student.getGuardianName() == null || student.getGuardianName().trim().isEmpty()) {
             throw new IllegalArgumentException("Guardian name is required");
         }
-        
+
         if (student.getGuardianContact() == null || student.getGuardianContact().trim().isEmpty()) {
             throw new IllegalArgumentException("Guardian contact is required");
         }
-        
+
         if (student.getSection() == null || student.getSection().trim().isEmpty()) {
             throw new IllegalArgumentException("Section is required");
         }
@@ -324,27 +329,42 @@ public class StudentService {
     }
 
     public StudentDeletionImpactDTO getDeletionImpact(Long id) {
-    Student student = studentRepository.findById(id)
-        .orElseThrow(() -> new StudentNotFoundException("Student not found with id: " + id));
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with id: " + id));
 
-    int attendance = 0;
-    int payments = 0;
-    int feePayments = 0;
-    int schedules = 0;
-    int assignments = 0;
-    try { attendance = attendanceRepository.findByStudent_Id(id).size(); } catch (Exception ignored) { }
-    try { payments = paymentRepository.findByStudentId(id).size(); } catch (Exception ignored) { }
-    try { feePayments = feePaymentRepository.findByStudent(student).size(); } catch (Exception ignored) { }
-    try { schedules = feePaymentScheduleRepository.findByStudentId(id).size(); } catch (Exception ignored) { }
-    try { assignments = studentFeeAssignmentRepository.findByStudent(student).size(); } catch (Exception ignored) { }
+        int attendance = 0;
+        int payments = 0;
+        int feePayments = 0;
+        int schedules = 0;
+        int assignments = 0;
+        try {
+            attendance = attendanceRepository.findByStudent_Id(id).size();
+        } catch (Exception ignored) {
+        }
+        try {
+            payments = paymentRepository.findByStudentId(id).size();
+        } catch (Exception ignored) {
+        }
+        try {
+            feePayments = feePaymentRepository.findByStudent(student).size();
+        } catch (Exception ignored) {
+        }
+        try {
+            schedules = feePaymentScheduleRepository.findByStudentId(id).size();
+        } catch (Exception ignored) {
+        }
+        try {
+            assignments = studentFeeAssignmentRepository.findByStudent(student).size();
+        } catch (Exception ignored) {
+        }
 
-    return StudentDeletionImpactDTO.builder()
-        .studentId(id)
-        .attendanceCount(attendance)
-        .paymentsCount(payments)
-        .feePaymentsCount(feePayments)
-        .paymentSchedulesCount(schedules)
-        .feeAssignmentsCount(assignments)
-        .build();
+        return StudentDeletionImpactDTO.builder()
+                .studentId(id)
+                .attendanceCount(attendance)
+                .paymentsCount(payments)
+                .feePaymentsCount(feePayments)
+                .paymentSchedulesCount(schedules)
+                .feeAssignmentsCount(assignments)
+                .build();
     }
 }

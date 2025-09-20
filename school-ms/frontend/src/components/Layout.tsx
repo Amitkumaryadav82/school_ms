@@ -1,7 +1,6 @@
 import {
     AccountCircle,
     HowToReg as AdmissionsIcon,
-  Assessment as AssessmentIcon,
     Book,
   MenuBook as MenuBookIcon,
     Dashboard,
@@ -123,12 +122,6 @@ const menuItems: MenuItem[] = [
     icon: <FeeIcon />, 
     path: '/fees',
     allowedRoles: [ROLES.ADMIN]
-  },
-  { 
-    text: 'Reports', 
-    icon: <AssessmentIcon />, 
-    path: '/reports',
-    allowedRoles: [ROLES.ADMIN, ROLES.TEACHER, ROLES.STAFF]
   },
 ];
 

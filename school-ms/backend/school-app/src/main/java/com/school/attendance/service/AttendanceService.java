@@ -13,41 +13,50 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface AttendanceService {
-    void markAttendance(AttendanceDTO attendanceDTO);
+  void markAttendance(AttendanceDTO attendanceDTO);
 
-    void markBulkAttendance(List<AttendanceDTO> attendanceDTOs);
+  void markBulkAttendance(List<AttendanceDTO> attendanceDTOs);
 
-    Attendance updateAttendance(Long id, AttendanceStatus status, String remarks);
+  Attendance updateAttendance(Long id, AttendanceStatus status, String remarks);
 
-    void markCheckOut(Long attendanceId);
+  void markCheckOut(Long attendanceId);
 
-    Attendance getAttendance(Long id);
+  Attendance getAttendance(Long id);
 
-    List<Attendance> getStudentAttendance(Long studentId);
+  List<Attendance> getStudentAttendance(Long studentId);
 
-    List<Attendance> getAttendanceByDate(LocalDate date);
+  List<Attendance> getAttendanceByDate(LocalDate date);
 
-    List<Attendance> getAttendanceByDateRange(LocalDate startDate, LocalDate endDate);
+  List<Attendance> getAttendanceByDateRange(LocalDate startDate, LocalDate endDate);
 
-    List<Attendance> getStudentAttendanceByDateRange(Long studentId, LocalDate startDate, LocalDate endDate);
+  List<Attendance> getStudentAttendanceByDateRange(Long studentId, LocalDate startDate, LocalDate endDate);
 
-    long getStudentAttendanceCount(Long studentId, AttendanceStatus status, LocalDate startDate, LocalDate endDate);
+  long getStudentAttendanceCount(Long studentId, AttendanceStatus status, LocalDate startDate, LocalDate endDate);
 
-    List<Attendance> getGradeAttendance(Integer grade, LocalDate date);
+  List<Attendance> getGradeAttendance(Integer grade, LocalDate date);
 
-    List<Attendance> getSectionAttendance(Integer grade, String section, LocalDate date);
+  List<Attendance> getSectionAttendance(Integer grade, String section, LocalDate date);
 
-    StudentAttendanceSummaryDTO getStudentAttendanceSummary(Long studentId, LocalDate startDate, LocalDate endDate);
+  StudentAttendanceSummaryDTO getStudentAttendanceSummary(Long studentId, LocalDate startDate, LocalDate endDate);
 
-    List<Attendance> markClassAttendance(Integer grade, String section, LocalDate date, AttendanceStatus defaultStatus,
-            String remarks);
+  List<Attendance> markClassAttendance(Integer grade, String section, LocalDate date, AttendanceStatus defaultStatus,
+      String remarks);
 
-    MonthlyAttendanceReport generateMonthlyReport(Integer grade, String section, Integer year, Integer month);
+  MonthlyAttendanceReport generateMonthlyReport(Integer grade, String section, Integer year, Integer month);
 
-    MonthlyAttendanceStats generateMonthlyStats(Integer grade, String section, Integer year, Integer month);    void deleteAttendance(Long id);
+  MonthlyAttendanceStats generateMonthlyStats(Integer grade, String section, Integer year, Integer month);
 
-        int deleteAttendanceOlderThan(LocalDate date);    List<AttendanceAlert> generateAttendanceAlerts();
-        /** Admin-only helper to clear all attendance for a student (e.g., before deleting the student). */
-        void deleteAllForStudent(Long studentId);
-      double getStudentAttendancePercentage(Long studentId, LocalDate startDate, LocalDate endDate);
+  void deleteAttendance(Long id);
+
+  int deleteAttendanceOlderThan(LocalDate date);
+
+  List<AttendanceAlert> generateAttendanceAlerts();
+
+  /**
+   * Admin-only helper to clear all attendance for a student (e.g., before
+   * deleting the student).
+   */
+  void deleteAllForStudent(Long studentId);
+
+  double getStudentAttendancePercentage(Long studentId, LocalDate startDate, LocalDate endDate);
 }

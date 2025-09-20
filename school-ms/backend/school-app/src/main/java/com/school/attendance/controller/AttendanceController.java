@@ -112,8 +112,8 @@ public class AttendanceController {
     }
 
     @Operation(summary = "Get student's attendance", description = "Retrieves all attendance records for a student")
-        @GetMapping("/student/{studentId}")
-        @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
+    @GetMapping("/student/{studentId}")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<List<Attendance>> getStudentAttendance(@PathVariable Long studentId) {
         return ResponseEntity.ok(attendanceService.getStudentAttendance(studentId));
     }
@@ -136,8 +136,8 @@ public class AttendanceController {
     }
 
     @Operation(summary = "Get student's attendance by date range", description = "Retrieves attendance records for a student within a date range")
-        @GetMapping("/student/{studentId}/date-range")
-        @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
+    @GetMapping("/student/{studentId}/date-range")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<List<Attendance>> getStudentAttendanceByDateRange(
             @PathVariable Long studentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -146,8 +146,8 @@ public class AttendanceController {
     }
 
     @Operation(summary = "Get student's attendance count", description = "Get count of attendance records by status for a student within a date range")
-        @GetMapping("/student/{studentId}/count")
-        @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
+    @GetMapping("/student/{studentId}/count")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or (hasRole('STUDENT') and @authz.isMyStudentId(#studentId))")
     public ResponseEntity<Long> getStudentAttendanceCount(
             @PathVariable Long studentId,
             @RequestParam AttendanceStatus status,
@@ -173,7 +173,9 @@ public class AttendanceController {
             @PathVariable String section,
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return ResponseEntity.ok(attendanceService.getSectionAttendance(grade, section, date));
-    }    @Operation(summary = "Get student attendance summary", description = "Retrieves attendance summary statistics for a student within a date range")
+    }
+
+    @Operation(summary = "Get student attendance summary", description = "Retrieves attendance summary statistics for a student within a date range")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Attendance summary retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "Student not found")

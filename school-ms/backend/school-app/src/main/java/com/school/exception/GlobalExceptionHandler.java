@@ -49,14 +49,14 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-    ErrorResponse errorResponse = new ErrorResponse(
-        HttpStatus.UNPROCESSABLE_ENTITY.value(),
-        "Unprocessable Entity",
-        "Validation failed. Please check the submitted fields.");
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                "Unprocessable Entity",
+                "Validation failed. Please check the submitted fields.");
         errorResponse.setErrors(errors);
 
         logger.warn("Validation error: {}", errors);
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorResponse);
     }
 
     // HTTP method not supported -> return 405 instead of 500
@@ -75,7 +75,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, headers, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-    // No handler -> 404 (useful if 'throw-exception-if-no-handler-found' is enabled)
+    // No handler -> 404 (useful if 'throw-exception-if-no-handler-found' is
+    // enabled)
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException ex) {
         logger.warn("No handler found: {} {}", ex.getHttpMethod(), ex.getRequestURL());
