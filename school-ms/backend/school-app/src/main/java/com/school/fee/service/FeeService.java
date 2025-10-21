@@ -1119,7 +1119,8 @@ public class FeeService {
     }
 
     /**
-     * Extended filtered payments with date range, status, payment method, and amount range.
+     * Extended filtered payments with date range, status, payment method, and
+     * amount range.
      */
     public List<Payment> getFilteredPayments(
             Integer grade,
@@ -1131,7 +1132,8 @@ public class FeeService {
             String method,
             Double minAmount,
             Double maxAmount) {
-        log.debug("Filtering payments - grade={}, section={}, studentName={}, start={}, end={}, status={}, method={}, minAmount={}, maxAmount={}",
+        log.debug(
+                "Filtering payments - grade={}, section={}, studentName={}, start={}, end={}, status={}, method={}, minAmount={}, maxAmount={}",
                 grade, section, studentName, startDate, endDate, status, method, minAmount, maxAmount);
 
         java.time.LocalDateTime start = startDate != null ? startDate.atStartOfDay() : null;

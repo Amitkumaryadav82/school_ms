@@ -137,16 +137,11 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
   };
 
   const totalPages = Math.ceil(filteredSubjects.length / pageSize);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load subjects');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSearch = () => {
     setPage(0);
-    loadSubjects();
+    // Data already loaded; re-apply filters
+    filterSubjects();
   };
 
   const handleClearFilters = () => {
@@ -184,8 +179,8 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
 
     try {
       setLoading(true);
-      await subjectMasterService.deleteSubject(subjectToDelete.id!);
-      await loadSubjects();
+  await subjectMasterService.deleteSubject(subjectToDelete.id!);
+  await loadAllSubjects();
       setDeleteDialogOpen(false);
       setSubjectToDelete(null);
     } catch (err: any) {
@@ -198,8 +193,8 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
   const handleStatusToggle = async (subject: SubjectMaster) => {
     try {
       setLoading(true);
-      await subjectMasterService.updateSubjectStatus(subject.id!, !subject.isActive);
-      await loadSubjects();
+  await subjectMasterService.updateSubjectStatus(subject.id!, !subject.isActive);
+  await loadAllSubjects();
     } catch (err: any) {
       setError(err.message || 'Failed to update subject status');
     } finally {
@@ -209,7 +204,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
 
   const handleModalSave = async () => {
     setModalOpen(false);
-    await loadSubjects();
+    await loadAllSubjects();
   };
 
   const getSubjectTypeChip = (type: SubjectType) => {
@@ -233,7 +228,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
     );
   };
 
-  if (loading && subjects.length === 0) {
+  if (loading) {
     return <Loading />;
   }
 
@@ -318,7 +313,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
 
           {/* Results info */}
           <Typography variant="body2" color="text.secondary" mb={2}>
-            Showing {subjects.length} of {totalElements} subjects
+            Showing {filteredSubjects.length} of {allSubjects.length} subjects
           </Typography>
 
           {/* Table */}
@@ -336,7 +331,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {subjects.map((subject) => (
+                {getPaginatedSubjects().map((subject) => (
                   <TableRow
                     key={subject.id}
                     hover
@@ -437,7 +432,7 @@ const SubjectMasterList: React.FC<SubjectMasterListProps> = ({
                     </TableCell>
                   </TableRow>
                 ))}
-                {subjects.length === 0 && !loading && (
+                {filteredSubjects.length === 0 && !loading && (
                   <TableRow>
                     <TableCell colSpan={7} align="center">
                       <Typography variant="body2" color="text.secondary">

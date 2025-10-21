@@ -256,6 +256,7 @@ public class FeeController {
             @RequestParam(required = false) Double minAmount,
             @RequestParam(required = false) Double maxAmount) {
         return ResponseEntity.ok(
-                feeService.getFilteredPayments(grade, section, studentName, startDate, endDate, status, method, minAmount, maxAmount));
+                feeService.getFilteredPayments(grade, section, studentName, startDate, endDate, status, method,
+                        minAmount, maxAmount));
     }
 }

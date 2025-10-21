@@ -29,7 +29,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
         @Query("SELECT p FROM Payment p JOIN p.student s WHERE " +
                         "(:grade IS NULL OR s.grade = :grade) AND " +
                         "(:section IS NULL OR s.section = :section) AND " +
-                        "(:studentName IS NULL OR LOWER(CONCAT(s.firstName, ' ', s.lastName)) LIKE LOWER(CONCAT('%', :studentName, '%'))) AND " +
+                        "(:studentName IS NULL OR LOWER(CONCAT(s.firstName, ' ', s.lastName)) LIKE LOWER(CONCAT('%', :studentName, '%'))) AND "
+                        +
                         "(:start IS NULL OR p.paymentDate >= :start) AND " +
                         "(:end IS NULL OR p.paymentDate <= :end) AND " +
                         "(:status IS NULL OR p.status = :status) AND " +

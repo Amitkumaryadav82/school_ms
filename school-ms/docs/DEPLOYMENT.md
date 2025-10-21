@@ -34,7 +34,7 @@ $SCHOOL_CODE = "greenwood"
 $DOMAIN      = "greenwood.example.com"
 $DB_NAME     = "school_$SCHOOL_CODE"
 $DB_USER     = "school_$SCHOOL_CODE"
-$DB_PASSWORD = "ReplaceWith#A_Strong_Pwd"
+$DB_PASSWORD = "Devendra_82"
 ```
 
 ## 1) Create the server (Lightsail)
