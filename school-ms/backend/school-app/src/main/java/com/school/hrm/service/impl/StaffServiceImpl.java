@@ -24,16 +24,17 @@ import com.school.hrm.repository.StaffDesignationRepository;
 import com.school.hrm.repository.StaffDesignationMappingRepository;
 import com.school.hrm.service.StaffService;
 import com.school.exception.ResourceNotFoundException;
-import com.school.staff.adapter.StaffEntityAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the StaffService interface for HRM module.
  * 
- * @deprecated This implementation is deprecated in favor of com.school.core.service.StaffServiceImpl.
- * This class now delegates most operations to the core service via StaffEntityAdapter.
- * See PACKAGE-MIGRATION-PLAN.md for more details.
+ * @deprecated This implementation is deprecated in favor of
+ *             com.school.core.service.StaffServiceImpl.
+ *             This class now delegates most operations to the core service via
+ *             StaffEntityAdapter.
+ *             See PACKAGE-MIGRATION-PLAN.md for more details.
  */
 @Service
 @Qualifier("hrmStaffService")
@@ -47,26 +48,25 @@ public class StaffServiceImpl implements StaffService {
     private final StaffDesignationRepository staffDesignationRepository;
     private final StaffDesignationMappingRepository staffDesignationMappingRepository;
     private final com.school.core.service.StaffService coreStaffService;
-    private final StaffEntityAdapter staffEntityAdapter;
 
     public StaffServiceImpl(
             @Qualifier("hrmStaffRepository") StaffRepository staffRepository,
             TeacherRepository teacherRepository,
             StaffDesignationRepository staffDesignationRepository,
             StaffDesignationMappingRepository staffDesignationMappingRepository,
-            @Qualifier("coreStaffServiceImpl") com.school.core.service.StaffService coreStaffService,
-            StaffEntityAdapter staffEntityAdapter) {
+            @Qualifier("coreStaffServiceImpl") com.school.core.service.StaffService coreStaffService) {
         this.staffRepository = staffRepository;
         this.teacherRepository = teacherRepository;
         this.staffDesignationRepository = staffDesignationRepository;
         this.staffDesignationMappingRepository = staffDesignationMappingRepository;
         this.coreStaffService = coreStaffService;
-        this.staffEntityAdapter = staffEntityAdapter;
     }
 
     @Override
     public List<StaffDTO> getAllStaff() {
-        return staffEntityAdapter.convertCoreStaffListToHrmDTOList(coreStaffService.getAllStaff());
+        return coreStaffService.getAllStaff().stream()
+                .map(this::convertCoreStaffToHrmDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -86,39 +86,34 @@ public class StaffServiceImpl implements StaffService {
         }
         return null;
     }
-    
+
     @Override
     public StaffDTO getStaffDtoById(Long id) {
         return coreStaffService.getStaffById(id)
-                .map(staffEntityAdapter::convertCoreStaffToHrmDTO)
+                .map(this::convertCoreStaffToHrmDTO)
                 .orElse(null);
     }
 
     @Override
     public StaffDTO getStaffByEmail(String email) {
         return coreStaffService.getStaffByEmail(email)
-                .map(staffEntityAdapter::convertCoreStaffToHrmDTO)
+                .map(this::convertCoreStaffToHrmDTO)
                 .orElse(null);
     }
 
     @Override
     public List<StaffDTO> getStaffByRole(String roleName) {
-        // Implement using find by role method and then filter
-        return staffEntityAdapter.convertCoreStaffListToHrmDTOList(
-                coreStaffService.getAllStaff().stream()
-                        .filter(staff -> staff.getStaffRole() != null && 
-                                roleName.equals(staff.getStaffRole().getRoleName()))
-                        .collect(Collectors.toList())
-        );
+        return coreStaffService.getAllStaff().stream()
+                .filter(staff -> staff.getStaffRole() != null && roleName.equals(staff.getStaffRole().getRoleName()))
+                .map(this::convertCoreStaffToHrmDTO)
+                .collect(Collectors.toList());
     }
 
     public List<StaffDTO> getActiveStaff() {
-        // Filter the staff list for active staff
-        return staffEntityAdapter.convertCoreStaffListToHrmDTOList(
-                coreStaffService.getAllStaff().stream()
-                        .filter(com.school.core.model.Staff::isActive)
-                        .collect(Collectors.toList())
-        );
+        return coreStaffService.getAllStaff().stream()
+                .filter(com.school.core.model.Staff::isActive)
+                .map(this::convertCoreStaffToHrmDTO)
+                .collect(Collectors.toList());
     }
 
     public List<StaffDTO> getAllTeachers() {
@@ -144,57 +139,45 @@ public class StaffServiceImpl implements StaffService {
     public List<StaffDTO> getAllLibrarians() {
         return getStaffByRole("LIBRARIAN");
     }
-    
+
     @Override
     public List<StaffDTO> getStaffByDepartment(String department) {
-        // Filter staff list by department
-        return staffEntityAdapter.convertCoreStaffListToHrmDTOList(
-                coreStaffService.getAllStaff().stream()
-                        .filter(staff -> department != null && department.equals(staff.getDepartment()))
-                        .collect(Collectors.toList())
-        );
+        return coreStaffService.getAllStaff().stream()
+                .filter(staff -> department != null && department.equals(staff.getDepartment()))
+                .map(this::convertCoreStaffToHrmDTO)
+                .collect(Collectors.toList());
     }
-    
+
     @Override
     public StaffDTO getStaffByPhone(String phone) {
-        // Find staff by phone number
         return coreStaffService.getAllStaff().stream()
                 .filter(staff -> phone != null && phone.equals(staff.getPhone()))
                 .findFirst()
-                .map(staffEntityAdapter::convertCoreStaffToHrmDTO)
+                .map(this::convertCoreStaffToHrmDTO)
                 .orElse(null);
     }
-    
+
     @Override
     public List<StaffDTO> searchStaffByName(String name) {
-        // Search staff by name
         if (name == null || name.trim().isEmpty()) {
             return new ArrayList<>();
         }
-        
         String searchTerm = name.toLowerCase();
-        return staffEntityAdapter.convertCoreStaffListToHrmDTOList(
-                coreStaffService.getAllStaff().stream()
-                        .filter(staff -> 
-                            (staff.getFirstName() != null && staff.getFirstName().toLowerCase().contains(searchTerm)) ||
-                            (staff.getLastName() != null && staff.getLastName().toLowerCase().contains(searchTerm)))
-                        .collect(Collectors.toList())
-        );
+        return coreStaffService.getAllStaff().stream()
+                .filter(staff -> (staff.getFirstName() != null
+                        && staff.getFirstName().toLowerCase().contains(searchTerm)) ||
+                        (staff.getLastName() != null && staff.getLastName().toLowerCase().contains(searchTerm)))
+                .map(this::convertCoreStaffToHrmDTO)
+                .collect(Collectors.toList());
     }
-    
+
     @Override
     public List<StaffDTO> getStaffByEmploymentStatus(EmploymentStatus status) {
-        // Filter by employment status
-        return staffEntityAdapter.convertCoreStaffListToHrmDTOList(
-                coreStaffService.getAllStaff().stream()
-                        .filter(staff -> {
-                            if (staff.getEmploymentStatus() == null) return false;
-                            // Map between different employment status enums
-                            String statusName = staff.getEmploymentStatus().name();
-                            return statusName.equals(status.name());
-                        })
-                        .collect(Collectors.toList())
-        );
+        return coreStaffService.getAllStaff().stream()
+                .filter(staff -> staff.getEmploymentStatus() != null
+                        && staff.getEmploymentStatus().name().equals(status.name()))
+                .map(this::convertCoreStaffToHrmDTO)
+                .collect(Collectors.toList());
     }
 
     // Removed duplicate implementation of getStaffByDesignation
@@ -219,9 +202,9 @@ public class StaffServiceImpl implements StaffService {
             staffRole.setName(staffDTO.getRole());
             coreStaff.setRole(staffRole);
         }
-        
+
         com.school.core.model.Staff savedStaff = coreStaffService.createStaff(coreStaff);
-        return staffEntityAdapter.convertCoreStaffToHrmDTO(savedStaff);
+        return convertCoreStaffToHrmDTO(savedStaff);
     }
 
     @Override
@@ -230,15 +213,24 @@ public class StaffServiceImpl implements StaffService {
         return coreStaffService.getStaffById(id)
                 .map(existingStaff -> {
                     // Update core Staff fields from DTO
-                    if (staffDTO.getStaffId() != null) existingStaff.setStaffId(staffDTO.getStaffId());
-                    if (staffDTO.getFirstName() != null) existingStaff.setFirstName(staffDTO.getFirstName());
-                    if (staffDTO.getLastName() != null) existingStaff.setLastName(staffDTO.getLastName());
-                    if (staffDTO.getEmail() != null) existingStaff.setEmail(staffDTO.getEmail());
-                    if (staffDTO.getPhoneNumber() != null) existingStaff.setPhone(staffDTO.getPhoneNumber());
-                    if (staffDTO.getDateOfBirth() != null) existingStaff.setDateOfBirth(staffDTO.getDateOfBirth());
-                    if (staffDTO.getAddress() != null) existingStaff.setAddress(staffDTO.getAddress());
-                    if (staffDTO.getJoinDate() != null) existingStaff.setJoiningDate(staffDTO.getJoinDate());
-                    if (staffDTO.getIsActive() != null) existingStaff.setActive(staffDTO.getIsActive());
+                    if (staffDTO.getStaffId() != null)
+                        existingStaff.setStaffId(staffDTO.getStaffId());
+                    if (staffDTO.getFirstName() != null)
+                        existingStaff.setFirstName(staffDTO.getFirstName());
+                    if (staffDTO.getLastName() != null)
+                        existingStaff.setLastName(staffDTO.getLastName());
+                    if (staffDTO.getEmail() != null)
+                        existingStaff.setEmail(staffDTO.getEmail());
+                    if (staffDTO.getPhoneNumber() != null)
+                        existingStaff.setPhone(staffDTO.getPhoneNumber());
+                    if (staffDTO.getDateOfBirth() != null)
+                        existingStaff.setDateOfBirth(staffDTO.getDateOfBirth());
+                    if (staffDTO.getAddress() != null)
+                        existingStaff.setAddress(staffDTO.getAddress());
+                    if (staffDTO.getJoinDate() != null)
+                        existingStaff.setJoiningDate(staffDTO.getJoinDate());
+                    if (staffDTO.getIsActive() != null)
+                        existingStaff.setActive(staffDTO.getIsActive());
                     // Update the staff role if provided
                     if (staffDTO.getRole() != null) {
                         // Create a StaffRole object using the role name from DTO
@@ -246,10 +238,10 @@ public class StaffServiceImpl implements StaffService {
                         staffRole.setName(staffDTO.getRole());
                         existingStaff.setRole(staffRole);
                     }
-                    
+
                     com.school.core.model.Staff updatedStaff = coreStaffService.updateStaff(id, existingStaff)
-                        .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + id));
-                    return staffEntityAdapter.convertCoreStaffToHrmDTO(updatedStaff);
+                            .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + id));
+                    return convertCoreStaffToHrmDTO(updatedStaff);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + id));
     }
@@ -268,7 +260,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setUpdatedAt(LocalDateTime.now());
         staffRepository.save(staff);
     }
-    
+
     @Transactional
     public void activateStaff(Long id) {
         Staff staff = staffRepository.findById(id)
@@ -280,7 +272,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public List<StaffDTO> getStaffByDesignation(String designationName) {
-        // This method uses the mapping repository to find specifically active teachers 
+        // This method uses the mapping repository to find specifically active teachers
         // with the given designation
         List<StaffDesignationMapping> mappings = staffDesignationMappingRepository
                 .findActiveTeachersByDesignationName(designationName);
@@ -323,7 +315,7 @@ public class StaffServiceImpl implements StaffService {
         }
         return convertToDTO(staff);
     }
-    
+
     @Transactional
     public void removeDesignationFromStaff(Long staffId, Long designationId) {
         Staff staff = staffRepository.findById(staffId)
@@ -343,7 +335,7 @@ public class StaffServiceImpl implements StaffService {
         mapping.setUpdatedAt(LocalDateTime.now());
         staffDesignationMappingRepository.save(mapping);
     }
-    
+
     @Transactional
     public StaffDTO updateStaffStatus(Long id, EmploymentStatus status) {
         // Debug: Log attempt to update status with details
@@ -363,7 +355,8 @@ public class StaffServiceImpl implements StaffService {
             Staff staff = staffRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Staff not found with id: " + id));
 
-            log.debug("Found staff: {} {}, Current status: {}", staff.getFirstName(), staff.getLastName(), staff.getEmploymentStatus());
+            log.debug("Found staff: {} {}, Current status: {}", staff.getFirstName(), staff.getLastName(),
+                    staff.getEmploymentStatus());
 
             // Update the employment status
             staff.setEmploymentStatus(status);
@@ -444,6 +437,35 @@ public class StaffServiceImpl implements StaffService {
             });
         }
 
+        return dto;
+    }
+
+    private StaffDTO convertCoreStaffToHrmDTO(com.school.core.model.Staff staff) {
+        if (staff == null)
+            return null;
+        StaffDTO dto = new StaffDTO();
+        dto.setId(staff.getId());
+        dto.setStaffId(staff.getStaffId());
+        dto.setFirstName(staff.getFirstName());
+        dto.setLastName(staff.getLastName());
+        dto.setFullName(staff.getFirstName() + " " + staff.getLastName());
+        dto.setEmail(staff.getEmail());
+        dto.setPhoneNumber(staff.getPhone());
+        dto.setAddress(staff.getAddress());
+        dto.setDateOfBirth(staff.getDateOfBirth());
+        dto.setGender(staff.getGender());
+        dto.setJoinDate(staff.getDateOfJoining());
+        dto.setDepartment(staff.getDepartment());
+        dto.setDesignation(staff.getDesignation());
+        if (staff.getRole() != null) {
+            dto.setRoleId(staff.getRole().getId());
+            dto.setRoleName(staff.getRole().getName());
+            dto.setRole(staff.getRole().getName());
+        }
+        dto.setIsActive(staff.isActive());
+        if (staff.getEmploymentStatus() != null) {
+            dto.setEmploymentStatus(staff.getEmploymentStatus().name());
+        }
         return dto;
     }
 }

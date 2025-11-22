@@ -12,33 +12,33 @@ import org.slf4j.LoggerFactory;
  */
 @Component
 public class UserRepositoryLoggingWrapper {
-    
+
     private static final Logger log = LoggerFactory.getLogger(UserRepositoryLoggingWrapper.class);
-    
+
     @Autowired
     private UserRepository userRepository;
-    
+
     /**
      * Find a user by username with enhanced logging
+     * 
      * @param username the username to search for
      * @return Optional containing the user if found
      */
     public Optional<User> findByUsername(String username) {
         log.info("🔍 Searching for user with username: {}", username);
-        
+
         Optional<User> userOpt = userRepository.findByUsername(username);
-        
+
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             log.info("✅ User found: {}", username);
-            log.debug("User details - ID: {}, Role: {}, Email: {}, Enabled: {}, AccountNonLocked: {}", 
-                user.getId(),
-                user.getRole(),
-                user.getEmail(),
-                user.isEnabled(),
-                user.isAccountNonLocked()
-            );
-            
+            log.debug("User details - ID: {}, Role: {}, Email: {}, Enabled: {}, AccountNonLocked: {}",
+                    user.getId(),
+                    user.getRole(),
+                    user.getEmail(),
+                    user.isEnabled(),
+                    user.isAccountNonLocked());
+
             // Do not log password details, just check if password is present
             if (user.getPassword() == null) {
                 log.warn("⚠️ User found but password is null");
@@ -46,17 +46,32 @@ public class UserRepositoryLoggingWrapper {
                 log.warn("⚠️ User found but password is empty");
             } else {
                 log.debug("Password hash exists with length: {}", user.getPassword().length());
-                log.debug("Password hash starts with: {}", user.getPassword().substring(0, Math.min(10, user.getPassword().length())) + "...");
+                log.debug("Password hash starts with: {}",
+                        user.getPassword().substring(0, Math.min(10, user.getPassword().length())) + "...");
             }
         } else {
             log.warn("❌ User not found with username: {}", username);
         }
-        
+
         return userOpt;
     }
-    
+
+    /**
+     * Find by username OR email (case-insensitive) with logging
+     * 
+     * @param identifier username or email
+     * @return optional user
+     */
+    public Optional<User> findByUsernameOrEmail(String identifier) {
+        log.info("🔍 Searching for user by username/email identifier: {}", identifier);
+        Optional<User> userOpt = userRepository.findByUsernameOrEmail(identifier);
+        log.info("Result for identifier {} found: {}", identifier, userOpt.isPresent());
+        return userOpt;
+    }
+
     /**
      * Check if a user exists by username with enhanced logging
+     * 
      * @param username the username to check
      * @return true if the user exists
      */
@@ -66,9 +81,10 @@ public class UserRepositoryLoggingWrapper {
         log.info("User {} exists: {}", username, exists);
         return exists;
     }
-    
+
     /**
      * Find a user by email with enhanced logging
+     * 
      * @param email the email to search for
      * @return Optional containing the user if found
      */
@@ -78,9 +94,10 @@ public class UserRepositoryLoggingWrapper {
         log.info("User with email {} found: {}", email, userOpt.isPresent());
         return userOpt;
     }
-    
+
     /**
      * Check if a user exists by email with enhanced logging
+     * 
      * @param email the email to check
      * @return true if the user exists
      */
@@ -90,9 +107,10 @@ public class UserRepositoryLoggingWrapper {
         log.info("User with email {} exists: {}", email, exists);
         return exists;
     }
-    
+
     /**
      * Save a user with enhanced logging
+     * 
      * @param user the user to save
      * @return the saved user
      */

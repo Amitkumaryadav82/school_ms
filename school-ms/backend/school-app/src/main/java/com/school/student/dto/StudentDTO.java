@@ -17,16 +17,11 @@ import java.time.LocalDate;
 public class StudentDTO {
     private Long id;
 
-    /**
-     * Static builder method
-     * @return new StudentDTOBuilder instance
-     */
-    public static StudentDTOBuilder builder() {
-        return new StudentDTOBuilder();
-    }
+    // Lombok @Builder provides the builder; manual static builder removed.
 
     /**
      * Get the ID
+     * 
      * @return the ID
      */
     public Long getId() {
@@ -37,6 +32,7 @@ public class StudentDTO {
 
     /**
      * Get the student ID
+     * 
      * @return the student ID
      */
     public String getStudentId() {
@@ -47,6 +43,7 @@ public class StudentDTO {
 
     /**
      * Get the first name
+     * 
      * @return the first name
      */
     public String getFirstName() {
@@ -57,6 +54,7 @@ public class StudentDTO {
 
     /**
      * Get the last name
+     * 
      * @return the last name
      */
     public String getLastName() {
@@ -67,6 +65,7 @@ public class StudentDTO {
 
     /**
      * Get the email
+     * 
      * @return the email
      */
     public String getEmail() {
@@ -77,6 +76,7 @@ public class StudentDTO {
 
     /**
      * Get the date of birth
+     * 
      * @return the date of birth
      */
     public LocalDate getDateOfBirth() {

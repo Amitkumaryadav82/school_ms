@@ -188,7 +188,8 @@ INSERT INTO users (created_at, updated_at, created_by, modified_by, account_non_
 ('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', true, true, true, 'teacher2@schoolms.com', true, 'Michael Chen', '$2a$10$Igjc9Jrznz/gzw4FkwoADeT4hOxwsm.yHaX./G0KH8qi.gVjzzm7G', 'TEACHER', 'teacher2'),
 ('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', true, true, true, 'principal@schoolms.com', true, 'Dr. Emily Rodriguez', '$2a$10$Igjc9Jrznz/gzw4FkwoADeT4hOxwsm.yHaX./G0KH8qi.gVjzzm7G', 'PRINCIPAL', 'principal'),
 ('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', true, true, true, 'clerk@schoolms.com', true, 'Robert Smith', '$2a$10$Igjc9Jrznz/gzw4FkwoADeT4hOxwsm.yHaX./G0KH8qi.gVjzzm7G', 'CLERK', 'clerk'),
-('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', true, true, true, 'librarian@schoolms.com', true, 'Lisa Wang', '$2a$10$Igjc9Jrznz/gzw4FkwoADeT4hOxwsm.yHaX./G0KH8qi.gVjzzm7G', 'LIBRARIAN', 'librarian');
+('2024-07-04 10:00:00', '2024-07-04 10:00:00', 'system', 'system', true, true, true, 'librarian@schoolms.com', true, 'Lisa Wang', '$2a$10$Igjc9Jrznz/gzw4FkwoADeT4hOxwsm.yHaX./G0KH8qi.gVjzzm7G', 'LIBRARIAN', 'librarian'),
+('2024-11-22 09:00:00', '2024-11-22 09:00:00', 'system', 'system', true, true, true, 'admin1@schoolms.com', true, 'Secondary Administrator', '$2a$10$1bYp1SiyNLKn.z2QL8Iceu8Yw2GxWfZpXeQJcDjuCwaBlDg9uVkie', 'ADMIN', 'admin1');
 
 -- ============================================================================
 -- 2. STAFF ROLES (Required for staff records)

@@ -33,11 +33,11 @@ Use these placeholders consistently.
 
 Windows PowerShell (local):
 ```powershell
-$SCHOOL_CODE = "greenwood"
-$DOMAIN      = "greenwood.example.com"  # or leave empty to use IP
-$DB_NAME     = "school_$SCHOOL_CODE"
-$DB_USER     = "school_$SCHOOL_CODE"
-$DB_PASSWORD = "Devendra_82"
+  $SCHOOL_CODE = "greenwood"
+  $DOMAIN      = "greenwood.example.com"  # or leave empty to use IP
+  $DB_NAME     = "school_$SCHOOL_CODE"
+  $DB_USER     = "school_$SCHOOL_CODE"
+  $DB_PASSWORD = "Devendra_82"
 ```
 
 ---
@@ -102,33 +102,61 @@ If your jar does not already include the React build, copy `frontend/dist` into 
 ---
 
 ## 4) Upload the jar to EC2
-```powershell
-scp -i ~/.ssh/<your-key>.pem `
-  backend/school-app/target/school-app-1.0.0.jar `
-  ubuntu@<EC2_PUBLIC_IP>:/home/ubuntu/school-app.jar
-```
+# Install AWS CLI v2 if not present
+sudo apt-get update
+sudo apt-get -y install unzip curl
+curl -Ls https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version
 
----
+# Download jar from S3 (replace bucket/key)
+aws s3 cp s3://<bucket-name>/deploy/school-app-1.0.0.jar /home/ubuntu/school-app.jar
+
+# Optional: keep versioned copy
+cp /home/ubuntu/school-app.jar /home/ubuntu/school-app-1.0.0.jar
 
 ## 5) Configure app environment
 On the server:
 ```bash
 cat >/home/ubuntu/school.env <<'EOF'
-DB_URL=jdbc:postgresql://localhost:5432/${DB_NAME}
-DB_USER=${DB_USER}
-DB_PASSWORD=${DB_PASSWORD}
+DB_URL=jdbc:postgresql://localhost:5432/school_greenwood
+DB_USER=school_greenwood
+DB_PASSWORD=Devendra_82
 JWT_SECRET=GENERATE_A_64B_RANDOM_SECRET
 SERVER_PORT=8080
 # If UI is separate, set allowed origins; if same-origin, you can keep it minimal
-ALLOWED_ORIGINS=http://<EC2_PUBLIC_IP>
+ALLOWED_ORIGINS=http://51.21.149.103
 # CORS_ALLOWED_ORIGIN_PATTERNS=https://*.example.com
 JAVA_TOOL_OPTIONS=-Xms256m -Xmx384m -XX:+UseSerialGC
 EOF
 chmod 600 /home/ubuntu/school.env
+# Verify the file exists and contents look correct
+ls -l /home/ubuntu/school.env
+sed -n '1,120p' /home/ubuntu/school.env
 ```
 Replace placeholders `${DB_NAME}`, `${DB_USER}`, `${DB_PASSWORD}`, and ALLOWED_ORIGINS with actual values.
 
 ---
+#  Must run to set the correct JWT size
+# 1. Generate a 512-bit base64 secret
+NEW_SECRET=$(openssl rand -base64 64)
+sudo sed -i '/^JWT_SECRET=/d' /home/ubuntu/school.env
+echo "JWT_SECRET=${NEW_SECRET}" | sudo tee -a /home/ubuntu/school.env >/dev/null
+
+# 3. (Optional) Show length for sanity (should be >= 86 chars base64 including padding)
+grep JWT_SECRET /home/ubuntu/school.env | awk -F= '{print \"Secret length:\" length($2)}'
+
+# 4. Restart the app
+sudo systemctl restart school-app
+
+# 5. Check status and recent logs for absence of WeakKeyException
+systemctl is-active school-app
+journalctl -u school-app -n 50 --no-pager | grep -i WeakKeyException || echo "No WeakKeyException found"
+
+# 6. Health check
+curl -fsS http://localhost:8080/actuator/health || echo "Health check failed"
+
 
 ## 6) Create a systemd service
 ```bash
@@ -154,6 +182,10 @@ sudo systemctl enable school-app
 sudo systemctl start school-app
 sudo systemctl status school-app --no-pager
 ```
+
+# to check the live logs:
+journalctl -u school-app -f
+
 
 Now browse `http://<EC2_PUBLIC_IP>:8080/` (or port 80/443 after proxy setup below).
 

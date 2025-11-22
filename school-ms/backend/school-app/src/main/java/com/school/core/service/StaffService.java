@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import com.school.common.dto.BulkUploadResponse;
 import com.school.core.model.Staff;
-import com.school.staff.dto.BulkStaffRequest;
 
 /**
  * Service interface for managing staff operations.
@@ -22,16 +21,18 @@ public interface StaffService {
      * @return List of all staff
      */
     List<Staff> getAllStaff();
-    
+
     /**
      * Save a staff member with role synchronization
+     * 
      * @param staff The staff to save
      * @return The saved staff
      */
     Staff save(Staff staff);
-    
+
     /**
      * Save a staff member
+     * 
      * @param staff The staff to save
      * @return The saved staff
      */
@@ -44,7 +45,7 @@ public interface StaffService {
      * @return Optional containing the staff if found
      */
     Optional<Staff> getStaffById(Long id);
-    
+
     /**
      * Get a staff member by staffId
      * 
@@ -52,7 +53,7 @@ public interface StaffService {
      * @return Optional containing the staff if found
      */
     Optional<Staff> getStaffByStaffId(String staffId);
-    
+
     /**
      * Get a staff member by email
      * 
@@ -68,7 +69,6 @@ public interface StaffService {
      * @return The created staff with generated ID
      */
     Staff createStaff(Staff staff);
-    
 
     /**
      * Update an existing staff member
@@ -102,7 +102,7 @@ public interface StaffService {
      * @return List of staff with the specified role
      */
     List<Staff> findByRole(String role);
-    
+
     /**
      * Find staff by active status
      * 
@@ -110,22 +110,23 @@ public interface StaffService {
      * @return List of staff with the specified active status
      */
     List<Staff> findByIsActive(boolean isActive);
-    
+
     /**
      * Find all teachers
      * 
      * @return List of staff who are teachers
      */
     List<Staff> findAllTeachers();
-    
+
     /**
      * Process a bulk upload of staff
      * 
      * @param request Bulk staff request
      * @return Response with stats about the upload
      */
-    BulkUploadResponse bulkUploadStaff(BulkStaffRequest request);
-    
+    // Legacy BulkStaffRequest method removed; use
+    // bulkCreateOrUpdateStaff(List<Staff>) directly.
+
     /**
      * Process a bulk upload of staff from a list
      * 
@@ -133,7 +134,7 @@ public interface StaffService {
      * @return Response with stats about the upload
      */
     BulkUploadResponse bulkUploadStaffList(List<Staff> staffList);
-    
+
     /**
      * Bulk create or update staff
      * 
