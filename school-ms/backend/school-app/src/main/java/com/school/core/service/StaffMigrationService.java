@@ -6,7 +6,15 @@ package com.school.core.service;
  */
 @Deprecated
 public class StaffMigrationService {
-    public int migrateAllStaffData() { return 0; }
-    public boolean isMigrationComplete() { return true; }
-    public String getMigrationStatus() { return "Migration disabled"; }
+    public int migrateAllStaffData() {
+        return 0;
+    }
+
+    public boolean isMigrationComplete() {
+        return true;
+    }
+
+    public String getMigrationStatus() {
+        return "Migration disabled";
+    }
 }
