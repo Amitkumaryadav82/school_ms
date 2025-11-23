@@ -43,7 +43,7 @@ public class SimplifiedSecurityConfig {
     private final Environment environment;
 
     public SimplifiedSecurityConfig(
-            CorsFilter corsFilter, 
+            CorsFilter corsFilter,
             UserDetailsService userDetailsService,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
             Environment environment) {
@@ -79,102 +79,105 @@ public class SimplifiedSecurityConfig {
      * Unified security filter chain with environment-specific adjustments
      */
     @Bean
-    @Order(1)
+    @Order(2) // Run after static resource chain
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Check if we're in development mode
         boolean isDev = Arrays.asList(environment.getActiveProfiles()).contains("dev");
-        
+
         // Basic security configuration common to all environments
         http
-            .headers(headers -> {
-                if (isDev) {
-                    headers.frameOptions(frame -> frame.disable()); // For H2 console access in dev
-                } else {
-                    headers.frameOptions(frame -> frame.sameOrigin())
-                           .referrerPolicy(referrer -> referrer
-                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
-                }
-            })
-            .csrf(AbstractHttpConfigurer::disable) // Disabled for REST APIs
-            .cors(cors -> {}) // Use the centralized CORS configuration 
-            .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(exceptions -> exceptions
-                    .authenticationEntryPoint(jwtAuthenticationEntryPoint));
-        
+                .headers(headers -> {
+                    if (isDev) {
+                        headers.frameOptions(frame -> frame.disable()); // For H2 console access in dev
+                    } else {
+                        headers.frameOptions(frame -> frame.sameOrigin())
+                                .referrerPolicy(referrer -> referrer
+                                        .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
+                    }
+                })
+                .csrf(AbstractHttpConfigurer::disable) // Disabled for REST APIs
+                .cors(cors -> {
+                }) // Use the centralized CORS configuration
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint));
+
         // Configure authorization rules
         http.authorizeHttpRequests(auth -> {
             // Static resources
             auth.antMatchers(
-                "/",
-                "/index.html",
-                "/**/*.js",
-                "/**/*.css",
-                "/**/*.html",
-                "/**/*.json", 
-                "/**/*.ico",
-                "/**/*.png",
-                "/assets/**",
-                "/static/**", 
-                "/css/**",
-                "/js/**", 
-                "/images/**",
-                "/favicon.ico", 
-                "/manifest.json",
-                "/robots.txt").permitAll();
-                
+                    "/",
+                    "/index.html",
+                    "/**/*.js",
+                    "/**/*.css",
+                    "/**/*.html",
+                    "/**/*.json",
+                    "/**/*.ico",
+                    "/**/*.png",
+                    "/**/*.svg",
+                    "/assets/**",
+                    "/static/**",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/favicon.ico",
+                    "/favicon.svg",
+                    "/manifest.json",
+                    "/robots.txt").permitAll();
+
             // Auth endpoints - explicitly list all public endpoints
             auth.antMatchers(
-                "/api/auth/login",
-                "/api/auth/register",
-                "/api/auth/health", 
-                "/api/auth/refresh",
-                "/api/auth/validate-token").permitAll();
-                
+                    "/api/auth/login",
+                    "/api/auth/register",
+                    "/api/auth/health",
+                    "/api/auth/refresh",
+                    "/api/auth/validate-token").permitAll();
+
             // Development tools
             auth.antMatchers("/h2-console/**").permitAll();
             auth.antMatchers("/actuator/**").permitAll();
-            
+
             // Database test endpoints (for development)
             if (isDev) {
                 auth.antMatchers("/api/test/**").permitAll();
             }
-                
+
             // API docs
             auth.antMatchers(
-                "/v3/api-docs/**",
-                "/v3/api-docs.yaml", 
-                "/swagger-ui/**",
-                "/swagger-ui.html", 
-                "/swagger-resources/**",
-                "/webjars/**",
-                "/api-docs/**").permitAll();
-                
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/swagger-resources/**",
+                    "/webjars/**",
+                    "/api-docs/**").permitAll();
+
             // SPA frontend routes
             auth.antMatchers(
-                "/login",
-                "/register", 
-                "/dashboard",
-                "/students", 
-                "/teachers",
-                "/courses", 
-                "/admissions",
-                "/reports", 
-                "/admin",
-                "/profile").permitAll();
-                
+                    "/login",
+                    "/register",
+                    "/dashboard",
+                    "/students",
+                    "/teachers",
+                    "/courses",
+                    "/admissions",
+                    "/reports",
+                    "/admin",
+                    "/profile").permitAll();
+
             // Special handling for fee reports - ensure they are accessible
             auth.antMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status").authenticated();
             auth.antMatchers("/api/fees/reports/download/**").authenticated();
-                
+
             // All other API requests require authentication
             auth.anyRequest().authenticated();
         });
-        
+
         // Add the filters
         http.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-            
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

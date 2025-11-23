@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.school.hrm.dto.StaffDTO;
@@ -36,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *             StaffEntityAdapter.
  *             See PACKAGE-MIGRATION-PLAN.md for more details.
  */
-@Service
+// @Service REMOVED to disable deprecated bean
 @Qualifier("hrmStaffService")
 @Deprecated
 public class StaffServiceImpl implements StaffService {

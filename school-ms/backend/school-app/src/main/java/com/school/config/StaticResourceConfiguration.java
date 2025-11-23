@@ -15,11 +15,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @Order(1)
-public class StaticResourceConfiguration {    @Bean
+public class StaticResourceConfiguration {
+    @Bean
     public SecurityFilterChain staticResourceFilterChain(HttpSecurity http) throws Exception {
         http
                 .requestMatchers()
-                    .antMatchers(
+                .antMatchers(
                         "/assets/**",
                         "/static/**",
                         "/css/**",
@@ -28,14 +29,16 @@ public class StaticResourceConfiguration {    @Bean
                         "/*.js",
                         "/*.css",
                         "/*.ico",
-                        "/*.png",                        "/favicon.ico",
+                        "/*.png",
+                        "/*.svg",
+                        "/favicon.ico",
+                        "/favicon.svg",
                         "/index.html",
                         "/manifest.json",
                         "/robots.txt",
-                        "/test.html")                .and()
-                .authorizeRequests()
-                        .anyRequest().permitAll()
+                        "/test.html")
                 .and()
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .requestCache().disable()
                 .securityContext().disable()
                 .sessionManagement().disable()

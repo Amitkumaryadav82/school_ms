@@ -83,7 +83,10 @@ public class SecurityConfig {
                                 // Security headers configuration
                                 .headers(headers -> headers
                                                 .frameOptions(frame -> {
-                                                        if (isDev) frame.disable(); else frame.sameOrigin();
+                                                        if (isDev)
+                                                                frame.disable();
+                                                        else
+                                                                frame.sameOrigin();
                                                 })
                                                 .referrerPolicy(referrer -> referrer
                                                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))) // Disable
@@ -115,6 +118,8 @@ public class SecurityConfig {
                                                         "/*.json",
                                                         "/*.ico",
                                                         "/*.png",
+                                                        "/*.svg",
+                                                        "/favicon.svg",
                                                         "/assets/**",
                                                         "/static/**",
                                                         "/css/**",
@@ -122,7 +127,8 @@ public class SecurityConfig {
                                                         "/images/**",
                                                         "/favicon.ico",
                                                         "/manifest.json",
-                                                        "/robots.txt").permitAll();                                        // Auth endpoints - explicitly list all public endpoints for clarity
+                                                        "/robots.txt").permitAll(); // Auth endpoints - explicitly list
+                                                                                    // all public endpoints for clarity
                                         auth.antMatchers(
                                                         "/api/auth/login",
                                                         "/api/auth/register",
@@ -133,7 +139,9 @@ public class SecurityConfig {
                                         auth.antMatchers("/h2-console/**").permitAll();
                                         // Only health open; secure other actuator endpoints
                                         auth.antMatchers("/actuator/health").permitAll();
-                                        auth.antMatchers("/actuator/**").authenticated();                                        // IMPORTANT: Override the method-level security for fee report endpoints
+                                        auth.antMatchers("/actuator/**").authenticated(); // IMPORTANT: Override the
+                                                                                          // method-level security for
+                                                                                          // fee report endpoints
                                         // to ensure they are accessible by both ADMIN and TEACHER roles
                                         auth.antMatchers("/api/fees/reports/**", "/api/fees/reports/fee-status")
                                                         .authenticated();
@@ -147,7 +155,7 @@ public class SecurityConfig {
                                                         "/swagger-ui.html",
                                                         "/swagger-resources/**",
                                                         "/webjars/**",
-                                                        "/api-docs/**").permitAll();                                        // SPA frontend routes
+                                                        "/api-docs/**").permitAll(); // SPA frontend routes
                                         auth.antMatchers(
                                                         "/login",
                                                         "/register",

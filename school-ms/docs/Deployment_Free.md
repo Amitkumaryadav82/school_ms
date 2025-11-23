@@ -22,6 +22,14 @@ Cost guardrails (first 12 months):
 
 ---
 
+# Preparing EC2 environment
+sudo apt-get update
+sudo apt-get -y install openjdk-17-jdk
+which jar
+jar --version
+
+
+
 ## Variables (decide per school)
 Use these placeholders consistently.
 
@@ -89,6 +97,8 @@ Frontend (from `frontend/`):
 npm ci
 npm run build
 ```
+robocopy dist backend\school-app\src\main\resources\static /E
+
 
 Backend (from `backend/school-app`):
 ```powershell
