@@ -196,6 +196,145 @@ sudo systemctl status school-app --no-pager
 # to check the live logs:
 journalctl -u school-app -f
 
+## Optional: Plain Text Log File Capture
+You can also persist the service logs into a regular text file and read it with `tail -f` instead of querying the journal every time. This does NOT replace journalctl (you still keep structured metadata there), but gives you a simple file you can sync or inspect.
+
+### 1. Create a directory for app logs
+```bash
+sudo mkdir -p /var/log/school-app
+sudo chown ubuntu:ubuntu /var/log/school-app
+```
+
+### 2. Follow the journal into a file via systemd (recommended for resilience)
+Create a small service that appends new lines continuously:
+```bash
+sudo bash -c 'cat >/etc/systemd/system/school-app-follow.service <<SERVICE
+[Unit]
+Description=Follow school-app journal into a flat file
+After=systemd-journald.service
+
+[Service]
+ExecStart=/bin/bash -c "journalctl -fu school-app -o short-iso >> /var/log/school-app/live.log"
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+SERVICE'
+sudo systemctl daemon-reload
+sudo systemctl enable --now school-app-follow.service
+```
+
+Now you can view logs with:
+```bash
+tail -f /var/log/school-app/live.log
+```
+
+### 3. Rotate the file (prevent unlimited growth)
+Add a logrotate rule:
+```bash
+sudo bash -c 'cat >/etc/logrotate.d/school-app <<ROTATE
+/var/log/school-app/live.log {
+  daily
+  rotate 7
+  compress
+  delaycompress
+  missingok
+  notifempty
+  copytruncate
+}
+ROTATE'
+```
+`copytruncate` lets rotation happen without stopping the follow process. The last 7 days are kept compressed.
+
+### 4. (Optional) Sync rotated logs to S3 manually
+Example hourly cron snippet (keep very lightweight on Free Tier):
+```bash
+sudo bash -c 'cat >/etc/cron.hourly/school-app-log-upload <<CRON
+#!/bin/bash
+set -euo pipefail
+TS=$(date +%Y/%m/%d)
+for f in /var/log/school-app/live.log-*.gz; do
+  [ -f "$f" ] || continue
+  aws s3 cp "$f" s3://<your-bucket>/logs/school-app/$TS/ || echo "Upload failed: $f"
+done
+CRON'
+sudo chmod +x /etc/cron.hourly/school-app-log-upload
+```
+Replace `<your-bucket>` with the bucket name and ensure the instance role has `s3:PutObject` permission.
+
+### 5. Pros / Cons
+- Pros: Very simple to inspect (`grep`, `tail`), easy ad-hoc copy to S3.
+- Cons: Loses rich journal metadata (priorities, structured fields) in the flat file; duplication of storage; risk of size growth if rotation misconfigured.
+- For central aggregation or queries, CloudWatch Logs / Firehose is still better.
+
+### 6. If you only need a one-off snapshot
+Instead of a service, just dump and inspect:
+```bash
+journalctl -u school-app -o short-iso > /var/log/school-app/snapshot-$(date +%F-%H%M).log
+``` 
+Then `grep` or upload that single file.
+
+Use whichever approach matches how often you read logs. For occasional manual checks, journalctl alone is fine; for continuous tail + S3 backup, the service + rotation works well.
+
+### 7. Recreate flat log file on each application restart
+If you want a fresh `live.log` every time the app restarts (while archiving the previous one) modify the follower service to rotate the file before tailing and tie its lifecycle to the main unit.
+
+Create/replace the follower unit with pre-start rotation and restart linkage:
+```bash
+sudo bash -c 'cat >/etc/systemd/system/school-app-follow.service <<SERVICE
+[Unit]
+Description=Follow school-app journal (fresh file each restart)
+After=systemd-journald.service
+PartOf=school-app.service
+
+[Service]
+Type=simple
+ExecStartPre=/bin/bash -c "TS=$(date +%F-%H%M%S); if [ -f /var/log/school-app/live.log ]; then mv /var/log/school-app/live.log /var/log/school-app/live.log.$TS; fi; : > /var/log/school-app/live.log"
+ExecStart=/bin/bash -c "journalctl -fu school-app -o short-iso >> /var/log/school-app/live.log"
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+SERVICE'
+sudo systemctl daemon-reload
+sudo systemctl enable --now school-app-follow.service
+```
+
+Optionally ensure the main service lists the follower as a requirement (so initial start orders them):
+```bash
+sudo grep -q 'Requires=school-app-follow.service' /etc/systemd/system/school-app.service || \
+sudo sed -i '/^\[Unit\]/a Requires=school-app-follow.service' /etc/systemd/system/school-app.service
+sudo systemctl daemon-reload
+```
+
+Restarting the app now rolls the log:
+```bash
+sudo systemctl restart school-app
+ls -lh /var/log/school-app/live.log*
+```
+
+Update logrotate to include rotated suffixes if desired:
+```bash
+sudo bash -c 'cat >/etc/logrotate.d/school-app <<ROTATE
+/var/log/school-app/live.log /var/log/school-app/live.log.* {
+  daily
+  rotate 7
+  compress
+  delaycompress
+  missingok
+  notifempty
+  copytruncate
+}
+ROTATE'
+```
+
+Notes:
+- Rotation happens before tailing starts; the previous file is preserved with a timestamp.
+- `copytruncate` keeps simple rotation for the active file; if you need atomic rotation with metadata retention consider journald export instead.
+- Ensure timesync (`timedatectl status`) so filenames are chronologically correct.
+
 
 Now browse `http://<EC2_PUBLIC_IP>:8080/` (or port 80/443 after proxy setup below).
 
