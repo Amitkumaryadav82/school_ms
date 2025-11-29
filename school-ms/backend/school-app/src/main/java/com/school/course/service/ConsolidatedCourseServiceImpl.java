@@ -41,16 +41,13 @@ public class ConsolidatedCourseServiceImpl implements ConsolidatedCourseService 
     @Override
     @Transactional
     public ConsolidatedCourse createCourse(ConsolidatedCourse course) {
-        // Set default values if needed
-        if (course.getEnrolled() == null) {
-            course.setEnrolled(0);
-        }
-        
         // Set audit timestamps
         LocalDateTime now = LocalDateTime.now();
         course.setCreatedAt(now);
         course.setUpdatedAt(now);
-        
+        if (course.getIsActive() == null) {
+            course.setIsActive(Boolean.TRUE);
+        }
         return courseRepository.save(course);
     }
 
@@ -61,16 +58,11 @@ public class ConsolidatedCourseServiceImpl implements ConsolidatedCourseService 
         ConsolidatedCourse existingCourse = getCourseById(id);
         
         // Update fields
+        existingCourse.setCourseCode(course.getCourseCode());
         existingCourse.setName(course.getName());
-        existingCourse.setDepartment(course.getDepartment());
-        existingCourse.setTeacherId(course.getTeacherId());
-        existingCourse.setCredits(course.getCredits());
-        existingCourse.setCapacity(course.getCapacity());
-        
-        // Only update enrolled if provided
-        if (course.getEnrolled() != null) {
-            existingCourse.setEnrolled(course.getEnrolled());
-        }
+        existingCourse.setDescription(course.getDescription());
+        existingCourse.setCategory(course.getCategory());
+        existingCourse.setIsActive(course.getIsActive());
         
         // Update timestamp
         existingCourse.setUpdatedAt(LocalDateTime.now());
@@ -90,11 +82,13 @@ public class ConsolidatedCourseServiceImpl implements ConsolidatedCourseService 
 
     @Override
     public List<ConsolidatedCourse> getCoursesByDepartment(String department) {
-        return courseRepository.findByDepartment(department);
+        // Deprecated: department field is not present in consolidated schema
+        throw new UnsupportedOperationException("Filtering by department is not supported in current schema");
     }
 
     @Override
     public List<ConsolidatedCourse> getCoursesByTeacherId(Long teacherId) {
-        return courseRepository.findByTeacherId(teacherId);
+        // Deprecated: teacherId field is not present in consolidated schema
+        throw new UnsupportedOperationException("Filtering by teacherId is not supported in current schema");
     }
 }

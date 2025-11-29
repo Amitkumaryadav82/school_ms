@@ -516,9 +516,10 @@ CREATE TABLE IF NOT EXISTS users (
 );
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 
--- Seed admin2 user with password 'qwerty' (adjust hashing per encoder)
+-- Seed admin2 user with bcrypt-hashed password 'qwerty' using DelegatingPasswordEncoder prefix
+-- Note: Keep the {bcrypt} prefix so Spring's DelegatingPasswordEncoder recognizes the algorithm.
 INSERT INTO users (username, full_name, email, password_hash, role)
-SELECT 'admin2', 'Administrator', 'admin2@example.com', 'qwerty', 'ADMIN'
+SELECT 'admin2', 'Administrator', 'admin2@example.com', '{bcrypt}$2b$12$2BSSkrJ7Dg2lq8rUUS3vSebw2GQFQn4CqYVOfnQeQy8H2oQJpYwN2', 'ADMIN'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE username='admin2');
 
 CREATE TABLE IF NOT EXISTS message_recipients (

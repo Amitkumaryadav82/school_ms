@@ -1,5 +1,6 @@
 package com.school.course.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -8,10 +9,8 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * Consolidated Course entity that combines functionality from both previous implementations.
- * This combines features from:
- * - com.schoolms.model.Course
- * - com.school.course.model.Course
+ * Consolidated Course entity aligned to the authoritative schema (schema_final.sql).
+ * Maps only to columns that exist in the `courses` table.
  */
 @Entity
 @Table(name = "courses")
@@ -19,43 +18,44 @@ public class ConsolidatedCourse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @Column(name = "course_code")
+    private String courseCode;
+
+    @Column(name = "name")
     private String name;
-    private String department;
-    private Long teacherId;
-    private String teacherName; // Transient field for convenience
-    private Integer credits;
-    private Integer capacity;
-    private Integer enrolled;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "category")
+    private String category;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Constructors
-    public ConsolidatedCourse() {
-        this.enrolled = 0;
-    }
+    public ConsolidatedCourse() {}
 
-    public ConsolidatedCourse(Long id, String name, String department, Long teacherId, 
-                    Integer credits, Integer capacity, Integer enrolled, 
-                    LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.name = name;
-        this.department = department;
-        this.teacherId = teacherId;
-        this.credits = credits;
-        this.capacity = capacity;
-        this.enrolled = enrolled;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
-    // Getters and setters
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
     }
 
     public String getName() {
@@ -66,52 +66,28 @@ public class ConsolidatedCourse {
         this.name = name;
     }
 
-    public String getDepartment() {
-        return department;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDepartment(String department) {
-        this.department = department;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Long getTeacherId() {
-        return teacherId;
+    public String getCategory() {
+        return category;
     }
 
-    public void setTeacherId(Long teacherId) {
-        this.teacherId = teacherId;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public String getTeacherName() {
-        return teacherName;
+    public Boolean getIsActive() {
+        return isActive;
     }
 
-    public void setTeacherName(String teacherName) {
-        this.teacherName = teacherName;
-    }
-
-    public Integer getCredits() {
-        return credits;
-    }
-
-    public void setCredits(Integer credits) {
-        this.credits = credits;
-    }
-
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
-
-    public Integer getEnrolled() {
-        return enrolled;
-    }
-
-    public void setEnrolled(Integer enrolled) {
-        this.enrolled = enrolled;
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -132,14 +108,12 @@ public class ConsolidatedCourse {
 
     @Override
     public String toString() {
-        return "Course{" +
+        return "ConsolidatedCourse{" +
                 "id=" + id +
+                ", courseCode='" + courseCode + '\'' +
                 ", name='" + name + '\'' +
-                ", department='" + department + '\'' +
-                ", teacherId=" + teacherId +
-                ", credits=" + credits +
-                ", capacity=" + capacity +
-                ", enrolled=" + enrolled +
+                ", category='" + category + '\'' +
+                ", isActive=" + isActive +
                 '}';
     }
 }

@@ -101,20 +101,14 @@ public class ConsolidatedCourseController {
     @Operation(summary = "Get course statistics", description = "Returns statistics about courses in the system")
     public ResponseEntity<Map<String, Object>> getCourseStats() {
         List<ConsolidatedCourse> allCourses = courseService.getAllCourses();
-        
-        // Calculate stats
+
         int totalCourses = allCourses.size();
-        int totalCapacity = allCourses.stream().mapToInt(ConsolidatedCourse::getCapacity).sum();
-        int totalEnrolled = allCourses.stream().mapToInt(ConsolidatedCourse::getEnrolled).sum();
-        double fillRate = totalCourses > 0 ? (double) totalEnrolled / totalCapacity * 100 : 0;
-        
-        // Create response
+        long activeCourses = allCourses.stream().filter(c -> Boolean.TRUE.equals(c.getIsActive())).count();
+
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalCourses", totalCourses);
-        stats.put("totalCapacity", totalCapacity);
-        stats.put("totalEnrolled", totalEnrolled);
-        stats.put("fillRate", String.format("%.2f%%", fillRate));
-        
+        stats.put("activeCourses", activeCourses);
+
         return ResponseEntity.ok(stats);
     }
 }
