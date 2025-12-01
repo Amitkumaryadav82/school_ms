@@ -5,11 +5,17 @@ import com.school.course.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Legacy course service depending on deprecated repository and columns.
+ * Disabled by default.
+ */
 @Service
+@ConditionalOnProperty(value = "legacy.courses.enabled", havingValue = "true")
 public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;

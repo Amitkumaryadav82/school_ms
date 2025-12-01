@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -15,7 +16,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Legacy JDBC repository expecting columns (department, teacher_id, credits,
+ * capacity, enrolled)
+ * that no longer exist in the authoritative courses schema. Disabled by
+ * default.
+ * Enable only if the database schema is extended to include these columns
+ * again.
+ */
 @Repository
+@ConditionalOnProperty(value = "legacy.courses.enabled", havingValue = "true")
 public class CourseRepositoryImpl implements CourseRepository {
 
     private final JdbcTemplate jdbcTemplate;

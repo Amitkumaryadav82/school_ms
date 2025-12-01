@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Consolidated Course service implementation that combines functionality 
+ * Consolidated Course service implementation that combines functionality
  * from both previous implementations.
  * This combines features from:
  * - com.schoolms.service.CourseServiceImpl
@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 public class ConsolidatedCourseServiceImpl implements ConsolidatedCourseService {
 
     private final ConsolidatedCourseRepository courseRepository;
-    
+
     @Autowired
     public ConsolidatedCourseServiceImpl(ConsolidatedCourseRepository courseRepository) {
         this.courseRepository = courseRepository;
@@ -56,17 +56,17 @@ public class ConsolidatedCourseServiceImpl implements ConsolidatedCourseService 
     public ConsolidatedCourse updateCourse(Long id, ConsolidatedCourse course) {
         // Verify course exists
         ConsolidatedCourse existingCourse = getCourseById(id);
-        
+
         // Update fields
         existingCourse.setCourseCode(course.getCourseCode());
         existingCourse.setName(course.getName());
         existingCourse.setDescription(course.getDescription());
         existingCourse.setCategory(course.getCategory());
         existingCourse.setIsActive(course.getIsActive());
-        
+
         // Update timestamp
         existingCourse.setUpdatedAt(LocalDateTime.now());
-        
+
         return courseRepository.save(existingCourse);
     }
 
@@ -74,8 +74,8 @@ public class ConsolidatedCourseServiceImpl implements ConsolidatedCourseService 
     @Transactional
     public void deleteCourse(Long id) {
         // Verify course exists
-        getCourseById(id); 
-        
+        getCourseById(id);
+
         // Delete the course
         courseRepository.deleteById(id);
     }

@@ -17,7 +17,8 @@ import java.util.NoSuchElementException;
 import java.util.HashMap;
 
 /**
- * Consolidated Course controller that combines functionality from both previous implementations.
+ * Consolidated Course controller that combines functionality from both previous
+ * implementations.
  * This combines features from:
  * - com.schoolms.controller.CourseController
  * - com.school.course.controller.CourseController
@@ -62,7 +63,8 @@ public class ConsolidatedCourseController {
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @Operation(summary = "Update course", description = "Updates an existing course by its ID")
-    public ResponseEntity<ConsolidatedCourse> updateCourse(@PathVariable Long id, @Valid @RequestBody ConsolidatedCourse course) {
+    public ResponseEntity<ConsolidatedCourse> updateCourse(@PathVariable Long id,
+            @Valid @RequestBody ConsolidatedCourse course) {
         try {
             ConsolidatedCourse updatedCourse = courseService.updateCourse(id, course);
             return ResponseEntity.ok(updatedCourse);

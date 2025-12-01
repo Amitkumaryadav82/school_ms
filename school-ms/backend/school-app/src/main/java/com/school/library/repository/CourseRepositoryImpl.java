@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -15,7 +16,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Legacy Library JDBC repository referencing deprecated course columns.
+ * Disabled unless
+ * 'legacy.courses.enabled=true' is set. Do not enable without aligning DB
+ * schema.
+ */
 @Repository("libraryCoursesRepositoryImpl")
+@ConditionalOnProperty(value = "legacy.courses.enabled", havingValue = "true")
 public class CourseRepositoryImpl implements CourseRepository {
 
     private final JdbcTemplate jdbcTemplate;

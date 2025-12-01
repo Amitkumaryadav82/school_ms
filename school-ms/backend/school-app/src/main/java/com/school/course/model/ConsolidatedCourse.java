@@ -9,7 +9,8 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * Consolidated Course entity aligned to the authoritative schema (schema_final.sql).
+ * Consolidated Course entity aligned to the authoritative schema
+ * (schema_final.sql).
  * Maps only to columns that exist in the `courses` table.
  */
 @Entity
@@ -40,7 +41,8 @@ public class ConsolidatedCourse {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public ConsolidatedCourse() {}
+    public ConsolidatedCourse() {
+    }
 
     public Long getId() {
         return id;
