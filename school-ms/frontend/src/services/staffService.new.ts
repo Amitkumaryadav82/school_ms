@@ -215,7 +215,7 @@ export const staffService = {
   getActiveTeachers: async () => {
     try {
       const staff = await staffService.getAll();
-      return staff.filter(s => 
+      return staff.filter((s: any) => 
         s.isActive && 
         (typeof s.role === 'string' 
           ? s.role.toUpperCase() === 'TEACHER' 

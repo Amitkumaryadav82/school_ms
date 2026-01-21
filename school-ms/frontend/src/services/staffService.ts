@@ -9,7 +9,9 @@ export enum EmploymentStatus {
   LEAVE_OF_ABSENCE = 'LEAVE_OF_ABSENCE',
   RETIRED = 'RETIRED',
   CONTRACT = 'CONTRACT',
-  RESIGNED = 'RESIGNED'
+  RESIGNED = 'RESIGNED',
+  ON_LEAVE = 'ON_LEAVE',
+  SUSPENDED = 'SUSPENDED'
 }
 
 // List of allowed employment statuses for the UI
@@ -46,6 +48,7 @@ export interface ApiStaffRole extends StaffRole {
 }
 
 export interface StaffMember {
+  [key: string]: any; // Add index signature for dynamic property access
   id?: number;
   staffId?: string;
   firstName: string;

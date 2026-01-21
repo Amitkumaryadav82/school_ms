@@ -162,7 +162,7 @@ const HolidayManagement: React.FC = () => {
   };
 
   // Open dialog to edit existing holiday
-  const handleOpenEditDialog = (holiday: SchoolHoliday) => {
+  const handleOpenEditDialog = (holiday: HolidayDTO) => {
     setSelectedHoliday(holiday);
     setHolidayForm({
       id: holiday.id,
@@ -175,23 +175,23 @@ const HolidayManagement: React.FC = () => {
   };
 
   // Open delete confirmation dialog
-  const handleOpenDeleteDialog = (holiday: SchoolHoliday) => {
+  const handleOpenDeleteDialog = (holiday: HolidayDTO) => {
     setSelectedHoliday(holiday);
     setConfirmDeleteDialogOpen(true);
   };
 
   // Handle form field changes
-  const handleFormChange = (field: keyof SchoolHoliday, value: any) => {
+  const handleFormChange = (field: keyof HolidayDTO, value: any) => {
     setHolidayForm((prev) => ({
       ...prev,
       [field]: value
     }));
     
     // Clear error for the field if it exists
-    if (errors[field]) {
+    if (errors[field as string]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
-        delete newErrors[field];
+        delete newErrors[field as string];
         return newErrors;
       });
     }
@@ -210,9 +210,9 @@ const HolidayManagement: React.FC = () => {
     
     try {
       if (selectedHoliday && selectedHoliday.id) {
-        await updateHoliday({ id: selectedHoliday.id, holiday: holidayForm as SchoolHoliday });
+        await updateHoliday({ id: selectedHoliday.id, holiday: holidayForm as HolidayDTO });
       } else {
-        await addHoliday(holidayForm as SchoolHoliday);
+        await addHoliday(holidayForm as HolidayDTO);
       }
     } catch (error) {
       console.error('Error saving holiday:', error);

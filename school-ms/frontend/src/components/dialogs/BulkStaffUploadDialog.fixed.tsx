@@ -175,13 +175,13 @@ const BulkStaffUploadDialog: React.FC<BulkStaffUploadDialogProps> = ({
             Boolean(staff.isActive);
             
           // Process numeric fields
-          const basicSalary = staff.basicSalary !== undefined && staff.basicSalary !== '' ? 
+          const basicSalary = staff.basicSalary !== undefined && staff.basicSalary !== null && staff.basicSalary !== 0 ? 
             Number(staff.basicSalary) : undefined;
             
-          const hra = staff.hra !== undefined && staff.hra !== '' ? 
+          const hra = staff.hra !== undefined && staff.hra !== null && staff.hra !== 0 ? 
             Number(staff.hra) : undefined;
             
-          const da = staff.da !== undefined && staff.da !== '' ? 
+          const da = staff.da !== undefined && staff.da !== null && staff.da !== 0 ? 
             Number(staff.da) : undefined;
           
           // Make sure all date fields are properly formatted as strings

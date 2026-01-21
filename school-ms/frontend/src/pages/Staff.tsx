@@ -38,6 +38,7 @@ import config from '../config/environment';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { useApi, useApiMutation } from '../hooks/useApi';
+import { api } from '../services/api';
 import { hasStaffStatusUpdatePermission, parseJwt } from '../services/authService';
 import { ALLOWED_EMPLOYMENT_STATUSES, EmploymentStatus, StaffMember, staffService } from '../services/staffService';
 import { hasPermission } from '../utils/permissions';
@@ -81,16 +82,7 @@ const Staff: React.FC = () => {
     error,
     refresh
   } = useApi<StaffMember[]>(() => staffService.getAll(), {
-    cacheKey: 'staffList',
-    // Transform data to ensure it's always an array
-    transformResponse: (data) => {
-      // Convert to array if it's not already
-      if (data && !Array.isArray(data)) {
-        console.warn('StaffList API returned non-array data:', data);
-        return Array.isArray(data) ? data : (data ? [data] : []);
-      }
-      return data;
-    }
+    cacheKey: 'staffList'
   });
 
   const { mutate: createStaff, loading: createLoading } = useApiMutation(

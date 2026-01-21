@@ -4,23 +4,24 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Input,
+  TextField,
   Stack,
-  Heading,
-  NumberInput,
-  NumberInputField,
+  Typography,
   Select,
+  MenuItem,
   Divider,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
   IconButton,
-  useToast
-} from '@chakra-ui/react';
-import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+  Grid
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { useSnackbar } from 'notistack';
 import { ExamBlueprint, ChapterDistribution, QuestionType, ApprovalStatus } from '../../services/examService';
 import { examService } from '../../services/examService';
 
@@ -31,7 +32,7 @@ interface BlueprintFormProps {
 }
 
 const BlueprintForm: React.FC<BlueprintFormProps> = ({ examConfigurationId, initialData, onSubmitSuccess }) => {
-  const toast = useToast();
+  const { enqueueSnackbar } = useSnackbar();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ExamBlueprint>({
     name: '',
@@ -56,23 +57,27 @@ const BlueprintForm: React.FC<BlueprintFormProps> = ({ examConfigurationId, init
     }
   }, [initialData]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleNumberChange = (name: string) => (valueAsString: string, valueAsNumber: number) => {
-    setFormData(prev => ({ ...prev, [name]: valueAsNumber }));
+  const handleNumberChange = (name: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    setFormData(prev => ({ ...prev, [name]: isNaN(value) ? 0 : value }));
   };
 
   // Chapter Distribution Handlers
-  const handleChapterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChapterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setCurrentChapter(prev => ({ ...prev, [name]: value }));
   };
-  const handleChapterNumberChange = (name: string) => (valueAsString: string, valueAsNumber: number) => {
-    setCurrentChapter(prev => ({ ...prev, [name]: valueAsNumber }));
+  
+  const handleChapterNumberChange = (name: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    setCurrentChapter(prev => ({ ...prev, [name]: isNaN(value) ? 0 : value }));
   };
+  
   const handleQuestionTypeDistributionChange = (index: number, field: string, value: any) => {
     setCurrentChapter(prev => {
       const updated = [...prev.questionTypeDistribution];
@@ -80,6 +85,7 @@ const BlueprintForm: React.FC<BlueprintFormProps> = ({ examConfigurationId, init
       return { ...prev, questionTypeDistribution: updated };
     });
   };
+  
   const addQuestionTypeDistribution = () => {
     setCurrentChapter(prev => ({
       ...prev,
@@ -89,12 +95,14 @@ const BlueprintForm: React.FC<BlueprintFormProps> = ({ examConfigurationId, init
       ],
     }));
   };
+  
   const removeQuestionTypeDistribution = (index: number) => {
     setCurrentChapter(prev => ({
       ...prev,
       questionTypeDistribution: prev.questionTypeDistribution.filter((_, i) => i !== index),
     }));
   };
+  
   const addChapter = () => {
     if (!currentChapter.chapterName || currentChapter.weightPercentage <= 0) return;
     if (editingIndex !== null) {
@@ -107,10 +115,12 @@ const BlueprintForm: React.FC<BlueprintFormProps> = ({ examConfigurationId, init
     }
     setCurrentChapter({ chapterName: '', weightPercentage: 0, totalMarks: 0, questionTypeDistribution: [] });
   };
+  
   const editChapter = (index: number) => {
     setEditingIndex(index);
     setCurrentChapter(formData.chapterDistributions[index]);
   };
+  
   const deleteChapter = (index: number) => {
     setFormData(prev => ({ ...prev, chapterDistributions: prev.chapterDistributions.filter((_, i) => i !== index) }));
   };
@@ -122,14 +132,14 @@ const BlueprintForm: React.FC<BlueprintFormProps> = ({ examConfigurationId, init
       let response;
       if (initialData?.id) {
         response = await examService.updateBlueprint(initialData.id, formData);
-        toast({ title: 'Blueprint updated', status: 'success', duration: 3000, isClosable: true });
+        enqueueSnackbar('Blueprint updated successfully', { variant: 'success' });
       } else {
         response = await examService.createBlueprint(formData);
-        toast({ title: 'Blueprint created', status: 'success', duration: 3000, isClosable: true });
+        enqueueSnackbar('Blueprint created successfully', { variant: 'success' });
       }
-      if (onSubmitSuccess) onSubmitSuccess(response.data);
+      if (onSubmitSuccess && response) onSubmitSuccess(response as any);
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to save blueprint', status: 'error', duration: 3000, isClosable: true });
+      enqueueSnackbar('Failed to save blueprint', { variant: 'error' });
       console.error('Error saving blueprint:', error);
     } finally {
       setIsSubmitting(false);
@@ -137,96 +147,155 @@ const BlueprintForm: React.FC<BlueprintFormProps> = ({ examConfigurationId, init
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit} p={4} borderWidth="1px" borderRadius="lg" shadow="md">
-      <Heading size="md" mb={4}>{initialData?.id ? 'Edit Blueprint' : 'Create New Blueprint'}</Heading>
+    <Box component="form" onSubmit={handleSubmit} p={4} border="1px solid #e0e0e0" borderRadius={2} boxShadow={2}>
+      <Typography variant="h5" mb={4}>{initialData?.id ? 'Edit Blueprint' : 'Create New Blueprint'}</Typography>
       <Stack spacing={4}>
-        <FormControl id="name" isRequired>
+        <FormControl required>
           <FormLabel>Blueprint Name</FormLabel>
-          <Input name="name" value={formData.name} onChange={handleChange} placeholder="e.g., Term 1 Blueprint" />
+          <TextField name="name" value={formData.name} onChange={handleChange} placeholder="e.g., Term 1 Blueprint" fullWidth />
         </FormControl>
-        <FormControl id="description">
+        <FormControl>
           <FormLabel>Description</FormLabel>
-          <Input name="description" value={formData.description} onChange={handleChange} placeholder="Optional description" />
+          <TextField name="description" value={formData.description} onChange={handleChange} placeholder="Optional description" fullWidth />
         </FormControl>
-        <FormControl id="totalMarks" isRequired>
+        <FormControl required>
           <FormLabel>Total Marks</FormLabel>
-          <NumberInput min={0} value={formData.totalMarks} onChange={handleNumberChange('totalMarks')}>
-            <NumberInputField />
-          </NumberInput>
+          <TextField 
+            type="number"
+            name="totalMarks"
+            value={formData.totalMarks} 
+            onChange={handleNumberChange('totalMarks')}
+            inputProps={{ min: 0 }}
+            fullWidth
+          />
         </FormControl>
         <Divider />
-        <Heading size="sm">Chapter Distribution</Heading>
-        <Table size="sm" variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Chapter</Th>
-              <Th isNumeric>Weight %</Th>
-              <Th isNumeric>Total Marks</Th>
-              <Th>Question Type Distribution</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+        <Typography variant="h6">Chapter Distribution</Typography>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Chapter</TableCell>
+              <TableCell align="right">Weight %</TableCell>
+              <TableCell align="right">Total Marks</TableCell>
+              <TableCell>Question Type Distribution</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {formData.chapterDistributions.map((chapter, idx) => (
-              <Tr key={idx}>
-                <Td>{chapter.chapterName}</Td>
-                <Td isNumeric>{chapter.weightPercentage}</Td>
-                <Td isNumeric>{chapter.totalMarks}</Td>
-                <Td>
+              <TableRow key={idx}>
+                <TableCell>{chapter.chapterName}</TableCell>
+                <TableCell align="right">{chapter.weightPercentage}</TableCell>
+                <TableCell align="right">{chapter.totalMarks}</TableCell>
+                <TableCell>
                   {chapter.questionTypeDistribution.map((qtd, i) => (
                     <span key={i}>{qtd.questionType.replace(/_/g, ' ')}: {qtd.marks} </span>
                   ))}
-                </Td>
-                <Td>
-                  <IconButton aria-label="Edit chapter" icon={<EditIcon />} size="sm" mr={2} onClick={() => editChapter(idx)} />
-                  <IconButton aria-label="Delete chapter" icon={<DeleteIcon />} size="sm" colorScheme="red" onClick={() => deleteChapter(idx)} />
-                </Td>
-              </Tr>
+                </TableCell>
+                <TableCell>
+                  <IconButton aria-label="Edit chapter" size="small" sx={{ mr: 1 }} onClick={() => editChapter(idx)}>
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton aria-label="Delete chapter" size="small" color="error" onClick={() => deleteChapter(idx)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
             ))}
-          </Tbody>
+          </TableBody>
         </Table>
-        <Box borderWidth="1px" borderRadius="md" p={3} mt={2}>
-          <Heading size="xs" mb={2}>{editingIndex !== null ? 'Edit Chapter' : 'Add Chapter'}</Heading>
-          <Stack direction={{ base: 'column', md: 'row' }} spacing={2} align="flex-end">
-            <FormControl isRequired>
-              <FormLabel>Chapter Name</FormLabel>
-              <Input name="chapterName" value={currentChapter.chapterName} onChange={handleChapterChange} placeholder="e.g., Algebra" />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Weight %</FormLabel>
-              <NumberInput min={0} max={100} value={currentChapter.weightPercentage} onChange={handleChapterNumberChange('weightPercentage')}>
-                <NumberInputField />
-              </NumberInput>
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Total Marks</FormLabel>
-              <NumberInput min={0} value={currentChapter.totalMarks} onChange={handleChapterNumberChange('totalMarks')}>
-                <NumberInputField />
-              </NumberInput>
-            </FormControl>
-            <Button onClick={addChapter} colorScheme="teal">{editingIndex !== null ? 'Update' : 'Add'} Chapter</Button>
-          </Stack>
+        <Box border="1px solid #e0e0e0" borderRadius={1} p={3} mt={2}>
+          <Typography variant="subtitle2" mb={2}>{editingIndex !== null ? 'Edit Chapter' : 'Add Chapter'}</Typography>
+          <Grid container spacing={2} alignItems="flex-end">
+            <Grid item xs={12} md={3}>
+              <FormControl required fullWidth>
+                <FormLabel>Chapter Name</FormLabel>
+                <TextField name="chapterName" value={currentChapter.chapterName} onChange={handleChapterChange} placeholder="e.g., Algebra" fullWidth />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <FormControl required fullWidth>
+                <FormLabel>Weight %</FormLabel>
+                <TextField 
+                  type="number"
+                  name="weightPercentage"
+                  value={currentChapter.weightPercentage} 
+                  onChange={handleChapterNumberChange('weightPercentage')}
+                  inputProps={{ min: 0, max: 100 }}
+                  fullWidth
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <FormControl required fullWidth>
+                <FormLabel>Total Marks</FormLabel>
+                <TextField 
+                  type="number"
+                  name="totalMarks"
+                  value={currentChapter.totalMarks} 
+                  onChange={handleChapterNumberChange('totalMarks')}
+                  inputProps={{ min: 0 }}
+                  fullWidth
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <Button onClick={addChapter} variant="contained" color="primary" fullWidth>
+                {editingIndex !== null ? 'Update' : 'Add'} Chapter
+              </Button>
+            </Grid>
+          </Grid>
           <Box mt={2}>
-            <Heading size="xs">Question Type Distribution</Heading>
-            <Button size="xs" leftIcon={<AddIcon />} onClick={addQuestionTypeDistribution} mt={1} mb={2}>Add Type</Button>
+            <Typography variant="subtitle2">Question Type Distribution</Typography>
+            <Button size="small" startIcon={<AddIcon />} onClick={addQuestionTypeDistribution} sx={{ mt: 1, mb: 2 }}>
+              Add Type
+            </Button>
             <Stack spacing={1}>
               {currentChapter.questionTypeDistribution.map((qtd, i) => (
-                <Stack key={i} direction="row" align="center">
-                  <Select value={qtd.questionType} onChange={e => handleQuestionTypeDistributionChange(i, 'questionType', e.target.value)} size="sm">
-                    {Object.values(QuestionType).map(type => (
-                      <option key={type} value={type}>{type.replace(/_/g, ' ')}</option>
-                    ))}
-                  </Select>
-                  <NumberInput min={0} value={qtd.marks} onChange={(_, val) => handleQuestionTypeDistributionChange(i, 'marks', val)} size="sm">
-                    <NumberInputField />
-                  </NumberInput>
-                  <IconButton aria-label="Remove" icon={<DeleteIcon />} size="xs" colorScheme="red" onClick={() => removeQuestionTypeDistribution(i)} />
-                </Stack>
+                <Grid container spacing={1} key={i} alignItems="center">
+                  <Grid item xs={6}>
+                    <Select 
+                      value={qtd.questionType} 
+                      onChange={(e) => handleQuestionTypeDistributionChange(i, 'questionType', e.target.value)} 
+                      size="small"
+                      fullWidth
+                    >
+                      {Object.values(QuestionType).map(type => (
+                        <MenuItem key={type} value={type}>{type.replace(/_/g, ' ')}</MenuItem>
+                      ))}
+                    </Select>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <TextField 
+                      type="number"
+                      value={qtd.marks} 
+                      onChange={(e) => handleQuestionTypeDistributionChange(i, 'marks', parseFloat(e.target.value) || 0)} 
+                      size="small"
+                      inputProps={{ min: 0 }}
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <IconButton aria-label="Remove" size="small" color="error" onClick={() => removeQuestionTypeDistribution(i)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
               ))}
             </Stack>
           </Box>
         </Box>
-        <Button mt={6} colorScheme="blue" isLoading={isSubmitting} type="submit" size="lg">{initialData?.id ? 'Update Blueprint' : 'Create Blueprint'}</Button>
+        <Button 
+          sx={{ mt: 6 }}
+          variant="contained" 
+          color="primary" 
+          disabled={isSubmitting} 
+          type="submit" 
+          size="large"
+          fullWidth
+        >
+          {initialData?.id ? 'Update Blueprint' : 'Create Blueprint'}
+        </Button>
       </Stack>
     </Box>
   );

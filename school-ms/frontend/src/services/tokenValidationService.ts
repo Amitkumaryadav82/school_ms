@@ -9,6 +9,8 @@ interface TokenValidationResponse {
   roles?: string[];
   expiresAt?: string;
   message?: string;
+  needsRefresh?: boolean;
+  autoRefreshed?: boolean;
 }
 
 /**

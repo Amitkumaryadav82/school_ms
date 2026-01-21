@@ -1,7 +1,7 @@
 import {
     Check,
     CloudUpload,
-    Error,
+    Error as ErrorIcon,
     GetApp,
     Refresh
 } from '@mui/icons-material';
@@ -30,6 +30,13 @@ import {
     StepContent,
     StepLabel,
     Stepper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Chip,
     ToggleButton,
     ToggleButtonGroup,
     Typography
@@ -316,9 +323,9 @@ const AttendanceUploadEnhanced: React.FC = () => {
       console.error('Error processing weekly upload:', error);
       setUploadResult({
         success: false,
-        message: error.message || 'Failed to process weekly attendance data'
+        message: (error instanceof Error ? error.message : String(error)) || 'Failed to process weekly attendance data'
       });
-      showNotification(`Weekly upload failed: ${error.message}`, 'error');
+      showNotification(`Weekly upload failed: ${error instanceof Error ? error.message : String(error)}`, 'error');
     } finally {
       setIsProcessing(false);
       setActiveStep(3); // Move to complete step
@@ -401,7 +408,7 @@ const AttendanceUploadEnhanced: React.FC = () => {
                     <DatePicker
                       label="Select Date"
                       value={selectedDate}
-                      onChange={(newDate) => setSelectedDate(newDate)}
+                      onChange={(newDate) => setSelectedDate(newDate ? dayjs(newDate) : null)}
                       sx={{ width: '100%' }}
                     />
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
@@ -413,13 +420,13 @@ const AttendanceUploadEnhanced: React.FC = () => {
                     <DatePicker
                       label="Week Start Date"
                       value={weekStartDate}
-                      onChange={(newDate) => setWeekStartDate(newDate)}
+                      onChange={(newDate) => setWeekStartDate(newDate ? dayjs(newDate) : null)}
                       sx={{ width: '100%' }}
                     />
                     <DatePicker
                       label="Week End Date"
                       value={weekEndDate}
-                      onChange={(newDate) => setWeekEndDate(newDate)}
+                      onChange={(newDate) => setWeekEndDate(newDate ? dayjs(newDate) : null)}
                       sx={{ width: '100%' }}
                     />
                     {weekStartDate && weekEndDate && (
@@ -509,7 +516,7 @@ const AttendanceUploadEnhanced: React.FC = () => {
                           {uploadValidation.errors.map((error, index) => (
                             <ListItem key={`error-${index}`}>
                               <ListItemIcon sx={{ minWidth: 30 }}>
-                                <Error fontSize="small" />
+                                <ErrorIcon fontSize="small" />
                               </ListItemIcon>
                               <ListItemText primary={error} />
                             </ListItem>
@@ -525,7 +532,7 @@ const AttendanceUploadEnhanced: React.FC = () => {
                           {uploadValidation.warnings.map((warning, index) => (
                             <ListItem key={`warning-${index}`}>
                               <ListItemIcon sx={{ minWidth: 30 }}>
-                                <Error fontSize="small" />
+                                <ErrorIcon fontSize="small" />
                               </ListItemIcon>
                               <ListItemText primary={warning} />
                             </ListItem>

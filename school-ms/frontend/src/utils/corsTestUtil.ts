@@ -32,7 +32,7 @@ const corsTestUtil = {
       console.error('CORS test failed:', error);
       return {
         success: false,
-        message: `CORS test failed: ${error.message}`,
+        message: `CORS test failed: ${error instanceof Error ? error.message : String(error)}`,
         error
       };
     }
@@ -64,7 +64,7 @@ const corsTestUtil = {
       console.error('CORS POST test failed:', error);
       return {
         success: false,
-        message: `CORS POST test failed: ${error.message}`,
+        message: `CORS POST test failed: ${error instanceof Error ? error.message : String(error)}`,
         error
       };
     }

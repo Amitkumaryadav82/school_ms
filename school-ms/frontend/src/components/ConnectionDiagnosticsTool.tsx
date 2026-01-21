@@ -92,7 +92,7 @@ const ConnectionDiagnosticsTool: React.FC = () => {
           ...prev,
           connectivity: {
             status: 'error',
-            message: `Connection error: ${error.message}`,
+            message: `Connection error: ${error instanceof Error ? error.message : String(error)}`,
             details: error
           }
         }));
@@ -163,7 +163,7 @@ const ConnectionDiagnosticsTool: React.FC = () => {
           ...prev,
           auth: {
             status: 'error',
-            message: `Auth diagnostics error: ${error.message}`,
+            message: `Auth diagnostics error: ${error instanceof Error ? error.message : String(error)}`,
             details: error
           }
         }));
@@ -208,7 +208,7 @@ const ConnectionDiagnosticsTool: React.FC = () => {
             ...prev,
             database: {
               status: 'error',
-              message: `Database check error: ${error.message}`,
+              message: `Database check error: ${error instanceof Error ? error.message : String(error)}`,
               details: error
             }
           }));
@@ -238,12 +238,12 @@ const ConnectionDiagnosticsTool: React.FC = () => {
     }
   };
 
-  const getOverallStatus = (): 'success' | 'warning' | 'error' | 'unknown' => {
+  const getOverallStatus = (): 'success' | 'warning' | 'error' | 'info' => {
     const statuses = Object.values(results).map(r => r.status);
     if (statuses.includes('error')) return 'error';
     if (statuses.includes('warning')) return 'warning';
     if (statuses.includes('success') && !statuses.includes('unknown')) return 'success';
-    return 'unknown';
+    return 'info'; // Changed from 'unknown' to 'info'
   };
 
   return (
@@ -277,7 +277,7 @@ const ConnectionDiagnosticsTool: React.FC = () => {
         {getOverallStatus() === 'success' && 'All systems appear to be functioning correctly.'}
         {getOverallStatus() === 'warning' && 'There are some issues that may affect system functionality.'}
         {getOverallStatus() === 'error' && 'Critical issues detected. The system may not function correctly.'}
-        {getOverallStatus() === 'unknown' && 'System status is being determined...'}
+        {getOverallStatus() === 'info' && 'System status is being determined...'}
       </Alert>
 
       <List>

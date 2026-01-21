@@ -57,11 +57,14 @@ const ClassConfigurationModal: React.FC<ClassConfigurationModalProps> = ({
   });
 
   const [copyData, setCopyData] = useState<CopyConfigurationRequest>({
+    sourceClassConfigId: 0,
     sourceConfigurationId: 0,
+    targetClassConfigId: 0,
     targetClassName: '',
     targetSection: '',
     targetAcademicYear: new Date().getFullYear().toString(),
     includeSubjects: true,
+    overwriteExisting: false,
     adjustMarks: false,
     marksAdjustmentFactor: 1.0,
   });
@@ -91,11 +94,14 @@ const ClassConfigurationModal: React.FC<ClassConfigurationModalProps> = ({
       });
     } else if (sourceConfig && mode === 'copy') {
       setCopyData({
+        sourceClassConfigId: sourceConfig.id || 0,
         sourceConfigurationId: sourceConfig.id || 0,
+        targetClassConfigId: 0,
         targetClassName: '',
         targetSection: '',
         targetAcademicYear: new Date().getFullYear().toString(),
         includeSubjects: true,
+        overwriteExisting: false,
         adjustMarks: false,
         marksAdjustmentFactor: 1.0,
       });
@@ -117,10 +123,10 @@ const ClassConfigurationModal: React.FC<ClassConfigurationModalProps> = ({
     const newErrors: ValidationErrors = {};
 
     if (mode === 'copy') {
-      if (!copyData.targetClassName.trim()) {
+      if (!copyData.targetClassName?.trim()) {
         newErrors.className = 'Class name is required';
       }
-      if (!copyData.targetSection.trim()) {
+      if (!copyData.targetSection?.trim()) {
         newErrors.section = 'Section is required';
       }
       if (!copyData.targetAcademicYear || parseInt(copyData.targetAcademicYear) < 2020) {
@@ -130,7 +136,7 @@ const ClassConfigurationModal: React.FC<ClassConfigurationModalProps> = ({
       if (!formData.className.trim()) {
         newErrors.className = 'Class name is required';
       }
-      if (!formData.section.trim()) {
+      if (!formData.section?.trim()) {
         newErrors.section = 'Section is required';
       }
       if (!formData.academicYear || parseInt(formData.academicYear) < 2020) {
@@ -152,7 +158,16 @@ const ClassConfigurationModal: React.FC<ClassConfigurationModalProps> = ({
       let result: ClassConfiguration;
 
       if (mode === 'copy') {
-        result = await classConfigurationService.copyConfiguration(copyData);
+        const copyResult = await classConfigurationService.copyConfiguration(copyData);
+        // Create a ClassConfiguration object from the copy result
+        result = {
+          id: copyResult.copiedSubjects[0]?.classConfigurationId,
+          className: copyData.targetClassName || '',
+          section: copyData.targetSection,
+          academicYear: copyData.targetAcademicYear || '',
+          isActive: true,
+          subjectCount: copyResult.totalCopied
+        };
       } else if (mode === 'edit' && configuration) {
         result = await classConfigurationService.updateConfiguration(configuration.id!, formData);
       } else {

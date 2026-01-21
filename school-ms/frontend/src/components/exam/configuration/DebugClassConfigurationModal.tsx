@@ -136,7 +136,7 @@ const DebugClassConfigurationModal: React.FC<ClassConfigurationModalProps> = ({
     if (!formData.className.trim()) {
       newErrors.className = 'Class name is required';
     }
-    if (!formData.section.trim()) {
+    if (!formData.section?.trim()) {
       newErrors.section = 'Section is required';
     }
     if (!formData.academicYear || parseInt(formData.academicYear) < 2020) {

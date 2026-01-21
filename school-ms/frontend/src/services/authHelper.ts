@@ -105,7 +105,8 @@ export const authFetch = async <T>(endpoint: string, data: any): Promise<T> => {
     console.error('Auth fetch failed:', error);
     
     // Enhanced error handling
-    if (error.message?.includes('Network Error') || error.message?.includes('ECONNREFUSED')) {
+    if ((error instanceof Error && error.message?.includes('Network Error')) || 
+        (error instanceof Error && error.message?.includes('ECONNREFUSED'))) {
       console.error('🔌 Network connection error. Backend may be unavailable.');
       
       // Try to suggest port changes if needed

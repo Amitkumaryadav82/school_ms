@@ -7,6 +7,8 @@ export interface Student {
   id?: number;
   studentId: string;
   name: string;  // Combined firstName + lastName for UI simplicity
+  firstName?: string; // Add for backward compatibility
+  lastName?: string;  // Add for backward compatibility
   grade: string;
   section?: string;
   email: string;

@@ -41,7 +41,7 @@ export const mockTeachers: Teacher[] = [
 ];
 
 // Mock attendance stats generator
-export const generateMockAttendanceStats = (employeeId, startDate, endDate) => {
+export const generateMockAttendanceStats = (employeeId: number, startDate: string, endDate: string) => {
   const start = dayjs(startDate);
   const end = dayjs(endDate);
   const daysDiff = end.diff(start, 'day') + 1;
@@ -53,7 +53,12 @@ export const generateMockAttendanceStats = (employeeId, startDate, endDate) => {
   const absentDays = daysDiff - presentDays - halfDays - leaveDays;
   
   // Generate dates by status
-  const datesByStatus = {
+  const datesByStatus: {
+    PRESENT: string[];
+    HALF_DAY: string[];
+    ON_LEAVE: string[];
+    ABSENT: string[];
+  } = {
     PRESENT: [],
     HALF_DAY: [],
     ON_LEAVE: [],
@@ -94,7 +99,7 @@ export const generateMockAttendanceStats = (employeeId, startDate, endDate) => {
 };
 
 // Mock monthly report generator
-export const generateMockMonthlyReport = (year, month, employeeType) => {
+export const generateMockMonthlyReport = (year: number, month: number, employeeType: string) => {
   const startDate = dayjs(`${year}-${month}-01`);
   const endDate = startDate.endOf('month');
   const daysInMonth = endDate.date();
@@ -110,7 +115,7 @@ export const generateMockMonthlyReport = (year, month, employeeType) => {
     const leaveDays = Math.floor(Math.random() * 3); // 0-3 days
     
     // Generate daily status
-    const dailyStatus = {};
+    const dailyStatus: { [key: string]: string } = {};
     for (let day = 1; day <= daysInMonth; day++) {
       // Skip weekends
       const currentDate = startDate.date(day);
@@ -162,11 +167,11 @@ export const mockApi = {
     return Promise.resolve(mockTeachers);
   },
   
-  getAttendanceStats: (employeeId, startDate, endDate) => {
+  getAttendanceStats: (employeeId: number, startDate: string, endDate: string) => {
     return Promise.resolve(generateMockAttendanceStats(employeeId, startDate, endDate));
   },
   
-  getMonthlyAttendanceReport: (year, month, employeeType) => {
+  getMonthlyAttendanceReport: (year: number, month: number, employeeType: string) => {
     return Promise.resolve(generateMockMonthlyReport(year, month, employeeType));
   }
 };

@@ -60,7 +60,7 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
       medicalConditions: '',
       previousSchool: '',
       previousGrade: '',
-      previousPercentage: 75,
+      previousPercentage: '75',
       status: 'PENDING',
     }
   );
@@ -102,7 +102,7 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
           medicalConditions: initialData.medicalConditions || '',
           previousSchool: initialData.previousSchool || '',
           previousGrade: initialData.previousGrade || '',
-          previousPercentage: initialData.previousPercentage || 75,
+          previousPercentage: String(initialData.previousPercentage || 75),
           status: initialData.status || 'PENDING'
         });
       } else {
@@ -122,7 +122,7 @@ const AdmissionDialog: React.FC<AdmissionDialogProps> = ({
           medicalConditions: '',
           previousSchool: '',
           previousGrade: '',
-          previousPercentage: 75,
+          previousPercentage: '75',
           status: 'PENDING',
         });
       }

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800px" height="600px" viewBox="0 0 800 600" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>School Management System Illustration</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#4F6DA0" offset="0%"></stop>
+            <stop stop-color="#2D4374" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="School-Illustration" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <!-- Sky background -->
+        <rect fill="#E8F4FC" x="0" y="0" width="800" height="600"></rect>
+        
+        <!-- Ground -->
+        <rect fill="#8BC34A" x="0" y="500" width="800" height="100"></rect>
+        
+        <!-- School Building -->
+        <g id="School" transform="translate(150, 150)">
+            <!-- Main Building -->
+            <rect id="Building-Main" fill="#FFFFFF" x="100" y="100" width="400" height="250" rx="5"></rect>
+            <rect id="Building-Shadow" fill="#ECECEC" x="100" y="100" width="400" height="20"></rect>
+            
+            <!-- Roof -->
+            <polygon id="Roof" fill="url(#linearGradient-1)" points="300 20 80 100 520 100"></polygon>
+            
+            <!-- Door -->
+            <rect id="Door" fill="#795548" x="280" y="270" width="40" height="80"></rect>
+            <circle id="DoorKnob" fill="#FFC107" cx="310" cy="310" r="3"></circle>
+            
+            <!-- Windows -->
+            <g id="Windows" transform="translate(140, 150)">
+                <rect fill="#B3E5FC" x="0" y="0" width="40" height="60" rx="2"></rect>
+                <rect fill="#81D4FA" x="0" y="0" width="40" height="5"></rect>
+                <rect fill="#81D4FA" x="0" y="30" width="40" height="5"></rect>
+            </g>
+            <g transform="translate(220, 150)">
+                <rect fill="#B3E5FC" x="0" y="0" width="40" height="60" rx="2"></rect>
+                <rect fill="#81D4FA" x="0" y="0" width="40" height="5"></rect>
+                <rect fill="#81D4FA" x="0" y="30" width="40" height="5"></rect>
+            </g>
+            <g transform="translate(340, 150)">
+                <rect fill="#B3E5FC" x="0" y="0" width="40" height="60" rx="2"></rect>
+                <rect fill="#81D4FA" x="0" y="0" width="40" height="5"></rect>
+                <rect fill="#81D4FA" x="0" y="30" width="40" height="5"></rect>
+            </g>
+            <g transform="translate(420, 150)">
+                <rect fill="#B3E5FC" x="0" y="0" width="40" height="60" rx="2"></rect>
+                <rect fill="#81D4FA" x="0" y="0" width="40" height="5"></rect>
+                <rect fill="#81D4FA" x="0" y="30" width="40" height="5"></rect>
+            </g>
+            
+            <!-- Top Windows -->
+            <g transform="translate(180, 110)">
+                <rect fill="#B3E5FC" x="0" y="0" width="30" height="30" rx="15"></rect>
+                <rect fill="#81D4FA" x="0" y="15" width="30" height="2"></rect>
+                <rect fill="#81D4FA" x="14" y="0" width="2" height="30"></rect>
+            </g>
+            <g transform="translate(390, 110)">
+                <rect fill="#B3E5FC" x="0" y="0" width="30" height="30" rx="15"></rect>
+                <rect fill="#81D4FA" x="0" y="15" width="30" height="2"></rect>
+                <rect fill="#81D4FA" x="14" y="0" width="2" height="30"></rect>
+            </g>
+            
+            <!-- Flag -->
+            <rect id="Flagpole" fill="#757575" x="500" y="50" width="4" height="150"></rect>
+            <rect id="Flag" fill="#F44336" x="504" y="50" width="30" height="20"></rect>
+        </g>
+        
+        <!-- Students -->
+        <g id="Students" transform="translate(200, 460)">
+            <!-- Student 1 -->
+            <circle fill="#FFA726" cx="20" cy="20" r="15"></circle>
+            <rect fill="#5C6BC0" x="10" y="35" width="20" height="30"></rect>
+            <rect fill="#333333" x="15" y="65" width="5" height="15"></rect>
+            <rect fill="#333333" x="25" y="65" width="5" height="15"></rect>
+            
+            <!-- Student 2 -->
+            <circle fill="#FFCC80" cx="60" cy="20" r="15"></circle>
+            <rect fill="#26A69A" x="50" y="35" width="20" height="25"></rect>
+            <rect fill="#333333" x="55" y="60" width="5" height="20"></rect>
+            <rect fill="#333333" x="65" y="60" width="5" height="20"></rect>
+            
+            <!-- Student 3 -->
+            <circle fill="#EF9A9A" cx="100" cy="20" r="15"></circle>
+            <rect fill="#7E57C2" x="90" y="35" width="20" height="25"></rect>
+            <rect fill="#333333" x="95" y="60" width="5" height="20"></rect>
+            <rect fill="#333333" x="105" y="60" width="5" height="20"></rect>
+        </g>
+        
+        <!-- Trees -->
+        <g id="Tree-1" transform="translate(60, 400)">
+            <rect fill="#795548" x="20" y="20" width="10" height="80"></rect>
+            <circle fill="#43A047" cx="25" cy="20" r="20"></circle>
+        </g>
+        <g id="Tree-2" transform="translate(600, 380)">
+            <rect fill="#795548" x="20" y="20" width="10" height="100"></rect>
+            <circle fill="#43A047" cx="25" cy="20" r="25"></circle>
+        </g>
+        
+        <!-- Sun -->
+        <circle id="Sun" fill="#FFEB3B" cx="700" cy="100" r="40"></circle>
+        
+        <!-- Clouds -->
+        <g id="Cloud-1" transform="translate(100, 80)">
+            <ellipse fill="#FFFFFF" cx="0" cy="0" rx="30" ry="20"></ellipse>
+            <ellipse fill="#FFFFFF" cx="30" cy="-10" rx="25" ry="15"></ellipse>
+            <ellipse fill="#FFFFFF" cx="50" cy="0" rx="20" ry="15"></ellipse>
+        </g>
+        <g id="Cloud-2" transform="translate(500, 60)">
+            <ellipse fill="#FFFFFF" cx="0" cy="0" rx="25" ry="15"></ellipse>
+            <ellipse fill="#FFFFFF" cx="25" cy="-5" rx="20" ry="15"></ellipse>
+            <ellipse fill="#FFFFFF" cx="40" cy="5" rx="15" ry="10"></ellipse>
+        </g>
+    </g>
+</svg>

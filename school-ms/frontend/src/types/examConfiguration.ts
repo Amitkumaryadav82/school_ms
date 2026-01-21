@@ -30,6 +30,7 @@ export interface SubjectMasterRequest {
 export interface ClassConfiguration {
   id?: number;
   className: string;
+  section?: string; // Add section property
   academicYear: string;
   description?: string;
   isActive: boolean;
@@ -42,6 +43,7 @@ export interface ClassConfiguration {
 
 export interface ClassConfigurationRequest {
   className: string;
+  section?: string; // Add section property
   academicYear: string;
   description?: string;
   isActive?: boolean;
@@ -52,6 +54,7 @@ export interface ConfigurationSubject {
   id?: number;
   classConfigurationId: number;
   subjectMasterId: number;
+  subjectMasterName?: string; // Add for display purposes
   subjectCode: string;
   subjectName: string;
   subjectType: SubjectType; // Original subject type from Subject Master
@@ -86,9 +89,16 @@ export interface ConfigurationSubjectRequest {
 // Copy Configuration Types
 export interface CopyConfigurationRequest {
   sourceClassConfigId: number;
+  sourceConfigurationId?: number; // Add for compatibility
   targetClassConfigId: number;
+  targetClassName?: string; // Add missing properties
+  targetSection?: string;
+  targetAcademicYear?: string;
+  includeSubjects?: boolean; // Add missing property
   subjectIds?: number[]; // Optional: specific subjects to copy
   overwriteExisting: boolean;
+  adjustMarks?: boolean;
+  marksAdjustmentFactor?: number;
 }
 
 export interface CopyConfigurationResponse {

@@ -3,6 +3,7 @@ import React from 'react';
 interface Notification {
     message: string;
     type: 'success' | 'error' | 'info' | 'warning';
+    autoHideDuration?: number;
 }
 interface NotificationContextType {
     showNotification: (notification: Notification) => void;

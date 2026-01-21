@@ -22,7 +22,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { useNotification } from '../../context/NotificationContext';
 import { useApi, useApiMutation } from '../../hooks/useApi';
-import { employeeAttendanceService, HolidayDTO, HolidayType } from '../../services/employeeAttendanceService';
+import { employeeAttendanceService, EmployeeAttendanceStatus, HolidayDTO, HolidayType } from '../../services/employeeAttendanceService';
 import ErrorMessage from '../ErrorMessage';
 import Loading from '../Loading';
 
@@ -130,17 +130,17 @@ const AttendanceCalendarView: React.FC = () => {
     attendanceData.forEach(attendance => {
       const date = attendance.attendanceDate;
       if (data[date]) {
-        switch (attendance.attendanceStatus) {
-          case AttendanceStatus.PRESENT:
+        switch (attendance.status) {
+          case EmployeeAttendanceStatus.PRESENT:
             data[date].present++;
             break;
-          case AttendanceStatus.ABSENT:
+          case EmployeeAttendanceStatus.ABSENT:
             data[date].absent++;
             break;
-          case AttendanceStatus.HALF_DAY:
+          case EmployeeAttendanceStatus.HALF_DAY:
             data[date].halfDay++;
             break;
-          case AttendanceStatus.ON_LEAVE:
+          case EmployeeAttendanceStatus.ON_LEAVE:
             data[date].onLeave++;
             break;
         }
@@ -186,7 +186,7 @@ const AttendanceCalendarView: React.FC = () => {
     }
 
     try {
-      await addHoliday(newHoliday as SchoolHoliday);
+      await addHoliday(newHoliday as HolidayDTO);
     } catch (error) {
       console.error('Error adding holiday:', error);
     }

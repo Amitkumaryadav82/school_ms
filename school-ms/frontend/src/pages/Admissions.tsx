@@ -1161,16 +1161,7 @@ const Admissions = () => {
     });
     
     // Refresh data after successful upload
-    setLoading(true);
-    admissionService.getAllApplications()
-      .then(data => {
-        setAdmissions(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching admissions:', error);
-        setLoading(false);
-      });
+    refresh();
   };
 
   if (apiLoading) {
@@ -1261,7 +1252,7 @@ const Admissions = () => {
           </Tooltip>
           
           {/* Bulk Upload Button */}
-          <Permission roles={['ADMIN']}>
+          <Permission>
             <Button
               variant="outlined"
               color="primary"

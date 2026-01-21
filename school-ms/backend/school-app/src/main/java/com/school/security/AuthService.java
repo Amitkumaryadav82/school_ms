@@ -7,6 +7,7 @@ import com.school.security.exception.DuplicateUsernameException;
 import com.school.security.exception.DuplicateEmailException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +34,7 @@ public class AuthService {
     private UserRepositoryLoggingWrapper userRepositoryLogger;
 
     @Autowired
+    @Lazy
     private PasswordEncoder passwordEncoder;
 
     @Autowired

@@ -59,7 +59,7 @@ const AttendanceWeeklyEdit: React.FC<AttendanceWeeklyEditProps> = ({
             const isValid = await authService.validateToken();
             if (!isValid) {
               console.error('Token refresh failed, redirecting to login');
-              logout('expired');
+              logout();
             } else {
               console.log('Token refresh successful');
             }
@@ -67,7 +67,7 @@ const AttendanceWeeklyEdit: React.FC<AttendanceWeeklyEditProps> = ({
         } catch (error) {
           console.error('Authentication check failed:', error);
           // Only logout after trying to refresh
-          logout('expired');
+          logout();
         }
       }
     };

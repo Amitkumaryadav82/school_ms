@@ -674,7 +674,7 @@ interface ConfigurationSubjectModalEnhancedProps {
   onSave: (data: ConfigurationSubjectRequest) => void; // Return data instead of saving directly
   configurationId?: number; // Optional for embedded usage
   configurationSubject?: ConfigurationSubject;
-  mode: 'add' | 'edit';
+  mode: 'add' | 'edit' | 'view';
   excludeSubjectIds?: number[]; // Exclude already selected subjects
 }
 
@@ -1156,7 +1156,7 @@ const ConfigurationSubjectModalEnhanced: React.FC<ConfigurationSubjectModalEnhan
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">{getModalTitle()}</Typography>
           <Typography variant="subtitle2" color="text.secondary">
-            {classConfiguration.className} - {classConfiguration.section} ({classConfiguration.academicYear})
+            Configuration ID: {configurationId}
           </Typography>
         </Box>
       </DialogTitle>
@@ -1307,3 +1307,4 @@ const ConfigurationSubjectModalEnhanced: React.FC<ConfigurationSubjectModalEnhan
 };
 
 export default ConfigurationSubjectModal;
+

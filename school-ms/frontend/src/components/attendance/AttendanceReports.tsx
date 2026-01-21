@@ -128,61 +128,6 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
     },
     { dependencies: [selectedYear, selectedMonth, staffType] }
   );
-  
-  // Enhanced debug logging for report data
-  useEffect(() => {
-    if (monthlyReport) {
-      console.log('Monthly report data received:', monthlyReport);
-      console.log('Monthly report has employee summaries:', !!monthlyReport.employeeSummaries);
-      if (monthlyReport.employeeSummaries) {
-        console.log('Number of employees in report:', monthlyReport.employeeSummaries.length);
-        // Log the first employee record to check data structure
-        if (monthlyReport.employeeSummaries.length > 0) {
-          console.log('Sample employee data:', monthlyReport.employeeSummaries[0]);
-        }
-      }
-    } else if (monthlyReportError) {
-      console.error('Error fetching monthly report:', monthlyReportError);
-    }
-  }, [monthlyReport, monthlyReportError]);
-  
-  // Enhanced debug logging for UI state and data
-  useEffect(() => {
-    console.log('AttendanceReports component state:', {
-      tabValue,
-      isAdmin,
-      selectedTeacher: selectedTeacher || 'none',
-      hasTeachers: teachers ? teachers.length > 0 : false,
-      hasMonthlyReport: !!monthlyReport,
-      hasEmployeeStats: !!employeeStats,
-      departmentDataLength: departmentData.length,
-      trendDataLength: trendData.length,
-      currentMonth: selectedMonth,
-      currentYear: selectedYear
-    });
-  }, [tabValue, isAdmin, selectedTeacher, teachers, monthlyReport, employeeStats, departmentData, trendData, selectedMonth, selectedYear]);
-
-  // Handle tab change
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
-  };
-  // Get teacher name from ID
-  const getTeacherName = (id: number) => {
-    const teacher = teachers?.find((t: any) => t.id === id);
-    return teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown';
-  };
-
-  // Prepare chart data for individual teacher
-  const individualChartData = React.useMemo(() => {
-    if (!employeeStats) return [];
-    
-    return [
-      { name: 'Present', value: employeeStats.presentDays, color: '#4caf50' },
-      { name: 'Absent', value: employeeStats.absentDays, color: '#f44336' },
-      { name: 'Half Day', value: employeeStats.halfDays, color: '#ff9800' },
-      { name: 'Leave', value: employeeStats.leaveDays, color: '#2196f3' }
-    ];
-  }, [employeeStats]);
 
   // Prepare attendance trend data with improved error handling and fallbacks
   const trendData = React.useMemo(() => {
@@ -348,6 +293,61 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
     console.log('Calculated department data:', result);
     return result;
   }, [monthlyReport]);
+  
+  // Enhanced debug logging for report data
+  useEffect(() => {
+    if (monthlyReport) {
+      console.log('Monthly report data received:', monthlyReport);
+      console.log('Monthly report has employee summaries:', !!monthlyReport.employeeSummaries);
+      if (monthlyReport.employeeSummaries) {
+        console.log('Number of employees in report:', monthlyReport.employeeSummaries.length);
+        // Log the first employee record to check data structure
+        if (monthlyReport.employeeSummaries.length > 0) {
+          console.log('Sample employee data:', monthlyReport.employeeSummaries[0]);
+        }
+      }
+    } else if (monthlyReportError) {
+      console.error('Error fetching monthly report:', monthlyReportError);
+    }
+  }, [monthlyReport, monthlyReportError]);
+  
+  // Enhanced debug logging for UI state and data
+  useEffect(() => {
+    console.log('AttendanceReports component state:', {
+      tabValue,
+      isAdmin,
+      selectedTeacher: selectedTeacher || 'none',
+      hasTeachers: teachers ? teachers.length > 0 : false,
+      hasMonthlyReport: !!monthlyReport,
+      hasEmployeeStats: !!employeeStats,
+      departmentDataLength: departmentData.length,
+      trendDataLength: trendData.length,
+      currentMonth: selectedMonth,
+      currentYear: selectedYear
+    });
+  }, [tabValue, isAdmin, selectedTeacher, teachers, monthlyReport, employeeStats, departmentData, trendData, selectedMonth, selectedYear]);
+
+  // Handle tab change
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+  // Get teacher name from ID
+  const getTeacherName = (id: number) => {
+    const teacher = teachers?.find((t: any) => t.id === id);
+    return teacher ? `${teacher.firstName} ${teacher.lastName}` : 'Unknown';
+  };
+
+  // Prepare chart data for individual teacher
+  const individualChartData = React.useMemo(() => {
+    if (!employeeStats) return [];
+    
+    return [
+      { name: 'Present', value: (employeeStats as any).presentDays || 0, color: '#4caf50' },
+      { name: 'Absent', value: (employeeStats as any).absentDays || 0, color: '#f44336' },
+      { name: 'Half Day', value: (employeeStats as any).halfDays || 0, color: '#ff9800' },
+      { name: 'Leave', value: (employeeStats as any).leaveDays || 0, color: '#2196f3' }
+    ];
+  }, [employeeStats]);
 
   // Handle export reports
   const handleExport = () => {
@@ -371,8 +371,7 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
     console.error('Reports error state - failed to load teachers:', teachersError);
     return (
       <ErrorMessage 
-        message="Failed to load teacher data. Please refresh the page and try again." 
-        severity="error"
+        message="Failed to load teacher data. Please refresh the page and try again."
       />
     );
   }
@@ -469,32 +468,32 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
                           Attendance Summary for {getTeacherName(Number(selectedTeacher))}
                         </Typography>
                         <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                          {dayjs(employeeStats.startDate).format('MMM D, YYYY')} - {dayjs(employeeStats.endDate).format('MMM D, YYYY')}
+                          {dayjs((employeeStats as any).startDate).format('MMM D, YYYY')} - {dayjs((employeeStats as any).endDate).format('MMM D, YYYY')}
                         </Typography>
                         
                         <Grid container spacing={2} sx={{ mt: 2 }}>
                           <Grid item xs={6} md={3}>
                             <Box>
                               <Typography variant="overline">Working Days</Typography>
-                              <Typography variant="h5">{employeeStats.totalWorkingDays}</Typography>
+                              <Typography variant="h5">{(employeeStats as any).totalWorkingDays || 0}</Typography>
                             </Box>
                           </Grid>
                           <Grid item xs={6} md={3}>
                             <Box>
                               <Typography variant="overline">Present</Typography>
-                              <Typography variant="h5" color="success.main">{employeeStats.presentDays}</Typography>
+                              <Typography variant="h5" color="success.main">{(employeeStats as any).presentDays || 0}</Typography>
                             </Box>
                           </Grid>
                           <Grid item xs={6} md={3}>
                             <Box>
                               <Typography variant="overline">Absent</Typography>
-                              <Typography variant="h5" color="error.main">{employeeStats.absentDays}</Typography>
+                              <Typography variant="h5" color="error.main">{(employeeStats as any).absentDays || 0}</Typography>
                             </Box>
                           </Grid>
                           <Grid item xs={6} md={3}>
                             <Box>
                               <Typography variant="overline">Attendance %</Typography>
-                              <Typography variant="h5">{employeeStats.attendancePercentage}%</Typography>
+                              <Typography variant="h5">{(employeeStats as any).attendancePercentage || 0}%</Typography>
                             </Box>
                           </Grid>
                         </Grid>
@@ -506,13 +505,13 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
                           <Grid item xs={6} md={6}>
                             <Box>
                               <Typography variant="overline">Half Days</Typography>
-                              <Typography variant="body1">{employeeStats.halfDays}</Typography>
+                              <Typography variant="body1">{(employeeStats as any).halfDays || 0}</Typography>
                             </Box>
                           </Grid>
                           <Grid item xs={6} md={6}>
                             <Box>
                               <Typography variant="overline">On Leave</Typography>
-                              <Typography variant="body1">{employeeStats.leaveDays}</Typography>
+                              <Typography variant="body1">{(employeeStats as any).leaveDays || 0}</Typography>
                             </Box>
                           </Grid>
                         </Grid>
@@ -553,7 +552,7 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
                   </Grid>
                 </Grid>
 
-                {employeeStats.datesByStatus && Object.keys(employeeStats.datesByStatus).length > 0 && (
+                {(employeeStats as any).datesByStatus && Object.keys((employeeStats as any).datesByStatus).length > 0 && (
                   <Card sx={{ mt: 3 }}>
                     <CardContent>
                       <Typography variant="h6" gutterBottom>
@@ -561,7 +560,7 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
                       </Typography>
 
                       <Grid container spacing={2}>
-                        {Object.entries(employeeStats.datesByStatus).map(([status, dates]) => (
+                        {Object.entries((employeeStats as any).datesByStatus).map(([status, dates]) => (
                           <Grid item xs={12} sm={6} md={3} key={status}>
                             <Typography variant="subtitle1" gutterBottom>
                               {status.replace('_', ' ')}
@@ -593,15 +592,15 @@ const AttendanceReports: React.FC<AttendanceReportsProps> = ({ isAdmin, staffTyp
               </Box>
             ) : selectedTeacher ? (
               <Box sx={{ mt: 3, textAlign: 'center', p: 3 }}>
-                {loading ? (
+                {statsLoading ? (
                   <Typography>Loading attendance data...</Typography>
-                ) : error ? (
+                ) : statsError ? (
                   <>
                     <Typography variant="h6" color="error" gutterBottom>
                       Error loading attendance data
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {error || "There was a problem loading the attendance data. Please try again."}
+                      {(statsError as any)?.message || "There was a problem loading the attendance data. Please try again."}
                     </Typography>
                     <Button 
                       variant="outlined" 

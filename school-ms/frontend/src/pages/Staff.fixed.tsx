@@ -212,7 +212,7 @@ const Staff: React.FC = () => {
       });
       
       // Check if token has the required roles for this operation
-      const hasRequiredRole = (tokenDetails.roles || []).some(role => 
+      const hasRequiredRole = (tokenDetails.roles || []).some((role: string) => 
         role === 'ADMIN' || role === 'HR_MANAGER'
       );
       
@@ -238,6 +238,18 @@ const Staff: React.FC = () => {
         message: "Failed to validate your permissions. Please try logging out and back in." 
       });
       refresh();
+    }
+  };
+
+  const handleStatusChange = (staff: StaffMember, status: EmploymentStatus) => {
+    handleEmploymentStatusChange(staff.id!, status);
+  };
+
+  const handleBulkSubmit = async (staffList: StaffMember[]) => {
+    try {
+      await bulkCreateStaff(staffList);
+    } catch (error) {
+      console.error('Bulk submit error:', error);
     }
   };
 
@@ -724,7 +736,6 @@ const Staff: React.FC = () => {
       <DataTable
         columns={columns}
         data={filteredStaffList || []}
-        pagination
         searchPlaceholder="Search staff..."
       />
 
@@ -732,14 +743,14 @@ const Staff: React.FC = () => {
       <StaffDialog
         open={dialogOpen}
         onClose={handleDialogClose}
-        onSubmit={(staff) => {
+        onSubmit={async (staff) => {
           if (selectedStaff?.id) {
-            updateStaff({ id: selectedStaff.id, staff });
+            await updateStaff({ id: selectedStaff.id, staff });
           } else {
-            createStaff(staff as StaffMember);
+            await createStaff(staff as StaffMember);
           }
         }}
-        staff={selectedStaff}
+        initialData={selectedStaff}
         loading={createLoading || updateLoading}
       />
 

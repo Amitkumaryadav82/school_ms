@@ -222,15 +222,15 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
     // Fallback department list for when staff data can't be loaded
     const fallbackDepartments = ['Science', 'Mathematics', 'English', 'Social Studies', 'Physical Education', 'Arts'];
     
-    if (!allStaff || allStaff.length === 0) {
+    if (!allStaff || (allStaff as any).length === 0) {
       console.log('Using fallback departments list since staff data is not available');
       return fallbackDepartments;
     }
     
     try {
-      const departments = allStaff
-        .filter(staff => staff.department)
-        .map(staff => staff.department as string);
+      const departments = (allStaff as any[])
+        .filter((staff: any) => staff.department)
+        .map((staff: any) => staff.department as string);
       
       const uniqueDepartments = Array.from(new Set(departments)).sort();
       
@@ -245,7 +245,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
   // Filter staff based on staff type and active status with improved error handling
   const filteredStaff = React.useMemo(() => {
     try {
-      if (!allStaff || allStaff.length === 0) {
+      if (!allStaff || (allStaff as any).length === 0) {
         console.log('No staff data available for filtering');
         
         // Create dummy staff data as a fallback when no real data is available
@@ -289,9 +289,9 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
       }
       
       // Log the total count before filtering
-      console.log(`Total staff before filtering: ${allStaff.length}`);
+      console.log(`Total staff before filtering: ${(allStaff as any).length}`);
       
-      const filtered = allStaff.filter(staff => {
+      const filtered = (allStaff as any[]).filter((staff: any) => {
         // Make sure staff object is valid
         if (!staff) return false;
         
@@ -308,7 +308,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
       console.log(`Staff after filtering (type=${staffType}): ${filtered.length}`);
       
       // Sort staff alphabetically by name for better usability
-      filtered.sort((a, b) => {
+      filtered.sort((a: any, b: any) => {
         const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
         const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
         return nameA.localeCompare(nameB);
@@ -482,16 +482,16 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
     if (!staffAttendance || !selectedStaffMember) return null;
     
     // Filter by date range
-    const inRangeAttendance = staffAttendance.filter(record => {
+    const inRangeAttendance = (staffAttendance as any[]).filter((record: any) => {
       const recordDate = dayjs(record.attendanceDate);
       return recordDate.isAfter(startDate) && recordDate.isBefore(endDate);
     });
     
     // Count days by status
-    const presentDays = inRangeAttendance.filter(a => a.status === EmployeeAttendanceStatus.PRESENT).length;
-    const absentDays = inRangeAttendance.filter(a => a.status === EmployeeAttendanceStatus.ABSENT).length;
-    const halfDays = inRangeAttendance.filter(a => a.status === EmployeeAttendanceStatus.HALF_DAY).length;
-    const leaveDays = inRangeAttendance.filter(a => a.status === EmployeeAttendanceStatus.ON_LEAVE).length;
+    const presentDays = inRangeAttendance.filter((a: any) => a.status === EmployeeAttendanceStatus.PRESENT).length;
+    const absentDays = inRangeAttendance.filter((a: any) => a.status === EmployeeAttendanceStatus.ABSENT).length;
+    const halfDays = inRangeAttendance.filter((a: any) => a.status === EmployeeAttendanceStatus.HALF_DAY).length;
+    const leaveDays = inRangeAttendance.filter((a: any) => a.status === EmployeeAttendanceStatus.ON_LEAVE).length;
     const totalMarkedDays = inRangeAttendance.length;
     
     // Calculate total working days (excluding weekends and holidays)
@@ -504,7 +504,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
       : 0;
       
     // Group dates by status for details section
-    const datesByStatus = inRangeAttendance.reduce((acc, curr) => {
+    const datesByStatus = inRangeAttendance.reduce((acc: any, curr: any) => {
       if (!acc[curr.status]) {
         acc[curr.status] = [];
       }
@@ -529,7 +529,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
   const monthlyReport = React.useMemo(() => {
     try {
       // Log the input data for debugging
-      console.log(`Processing monthly report data. Monthly attendance records: ${monthlyAttendance?.length || 0}, Staff records: ${allStaff?.length || 0}`);
+      console.log(`Processing monthly report data. Monthly attendance records: ${(monthlyAttendance as any)?.length || 0}, Staff records: ${(allStaff as any)?.length || 0}`);
       
       if (!monthlyAttendance || !allStaff) {
         console.log("Missing data for monthly report calculation:", { 
@@ -823,7 +823,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
     // Filter staff by selected department
     const filteredEmployees = selectedDepartment === 'ALL'
       ? monthlyReport.employeeSummaries
-      : monthlyReport.employeeSummaries.filter(emp => emp.department === selectedDepartment);
+      : monthlyReport.employeeSummaries.filter((emp: any) => emp && emp.department === selectedDepartment);
     
     if (filteredEmployees.length === 0) {
       showNotification('No staff found in the selected department', 'warning');
@@ -841,7 +841,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
       let csvContent = `Staff ID,Name,Department,${dateHeaders.join(',')},Present,Absent,Half Day,Leave,Attendance %\n`;
       
       // Add data for each employee
-      filteredEmployees.forEach(employee => {
+      filteredEmployees.forEach((employee: any) => {
         const {
           employeeId,
           employeeName,
@@ -1176,7 +1176,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
                       return <li {...props}>Error displaying staff</li>;
                     }
                   }}
-                  value={safeFilteredStaff.find(s => s.id === selectedStaffMember) || null}
+                  value={safeFilteredStaff.find((s: any) => s.id === selectedStaffMember) || null}
                   onChange={(_, newValue) => setSelectedStaffMember(newValue ? newValue.id : '')}
                   renderInput={(params) => (
                     <TextField 
@@ -1256,7 +1256,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
                   </Box>
                   
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2, p: 1, bgcolor: 'background.paper', fontFamily: 'monospace', borderRadius: 1 }}>
-                    Error details: {staffAttendanceError.message || "An unexpected error occurred when fetching attendance records."}
+                    Error details: {typeof staffAttendanceError === 'string' ? staffAttendanceError : (staffAttendanceError as any)?.message || "An unexpected error occurred when fetching attendance records."}
                   </Typography>
                   
                   <Typography variant="body2" sx={{ mt: 2 }}>
@@ -1610,7 +1610,7 @@ const AttendanceReportsImpl: React.FC<AttendanceReportsImplProps> = ({ isAdmin, 
                       onChange={(e) => setSelectedDepartment(e.target.value)}
                     >
                       <MenuItem value="ALL">All Departments</MenuItem>
-                      {(departmentList || []).map(dept => (
+                      {((departmentList as string[]) || []).map((dept: string) => (
                         <MenuItem key={dept} value={dept}>{dept}</MenuItem>
                       ))}
                     </Select>

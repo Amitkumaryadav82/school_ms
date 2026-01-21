@@ -20,7 +20,7 @@ interface State {
 // Create a context consumer component to access ConnectionContext from a class component
 class NetworkErrorBoundaryWithContext extends React.Component<Props> {
   static contextType = ConnectionContext;
-  context!: React.ContextType<typeof ConnectionContext>;
+  declare context: React.ContextType<typeof ConnectionContext>;
   
   render() {
     return <NetworkErrorBoundary {...this.props} connectionContext={this.context} />;

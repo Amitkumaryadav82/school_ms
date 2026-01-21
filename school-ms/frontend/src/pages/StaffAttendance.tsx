@@ -74,7 +74,7 @@ const StaffAttendance: React.FC = () => {
       } catch (error) {
         console.error('Token validation failed in StaffAttendance:', error);
         // Redirect to login with expired session message
-        logout('expired');
+        logout();
       }
     };
     

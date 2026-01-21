@@ -105,12 +105,12 @@ const AttendanceUpload: React.FC = () => {
         showNotification('Attendance data uploaded successfully', 'success');
         setActiveStep(3); // Move to success step
       },
-      onError: (error) => {
+      onError: (error: any) => {
         setUploadResult({
           success: false,
-          message: error.message || 'Failed to upload attendance data'
+          message: error?.message || 'Failed to upload attendance data'
         });
-        showNotification(`Upload failed: ${error.message}`, 'error');
+        showNotification(`Upload failed: ${error?.message || 'Unknown error'}`, 'error');
       }
     }
   );
@@ -142,8 +142,8 @@ const AttendanceUpload: React.FC = () => {
         
         showNotification('Template downloaded successfully', 'success');
       },
-      onError: (error) => {
-        showNotification(`Failed to download template: ${error.message}`, 'error');
+      onError: (error: any) => {
+        showNotification(`Failed to download template: ${error?.message || 'Unknown error'}`, 'error');
       }
     }
   );
@@ -159,7 +159,7 @@ const AttendanceUpload: React.FC = () => {
       // Generate dates in range
       const start = weekStartDate;
       const end = weekEndDate;
-      const daysArray = [];
+      const daysArray: string[] = [];
       
       let current = start;
       while (current.isBefore(end) || current.isSame(end, 'day')) {
@@ -282,7 +282,7 @@ const AttendanceUpload: React.FC = () => {
   // Process weekly upload by breaking it down into daily uploads
   const processWeeklyUpload = async (file: File) => {
     if (!weekStartDate || !weekEndDate || !staffMembers) {
-      throw new Error('Missing required data for weekly upload');
+      throw new globalThis.Error('Missing required data for weekly upload');
     }
     
     try {
@@ -306,7 +306,7 @@ const AttendanceUpload: React.FC = () => {
       const lines = fileContent.split('\\n');
       
       if (lines.length < 2) {
-        throw new Error('CSV file is empty or has invalid format');
+        throw new globalThis.Error('CSV file is empty or has invalid format');
       }
       
       // Parse header to find date columns
@@ -413,13 +413,15 @@ const AttendanceUpload: React.FC = () => {
             count: validEntriesCount,
             message: `Successfully processed ${validEntriesCount} records`
           });
-        } catch (error) {
+        } catch (error: unknown) {
           console.error(`Error processing date ${date}:`, error);
+          const err = error as Error;
+          const errorMessage = err?.message || 'Unknown error';
           dailyResults.push({
             date,
             success: false,
             count: 0,
-            message: `Error: ${error.message || 'Unknown error'}`
+            message: `Error: ${errorMessage}`
           });
         }
       }
@@ -440,13 +442,16 @@ const AttendanceUpload: React.FC = () => {
         successDays > 0 ? (successDays === daysArray.length ? 'success' : 'warning') : 'error'
       );
       
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error processing weekly upload:', error);
+      const err = error as Error;
+      const errorMessage = err?.message || 'Failed to process weekly attendance data';
+      const notificationMessage = err?.message || 'Unknown error';
       setUploadResult({
         success: false,
-        message: error.message || 'Failed to process weekly attendance data'
+        message: errorMessage
       });
-      showNotification(`Weekly upload failed: ${error.message}`, 'error');
+      showNotification(`Weekly upload failed: ${notificationMessage}`, 'error');
     } finally {
       setIsProcessing(false);
       setActiveStep(3); // Move to complete step
@@ -527,7 +532,7 @@ const AttendanceUpload: React.FC = () => {
                     <DatePicker
                       label="Select Date"
                       value={selectedDate}
-                      onChange={(newDate) => setSelectedDate(newDate)}
+                      onChange={(newDate) => setSelectedDate(newDate ? dayjs(newDate) : null)}
                       sx={{ width: '100%' }}
                     />
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
@@ -539,13 +544,13 @@ const AttendanceUpload: React.FC = () => {
                     <DatePicker
                       label="Week Start Date"
                       value={weekStartDate}
-                      onChange={(newDate) => setWeekStartDate(newDate)}
+                      onChange={(newDate) => setWeekStartDate(newDate ? dayjs(newDate) : null)}
                       sx={{ width: '100%' }}
                     />
                     <DatePicker
                       label="Week End Date"
                       value={weekEndDate}
-                      onChange={(newDate) => setWeekEndDate(newDate)}
+                      onChange={(newDate) => setWeekEndDate(newDate ? dayjs(newDate) : null)}
                       sx={{ width: '100%' }}
                     />
                     {weekStartDate && weekEndDate && (

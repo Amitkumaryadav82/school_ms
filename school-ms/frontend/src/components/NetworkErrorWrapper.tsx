@@ -13,16 +13,9 @@ interface NetworkErrorWrapperProps {
  * a consistent way to display connection-related errors.
  */
 const NetworkErrorWrapper: React.FC<NetworkErrorWrapperProps> = ({ children }) => {
-  const [showSettings, setShowSettings] = React.useState(false);
-  
   return (
     <>
       {children}
-      
-      <ConnectionSettings 
-        open={showSettings}
-        onClose={() => setShowSettings(false)}
-      />
     </>
   );
 };

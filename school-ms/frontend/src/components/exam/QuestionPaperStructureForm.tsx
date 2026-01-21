@@ -5,32 +5,28 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Input,
+  TextField,
   Stack,
-  NumberInput,
-  NumberInputField,
-  Heading,
+  Typography,
   Divider,
   IconButton,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
   Select,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalCloseButton,
-  ModalFooter,
-  useToast,
-  Spinner,
-} from '@chakra-ui/react';
-import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { useSnackbar } from 'notistack';
 import { QuestionPaperStructure, QuestionSection, QuestionType } from '../../services/examService';
 
 
@@ -49,12 +45,17 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
   classId,
   subjectId,
 }) => {
-  const toast = useToast();
+  const { enqueueSnackbar } = useSnackbar();
   const [isSaving, setIsSaving] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const handleOpen = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
+  
   // Save all rows to backend (batch save)
   const handleSave = async () => {
     if (!examId || !classId || !subjectId) {
-      toast({ status: 'error', title: 'Missing exam, class, or subject', description: 'Please select and save exam configuration first.' });
+      enqueueSnackbar('Please select and save exam configuration first.', { variant: 'error' });
       return;
     }
     setIsSaving(true);
@@ -74,10 +75,10 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
       const res = await axios.post('/api/question-paper-format/batch', rows, {
         params: { examId, classId, subjectId },
       });
-      toast({ status: 'success', title: 'Saved', description: 'Question paper format saved successfully.' });
+      enqueueSnackbar('Question paper format saved successfully.', { variant: 'success' });
       // Optionally reload data or call onChange
     } catch (err: any) {
-      toast({ status: 'error', title: 'Save failed', description: err?.response?.data?.message || 'Could not save question paper format.' });
+      enqueueSnackbar(err?.response?.data?.message || 'Could not save question paper format.', { variant: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -124,7 +125,6 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
   });
   
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     if (initialData) {
@@ -167,7 +167,7 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
     }));
   };
 
-  const handleSectionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleSectionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any) => {
     const { name, value } = e.target;
     setCurrentSection(prev => ({
       ...prev,
@@ -175,10 +175,11 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
     }));
   };
 
-  const handleNumberChange = (field: keyof QuestionSection) => (valueAsString: string, valueAsNumber: number) => {
+  const handleNumberChange = (field: keyof QuestionSection) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
     setCurrentSection(prev => ({
       ...prev,
-      [field]: valueAsNumber,
+      [field]: isNaN(value) ? 0 : value,
     }));
   };
 
@@ -218,13 +219,13 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
       mandatoryQuestions: 0,
       marksPerQuestion: 0,
     });
-    onClose();
+    handleClose();
   };
 
   const editSection = (index: number) => {
     setEditingIndex(index);
     setCurrentSection(structure.sections[index]);
-    onOpen();
+    handleOpen();
   };
 
   const deleteSection = (index: number) => {
@@ -235,88 +236,105 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
   };
 
   return (
-    <Box borderWidth="1px" borderRadius="lg" p={4}>
+    <Box border="1px solid #e0e0e0" borderRadius={2} p={4}>
       <Stack spacing={4}>
         <FormControl>
           <FormLabel>Structure Name</FormLabel>
-          <Input
+          <TextField
             name="name"
             value={structure.name}
             onChange={handleStructureChange}
             placeholder="e.g., Standard Math Paper Structure"
+            fullWidth
           />
         </FormControl>
 
-        <Table size="sm" variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Section Name</Th>
-              <Th>Question Type</Th>
-              <Th isNumeric>Total Questions</Th>
-              <Th isNumeric>Mandatory</Th>
-              <Th isNumeric>Marks Each</Th>
-              <Th isNumeric>Total Marks</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Section Name</TableCell>
+              <TableCell>Question Type</TableCell>
+              <TableCell align="right">Total Questions</TableCell>
+              <TableCell align="right">Mandatory</TableCell>
+              <TableCell align="right">Marks Each</TableCell>
+              <TableCell align="right">Total Marks</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {structure.sections.map((section, index) => (
-              <Tr key={index}>
-                <Td>{section.name}</Td>
-                <Td>{section.questionType.replace(/_/g, ' ')}</Td>
-                <Td isNumeric>{section.totalQuestions}</Td>
-                <Td isNumeric>{section.mandatoryQuestions}</Td>
-                <Td isNumeric>{section.marksPerQuestion}</Td>
-                <Td isNumeric>{section.totalQuestions * section.marksPerQuestion}</Td>
-                <Td>
+              <TableRow key={index}>
+                <TableCell>{section.name}</TableCell>
+                <TableCell>{section.questionType.replace(/_/g, ' ')}</TableCell>
+                <TableCell align="right">{section.totalQuestions}</TableCell>
+                <TableCell align="right">{section.mandatoryQuestions}</TableCell>
+                <TableCell align="right">{section.marksPerQuestion}</TableCell>
+                <TableCell align="right">{section.totalQuestions * section.marksPerQuestion}</TableCell>
+                <TableCell>
                   <IconButton
                     aria-label="Edit section"
-                    icon={<EditIcon />}
-                    size="sm"
-                    mr={2}
+                    size="small"
+                    sx={{ mr: 1 }}
                     onClick={() => editSection(index)}
-                  />
+                  >
+                    <EditIcon />
+                  </IconButton>
                   <IconButton
                     aria-label="Delete section"
-                    icon={<DeleteIcon />}
-                    size="sm"
-                    colorScheme="red"
+                    size="small"
+                    color="error"
                     onClick={() => deleteSection(index)}
-                  />
-                </Td>
-              </Tr>
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
             ))}
-          </Tbody>
+          </TableBody>
         </Table>
 
-        <Button leftIcon={<AddIcon />} colorScheme="teal" onClick={onOpen}>
+        <Button 
+          startIcon={<AddIcon />} 
+          variant="contained" 
+          color="primary" 
+          onClick={handleOpen}
+        >
           Add Question Section
         </Button>
 
         <Divider />
 
         <Box>
-          <Heading size="sm" mb={2}>
+          <Typography variant="h6" mb={2}>
             Paper Summary
-          </Heading>
+          </Typography>
           <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={4}>
             <Box>
               <FormLabel>Total Questions</FormLabel>
-              <NumberInput isReadOnly value={structure.totalQuestions}>
-                <NumberInputField />
-              </NumberInput>
+              <TextField
+                type="number"
+                value={structure.totalQuestions}
+                InputProps={{ readOnly: true }}
+                fullWidth
+              />
             </Box>
             <Box>
               <FormLabel>Mandatory Questions</FormLabel>
-              <NumberInput isReadOnly value={structure.mandatoryQuestions}>
-                <NumberInputField />
-              </NumberInput>
+              <TextField
+                type="number"
+                value={structure.mandatoryQuestions}
+                InputProps={{ readOnly: true }}
+                fullWidth
+              />
             </Box>
             <Box>
               <FormLabel>Total Marks</FormLabel>
-              <NumberInput isReadOnly value={structure.totalMarks}>
-                <NumberInputField />
-              </NumberInput>
+              <TextField
+                type="number"
+                value={structure.totalMarks}
+                InputProps={{ readOnly: true }}
+                fullWidth
+              />
             </Box>
           </Box>
         </Box>
@@ -324,117 +342,121 @@ const QuestionPaperStructureForm: React.FC<QuestionPaperStructureFormProps> = ({
 
       {/* Save Button */}
       <Box mt={6} textAlign="right">
-        <Button colorScheme="blue" onClick={handleSave} isLoading={isSaving} leftIcon={isSaving ? <Spinner size="sm" /> : undefined}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleSave} 
+          disabled={isSaving}
+          startIcon={isSaving ? <CircularProgress size={20} /> : undefined}
+        >
           Save
         </Button>
       </Box>
 
       {/* Question Section Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="lg">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {editingIndex !== null ? 'Edit Question Section' : 'Add Question Section'}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Stack spacing={4}>
+      <Dialog open={isOpen} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogTitle>
+          {editingIndex !== null ? 'Edit Question Section' : 'Add Question Section'}
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ mt: 2 }}>
 
-              <FormControl isRequired>
-                <FormLabel>Unit Name</FormLabel>
-                <Select
-                  name="name"
-                  placeholder={
-                    !examId
-                      ? 'Save exam configuration to select units'
-                      : units.length === 0
-                        ? 'No units available'
-                        : 'Select unit'
-                  }
-                  value={currentSection.name}
-                  onChange={handleSectionChange}
-                  isDisabled={!examId || units.length === 0}
-                >
-                  {units.map((unit) => (
-                    <option key={unit.id} value={unit.name}>
-                      {unit.name}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
+            <FormControl required>
+              <FormLabel>Unit Name</FormLabel>
+              <Select
+                name="name"
+                value={currentSection.name}
+                onChange={handleSectionChange}
+                disabled={!examId || units.length === 0}
+                displayEmpty
+                fullWidth
+              >
+                <MenuItem value="" disabled>
+                  {!examId
+                    ? 'Save exam configuration to select units'
+                    : units.length === 0
+                      ? 'No units available'
+                      : 'Select unit'}
+                </MenuItem>
+                {units.map((unit) => (
+                  <MenuItem key={unit.id} value={unit.name}>
+                    {unit.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-              <FormControl isRequired>
-                <FormLabel>Question Type</FormLabel>
-                <Select
-                  name="questionType"
-                  value={currentSection.questionType}
-                  onChange={handleSectionChange}
-                >
-                  {Object.values(QuestionType).map((type) => (
-                    <option key={type} value={type}>
-                      {type.replace(/_/g, ' ')}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
+            <FormControl required>
+              <FormLabel>Question Type</FormLabel>
+              <Select
+                name="questionType"
+                value={currentSection.questionType}
+                onChange={handleSectionChange}
+                fullWidth
+              >
+                {Object.values(QuestionType).map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type.replace(/_/g, ' ')}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-              <FormControl isRequired>
-                <FormLabel>Instructions (Optional)</FormLabel>
-                <Input
-                  name="instructions"
-                  placeholder="e.g., Answer any 5 questions from this section"
-                  value={currentSection.instructions || ''}
-                  onChange={handleSectionChange}
-                />
-              </FormControl>
+            <FormControl>
+              <FormLabel>Instructions (Optional)</FormLabel>
+              <TextField
+                name="instructions"
+                placeholder="e.g., Answer any 5 questions from this section"
+                value={currentSection.instructions || ''}
+                onChange={handleSectionChange}
+                fullWidth
+              />
+            </FormControl>
 
-              <FormControl isRequired>
-                <FormLabel>Number of Questions</FormLabel>
-                <NumberInput
-                  min={1}
-                  value={currentSection.totalQuestions}
-                  onChange={handleNumberChange('totalQuestions')}
-                >
-                  <NumberInputField />
-                </NumberInput>
-              </FormControl>
+            <FormControl required>
+              <FormLabel>Number of Questions</FormLabel>
+              <TextField
+                type="number"
+                value={currentSection.totalQuestions}
+                onChange={handleNumberChange('totalQuestions')}
+                inputProps={{ min: 1 }}
+                fullWidth
+              />
+            </FormControl>
 
-              <FormControl isRequired>
-                <FormLabel>Mandatory Questions</FormLabel>
-                <NumberInput
-                  min={0}
-                  max={currentSection.totalQuestions}
-                  value={currentSection.mandatoryQuestions}
-                  onChange={handleNumberChange('mandatoryQuestions')}
-                >
-                  <NumberInputField />
-                </NumberInput>
-              </FormControl>
+            <FormControl required>
+              <FormLabel>Mandatory Questions</FormLabel>
+              <TextField
+                type="number"
+                value={currentSection.mandatoryQuestions}
+                onChange={handleNumberChange('mandatoryQuestions')}
+                inputProps={{ min: 0, max: currentSection.totalQuestions }}
+                fullWidth
+              />
+            </FormControl>
 
-              <FormControl isRequired>
-                <FormLabel>Marks per Question</FormLabel>
-                <NumberInput
-                  min={0.5}
-                  step={0.5}
-                  value={currentSection.marksPerQuestion}
-                  onChange={handleNumberChange('marksPerQuestion')}
-                >
-                  <NumberInputField />
-                </NumberInput>
-              </FormControl>
-            </Stack>
-          </ModalBody>
+            <FormControl required>
+              <FormLabel>Marks per Question</FormLabel>
+              <TextField
+                type="number"
+                value={currentSection.marksPerQuestion}
+                onChange={handleNumberChange('marksPerQuestion')}
+                inputProps={{ min: 0.5, step: 0.5 }}
+                fullWidth
+              />
+            </FormControl>
+          </Stack>
+        </DialogContent>
 
-          <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="blue" onClick={addSection}>
-              {editingIndex !== null ? 'Update' : 'Add'} Section
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+        <DialogActions>
+          <Button onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="contained" color="primary" onClick={addSection}>
+            {editingIndex !== null ? 'Update' : 'Add'} Section
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
