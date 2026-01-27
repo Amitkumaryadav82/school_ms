@@ -96,6 +96,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     email VARCHAR(150),
     full_name VARCHAR(100),
+    role VARCHAR(50) DEFAULT 'ADMIN',
     enabled BOOLEAN DEFAULT TRUE,
     account_non_expired BOOLEAN DEFAULT TRUE,
     account_non_locked BOOLEAN DEFAULT TRUE,
@@ -855,14 +856,15 @@ SELECT setval('roles_id_seq', (SELECT MAX(id) FROM roles));
 -- 5.2: Admin Users
 -- ----------------------------------------------------------------------------
 
--- User 1: admin (Password: ChangeMe_Initial1!)
-INSERT INTO users (id, username, password_hash, email, full_name, enabled, account_non_expired, account_non_locked, credentials_non_expired)
+-- User 1: admin (Password: password)
+INSERT INTO users (id, username, password_hash, email, full_name, role, enabled, account_non_expired, account_non_locked, credentials_non_expired)
 VALUES (
     1,
     'admin',
-    '$2a$10$Dow1b0CQpZK0s8AjtKq6uO2dQ.wc2u/.1ytY1/6YrXOvNhbbX6n1K',
+    '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG',
     'admin@schoolms.com',
     'System Administrator',
+    'ADMIN',
     TRUE,
     TRUE,
     TRUE,
@@ -871,13 +873,14 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- User 2: admin1 (Password: qwerty)
-INSERT INTO users (id, username, password_hash, email, full_name, enabled, account_non_expired, account_non_locked, credentials_non_expired, created_at, updated_at)
+INSERT INTO users (id, username, password_hash, email, full_name, role, enabled, account_non_expired, account_non_locked, credentials_non_expired, created_at, updated_at)
 VALUES (
     2,
     'admin1',
     '$2a$10$1bYp1SiyNLKn.z2QL8Iceu8Yw2GxWfZpXeQJcDjuCwaBlDg9uVkie',
     'admin1@schoolms.com',
     'Secondary Administrator',
+    'ADMIN',
     TRUE,
     TRUE,
     TRUE,

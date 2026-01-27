@@ -14,3 +14,23 @@ target/
 # Ignore build directories
 build/
 out/
+
+# Production environment files (NEVER COMMIT THESE!)
+.env.production
+.env.local
+*.env.production
+application-production.properties
+
+# Logs
+*.log
+logs/
+application.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

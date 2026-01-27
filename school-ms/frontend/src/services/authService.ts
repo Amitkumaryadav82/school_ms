@@ -150,7 +150,7 @@ export const authService = {
         // Import authHelper for direct fetch
         const { authFetch } = await import('./authHelper');
         
-        const response = await authFetch<AuthResponse>('/auth/login', credentials);
+        const response = await authFetch<AuthResponse>('/api/auth/login', credentials);
         console.log('✅ AuthService: Login successful with enhanced CORS handling');
         
         // Enhanced debugging - Log auth response details
@@ -175,7 +175,7 @@ export const authService = {
         console.warn('⚠️ Enhanced auth request failed, falling back to standard request:', corsError);
         
         // Fallback to regular API request
-        const response = await api.authRequest<AuthResponse>('/auth/login', credentials);
+        const response = await api.authRequest<AuthResponse>('/api/auth/login', credentials);
         console.log('✅ AuthService: Login successful with fallback method');
         
         // Cache credentials as before
