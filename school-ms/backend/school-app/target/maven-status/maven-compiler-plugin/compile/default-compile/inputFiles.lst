@@ -1,365 +1,365 @@
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\util\NetworkDebugConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\controller\AdmissionController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\util\HolidayThreadLocal.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\model\Gender.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\EmployeeAttendanceDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\BulkStaffAttendanceRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\model\BookIssue.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\Timetable.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\service\NotificationService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\StudentMarksDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\aspect\AuthLoggingAspect.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\StudentAttendanceSummary.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\StudentFeeAssignment.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeStructureController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\exception\DuplicateEmailException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\Exam.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\StaffAttendanceController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\controller\ClassTimetableController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\Employee.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\BlueprintUnitQuestionDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\BlueprintUnitRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\InAppNotification.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookIssueRepositoryImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\controller\StaffBulkController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\CourseService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\CourseServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\PaymentScheduleRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\HolidayAttendanceDebugController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\TeacherAttendanceController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\model\Student.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\BlueprintUnitDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeePaymentSummary.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\ConsolidatedStaffService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\service\NotificationServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\model\Admission.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\QuestionMarkDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\FeeStructure.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\StaffDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\controller\StudentController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\validation\AttendanceValidator.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\Payment.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\controller\CourseController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\controller\Requirement.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffDesignationRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\controller\BookController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\BookServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\TransportRouteController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\ClassAttendanceRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\exception\DuplicateUsernameException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\InvalidPaymentException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentResponse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\BulkSubjectRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffDesignationMapping.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\BlueprintUnitQuestion.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\NotificationType.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\ExamConfigService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\adapter\StaffAdapter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\TimetableSlot.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\AuditConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\MarksMatrixDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\SubjectRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeePaymentDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\TransportRouteRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\DatabaseSeedConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\model\Course.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffRole.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\ClassWiseCollection.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\AttendanceController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\StudentFeeAssignmentDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\QuestionPaperFormatController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\SimplifiedSecurityConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\dto\BulkAdmissionRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\OverdueAnalytics.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\ErrorResponse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\controller\TeacherClassesController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeePaymentRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\QPFSummaryDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\repository\ConsolidatedCourseRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\service\TransportRouteService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\MonthlyAttendanceReport.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\dto\BulkUploadResponse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeeRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\RequestTracingFilter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\StudentAttendanceSummaryDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\MetricsConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\FeeNotFoundException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceSummary.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\CorsTestController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffDesignation.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\EmployeeAttendanceController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\DirectFixController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\model\StudentStatus.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\DefaultUserInitializer.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\notification\service\NotificationService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeeStructureDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\FeePaymentSchedule.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\TeacherRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\MarksMatrixResponse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\CourseRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\DuplicateStudentException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\GlobalExceptionHandler.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\SchoolClassRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\ConsolidatedCourseServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\ExamMarksService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\Staff.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\AttendanceServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\controller\TeacherSubjectsController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\CacheConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\ConsolidatedStaffServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\AttendanceService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\ChapterService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\controller\MessageController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\StaffRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\BookService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeePaymentScheduleController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\exception\AdmissionNotFoundException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\AnalyticsSummary.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\service\StaffService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\exception\AttendanceValidationException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\controller\ConsolidatedStaffController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\PaymentRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\Subject.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceAlert.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\EmploymentStatus.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthorizationService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\JwtAuthenticationFilter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\service\StudentService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\legacy\LegacyTeacherDetails.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\scheduler\AttendanceScheduler.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\TimetableSettings.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentMethodDistribution.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\BookIssueService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\TeacherDetails.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\model\ConsolidatedCourse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\service\PostgreSQLHttpService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\repository\TimetableSlotRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\dto\TeacherDetailsDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\LateFeeRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\service\ReceiptNumberService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\CourseService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamMarkSummaryRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\TeacherDetailsDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\dto\AdmissionRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\ResilienceConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\SemesterFeeReport.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\repository\SchoolSettingsRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthCorsFilter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\EmployeeRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\controller\ConsolidatedCourseController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\NotificationStatus.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\service\HolidayService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\PerformanceMonitoringService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\HolidayDebugController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\ConsolidatedStaffRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\Message.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\service\FeeStructureService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherDetails.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\MonthlyAttendanceStats.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\web\GlobalExceptionHandler.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\TransportRouteDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\StaffRole.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeReportController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\service\FeePaymentScheduleService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\dto\StaffDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\repository\MessageRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\service\impl\StaffServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\ApplicationConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\exception\AttendanceNotFoundException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\ExamService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherSubjectMapRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\model\Chapter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\ConsolidatedCourseService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\exception\InvalidAdmissionStateException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeePaymentScheduleRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\SchoolApplication.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\exception\StudentNotFoundException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\repository\CourseRepositoryImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\controller\StaffController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\dto\AdmissionResponse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\ChapterRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookIssueRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\dto\BulkStudentRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeAnalyticsController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\HolidayDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\ClassRoom.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\BulkAttendanceRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\health\HealthController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthControllerConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\repository\StaffAttendanceRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherClassMapRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\EmployeeAttendanceStatus.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\exception\MessageNotFoundException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\ExamConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeePaymentScheduleRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\util\CsvXlsParserAdapter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\CustomUserDetailsService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\service\SchoolSettingsService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\ExamConfigController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentSummary.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\OpenApiConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentDistribution.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\LateFeeDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\CourseRepositoryImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\ResourceNotFoundException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\BlueprintService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionApplication.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentScheduleDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookRepositoryImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\controller\SchoolSettingsController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\StudentDeletionNotAllowedException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\ConsolidatedStaff.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\FeeExceptionHandler.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\exception\BlueprintAttachedException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\DatabaseHealthIndicator.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\BlueprintUnit.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\LateFee.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebServerCustomizer.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\QuestionPaperFormatService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\util\CsvXlsParser.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeeInstallmentResponse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\controller\TimetableSettingsController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\TeacherDetailsRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\model\Course.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\StaffAttendanceDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\dto\MessageDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\adapter\EntityAdapter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\RevenueTrendItem.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\util\DateConverter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\OpenApiConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\MarksMatrixSaveRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\Teacher.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\util\AdmissionCsvParser.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\legacy\LegacyStaff.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\QuestionPaperFormat.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\dto\SchoolSettingsDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\AttendanceStatus.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\Staff.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\EmployeeAttendanceService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\ExamController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentAnalytics.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\PaymentSchedule.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\controller\BookIssueController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\model\BaseEntity.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\SchoolClass.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\JpaAuditingConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\InitialAdminUserSetup.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebCorsConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\repository\TimetableSettingsRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\repository\NotificationRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\ExamDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\repository\StudentRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeeRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\model\Auditable.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\SubjectController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\SecurityConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebSecurityConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\StaffRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffMigrationService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffServiceAdapter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\service\MessageService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\dto\StudentDeletionImpactDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherDetailsRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\MessageType.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherSubjectMap.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\TimeSlot.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\CorsFilterConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\dto\BulkStaffRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\service\impl\HolidayServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\JacksonConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\model\Holiday.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\exception\AdmissionExceptionHandler.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\CorsConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\adapter\StaffEntityAdapter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\StaffAttendanceStatus.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\HolidayController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\StaticResourceConfiguration.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\TransportRoute.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\HolidayAttendanceTestController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\QuestionPaperFormatRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\dto\RegisterRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\DuplicateAttendanceException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\exception\DuplicateStudentException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\aspect\AttendanceLoggingAspect.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\repository\AttendanceRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\BookIssueServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\ExamMarkDetail.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\ClassSectionFeeReport.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\MessagePriority.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\Staff.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\model\SchoolSettings.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\EmployeeBulkAttendanceRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\impl\EmployeeAttendanceServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\HolidayRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\ExamMarksController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\AttendanceNotFoundException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\dto\LoginRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\repository\InAppNotificationRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\JwtTokenProvider.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\ClassSectionController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherClassMap.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\User.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\util\StudentMapper.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\Fee.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\StaffAttendance.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\MonthlyTrend.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\FeePaymentScheduleException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\model\Book.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\StudentFeeAssignmentRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\filter\SimpleCorsFilter.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffDesignationMappingRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\repository\CourseRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\BlueprintUnitQuestionRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\CourseServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\impl\StaffAttendanceServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\config\EmailConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\BulkMarksUpdateRequest.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\InvalidAttendanceException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffRoleRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthenticationException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\FeePayment.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\ExamMarkSummary.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\InvalidDateRangeException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeePaymentScheduleResponse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\JwtAuthenticationEntryPoint.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\EmploymentStatus.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\repository\AdmissionRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\model\EmploymentStatus.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\UserRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamMarkDetailRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\service\AdmissionService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\util\SimplePdf.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\HolidayAttendanceService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\controller\CourseController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamConfigRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\BlueprintController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\ControllerMonitoringAspect.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\dto\StudentDTO.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\StaffAttendanceService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeeStructureRepository.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\service\FeeService.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebMvcConfig.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\dto\AuthResponse.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\UserRole.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\StudentNotFoundException.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\UserRepositoryLoggingWrapper.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\controller\MigrationController.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\Attendance.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\impl\HolidayAttendanceServiceImpl.java
-C:\Users\617062057\OneDrive - BT Plc\Documents\School_MS\school_ms\school-ms\backend\school-app\src\main\java\com\school\controller\DatabaseTestController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\AttendanceServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\CacheConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\DefaultUserInitializer.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\model\Holiday.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\TeacherRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\filter\SimpleCorsFilter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\Message.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\service\StudentService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\model\BaseEntity.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\notification\service\NotificationService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthControllerConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\exception\AttendanceValidationException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\AttendanceController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\TeacherAttendanceController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\model\Course.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\dto\BulkAdmissionRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\dto\MessageDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\StudentMarksDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\controller\CourseController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\model\Gender.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\InitialAdminUserSetup.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\ExamMarksController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeePaymentSummary.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\legacy\LegacyStaff.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeAnalyticsController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\exception\MessageNotFoundException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceSummary.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamConfigRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\BlueprintService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\CorsConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\Staff.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\SchoolApplication.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\ClassAttendanceRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\QuestionPaperFormat.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\impl\EmployeeAttendanceServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\dto\StaffDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\MarksMatrixDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\NotificationType.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\EmployeeAttendanceService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\MarksMatrixResponse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\ConsolidatedCourseService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\SubjectController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\Timetable.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\ConsolidatedStaff.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookIssueRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\TransportRouteController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\CourseService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\BookIssueServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\QuestionMarkDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherSubjectMapRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\QuestionPaperFormatRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\OverdueAnalytics.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\repository\StaffAttendanceRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\service\FeeStructureService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\exception\DuplicateEmailException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\repository\AttendanceRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\MessageType.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\util\SimplePdf.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\dto\AuthResponse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\exception\DuplicateUsernameException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\AttendanceNotFoundException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffDesignationMapping.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\repository\AdmissionRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\exception\DuplicateStudentException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\service\FeePaymentScheduleService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeeInstallmentResponse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\LateFeeRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\QuestionPaperFormatController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\ControllerMonitoringAspect.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\StudentAttendanceSummaryDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\controller\TimetableSettingsController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeePaymentScheduleRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffRole.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\DirectFixController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\TransportRouteRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\util\AdmissionCsvParser.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\AttendanceStatus.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\service\NotificationService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\BookService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\controller\ConsolidatedStaffController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceAlert.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\repository\TimetableSettingsRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\MarksMatrixSaveRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\StaffAttendanceDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\FeeNotFoundException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\Payment.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\model\Student.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\scheduler\AttendanceScheduler.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\adapter\StaffAdapter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\dto\AdmissionRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\aspect\AttendanceLoggingAspect.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\HolidayAttendanceService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentSummary.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\ConsolidatedStaffRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\Exam.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\dto\AdmissionResponse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\BlueprintUnitQuestionDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\TeacherDetails.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeePaymentDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\controller\Requirement.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\InvalidPaymentException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\CourseServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherDetails.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\FeePayment.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\CustomUserDetailsService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\dto\StudentDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeePaymentScheduleController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\controller\StaffController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\ClassSectionController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\dto\BulkStudentRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\BlueprintUnitRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\JwtAuthenticationEntryPoint.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\JacksonConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\StudentAttendanceSummary.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\MonthlyTrend.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentDistribution.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\exception\InvalidAdmissionStateException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthenticationException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\util\CsvXlsParserAdapter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\model\SchoolSettings.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\CorsTestController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\service\impl\StaffServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\service\NotificationServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\UserRole.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\DuplicateAttendanceException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\BlueprintUnit.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\Employee.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\controller\TeacherSubjectsController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\model\StudentStatus.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\controller\DatabaseTestController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\StaffAttendanceStatus.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeReportController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebMvcConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\controller\StaffBulkController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\StudentFeeAssignmentDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\model\BookIssue.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\CorsFilterConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\ConsolidatedCourseServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\dto\SchoolSettingsDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\health\HealthController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\config\EmailConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\BlueprintController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherDetailsRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherSubjectMap.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\ConsolidatedStaffServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\controller\MessageController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookIssueRepositoryImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\service\HolidayService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\HolidayAttendanceDebugController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\repository\MessageRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\ExamService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\TransportRoute.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\ErrorResponse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\ExamConfigController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\HolidayAttendanceTestController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\dto\BulkUploadResponse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\StudentDeletionNotAllowedException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\InvalidDateRangeException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\aspect\AuthLoggingAspect.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\PaymentSchedule.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\util\NetworkDebugConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\dto\TeacherDetailsDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\StaffRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\ExamController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\exception\AttendanceNotFoundException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\BulkMarksUpdateRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\InvalidAttendanceException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\ClassSectionFeeReport.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\util\HolidayThreadLocal.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\Staff.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\ResilienceConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\EmployeeAttendanceStatus.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffDesignationRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\repository\SchoolSettingsRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\service\AdmissionService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebCorsConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeeRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\EmploymentStatus.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\adapter\StaffEntityAdapter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\MonthlyAttendanceStats.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\TeacherDetailsDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\controller\BookIssueController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\model\Course.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\PerformanceMonitoringService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebServerCustomizer.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\GlobalExceptionHandler.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffMigrationService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\service\ReceiptNumberService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\BulkStaffAttendanceRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\EmployeeRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\exception\BlueprintAttachedException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\AttendanceDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\QPFSummaryDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\HolidayController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\MonthlyAttendanceReport.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentAnalytics.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\legacy\LegacyTeacherDetails.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\repository\TimetableSlotRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentScheduleDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\MessagePriority.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\service\TransportRouteService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\service\StaffService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\SimplifiedSecurityConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\QuestionPaperFormatService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\ExamDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\dto\LoginRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\dto\RegisterRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\StaffRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\util\StudentMapper.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\repository\CourseRepositoryImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\ClassRoom.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffRoleRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\RequestTracingFilter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\Teacher.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\CourseServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\Subject.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\controller\BookController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\service\PostgreSQLHttpService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\ExamMarkDetail.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\JpaAuditingConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\Fee.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\ExamConfigService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\OpenApiConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\service\MessageService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\TimetableSlot.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeeStructureDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\CourseRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\DatabaseHealthIndicator.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\FeePaymentSchedule.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\InAppNotification.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\service\impl\HolidayServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\BulkAttendanceRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\TransportRouteDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\Attendance.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\SubjectRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\ExamConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\LateFee.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\ResourceNotFoundException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherClassMapRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\controller\FeeStructureController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthCorsFilter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\StaffAttendanceService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\dto\StudentDeletionImpactDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamMarkSummaryRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\BlueprintUnitDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\RevenueTrendItem.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\repository\ConsolidatedCourseRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\SemesterFeeReport.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeeStructureRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\LateFeeDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\TimeSlot.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\WebSecurityConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\PaymentRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\UserRepositoryLoggingWrapper.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\StaffAttendanceController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\util\CsvXlsParser.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\AuthorizationService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\PaymentScheduleRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\EmployeeBulkAttendanceRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\dto\BulkSubjectRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\repository\InAppNotificationRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\ChapterService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\ExamMarkSummary.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\BlueprintUnitQuestionRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\User.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\BookServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\monitoring\MetricsConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\EmploymentStatus.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\FeeStructure.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\model\Auditable.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\ExamMarksService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\adapter\EntityAdapter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\UserRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\exception\AdmissionNotFoundException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\ChapterRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\StudentFeeAssignment.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\model\NotificationStatus.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\controller\HolidayDebugController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\repository\CourseRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentResponse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\repository\StudentRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\StudentFeeAssignmentRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\AdmissionApplication.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\model\EmploymentStatus.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\StaticResourceConfiguration.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\OpenApiConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\controller\ConsolidatedCourseController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\ExamMarkDetailRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\impl\HolidayAttendanceServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeePaymentRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\repository\NotificationRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffServiceAdapter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherClassMap.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\controller\ClassTimetableController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeePaymentScheduleRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\StaffService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\controller\EmployeeAttendanceController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\AnalyticsSummary.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\JwtTokenProvider.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\FeePaymentScheduleException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\dto\BulkStaffRequest.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\service\CourseService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\model\Book.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\service\SchoolSettingsService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\repository\TeacherDetailsRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\SchoolClass.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\repository\FeeRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\CourseRepositoryImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\model\StaffRole.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\JwtAuthenticationFilter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\model\ConsolidatedCourse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\service\BookIssueService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\controller\MigrationController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\AuditConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\library\repository\BookRepositoryImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\controller\CourseController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\AttendanceService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\exception\AdmissionExceptionHandler.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\model\StaffAttendance.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\service\FeeService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\controller\StudentController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\ApplicationConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\StudentNotFoundException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exception\DuplicateStudentException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\BlueprintUnitQuestion.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\validation\AttendanceValidator.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\repository\SchoolClassRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\ConsolidatedStaffService.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\PaymentMethodDistribution.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\model\TimetableSettings.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\model\Admission.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\service\impl\StaffAttendanceServiceImpl.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\ClassWiseCollection.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\HolidayDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\Staff.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\entity\StaffDesignation.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\web\GlobalExceptionHandler.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\dto\FeePaymentScheduleResponse.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\settings\controller\SchoolSettingsController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\admission\controller\AdmissionController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\dto\StaffDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\controller\TeacherClassesController.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\common\util\DateConverter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\course\model\Chapter.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\HolidayRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\DatabaseSeedConfig.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\hrm\repository\StaffDesignationMappingRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\attendance\dto\EmployeeAttendanceDTO.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\student\exception\StudentNotFoundException.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\exception\FeeExceptionHandler.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\security\SecurityConfig.java

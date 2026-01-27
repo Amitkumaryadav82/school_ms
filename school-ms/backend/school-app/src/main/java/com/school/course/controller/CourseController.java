@@ -2,6 +2,7 @@ package com.school.course.controller;
 
 import com.school.course.model.Course;
 import com.school.course.service.CourseService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +12,9 @@ import java.util.Map;
 
 // This controller is deprecated and replaced by ConsolidatedCourseController
 // Changed to Component to keep the bean but avoid request mapping conflicts
+// Disabled by default - only loads if legacy.courses.enabled=true
 @org.springframework.stereotype.Component("schoolCourseController")
+@ConditionalOnProperty(value = "legacy.courses.enabled", havingValue = "true")
 @Deprecated
 @RequestMapping("/api/legacy-courses")
 public class CourseController {

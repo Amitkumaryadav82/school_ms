@@ -3,6 +3,7 @@ package com.school.library.controller;
 import com.school.library.model.Course;
 import com.school.library.service.CourseService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,10 +20,13 @@ import java.util.NoSuchElementException;
  * The endpoint was changed from /api/courses to /api/library/courses to avoid conflicts
  * with ConsolidatedCourseController. This controller specifically handles library-related
  * course operations while the main course operations are handled by ConsolidatedCourseController.
+ * 
+ * This controller is disabled by default. Enable by setting legacy.courses.enabled=true
  */
 
 @RestController
 @RequestMapping("/api/library/courses")
+@ConditionalOnProperty(value = "legacy.courses.enabled", havingValue = "true")
 public class CourseController {
 
     private final CourseService courseService;

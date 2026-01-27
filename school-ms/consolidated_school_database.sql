@@ -843,14 +843,13 @@ INSERT INTO roles (id, name, description) VALUES
     (1, 'ADMIN', 'Administrator role'),
     (2, 'TEACHER', 'Teacher role'),
     (3, 'STUDENT', 'Student role'),
-    (4, 'PARENT', 'Parent role')
+    (4, 'PARENT', 'Parent role'),
+    (5, 'ROLE_ADMIN', 'Administrator role (alternative naming)'),
+    (6, 'ROLE_USER', 'Standard user role')
 ON CONFLICT (id) DO NOTHING;
 
--- Also insert alternative naming convention
-INSERT INTO roles (name, description) VALUES
-    ('ROLE_ADMIN', 'Administrator role (alternative naming)'),
-    ('ROLE_USER', 'Standard user role')
-ON CONFLICT (name) DO NOTHING;
+-- Reset sequence to avoid conflicts
+SELECT setval('roles_id_seq', (SELECT MAX(id) FROM roles));
 
 -- ----------------------------------------------------------------------------
 -- 5.2: Admin Users
@@ -872,8 +871,9 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- User 2: admin1 (Password: qwerty)
-INSERT INTO users (username, password_hash, email, full_name, enabled, account_non_expired, account_non_locked, credentials_non_expired, created_at, updated_at)
-SELECT 
+INSERT INTO users (id, username, password_hash, email, full_name, enabled, account_non_expired, account_non_locked, credentials_non_expired, created_at, updated_at)
+VALUES (
+    2,
     'admin1',
     '$2a$10$1bYp1SiyNLKn.z2QL8Iceu8Yw2GxWfZpXeQJcDjuCwaBlDg9uVkie',
     'admin1@schoolms.com',
@@ -884,7 +884,11 @@ SELECT
     TRUE,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
-WHERE NOT EXISTS (SELECT 1 FROM users WHERE username = 'admin1');
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Reset sequence to avoid conflicts
+SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 
 -- ----------------------------------------------------------------------------
 -- 5.3: User-Role Mappings
