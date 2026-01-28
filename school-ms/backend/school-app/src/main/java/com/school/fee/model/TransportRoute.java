@@ -24,7 +24,7 @@ public class TransportRoute {
     @Column(name = "route_name", nullable = false, unique = true)
     private String routeName;
 
-    @Column(name = "route_description")
+    @Column(name = "description")
     private String routeDescription;
 
     @Column(name = "fee_amount", nullable = false)

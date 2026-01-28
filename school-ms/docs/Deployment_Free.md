@@ -97,7 +97,7 @@ Frontend (from `frontend/`):
 npm ci
 npm run build
 ```
-robocopy dist backend\school-app\src\main\resources\static /E
+robocopy frontend\dist backend\school-app\src\main\resources\static /E /PURGE
 
 
 Backend (from `backend/school-app`):
