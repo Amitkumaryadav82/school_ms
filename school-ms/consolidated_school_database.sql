@@ -696,6 +696,7 @@ CREATE TABLE student_fee_assignments (
 -- Table: payments
 CREATE TABLE payments (
     id BIGSERIAL PRIMARY KEY,
+    fee_id BIGINT,
     student_id BIGINT NOT NULL,
     amount NUMERIC(15,2) NOT NULL,
     payment_date DATE NOT NULL,
@@ -703,11 +704,19 @@ CREATE TABLE payments (
     transaction_id VARCHAR(100),
     status VARCHAR(30) DEFAULT 'COMPLETED',
     remarks TEXT,
+    payer_name VARCHAR(255),
+    payer_contact_info VARCHAR(100),
+    payer_relation_to_student VARCHAR(100),
+    receipt_number VARCHAR(100),
+    void_reason TEXT,
+    voided_at TIMESTAMP,
+    transaction_reference VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(255),
     modified_by VARCHAR(255),
-    CONSTRAINT fk_payment_student FOREIGN KEY (student_id) REFERENCES students(id)
+    CONSTRAINT fk_payment_student FOREIGN KEY (student_id) REFERENCES students(id),
+    CONSTRAINT fk_payment_fee FOREIGN KEY (fee_id) REFERENCES fees(id)
 );
 
 -- Table: transport_routes

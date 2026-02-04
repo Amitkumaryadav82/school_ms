@@ -55,7 +55,7 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({ feeDetails }) => 
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="body2">
-                  ${feeStructure.annualFees?.toFixed(2)}
+                  ₹{feeStructure.annualFees?.toFixed(2)}
                 </Typography>
               </Grid>
               
@@ -66,7 +66,7 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({ feeDetails }) => 
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="body2">
-                  ${feeStructure.buildingFees?.toFixed(2)}
+                  ₹{feeStructure.buildingFees?.toFixed(2)}
                 </Typography>
               </Grid>
               
@@ -77,7 +77,7 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({ feeDetails }) => 
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="body2">
-                  ${feeStructure.labFees?.toFixed(2)}
+                  ₹{feeStructure.labFees?.toFixed(2)}
                 </Typography>
               </Grid>
               
@@ -88,7 +88,7 @@ const StudentFeeDetails: React.FC<StudentFeeDetailsProps> = ({ feeDetails }) => 
               </Grid>
               <Grid item xs={6}>
                 <Typography variant="body2" fontWeight="bold">
-                  ${feeStructure.totalFees?.toFixed(2) || 
+                  ₹{feeStructure.totalFees?.toFixed(2) || 
                     (feeStructure.annualFees + feeStructure.buildingFees + feeStructure.labFees).toFixed(2)}
                 </Typography>
               </Grid>

@@ -71,7 +71,7 @@ const TransportRouteTable: React.FC<TransportRouteTableProps> = ({
                 <TableCell>{route.id}</TableCell>
                 <TableCell>{route.routeName}</TableCell>
                 <TableCell>{route.routeDescription}</TableCell>
-                <TableCell>${route.feeAmount?.toFixed(2)}</TableCell>
+                <TableCell>₹{route.feeAmount?.toFixed(2)}</TableCell>
                 <TableCell>
                   <Tooltip title="Edit">
                     <IconButton

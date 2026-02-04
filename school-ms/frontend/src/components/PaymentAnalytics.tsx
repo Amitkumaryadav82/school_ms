@@ -372,8 +372,8 @@ const PaymentAnalytics: React.FC = () => {
               <DataTable
                 columns={[                  { id: 'grade', label: 'Grade', format: (value: number) => `Grade ${value}` },
                   { id: 'studentCount', label: 'Students' },
-                  { id: 'collected', label: 'Collected', format: (value: number) => `$${value.toLocaleString()}` },
-                  { id: 'due', label: 'Outstanding', format: (value: number) => `$${value.toLocaleString()}` },
+                  { id: 'collected', label: 'Collected', format: (value: number) => `₹${value.toLocaleString()}` },
+                  { id: 'due', label: 'Outstanding', format: (value: number) => `₹${value.toLocaleString()}` },
                   { id: 'collectionRate', label: 'Collection %', format: (value: number) => `${(value * 100).toFixed(1)}%` },
                 ]}
                 data={analytics.classWiseCollection || []}
