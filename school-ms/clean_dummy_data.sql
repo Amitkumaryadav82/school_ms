@@ -79,7 +79,9 @@ DELETE FROM exam_classes;
 DELETE FROM exams;
 
 -- Delete timetable records
+DELETE FROM timetable_substitutions;
 DELETE FROM timetable_slots;
+DELETE FROM timetable_requirements;
 DELETE FROM teacher_subject_map;
 DELETE FROM teacher_class_map;
 

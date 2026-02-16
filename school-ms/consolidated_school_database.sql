@@ -501,6 +501,23 @@ CREATE TABLE teacher_subject_map (
     CONSTRAINT fk_teacher_subject_subject FOREIGN KEY (subject_id) REFERENCES subjects(id)
 );
 
+-- Table: timetable_requirements (defines weekly period requirements per subject for each class/section)
+CREATE TABLE timetable_requirements (
+    id BIGSERIAL PRIMARY KEY,
+    class_id BIGINT NOT NULL,
+    section_id BIGINT NOT NULL,
+    subject_id BIGINT NOT NULL,
+    preferred_teacher_details_id BIGINT,
+    weekly_periods INTEGER NOT NULL,
+    notes VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_timetable_req_class FOREIGN KEY (class_id) REFERENCES classes(id),
+    CONSTRAINT fk_timetable_req_subject FOREIGN KEY (subject_id) REFERENCES subjects(id),
+    CONSTRAINT fk_timetable_req_teacher FOREIGN KEY (preferred_teacher_details_id) REFERENCES teacher_details(id),
+    CONSTRAINT uq_timetable_req UNIQUE (class_id, section_id, subject_id)
+);
+
 -- Table: timetable_slots
 CREATE TABLE timetable_slots (
     id BIGSERIAL PRIMARY KEY,
@@ -518,6 +535,28 @@ CREATE TABLE timetable_slots (
     CONSTRAINT fk_timetable_class FOREIGN KEY (class_id) REFERENCES classes(id),
     CONSTRAINT fk_timetable_teacher FOREIGN KEY (teacher_details_id) REFERENCES teacher_details(id),
     CONSTRAINT uq_timetable_slot UNIQUE (class_id, section_id, day_of_week, period_no)
+);
+
+-- Table: timetable_substitutions (for temporary teacher replacements)
+CREATE TABLE timetable_substitutions (
+    id BIGSERIAL PRIMARY KEY,
+    date DATE NOT NULL,
+    class_id BIGINT NOT NULL,
+    section_id BIGINT NOT NULL,
+    period_no INTEGER NOT NULL,
+    original_teacher_details_id BIGINT,
+    substitute_teacher_details_id BIGINT,
+    reason VARCHAR(255),
+    approved_by VARCHAR(100),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    modified_by VARCHAR(255),
+    CONSTRAINT fk_subst_class FOREIGN KEY (class_id) REFERENCES classes(id),
+    CONSTRAINT fk_subst_original_teacher FOREIGN KEY (original_teacher_details_id) REFERENCES teacher_details(id),
+    CONSTRAINT fk_subst_substitute_teacher FOREIGN KEY (substitute_teacher_details_id) REFERENCES teacher_details(id),
+    CONSTRAINT uq_substitution UNIQUE (date, class_id, section_id, period_no)
 );
 
 -- Table: exam_classes (junction table)

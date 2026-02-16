@@ -2,6 +2,7 @@ com\school\settings\service\ReceiptNumberService.class
 com\school\communication\repository\InAppNotificationRepository.class
 com\school\exam\dto\MarksMatrixDTO$SubjectCol.class
 com\school\security\JwtTokenProvider.class
+com\school\timetable\controller\TimetableRequirementsController$RequirementRequest.class
 com\school\core\controller\StaffController.class
 com\school\library\service\BookIssueServiceImpl.class
 com\school\security\AuthorizationService.class
@@ -219,6 +220,7 @@ com\school\exam\repository\SubjectRepository.class
 com\school\exam\controller\SubjectController.class
 com\school\exception\ErrorResponse.class
 com\school\hrm\service\HolidayService.class
+com\school\timetable\controller\TimetableRequirementsController.class
 com\school\core\model\EmploymentStatus.class
 com\school\fee\exception\FeeNotFoundException.class
 com\school\hrm\model\EmploymentStatus.class

@@ -509,7 +509,188 @@ VALUES
 ('Library Fee', 12, 2500.00, '2025-04-15', 'LIBRARY', 'Library books and resources', 'YEARLY');
 
 -- ============================================================================
--- PART 14: SUMMARY
+-- PART 14: TIMETABLE REQUIREMENTS (Weekly period requirements for each class/section)
+-- ============================================================================
+
+-- First, we need to get section IDs for sections A, B, C
+-- Assuming grade_levels and sections tables are populated with grades 1-12 and sections A, B, C
+
+-- Timetable Requirements for Class 6-A (Primary focus on foundational subjects)
+INSERT INTO timetable_requirements (class_id, section_id, subject_id, weekly_periods, notes)
+SELECT 
+    c.id,
+    (SELECT cs.section_id FROM class_sections cs 
+     JOIN grade_levels gl ON cs.grade_id = gl.id 
+     JOIN sections s ON cs.section_id = s.id 
+     WHERE gl.grade_number = 6 AND s.section_name = 'A' LIMIT 1),
+    s.id,
+    CASE 
+        WHEN s.code = 'MATH01' THEN 6
+        WHEN s.code = 'ENG01' THEN 5
+        WHEN s.code = 'SCI01' THEN 5
+        WHEN s.code = 'SS01' THEN 4
+        WHEN s.code = 'HIN01' THEN 4
+        WHEN s.code = 'CS01' THEN 2
+        WHEN s.code = 'PE01' THEN 2
+    END,
+    CASE 
+        WHEN s.code = 'MATH01' THEN 'Core subject - daily practice needed'
+        WHEN s.code = 'ENG01' THEN 'Language development focus'
+        WHEN s.code = 'SCI01' THEN 'Includes lab sessions'
+        WHEN s.code = 'CS01' THEN 'Computer lab sessions'
+        WHEN s.code = 'PE01' THEN 'Physical education and sports'
+    END
+FROM classes c
+CROSS JOIN subjects s
+WHERE c.name = 'Class 6' 
+  AND s.code IN ('MATH01', 'ENG01', 'SCI01', 'SS01', 'HIN01', 'CS01', 'PE01');
+
+-- Timetable Requirements for Class 7-A
+INSERT INTO timetable_requirements (class_id, section_id, subject_id, weekly_periods, notes)
+SELECT 
+    c.id,
+    (SELECT cs.section_id FROM class_sections cs 
+     JOIN grade_levels gl ON cs.grade_id = gl.id 
+     JOIN sections s ON cs.section_id = s.id 
+     WHERE gl.grade_number = 7 AND s.section_name = 'A' LIMIT 1),
+    s.id,
+    CASE 
+        WHEN s.code = 'MATH01' THEN 6
+        WHEN s.code = 'ENG01' THEN 5
+        WHEN s.code = 'SCI01' THEN 5
+        WHEN s.code = 'SS01' THEN 4
+        WHEN s.code = 'HIN01' THEN 4
+        WHEN s.code = 'CS01' THEN 2
+        WHEN s.code = 'PE01' THEN 2
+    END,
+    'Standard curriculum for Class 7'
+FROM classes c
+CROSS JOIN subjects s
+WHERE c.name = 'Class 7' 
+  AND s.code IN ('MATH01', 'ENG01', 'SCI01', 'SS01', 'HIN01', 'CS01', 'PE01');
+
+-- Timetable Requirements for Class 8-A
+INSERT INTO timetable_requirements (class_id, section_id, subject_id, weekly_periods, notes)
+SELECT 
+    c.id,
+    (SELECT cs.section_id FROM class_sections cs 
+     JOIN grade_levels gl ON cs.grade_id = gl.id 
+     JOIN sections s ON cs.section_id = s.id 
+     WHERE gl.grade_number = 8 AND s.section_name = 'A' LIMIT 1),
+    s.id,
+    CASE 
+        WHEN s.code = 'MATH01' THEN 6
+        WHEN s.code = 'ENG01' THEN 5
+        WHEN s.code = 'SCI01' THEN 5
+        WHEN s.code = 'SS01' THEN 4
+        WHEN s.code = 'HIN01' THEN 4
+        WHEN s.code = 'CS01' THEN 3
+        WHEN s.code = 'PE01' THEN 2
+    END,
+    'Increased computer science focus'
+FROM classes c
+CROSS JOIN subjects s
+WHERE c.name = 'Class 8' 
+  AND s.code IN ('MATH01', 'ENG01', 'SCI01', 'SS01', 'HIN01', 'CS01', 'PE01');
+
+-- Timetable Requirements for Class 9-A (Pre-board preparation)
+INSERT INTO timetable_requirements (class_id, section_id, subject_id, weekly_periods, notes)
+SELECT 
+    c.id,
+    (SELECT cs.section_id FROM class_sections cs 
+     JOIN grade_levels gl ON cs.grade_id = gl.id 
+     JOIN sections s ON cs.section_id = s.id 
+     WHERE gl.grade_number = 9 AND s.section_name = 'A' LIMIT 1),
+    s.id,
+    CASE 
+        WHEN s.code = 'MATH01' THEN 7
+        WHEN s.code = 'ENG01' THEN 5
+        WHEN s.code = 'SCI01' THEN 6
+        WHEN s.code = 'SS01' THEN 5
+        WHEN s.code = 'HIN01' THEN 4
+        WHEN s.code = 'CS01' THEN 2
+        WHEN s.code = 'PE01' THEN 2
+    END,
+    'Board exam preparation begins'
+FROM classes c
+CROSS JOIN subjects s
+WHERE c.name = 'Class 9' 
+  AND s.code IN ('MATH01', 'ENG01', 'SCI01', 'SS01', 'HIN01', 'CS01', 'PE01');
+
+-- Timetable Requirements for Class 10-A (Board exam year - CBSE pattern)
+INSERT INTO timetable_requirements (class_id, section_id, subject_id, weekly_periods, notes)
+SELECT 
+    c.id,
+    (SELECT cs.section_id FROM class_sections cs 
+     JOIN grade_levels gl ON cs.grade_id = gl.id 
+     JOIN sections s ON cs.section_id = s.id 
+     WHERE gl.grade_number = 10 AND s.section_name = 'A' LIMIT 1),
+    s.id,
+    CASE 
+        WHEN s.code = 'MATH01' THEN 7
+        WHEN s.code = 'ENG01' THEN 6
+        WHEN s.code = 'SCI01' THEN 7
+        WHEN s.code = 'SS01' THEN 5
+        WHEN s.code = 'HIN01' THEN 4
+        WHEN s.code = 'CS01' THEN 2
+        WHEN s.code = 'PE01' THEN 2
+    END,
+    'CBSE Class 10 Board exam preparation - intensive focus'
+FROM classes c
+CROSS JOIN subjects s
+WHERE c.name = 'Class 10' 
+  AND s.code IN ('MATH01', 'ENG01', 'SCI01', 'SS01', 'HIN01', 'CS01', 'PE01');
+
+-- Timetable Requirements for Class 11-A (Science stream with Physics, Chemistry, Biology)
+INSERT INTO timetable_requirements (class_id, section_id, subject_id, weekly_periods, notes)
+SELECT 
+    c.id,
+    (SELECT cs.section_id FROM class_sections cs 
+     JOIN grade_levels gl ON cs.grade_id = gl.id 
+     JOIN sections s ON cs.section_id = s.id 
+     WHERE gl.grade_number = 11 AND s.section_name = 'A' LIMIT 1),
+    s.id,
+    CASE 
+        WHEN s.code = 'MATH01' THEN 6
+        WHEN s.code = 'ENG01' THEN 4
+        WHEN s.code = 'PHY01' THEN 6
+        WHEN s.code = 'CHEM01' THEN 6
+        WHEN s.code = 'BIO01' THEN 6
+        WHEN s.code = 'CS01' THEN 2
+        WHEN s.code = 'PE01' THEN 2
+    END,
+    'Science stream - PCB with Computer Science'
+FROM classes c
+CROSS JOIN subjects s
+WHERE c.name = 'Class 11' 
+  AND s.code IN ('MATH01', 'ENG01', 'PHY01', 'CHEM01', 'BIO01', 'CS01', 'PE01');
+
+-- Timetable Requirements for Class 12-A (Science stream - Board exam year)
+INSERT INTO timetable_requirements (class_id, section_id, subject_id, weekly_periods, notes)
+SELECT 
+    c.id,
+    (SELECT cs.section_id FROM class_sections cs 
+     JOIN grade_levels gl ON cs.grade_id = gl.id 
+     JOIN sections s ON cs.section_id = s.id 
+     WHERE gl.grade_number = 12 AND s.section_name = 'A' LIMIT 1),
+    s.id,
+    CASE 
+        WHEN s.code = 'MATH01' THEN 7
+        WHEN s.code = 'ENG01' THEN 5
+        WHEN s.code = 'PHY01' THEN 7
+        WHEN s.code = 'CHEM01' THEN 7
+        WHEN s.code = 'BIO01' THEN 7
+        WHEN s.code = 'CS01' THEN 2
+        WHEN s.code = 'PE01' THEN 2
+    END,
+    'CBSE Class 12 Board exam - intensive preparation for NEET/JEE'
+FROM classes c
+CROSS JOIN subjects s
+WHERE c.name = 'Class 12' 
+  AND s.code IN ('MATH01', 'ENG01', 'PHY01', 'CHEM01', 'BIO01', 'CS01', 'PE01');
+
+-- ============================================================================
+-- PART 15: SUMMARY
 -- ============================================================================
 
 DO $$
@@ -527,6 +708,7 @@ DECLARE
     late_fee_count INTEGER;
     fee_payment_count INTEGER;
     additional_fee_count INTEGER;
+    timetable_req_count INTEGER;
 BEGIN
     SELECT COUNT(*) INTO staff_count FROM school_staff;
     SELECT COUNT(*) INTO student_count FROM students;
@@ -541,6 +723,7 @@ BEGIN
     SELECT COUNT(*) INTO late_fee_count FROM late_fees;
     SELECT COUNT(*) INTO fee_payment_count FROM fee_payments;
     SELECT COUNT(*) INTO additional_fee_count FROM fees;
+    SELECT COUNT(*) INTO timetable_req_count FROM timetable_requirements;
     
     RAISE NOTICE '========================================';
     RAISE NOTICE 'INDIAN SCHOOL DUMMY DATA INSERTION SUMMARY';
@@ -567,6 +750,12 @@ BEGIN
     RAISE NOTICE '  - Late Fee Rules: %', late_fee_count;
     RAISE NOTICE '  - Fee Payments Completed: %', fee_payment_count;
     RAISE NOTICE '  - Additional Fees (Exam/Event/Lab): %', additional_fee_count;
+    RAISE NOTICE '========================================';
+    RAISE NOTICE 'TIMETABLE DATA:';
+    RAISE NOTICE '========================================';
+    RAISE NOTICE '  - Timetable Requirements: %', timetable_req_count;
+    RAISE NOTICE '  - Classes configured: 6, 7, 8, 9, 10, 11, 12 (Section A)';
+
     RAISE NOTICE '========================================';
     RAISE NOTICE '  - Transport Routes: %', transport_route_count;
     RAISE NOTICE '========================================';

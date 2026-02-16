@@ -148,6 +148,7 @@ C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\mai
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\config\EmailConfig.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\controller\BlueprintController.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\repository\TeacherDetailsRepository.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\controller\TimetableRequirementsController.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\model\TeacherSubjectMap.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\staff\service\ConsolidatedStaffServiceImpl.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\communication\controller\MessageController.java

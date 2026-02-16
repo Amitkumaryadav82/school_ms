@@ -57,6 +57,30 @@ public class ClassTimetableController {
     public record EligibleSubjectsResponse(List<Map<String, Object>> subjects) {
     }
 
+    @GetMapping("/class-sections")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL','STAFF')")
+    public ResponseEntity<List<String>> getClassSections(@RequestParam Long classId) {
+        // Get the class name to extract grade number
+        String className = jdbc.queryForObject("SELECT name FROM classes WHERE id=?", String.class, classId);
+        Integer grade = extractGradeNumber(className);
+        
+        if (grade == null) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        // Get all sections for this grade
+        List<String> sections = jdbc.query(
+                "SELECT s.section_name FROM class_sections cs " +
+                "JOIN grade_levels gl ON cs.grade_id = gl.id " +
+                "JOIN sections s ON cs.section_id = s.id " +
+                "WHERE gl.grade_number = ? " +
+                "ORDER BY s.section_name",
+                (rs, rowNum) -> rs.getString("section_name"),
+                grade);
+
+        return ResponseEntity.ok(sections);
+    }
+
     @GetMapping("/slots")
     @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL') or (hasRole('TEACHER') and @authz.isTeacherOfClassSection(#classId, #section)) or (hasRole('STUDENT') and @authz.isCurrentStudentsClassSection(#classId, #section))")
     public ResponseEntity<SlotsResponse> getSlots(@RequestParam Long classId,
