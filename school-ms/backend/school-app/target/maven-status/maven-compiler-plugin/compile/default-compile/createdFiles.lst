@@ -200,7 +200,9 @@ com\school\fee\controller\FeeAnalyticsController.class
 com\school\hrm\dto\TeacherDetailsDTO.class
 com\school\course\model\Course.class
 com\school\monitoring\MetricsConfig.class
+com\school\timetable\controller\TimetableSubstitutionsController$SubstitutionRequest.class
 com\school\core\adapter\EntityAdapter.class
+com\school\timetable\controller\TimetableSubstitutionsController.class
 com\school\library\model\Book.class
 com\school\admission\dto\AdmissionRequest.class
 com\school\staff\repository\StaffRepository.class
@@ -285,6 +287,7 @@ com\school\staff\adapter\StaffAdapter.class
 com\school\exam\repository\ExamConfigRepository.class
 com\school\fee\model\FeePaymentSchedule$PaymentFrequency.class
 com\school\library\repository\BookIssueRepository.class
+com\school\timetable\controller\TimetableSubstitutionsController$SuggestedTeacher.class
 com\school\exam\dto\MarksMatrixDTO$StudentRow.class
 com\school\exam\model\BlueprintUnit.class
 com\school\security\UserRepositoryLoggingWrapper.class

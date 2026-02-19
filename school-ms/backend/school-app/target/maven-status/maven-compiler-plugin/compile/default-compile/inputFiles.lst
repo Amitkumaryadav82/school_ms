@@ -230,6 +230,7 @@ C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\mai
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\model\ExamMarkDetail.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\JpaAuditingConfig.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\fee\model\Fee.java
+C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\timetable\controller\TimetableSubstitutionsController.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\exam\service\ExamConfigService.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\config\OpenApiConfig.java
 C:\Users\617062057\school_ms_kiro\school_ms\school-ms\backend\school-app\src\main\java\com\school\core\service\StaffService.java

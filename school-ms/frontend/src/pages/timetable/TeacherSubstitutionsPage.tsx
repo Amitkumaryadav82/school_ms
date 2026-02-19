@@ -3,6 +3,7 @@ import {
   Box,
   Paper,
   Typography,
+  TextField,
   Button,
   Table,
   TableBody,
@@ -15,69 +16,73 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  Alert,
-  Snackbar,
-  CircularProgress,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  Alert,
+  Snackbar,
+  CircularProgress,
   Chip,
-  Stack,
-  Divider
+  Tooltip,
+  Card,
+  CardContent,
+  Grid
 } from '@mui/material';
 import {
-  Add as AddIcon,
   Delete as DeleteIcon,
+  PersonAdd as PersonAddIcon,
   Warning as WarningIcon,
-  CheckCircle as CheckCircleIcon
+  Info as InfoIcon
 } from '@mui/icons-material';
 import api from '../../services/api';
 
 interface Teacher {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
+  department: string;
 }
 
-interface AffectedPeriod {
+interface ClassNeedingSubstitution {
+  slotId: number;
   classId: number;
-  className: string;
   sectionId: number;
-  sectionName: string;
   periodNo: number;
   subjectId: number;
+  className: string;
+  sectionName: string;
   subjectCode: string;
   subjectName: string;
-  timeSlot: string;
+  hasSubstitute: boolean;
 }
 
-interface TeacherSuggestion {
-  teacherId: number;
-  teacherName: string;
+interface SuggestedTeacher {
+  id: number;
+  name: string;
   department: string;
-  currentDayLoad: number;
-  maxDayLoad: number;
+  currentLoad: number;
+  maxLoad: number;
   isOverloaded: boolean;
-  warningMessage: string | null;
+  warningMessage?: string;
 }
 
 interface Substitution {
   id: number;
   date: string;
   classId: number;
-  className: string;
   sectionId: number;
-  sectionName: string;
   periodNo: number;
+  originalTeacherId: number;
+  substituteTeacherId: number;
+  reason: string;
+  approvedBy: string;
+  className: string;
+  sectionName: string;
   subjectCode: string;
   subjectName: string;
-  originalTeacherId: number;
   originalTeacherName: string;
-  substituteTeacherId: number;
   substituteTeacherName: string;
-  reason: string;
-  notes: string;
 }
 
 const TeacherSubstitutionsPage: React.FC = () => {
@@ -86,15 +91,14 @@ const TeacherSubstitutionsPage: React.FC = () => {
   );
   const [teachers, setTeachers] = React.useState<Teacher[]>([]);
   const [selectedTeacher, setSelectedTeacher] = React.useState<number | ''>('');
-  const [affectedPeriods, setAffectedPeriods] = React.useState<AffectedPeriod[]>([]);
+  const [classesNeedingSub, setClassesNeedingSub] = React.useState<ClassNeedingSubstitution[]>([]);
   const [substitutions, setSubstitutions] = React.useState<Substitution[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [selectedPeriod, setSelectedPeriod] = React.useState<AffectedPeriod | null>(null);
-  const [suggestions, setSuggestions] = React.useState<TeacherSuggestion[]>([]);
+  const [selectedClass, setSelectedClass] = React.useState<ClassNeedingSubstitution | null>(null);
+  const [suggestedTeachers, setSuggestedTeachers] = React.useState<SuggestedTeacher[]>([]);
   const [selectedSubstitute, setSelectedSubstitute] = React.useState<number | ''>('');
   const [reason, setReason] = React.useState<string>('');
-  const [notes, setNotes] = React.useState<string>('');
   const [error, setError] = React.useState<string>('');
   const [success, setSuccess] = React.useState<string>('');
   const [loadingSuggestions, setLoadingSuggestions] = React.useState(false);
@@ -103,12 +107,14 @@ const TeacherSubstitutionsPage: React.FC = () => {
   React.useEffect(() => {
     (async () => {
       try {
-        const response = await api.get<any[]>('/api/school-staff');
-        const teacherList = response
-          .filter((s: any) => s.teacherDetailsId)
-          .map((s: any) => ({
+        const staff = await api.get<any[]>('/api/staff');
+        const teacherList = staff
+          .filter((s) => s.teacherDetailsId)
+          .map((s) => ({
             id: s.teacherDetailsId,
-            name: `${s.firstName} ${s.lastName}`
+            firstName: s.firstName,
+            lastName: s.lastName,
+            department: s.department || 'N/A'
           }));
         setTeachers(teacherList);
       } catch (e) {
@@ -121,6 +127,15 @@ const TeacherSubstitutionsPage: React.FC = () => {
   React.useEffect(() => {
     loadSubstitutions();
   }, [selectedDate]);
+
+  // Load classes needing substitution when teacher or date changes
+  React.useEffect(() => {
+    if (selectedTeacher) {
+      loadClassesNeedingSubstitution();
+    } else {
+      setClassesNeedingSub([]);
+    }
+  }, [selectedTeacher, selectedDate]);
 
   const loadSubstitutions = async () => {
     try {
@@ -137,47 +152,46 @@ const TeacherSubstitutionsPage: React.FC = () => {
     }
   };
 
-  const handleTeacherSelect = async (teacherId: number) => {
-    setSelectedTeacher(teacherId);
+  const loadClassesNeedingSubstitution = async () => {
+    if (!selectedTeacher) return;
+
     try {
       setLoading(true);
-      const periods = await api.get<AffectedPeriod[]>(
-        `/api/timetable/substitutions/affected-periods?teacherId=${teacherId}&date=${selectedDate}`
+      const classes = await api.get<ClassNeedingSubstitution[]>(
+        `/api/timetable/substitutions/needed?teacherId=${selectedTeacher}&date=${selectedDate}`
       );
-      setAffectedPeriods(periods);
+      setClassesNeedingSub(classes);
     } catch (e) {
-      console.error('Failed to load affected periods', e);
-      setAffectedPeriods([]);
+      console.error('Failed to load classes', e);
+      setClassesNeedingSub([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddSubstitution = async (period: AffectedPeriod) => {
-    setSelectedPeriod(period);
+  const handleAssignSubstitute = async (classItem: ClassNeedingSubstitution) => {
+    setSelectedClass(classItem);
     setSelectedSubstitute('');
-    setReason('');
-    setNotes('');
-    setSuggestions([]);
+    setReason('Teacher on leave');
     setDialogOpen(true);
 
-    // Load suggestions
+    // Load suggested teachers
     try {
       setLoadingSuggestions(true);
-      const suggs = await api.get<TeacherSuggestion[]>(
-        `/api/timetable/substitutions/suggest-teachers?classId=${period.classId}&section=${period.sectionName}&periodNo=${period.periodNo}&subjectId=${period.subjectId}&date=${selectedDate}`
+      const suggestions = await api.get<SuggestedTeacher[]>(
+        `/api/timetable/substitutions/suggest?classId=${classItem.classId}&section=${classItem.sectionName}&periodNo=${classItem.periodNo}&date=${selectedDate}&subjectId=${classItem.subjectId}`
       );
-      setSuggestions(suggs);
+      setSuggestedTeachers(suggestions);
     } catch (e) {
       console.error('Failed to load suggestions', e);
-      setSuggestions([]);
+      setSuggestedTeachers([]);
     } finally {
       setLoadingSuggestions(false);
     }
   };
 
   const handleSaveSubstitution = async () => {
-    if (!selectedPeriod || !selectedSubstitute) {
+    if (!selectedClass || !selectedSubstitute) {
       setError('Please select a substitute teacher');
       return;
     }
@@ -185,42 +199,56 @@ const TeacherSubstitutionsPage: React.FC = () => {
     try {
       const payload = {
         date: selectedDate,
-        classId: selectedPeriod.classId,
-        section: selectedPeriod.sectionName,
-        periodNo: selectedPeriod.periodNo,
+        classId: selectedClass.classId,
+        section: selectedClass.sectionName,
+        periodNo: selectedClass.periodNo,
         originalTeacherId: selectedTeacher,
         substituteTeacherId: selectedSubstitute,
-        reason: reason || 'Teacher on leave',
-        notes: notes || null
+        reason: reason || 'Teacher on leave'
       };
 
       await api.post('/api/timetable/substitutions', payload);
-      setSuccess('Substitution created successfully');
+      setSuccess('Substitution assigned successfully');
       setDialogOpen(false);
       await loadSubstitutions();
-      await handleTeacherSelect(Number(selectedTeacher));
+      await loadClassesNeedingSubstitution();
     } catch (e: any) {
-      setError(e.response?.data?.message || 'Failed to create substitution');
+      const status = e.response?.status;
+      if (status === 409) {
+        setError('A substitution already exists for this class/period');
+      } else if (status === 422) {
+        setError('Selected teacher is not available at this time (teaching another class)');
+      } else {
+        setError(e.response?.data?.message || 'Failed to assign substitution');
+      }
     }
   };
 
   const handleDeleteSubstitution = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this substitution?')) return;
+    if (!confirm('Are you sure you want to remove this substitution?')) return;
 
     try {
       await api.delete(`/api/timetable/substitutions/${id}`);
-      setSuccess('Substitution deleted successfully');
+      setSuccess('Substitution removed successfully');
       await loadSubstitutions();
-      if (selectedTeacher) {
-        await handleTeacherSelect(Number(selectedTeacher));
-      }
+      await loadClassesNeedingSubstitution();
     } catch (e: any) {
-      setError(e.response?.data?.message || 'Failed to delete substitution');
+      setError(e.response?.data?.message || 'Failed to remove substitution');
     }
   };
 
-  const getSelectedSuggestion = () => {
-    return suggestions.find((s) => s.teacherId === selectedSubstitute);
+  const getSelectedTeacherWarning = (teacher: SuggestedTeacher) => {
+    if (!teacher.warningMessage) return null;
+
+    return (
+      <Alert
+        severity={teacher.isOverloaded ? 'warning' : 'info'}
+        icon={teacher.isOverloaded ? <WarningIcon /> : <InfoIcon />}
+        sx={{ mt: 2 }}
+      >
+        {teacher.warningMessage}
+      </Alert>
+    );
   };
 
   return (
@@ -230,126 +258,120 @@ const TeacherSubstitutionsPage: React.FC = () => {
       </Typography>
 
       <Alert severity="info" sx={{ mb: 2 }}>
-        Manage temporary teacher replacements when a teacher is absent. The system suggests eligible substitute teachers prioritized by workload.
+        Manage temporary teacher replacements when a teacher is absent. The system suggests available teachers with lighter workload.
       </Alert>
 
       {/* Date and Teacher Selection */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap', alignItems: 'center' }}>
-        <TextField
-          type="date"
-          label="Date"
-          size="small"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          sx={{ minWidth: 200 }}
-        />
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={4}>
+          <TextField
+            type="date"
+            label="Date"
+            size="small"
+            fullWidth
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid>
 
-        <FormControl size="small" sx={{ minWidth: 300 }}>
-          <InputLabel>Absent Teacher</InputLabel>
-          <Select
-            value={selectedTeacher}
-            label="Absent Teacher"
-            onChange={(e) => handleTeacherSelect(Number(e.target.value))}
-          >
-            {teachers.map((t) => (
-              <MenuItem key={t.id} value={t.id}>
-                {t.name}
+        <Grid item xs={12} sm={6} md={4}>
+          <FormControl size="small" fullWidth>
+            <InputLabel>Absent Teacher</InputLabel>
+            <Select
+              value={selectedTeacher}
+              label="Absent Teacher"
+              onChange={(e) => setSelectedTeacher(Number(e.target.value))}
+            >
+              <MenuItem value="">
+                <em>Select teacher on leave</em>
               </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+              {teachers.map((t) => (
+                <MenuItem key={t.id} value={t.id}>
+                  {t.firstName} {t.lastName} ({t.department})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
 
-      {/* Affected Periods */}
+      {/* Classes Needing Substitution */}
       {selectedTeacher && (
-        <>
-          <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
-            Affected Periods
-          </Typography>
+        <Card sx={{ mb: 3, bgcolor: 'warning.light' }}>
+          <CardContent>
+            <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
+              Classes Needing Substitution
+            </Typography>
 
-          {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-              <CircularProgress />
-            </Box>
-          ) : affectedPeriods.length === 0 ? (
-            <Alert severity="success" sx={{ mb: 3 }}>
-              No classes scheduled for this teacher on this date.
-            </Alert>
-          ) : (
-            <TableContainer sx={{ mb: 3 }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Time</TableCell>
-                    <TableCell>Period</TableCell>
-                    <TableCell>Class</TableCell>
-                    <TableCell>Section</TableCell>
-                    <TableCell>Subject</TableCell>
-                    <TableCell align="center">Status</TableCell>
-                    <TableCell align="center">Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {affectedPeriods.map((period, idx) => {
-                    const hasSubstitution = substitutions.some(
-                      (s) =>
-                        s.classId === period.classId &&
-                        s.sectionId === period.sectionId &&
-                        s.periodNo === period.periodNo
-                    );
-
-                    return (
-                      <TableRow key={idx}>
-                        <TableCell>{period.timeSlot}</TableCell>
-                        <TableCell>{period.periodNo}</TableCell>
-                        <TableCell>{period.className}</TableCell>
-                        <TableCell>{period.sectionName}</TableCell>
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : classesNeedingSub.length === 0 ? (
+              <Typography color="text.secondary">
+                No classes scheduled for this teacher on this date.
+              </Typography>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Period</TableCell>
+                      <TableCell>Class</TableCell>
+                      <TableCell>Subject</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell align="center">Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {classesNeedingSub.map((cls) => (
+                      <TableRow key={`${cls.classId}-${cls.periodNo}`}>
+                        <TableCell>{cls.periodNo}</TableCell>
                         <TableCell>
-                          {period.subjectCode} - {period.subjectName}
+                          {cls.className} - {cls.sectionName}
                         </TableCell>
-                        <TableCell align="center">
-                          {hasSubstitution ? (
-                            <Chip
-                              label="Covered"
-                              color="success"
-                              size="small"
-                              icon={<CheckCircleIcon />}
-                            />
+                        <TableCell>
+                          {cls.subjectCode} - {cls.subjectName}
+                        </TableCell>
+                        <TableCell>
+                          {cls.hasSubstitute ? (
+                            <Chip label="Assigned" color="success" size="small" />
                           ) : (
-                            <Chip label="Needs Cover" color="warning" size="small" />
+                            <Chip label="Needs Substitute" color="warning" size="small" />
                           )}
                         </TableCell>
                         <TableCell align="center">
-                          {!hasSubstitution && (
+                          {!cls.hasSubstitute && (
                             <Button
                               size="small"
                               variant="contained"
-                              startIcon={<AddIcon />}
-                              onClick={() => handleAddSubstitution(period)}
+                              startIcon={<PersonAddIcon />}
+                              onClick={() => handleAssignSubstitute(cls)}
                             >
                               Assign
                             </Button>
                           )}
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* Existing Substitutions */}
-      <Divider sx={{ my: 3 }} />
-      <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
+      <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
         Substitutions for {new Date(selectedDate).toLocaleDateString()}
       </Typography>
 
-      {substitutions.length === 0 ? (
-        <Alert severity="info">No substitutions recorded for this date.</Alert>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <CircularProgress />
+        </Box>
       ) : (
         <TableContainer>
           <Table size="small">
@@ -361,48 +383,60 @@ const TeacherSubstitutionsPage: React.FC = () => {
                 <TableCell>Original Teacher</TableCell>
                 <TableCell>Substitute Teacher</TableCell>
                 <TableCell>Reason</TableCell>
-                <TableCell align="center">Action</TableCell>
+                <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {substitutions.map((sub) => (
-                <TableRow key={sub.id}>
-                  <TableCell>{sub.periodNo}</TableCell>
-                  <TableCell>
-                    {sub.className} - {sub.sectionName}
-                  </TableCell>
-                  <TableCell>
-                    {sub.subjectCode} - {sub.subjectName}
-                  </TableCell>
-                  <TableCell>{sub.originalTeacherName}</TableCell>
-                  <TableCell>{sub.substituteTeacherName}</TableCell>
-                  <TableCell>{sub.reason}</TableCell>
-                  <TableCell align="center">
-                    <IconButton size="small" onClick={() => handleDeleteSubstitution(sub.id)} color="error">
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+              {substitutions.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center">
+                    <Typography color="text.secondary">
+                      No substitutions for this date. Select an absent teacher above to assign substitutes.
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                substitutions.map((sub) => (
+                  <TableRow key={sub.id}>
+                    <TableCell>{sub.periodNo}</TableCell>
+                    <TableCell>
+                      {sub.className} - {sub.sectionName}
+                    </TableCell>
+                    <TableCell>
+                      {sub.subjectCode} - {sub.subjectName}
+                    </TableCell>
+                    <TableCell>{sub.originalTeacherName}</TableCell>
+                    <TableCell>
+                      <strong>{sub.substituteTeacherName}</strong>
+                    </TableCell>
+                    <TableCell>{sub.reason}</TableCell>
+                    <TableCell align="center">
+                      <IconButton size="small" onClick={() => handleDeleteSubstitution(sub.id)} color="error">
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
       )}
 
-      {/* Assign Substitution Dialog */}
+      {/* Assign Substitute Dialog */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>Assign Substitute Teacher</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
-          {selectedPeriod && (
+          {selectedClass && (
             <Box sx={{ mb: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
               <Typography variant="body2">
-                <strong>Period:</strong> {selectedPeriod.periodNo} ({selectedPeriod.timeSlot})
+                <strong>Class:</strong> {selectedClass.className} - {selectedClass.sectionName}
               </Typography>
               <Typography variant="body2">
-                <strong>Class:</strong> {selectedPeriod.className} - {selectedPeriod.sectionName}
+                <strong>Period:</strong> {selectedClass.periodNo}
               </Typography>
               <Typography variant="body2">
-                <strong>Subject:</strong> {selectedPeriod.subjectCode} - {selectedPeriod.subjectName}
+                <strong>Subject:</strong> {selectedClass.subjectCode} - {selectedClass.subjectName}
               </Typography>
             </Box>
           )}
@@ -420,33 +454,21 @@ const TeacherSubstitutionsPage: React.FC = () => {
                   label="Substitute Teacher"
                   onChange={(e) => setSelectedSubstitute(Number(e.target.value))}
                 >
-                  {suggestions.map((s) => (
-                    <MenuItem key={s.teacherId} value={s.teacherId}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
-                        <span>
-                          {s.teacherName} ({s.department})
-                        </span>
-                        <Chip
-                          label={`${s.currentDayLoad}/${s.maxDayLoad} periods`}
-                          size="small"
-                          color={s.isOverloaded ? 'warning' : 'success'}
-                        />
-                      </Box>
+                  {suggestedTeachers.map((t) => (
+                    <MenuItem key={t.id} value={t.id}>
+                      {t.name} ({t.department}) - {t.currentLoad} periods today
+                      {t.isOverloaded && ' ⚠️ OVERLOADED'}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
 
-              {getSelectedSuggestion()?.warningMessage && (
-                <Alert severity="warning" icon={<WarningIcon />} sx={{ mb: 2 }}>
-                  {getSelectedSuggestion()?.warningMessage}
-                </Alert>
-              )}
-
-              {suggestions.length === 0 && !loadingSuggestions && (
-                <Alert severity="warning" sx={{ mb: 2 }}>
-                  No eligible substitute teachers found. All teachers who teach this subject are either busy or overloaded.
-                </Alert>
+              {selectedSubstitute && (
+                <>
+                  {getSelectedTeacherWarning(
+                    suggestedTeachers.find((t) => t.id === selectedSubstitute)!
+                  )}
+                </>
               )}
 
               <TextField
@@ -455,19 +477,8 @@ const TeacherSubstitutionsPage: React.FC = () => {
                 fullWidth
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="e.g., Sick leave, Personal leave"
-                sx={{ mb: 2 }}
-              />
-
-              <TextField
-                label="Notes (Optional)"
-                size="small"
-                fullWidth
-                multiline
-                rows={2}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Additional notes..."
+                placeholder="e.g., Teacher on leave, Medical emergency"
+                sx={{ mt: 2 }}
               />
             </>
           )}
@@ -475,7 +486,7 @@ const TeacherSubstitutionsPage: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleSaveSubstitution} disabled={!selectedSubstitute}>
-            Assign
+            Assign Substitute
           </Button>
         </DialogActions>
       </Dialog>

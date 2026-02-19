@@ -1,111 +1,161 @@
 # School Management System
 
-A comprehensive, monolithic school management solution designed to streamline administrative processes, enhance communication, and improve educational outcomes.
+A comprehensive school management system built with Spring Boot (backend) and React (frontend).
 
-![School Management System](https://via.placeholder.com/800x400?text=School+Management+System)
+## Project Structure
 
-## Recent Updates
+```
+school-ms/
+├── database/                          # Database scripts
+│   ├── consolidated_school_database.sql   # Main schema (run this first)
+│   ├── dummy_data_seed_india.sql         # Test data with Indian context
+│   ├── clean_dummy_data.sql              # Clean test data
+│   └── fixes/                            # Temporary fix scripts
+│       ├── add-classes-and-subjects.sql
+│       ├── fix-teacher-details-schema.sql
+│       ├── create-teacher-details-from-staff.sql
+│       ├── check-teacher-data.sql
+│       └── fix-database-for-substitutions.sql
+│
+├── documentation/                     # All documentation files
+│   ├── QUICK-START-GUIDE.md
+│   ├── DEPLOYMENT-SUMMARY.md
+│   ├── TIMETABLE-IMPLEMENTATION-COMPLETE.md
+│   ├── TEACHER-SUBSTITUTIONS-IMPLEMENTATION.md
+│   ├── FIX-TIMETABLE-REQUIREMENTS.md
+│   ├── UPDATE-DATABASE-FOR-SUBSTITUTIONS.md
+│   └── ... (50+ other documentation files)
+│
+├── backend/                           # Spring Boot backend
+│   └── school-app/                    # Main application
+│       ├── src/
+│       ├── pom.xml
+│       └── target/
+│
+├── frontend/                          # React frontend
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   └── dist/
+│
+├── DB_Schema/                         # Legacy database schemas
+└── docs/                              # Additional documentation
 
-**June 14, 2025**: Completed package migration and consolidation. All code has been moved from the legacy `com.example.schoolms` namespace to the standardized `com.school` namespace. See [MIGRATION-COMPLETION-SUMMARY.md](MIGRATION-COMPLETION-SUMMARY.md) for details.
-
-## Key Features
-
-- **Single Unified Application** - Complete school management in one integrated platform
-- **Responsive Web Interface** - Fully responsive design that works on desktops, tablets, and mobile devices
-- **Comprehensive Student Management** - Track academic progress, attendance, behavior, and more
-- **Staff & Teacher Administration** - Manage teaching staff, assignments, and performance evaluations
-- **Financial Management** - Handle fee collection, expense tracking, and financial reporting
-- **Communication Tools** - Built-in messaging between administrators, teachers, parents, and students
-- **Reporting & Analytics** - Generate insights with customizable reports and dashboards
-- **Admissions Management** - Streamline the entire admission process from application to enrollment
-
-## System Architecture
-
-The School Management System is designed as a modern monolithic application:
-
-- **Frontend**: React with Material UI for a responsive, intuitive user experience
-- **Backend**: Spring Boot with a comprehensive REST API
-- **Database**: PostgreSQL for reliable data storage
-- **Security**: JWT-based authentication and role-based access control
-- **Monitoring**: Built-in health checks, metrics collection, and performance monitoring
+```
 
 ## Quick Start
 
-### Using Docker (Recommended)
+### 1. Database Setup
 
-```bash
-# Clone the repository
-git clone https://github.com/your-organization/school-management-system.git
-cd school-management-system
+```powershell
+# Create database
+createdb -U postgres -p 5435 school_db
 
-# Start the application with Docker Compose
-docker-compose up -d
+# Run main schema
+psql -U postgres -d school_db -p 5435 -f database/consolidated_school_database.sql
 
-# Access the application at http://localhost:8080
-# Default login: admin / admin
+# Load test data (optional)
+psql -U postgres -d school_db -p 5435 -f database/dummy_data_seed_india.sql
 ```
 
-### Manual Installation
+### 2. Backend Setup
 
-See our [Deployment Guide](DEPLOYMENT.md) for detailed installation instructions.
+```powershell
+cd backend/school-app
+mvn clean package -DskipTests
+java -jar target/school-app-0.0.1-SNAPSHOT.jar
+```
 
-## Technical Documentation
+### 3. Frontend Setup
 
-- [API Documentation](http://localhost:8080/swagger-ui.html) (available after startup)
-- [Database Schema](backend/schema.sql)
-- [Deployment Guide](DEPLOYMENT.md)
-- [Qualifier Standardization Guide](backend/QUALIFIER-STANDARDIZATION.md)
-- [Package Scanning Fix](PACKAGE-SCANNING-FIX.md)
-- [Package Migration Plan](PACKAGE-MIGRATION-PLAN.md)
+```powershell
+cd frontend
+npm install
+npm run build
 
-## Security Features
+# Copy to backend for deployment
+robocopy dist ..\backend\school-app\src\main\resources\static /E /PURGE
+```
 
-- Role-based access control (Admin, Teacher, Student, Parent)
-- JWT authentication with secure token management
-- Password encryption using BCrypt
-- Input validation and sanitization
-- Protection against common web vulnerabilities (CSRF, XSS)
-- Comprehensive audit logging
+### 4. Access Application
 
-## Performance Optimizations
+- **URL**: http://localhost:8080
+- **Admin Username**: admin
+- **Admin Password**: password
 
-- Efficient data caching using Caffeine
-- Database connection pooling
-- Lazy loading of entities
-- Optimized front-end asset delivery
-- Request tracing and performance monitoring
+## Database Configuration
 
-## Screenshots
+Default connection settings:
+- **Host**: localhost
+- **Port**: 5435
+- **Database**: school_db
+- **Username**: postgres
+- **Password**: admin
 
-![Dashboard](https://via.placeholder.com/400x200?text=Dashboard)
-![Student Management](https://via.placeholder.com/400x200?text=Student+Management)
-![Attendance Tracking](https://via.placeholder.com/400x200?text=Attendance+Tracking)
+Update in `backend/school-app/src/main/resources/application.properties` if needed.
 
-## Target Audience
+## Key Features
 
-- **K-12 Schools**: Primary and secondary educational institutions
-- **Colleges & Universities**: Higher education institutions
-- **Training Centers**: Professional development and training organizations
-- **Educational Administrators**: School principals, directors, and management
+- **Staff Management**: Manage teachers, administrators, and other staff
+- **Student Management**: Student records, admissions, attendance
+- **Timetable Management**: 
+  - Requirements configuration
+  - Class timetables
+  - Teacher substitutions (with smart workload-based suggestions)
+- **Attendance Tracking**: Staff and student attendance
+- **Fee Management**: Fee structures, payments, receipts
+- **Examinations**: Exam configuration, marks entry, report cards
+- **Library Management**: Book inventory and issue tracking
 
-## Licensing
+## Recent Updates
 
-This software is available under a commercial license. Contact us for pricing information.
+### Timetable Features
+- ✅ Timetable Requirements (configure weekly periods per subject)
+- ✅ Teacher Substitutions (smart suggestions based on workload)
+- ✅ Classes and Subjects seed data added
 
-## Support & Maintenance
+### Database Fixes
+- ✅ Added `classes` table seed data (Class 1-12)
+- ✅ Added `subjects` table seed data (15 subjects)
+- ✅ Fixed `teacher_details` schema for substitutions
+- ✅ Added `timetable_substitutions` table
 
-We offer comprehensive support and maintenance packages:
+## Troubleshooting
 
-- 24/7 technical support
-- Regular updates and security patches
-- Custom feature development
-- Data migration services
-- Staff training and onboarding
+### Empty Class Dropdown in Timetable Requirements
+Run: `psql -U postgres -d school_db -p 5435 -f database/fixes/add-classes-and-subjects.sql`
 
-## Contact Information
+### No Teachers in Substitutions Dropdown
+Run these in order:
+1. `psql -U postgres -d school_db -p 5435 -f database/fixes/fix-teacher-details-schema.sql`
+2. `psql -U postgres -d school_db -p 5435 -f database/fixes/create-teacher-details-from-staff.sql`
 
-For sales inquiries, demonstrations, or technical support:
+### Check Teacher Data
+Run: `psql -U postgres -d school_db -p 5435 -f database/fixes/check-teacher-data.sql`
 
-- Email: sales@school-ms.com
-- Phone: +1 (555) 123-4567
-- Website: https://www.school-ms.com
+## Documentation
+
+All documentation is in the `documentation/` folder:
+
+- **Quick Start**: `QUICK-START-GUIDE.md`
+- **Deployment**: `DEPLOYMENT-SUMMARY.md`, `AWS-DEPLOYMENT-GUIDE.md`
+- **Features**: 
+  - `TIMETABLE-IMPLEMENTATION-COMPLETE.md`
+  - `TEACHER-SUBSTITUTIONS-IMPLEMENTATION.md`
+  - `STAFF-ATTENDANCE-IMPLEMENTATION.md`
+- **Troubleshooting**: `FIX-TIMETABLE-REQUIREMENTS.md`, `UPDATE-DATABASE-FOR-SUBSTITUTIONS.md`
+
+## Technology Stack
+
+- **Backend**: Spring Boot 3.x, Java 17, PostgreSQL
+- **Frontend**: React 18, TypeScript, Material-UI
+- **Build Tools**: Maven, Vite
+- **Database**: PostgreSQL 14+
+
+## License
+
+[Your License Here]
+
+## Support
+
+For issues and questions, refer to the documentation in the `documentation/` folder.

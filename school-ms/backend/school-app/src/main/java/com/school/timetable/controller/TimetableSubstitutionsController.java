@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,211 +28,194 @@ public class TimetableSubstitutionsController {
             Integer periodNo,
             Long originalTeacherId,
             Long substituteTeacherId,
-            String reason,
-            String notes) {
+            String reason) {
     }
 
-    public record TeacherSuggestion(
-            Long teacherId,
-            String teacherName,
+    public record SuggestedTeacher(
+            Long id,
+            String name,
             String department,
-            Integer currentDayLoad,
-            Integer maxDayLoad,
-            Boolean isOverloaded,
+            Integer currentLoad,
+            Integer maxLoad,
+            boolean isOverloaded,
             String warningMessage) {
     }
 
-    public record AffectedPeriod(
-            Long classId,
-            String className,
-            Long sectionId,
-            String sectionName,
-            Integer periodNo,
-            Long subjectId,
-            String subjectCode,
-            String subjectName,
-            String timeSlot) {
-    }
-
-    // Get all substitutions for a specific date
+    /**
+     * Get all substitutions for a specific date
+     */
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL','STAFF')")
     public ResponseEntity<List<Map<String, Object>>> getSubstitutions(@RequestParam LocalDate date) {
         List<Map<String, Object>> substitutions = jdbc.queryForList(
                 "SELECT ts.id, ts.date, ts.class_id as \"classId\", ts.section_id as \"sectionId\", " +
-                        "ts.period_no as \"periodNo\", ts.reason, ts.notes, ts.approved_by as \"approvedBy\", " +
+                        "ts.period_no as \"periodNo\", ts.original_teacher_details_id as \"originalTeacherId\", " +
+                        "ts.substitute_teacher_details_id as \"substituteTeacherId\", ts.reason, " +
+                        "ts.approved_by as \"approvedBy\", " +
                         "c.name as \"className\", s.section_name as \"sectionName\", " +
                         "subj.code as \"subjectCode\", subj.name as \"subjectName\", " +
-                        "orig_td.id as \"originalTeacherId\", " +
-                        "COALESCE(orig_ss.first_name || ' ' || orig_ss.last_name, 'Unknown') as \"originalTeacherName\", " +
-                        "sub_td.id as \"substituteTeacherId\", " +
-                        "COALESCE(sub_ss.first_name || ' ' || sub_ss.last_name, 'Unknown') as \"substituteTeacherName\" " +
+                        "COALESCE(orig_staff.first_name || ' ' || orig_staff.last_name, 'Unknown') as \"originalTeacherName\", "
+                        +
+                        "COALESCE(sub_staff.first_name || ' ' || sub_staff.last_name, 'Unknown') as \"substituteTeacherName\" "
+                        +
                         "FROM timetable_substitutions ts " +
                         "JOIN classes c ON c.id = ts.class_id " +
-                        "LEFT JOIN sections sec ON sec.id = ts.section_id " +
+                        "LEFT JOIN sections s ON s.id = ts.section_id " +
+                        "LEFT JOIN timetable_slots slot ON slot.class_id = ts.class_id AND slot.section_id = ts.section_id AND slot.period_no = ts.period_no "
+                        +
+                        "LEFT JOIN subjects subj ON subj.id = slot.subject_id " +
                         "LEFT JOIN teacher_details orig_td ON orig_td.id = ts.original_teacher_details_id " +
-                        "LEFT JOIN school_staff orig_ss ON orig_ss.teacher_details_id = orig_td.id " +
+                        "LEFT JOIN school_staff orig_staff ON orig_staff.teacher_details_id = orig_td.id " +
                         "LEFT JOIN teacher_details sub_td ON sub_td.id = ts.substitute_teacher_details_id " +
-                        "LEFT JOIN school_staff sub_ss ON sub_ss.teacher_details_id = sub_td.id " +
-                        "LEFT JOIN timetable_slots tslot ON tslot.class_id = ts.class_id " +
-                        "   AND tslot.section_id = ts.section_id AND tslot.period_no = ts.period_no " +
-                        "LEFT JOIN subjects subj ON subj.id = tslot.subject_id " +
+                        "LEFT JOIN school_staff sub_staff ON sub_staff.teacher_details_id = sub_td.id " +
                         "WHERE ts.date = ? " +
-                        "ORDER BY c.name, sec.section_name, ts.period_no",
+                        "ORDER BY ts.class_id, ts.period_no",
                 date);
 
         return ResponseEntity.ok(substitutions);
     }
 
-    // Get affected periods for an absent teacher on a specific date
-    @GetMapping("/affected-periods")
+    /**
+     * Get classes that need substitution for a specific teacher on a date
+     */
+    @GetMapping("/needed")
     @PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL','STAFF')")
-    public ResponseEntity<List<AffectedPeriod>> getAffectedPeriods(
+    public ResponseEntity<List<Map<String, Object>>> getClassesNeedingSubstitution(
             @RequestParam Long teacherId,
             @RequestParam LocalDate date) {
 
         // Get day of week (1=Monday, 7=Sunday)
         int dayOfWeek = date.getDayOfWeek().getValue();
 
-        List<Map<String, Object>> periods = jdbc.queryForList(
-                "SELECT ts.class_id as \"classId\", c.name as \"className\", " +
-                        "ts.section_id as \"sectionId\", sec.section_name as \"sectionName\", " +
-                        "ts.period_no as \"periodNo\", ts.subject_id as \"subjectId\", " +
-                        "s.code as \"subjectCode\", s.name as \"subjectName\" " +
-                        "FROM timetable_slots ts " +
-                        "JOIN classes c ON c.id = ts.class_id " +
-                        "LEFT JOIN sections sec ON sec.id = ts.section_id " +
-                        "LEFT JOIN subjects s ON s.id = ts.subject_id " +
-                        "WHERE ts.teacher_details_id = ? AND ts.day_of_week = ? " +
-                        "ORDER BY ts.period_no",
-                teacherId, dayOfWeek);
+        // Find all classes this teacher is scheduled to teach on this day
+        List<Map<String, Object>> classes = jdbc.queryForList(
+                "SELECT slot.id as \"slotId\", slot.class_id as \"classId\", slot.section_id as \"sectionId\", " +
+                        "slot.period_no as \"periodNo\", slot.subject_id as \"subjectId\", " +
+                        "c.name as \"className\", s.section_name as \"sectionName\", " +
+                        "subj.code as \"subjectCode\", subj.name as \"subjectName\", " +
+                        "CASE WHEN ts.id IS NOT NULL THEN true ELSE false END as \"hasSubstitute\" " +
+                        "FROM timetable_slots slot " +
+                        "JOIN classes c ON c.id = slot.class_id " +
+                        "LEFT JOIN sections s ON s.id = slot.section_id " +
+                        "LEFT JOIN subjects subj ON subj.id = slot.subject_id " +
+                        "LEFT JOIN timetable_substitutions ts ON ts.date = ? AND ts.class_id = slot.class_id AND ts.section_id = slot.section_id AND ts.period_no = slot.period_no "
+                        +
+                        "WHERE slot.teacher_details_id = ? AND slot.day_of_week = ? " +
+                        "ORDER BY slot.period_no",
+                date, teacherId, dayOfWeek);
 
-        List<AffectedPeriod> affectedPeriods = periods.stream()
-                .map(p -> new AffectedPeriod(
-                        ((Number) p.get("classId")).longValue(),
-                        (String) p.get("className"),
-                        p.get("sectionId") != null ? ((Number) p.get("sectionId")).longValue() : null,
-                        (String) p.get("sectionName"),
-                        ((Number) p.get("periodNo")).intValue(),
-                        p.get("subjectId") != null ? ((Number) p.get("subjectId")).longValue() : null,
-                        (String) p.get("subjectCode"),
-                        (String) p.get("subjectName"),
-                        getTimeSlot(((Number) p.get("periodNo")).intValue())))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(affectedPeriods);
+        return ResponseEntity.ok(classes);
     }
 
-    // Get suggested substitute teachers for a specific period
-    @GetMapping("/suggest-teachers")
+    /**
+     * Suggest substitute teachers for a specific class/period
+     * Prioritizes teachers with lighter workload but shows all available teachers
+     */
+    @GetMapping("/suggest")
     @PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL','STAFF')")
-    public ResponseEntity<List<TeacherSuggestion>> suggestTeachers(
+    public ResponseEntity<List<SuggestedTeacher>> suggestSubstitutes(
             @RequestParam Long classId,
             @RequestParam String section,
             @RequestParam Integer periodNo,
-            @RequestParam Long subjectId,
-            @RequestParam LocalDate date) {
+            @RequestParam LocalDate date,
+            @RequestParam(required = false) Long subjectId) {
 
-        // Get day of week
         int dayOfWeek = date.getDayOfWeek().getValue();
-
-        // Resolve section ID
         Long sectionId = resolveSectionIdIfNeeded(classId, section);
-        String sectionLetter = resolveSectionNameIfNeeded(section);
 
-        // Get max periods per teacher per day from settings
+        // Get max periods per teacher per day from settings (default 5)
         Integer maxPeriodsPerDay = jdbc.queryForObject(
                 "SELECT COALESCE(max_periods_per_teacher_per_day, 5) FROM timetable_settings ORDER BY id LIMIT 1",
                 Integer.class);
         if (maxPeriodsPerDay == null)
             maxPeriodsPerDay = 5;
 
-        // Find eligible teachers (teach this subject)
-        List<Map<String, Object>> eligibleTeachers = jdbc.queryForList(
-                "SELECT DISTINCT td.id as \"teacherId\", " +
-                        "COALESCE(ss.first_name || ' ' || ss.last_name, 'Teacher #' || td.id) as \"teacherName\", " +
-                        "ss.department " +
-                        "FROM teacher_subject_map tsm " +
-                        "JOIN teacher_details td ON td.id = tsm.teacher_details_id " +
-                        "LEFT JOIN school_staff ss ON ss.teacher_details_id = td.id " +
-                        "WHERE tsm.subject_id = ? " +
-                        "AND ss.is_active = TRUE",
-                subjectId);
+        // Find all teachers who:
+        // 1. Teach the subject (if specified)
+        // 2. Are NOT teaching another class at this time
+        // 3. Calculate their current load for this day
 
-        List<TeacherSuggestion> suggestions = new ArrayList<>();
+        String sql;
+        Object[] params;
 
-        for (Map<String, Object> teacher : eligibleTeachers) {
-            Long teacherId = ((Number) teacher.get("teacherId")).longValue();
-            String teacherName = (String) teacher.get("teacherName");
-            String department = (String) teacher.get("department");
-
-            // Check if teacher is already teaching at this time
-            Integer conflictCount = jdbc.queryForObject(
-                    "SELECT COUNT(*) FROM timetable_slots " +
-                            "WHERE teacher_details_id = ? AND day_of_week = ? AND period_no = ?",
-                    Integer.class, teacherId, dayOfWeek, periodNo);
-
-            if (conflictCount != null && conflictCount > 0) {
-                continue; // Skip teachers who are already teaching
-            }
-
-            // Check if teacher already has a substitution at this time on this date
-            Integer substCount = jdbc.queryForObject(
-                    "SELECT COUNT(*) FROM timetable_substitutions " +
-                            "WHERE substitute_teacher_details_id = ? AND date = ? AND period_no = ?",
-                    Integer.class, teacherId, date, periodNo);
-
-            if (substCount != null && substCount > 0) {
-                continue; // Skip teachers who already have a substitution
-            }
-
-            // Calculate current day load (regular + substitutions)
-            Integer regularLoad = jdbc.queryForObject(
-                    "SELECT COUNT(*) FROM timetable_slots " +
-                            "WHERE teacher_details_id = ? AND day_of_week = ?",
-                    Integer.class, teacherId, dayOfWeek);
-
-            Integer substLoad = jdbc.queryForObject(
-                    "SELECT COUNT(*) FROM timetable_substitutions " +
-                            "WHERE substitute_teacher_details_id = ? AND date = ?",
-                    Integer.class, teacherId, date);
-
-            int currentLoad = (regularLoad != null ? regularLoad : 0) + (substLoad != null ? substLoad : 0);
-            boolean isOverloaded = currentLoad >= maxPeriodsPerDay;
-
-            String warningMessage = null;
-            if (isOverloaded) {
-                warningMessage = String.format(
-                        "Warning: This teacher already has %d periods today (max recommended: %d). Consider assigning to a teacher with lighter workload.",
-                        currentLoad, maxPeriodsPerDay);
-            }
-
-            suggestions.add(new TeacherSuggestion(
-                    teacherId,
-                    teacherName,
-                    department,
-                    currentLoad,
-                    maxPeriodsPerDay,
-                    isOverloaded,
-                    warningMessage));
+        if (subjectId != null) {
+            // Filter by subject
+            sql = "SELECT DISTINCT td.id, " +
+                    "COALESCE(ss.first_name || ' ' || ss.last_name, 'Teacher #' || td.id) as name, " +
+                    "ss.department, " +
+                    "(SELECT COUNT(*) FROM timetable_slots WHERE teacher_details_id = td.id AND day_of_week = ?) as current_load "
+                    +
+                    "FROM teacher_details td " +
+                    "JOIN teacher_subject_map tsm ON tsm.teacher_details_id = td.id " +
+                    "LEFT JOIN school_staff ss ON ss.teacher_details_id = td.id " +
+                    "WHERE tsm.subject_id = ? " +
+                    "AND td.id NOT IN ( " +
+                    "  SELECT teacher_details_id FROM timetable_slots " +
+                    "  WHERE day_of_week = ? AND period_no = ? AND teacher_details_id IS NOT NULL " +
+                    ") " +
+                    "ORDER BY current_load, name";
+            params = new Object[] { dayOfWeek, subjectId, dayOfWeek, periodNo };
+        } else {
+            // All available teachers
+            sql = "SELECT DISTINCT td.id, " +
+                    "COALESCE(ss.first_name || ' ' || ss.last_name, 'Teacher #' || td.id) as name, " +
+                    "ss.department, " +
+                    "(SELECT COUNT(*) FROM timetable_slots WHERE teacher_details_id = td.id AND day_of_week = ?) as current_load "
+                    +
+                    "FROM teacher_details td " +
+                    "LEFT JOIN school_staff ss ON ss.teacher_details_id = td.id " +
+                    "WHERE td.id NOT IN ( " +
+                    "  SELECT teacher_details_id FROM timetable_slots " +
+                    "  WHERE day_of_week = ? AND period_no = ? AND teacher_details_id IS NOT NULL " +
+                    ") " +
+                    "ORDER BY current_load, name";
+            params = new Object[] { dayOfWeek, dayOfWeek, periodNo };
         }
 
-        // Sort by current load (ascending) - lighter workload first
-        suggestions.sort(Comparator.comparingInt(TeacherSuggestion::currentDayLoad));
+        List<Map<String, Object>> teachers = jdbc.queryForList(sql, params);
+
+        // Convert to SuggestedTeacher with workload warnings
+        final int maxLoad = maxPeriodsPerDay;
+        List<SuggestedTeacher> suggestions = teachers.stream()
+                .map(t -> {
+                    Long id = ((Number) t.get("id")).longValue();
+                    String name = (String) t.get("name");
+                    String dept = (String) t.get("department");
+                    Integer currentLoad = ((Number) t.get("current_load")).intValue();
+                    boolean isOverloaded = currentLoad >= maxLoad;
+
+                    String warning = null;
+                    if (isOverloaded) {
+                        warning = String.format(
+                                "⚠️ This teacher already has %d periods today (max recommended: %d). Consider assigning to a teacher with lighter workload.",
+                                currentLoad, maxLoad);
+                    } else if (currentLoad >= maxLoad - 1) {
+                        warning = String.format(
+                                "ℹ️ This teacher will have %d periods today after assignment (max recommended: %d).",
+                                currentLoad + 1, maxLoad);
+                    }
+
+                    return new SuggestedTeacher(id, name, dept, currentLoad, maxLoad, isOverloaded, warning);
+                })
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(suggestions);
     }
 
-    // Create a substitution
+    /**
+     * Create a substitution
+     */
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL')")
-    public ResponseEntity<Map<String, Object>> createSubstitution(@RequestBody SubstitutionRequest req) {
+    public ResponseEntity<Map<String, Object>> createSubstitution(
+            @RequestBody SubstitutionRequest req,
+            @RequestHeader(value = "X-User-Name", required = false) String userName) {
+
         if (req.date() == null || req.classId() == null || req.section() == null ||
                 req.periodNo() == null || req.substituteTeacherId() == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        // Resolve section ID
         Long sectionId = resolveSectionIdIfNeeded(req.classId(), req.section());
         if (sectionId == null) {
             return ResponseEntity.badRequest().build();
@@ -241,28 +223,36 @@ public class TimetableSubstitutionsController {
 
         // Check if substitution already exists
         Integer count = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM timetable_substitutions " +
-                        "WHERE date = ? AND class_id = ? AND section_id = ? AND period_no = ?",
+                "SELECT COUNT(*) FROM timetable_substitutions WHERE date = ? AND class_id = ? AND section_id = ? AND period_no = ?",
                 Integer.class, req.date(), req.classId(), sectionId, req.periodNo());
 
         if (count != null && count > 0) {
             return ResponseEntity.status(409).build(); // Conflict
         }
 
+        // Check if substitute teacher is available (not teaching another class at this time)
+        int dayOfWeek = req.date().getDayOfWeek().getValue();
+        Integer conflicts = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM timetable_slots WHERE teacher_details_id = ? AND day_of_week = ? AND period_no = ?",
+                Integer.class, req.substituteTeacherId(), dayOfWeek, req.periodNo());
+
+        if (conflicts != null && conflicts > 0) {
+            return ResponseEntity.status(422).build(); // Unprocessable - teacher has conflict
+        }
+
         // Insert substitution
+        String approvedBy = userName != null ? userName : "admin";
         jdbc.update(
-                "INSERT INTO timetable_substitutions " +
-                        "(date, class_id, section_id, period_no, original_teacher_details_id, " +
-                        "substitute_teacher_details_id, reason, notes, approved_by) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                req.date(), req.classId(), sectionId, req.periodNo(),
-                req.originalTeacherId(), req.substituteTeacherId(),
-                req.reason(), req.notes(), "ADMIN");
+                "INSERT INTO timetable_substitutions (date, class_id, section_id, period_no, original_teacher_details_id, substitute_teacher_details_id, reason, approved_by) "
+                        +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                req.date(), req.classId(), sectionId, req.periodNo(), req.originalTeacherId(),
+                req.substituteTeacherId(), req.reason(), approvedBy);
 
         // Fetch the created substitution
         Map<String, Object> created = jdbc.queryForMap(
                 "SELECT ts.id, ts.date, ts.class_id as \"classId\", ts.section_id as \"sectionId\", " +
-                        "ts.period_no as \"periodNo\", ts.reason, ts.notes " +
+                        "ts.period_no as \"periodNo\", ts.reason, ts.approved_by as \"approvedBy\" " +
                         "FROM timetable_substitutions ts " +
                         "WHERE ts.date = ? AND ts.class_id = ? AND ts.section_id = ? AND ts.period_no = ?",
                 req.date(), req.classId(), sectionId, req.periodNo());
@@ -270,7 +260,9 @@ public class TimetableSubstitutionsController {
         return ResponseEntity.ok(created);
     }
 
-    // Delete a substitution
+    /**
+     * Delete a substitution
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','PRINCIPAL')")
     public ResponseEntity<Void> deleteSubstitution(@PathVariable Long id) {
@@ -283,7 +275,6 @@ public class TimetableSubstitutionsController {
         return ResponseEntity.noContent().build();
     }
 
-    // Helper methods
     private Long resolveSectionIdIfNeeded(Long classId, String section) {
         try {
             return Long.parseLong(section);
@@ -307,21 +298,6 @@ public class TimetableSubstitutionsController {
         }
     }
 
-    private String resolveSectionNameIfNeeded(String sectionInput) {
-        if (sectionInput == null || sectionInput.isBlank())
-            return sectionInput;
-        try {
-            long sectionId = Long.parseLong(sectionInput);
-            String name = jdbc.query(
-                    "SELECT section_name FROM sections WHERE id = ?",
-                    rs -> rs.next() ? rs.getString(1) : null,
-                    sectionId);
-            return name != null ? name : sectionInput;
-        } catch (NumberFormatException ignore) {
-            return sectionInput;
-        }
-    }
-
     private Integer extractGradeNumber(String className) {
         if (className == null)
             return null;
@@ -332,23 +308,5 @@ public class TimetableSubstitutionsController {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    private String getTimeSlot(int periodNo) {
-        // Assuming 8:30 AM start, 40 min periods, 10 min breaks
-        int startHour = 8;
-        int startMin = 30;
-        int totalMinutes = startMin + ((periodNo - 1) * 50); // 40 min period + 10 min break
-
-        int hour = startHour + (totalMinutes / 60);
-        int min = totalMinutes % 60;
-        int endHour = hour;
-        int endMin = min + 40;
-        if (endMin >= 60) {
-            endHour++;
-            endMin -= 60;
-        }
-
-        return String.format("%02d:%02d - %02d:%02d", hour, min, endHour, endMin);
     }
 }
